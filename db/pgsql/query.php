@@ -168,8 +168,9 @@ class numbers_backend_db_pgsql_query extends numbers_backend_db_class_base imple
 	 * @return array
 	 */
 	public function begin() {
-		if (!isset($this->commit_status))
+		if (!isset($this->commit_status)) {
 			$this->commit_status = 0;
+		}
 		if ($this->commit_status == 0) {
 			$this->commit_status++;
 			return $this->query('BEGIN');
