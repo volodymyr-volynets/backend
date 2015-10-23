@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_db_pgsql_query extends numbers_backend_db_class_base implements numbers_backend_db_interface_base {
+class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implements numbers_backend_db_interface_base {
 
 	/**
 	 * Constructing database object
@@ -90,6 +90,7 @@ class numbers_backend_db_pgsql_query extends numbers_backend_db_class_base imple
 	 */
 	public function query($sql, $key = null, $options = []) {
 		$result = [
+			'success' => false,
 			'sql' => & $sql,
 			'error' => [],
 			'errno' => 0,
@@ -101,7 +102,8 @@ class numbers_backend_db_pgsql_query extends numbers_backend_db_class_base imple
 		];
 
 		// cache id
-		$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . crypt::hash($sql);
+		$crypt_object = new crypt();
+		$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . $crypt_object->hash($sql);
 
 		// if we cache this query
 		if (!empty($options['cache'])) {
@@ -153,6 +155,7 @@ class numbers_backend_db_pgsql_query extends numbers_backend_db_class_base imple
 				}
 			}
 			pg_free_result($resource);
+			$result['success'] = true;
 		}
 
 		// caching if no error
@@ -319,10 +322,11 @@ class numbers_backend_db_pgsql_query extends numbers_backend_db_class_base imple
 	 * @param boolean $reset
 	 * @return array
 	 */
-	public static function pg_parse_array($arraystring, $reset = true) {
+	public function pg_parse_array($arraystring, $reset = true) {
 		static $i = 0;
-		if ($reset)
+		if ($reset) {
 			$i = 0;
+		}
 		$matches = [];
 		$indexer = 0; // by default sql arrays start at 1
 		// handle [0,2]= cases
@@ -341,7 +345,7 @@ class numbers_backend_db_pgsql_query extends numbers_backend_db_class_base imple
 		while ($i < $length) {
 			switch ($arraystring[$i]) {
 				case '{':
-					$sub = self::pg_parse_array($arraystring, false);
+					$sub = $this->pg_parse_array($arraystring, false);
 					if (!empty($sub)) {
 						$work[$indexer++] = $sub;
 					}
