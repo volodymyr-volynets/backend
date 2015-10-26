@@ -89,7 +89,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 			case 'time':
 				$result['column'] = ['type' => 'time without time zone', 'null' => $column['null'], 'default' => $column['default']];
 				break;
-			case 'timestamp':
+			case 'datetime':
 				$result['column'] = ['type' => 'timestamp without time zone', 'null' => $column['null'], 'default' => $column['default']];
 				break;
 			case 'numbers_code':
@@ -144,7 +144,16 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 										if ($default == 'NULL') {
 											$default = null;
 										} else if (is_string($default)) {
-											if (strpos($default, '::') !== false) {
+											if (strpos($default, 'nextval') === 0 && in_array($type, ['smallint', 'integer', 'bigint'])) {
+												if ($type == 'smallint') {
+													$type = 'smallserial';
+												} else if ($type == 'integer') {
+													$type = 'serial';
+												} else if ($type == 'bigint') {
+													$type = 'bigserial';
+												}
+												$default = null;
+											} else if (strpos($default, '::') !== false) {
 												$temp3 = explode('::', $default);
 												$default = $temp3[0];
 											}

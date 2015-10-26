@@ -99,7 +99,11 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			'rows' => [],
 			'key' => & $key,
 			'structure' => [],
+			'time' => null
 		];
+
+		// start time
+		$result['time'] = debug::get_microtime();
 
 		// cache id
 		$crypt_object = new crypt();
@@ -162,6 +166,15 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		if (!empty($options['cache']) && empty($result['error'])) {
 			cache::set($cache_id, $result, null, ['tags' => @$options['cache_tags']], @$options['cache_link']);
 		}
+
+		// end time
+		$result['time'] = debug::get_microtime() - $result['time'];
+
+		// if we are debugging
+		if (debug::$debug) {
+			debug::$data['sql'][] = $result;
+		}
+
 		return $result;
 	}
 
@@ -221,28 +234,72 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	 * @param array $rows
 	 * @return array
 	 */
-	public function insert($table, $rows) {
-		$result = [
-			'success' => false,
-			'error' => []
-		];
-		do {
-			$temp = current($rows);
-			$headers = array_keys($temp);
-			$sql = "INSERT INTO $table (" . $this->prepare_expression($headers) . ") VALUES ";
-			$sql_values = [];
-			foreach ($rows as $k => $v) {
-				$sql_values[] = "(" . $this->prepare_values($v, $link) . ")";
-			}
-			$sql.= implode(', ', $sql_values);
-			$query_result = $this->query($sql);
-			if ($query_result['error']) {
-				array_merge3($result['error'], $query_result['error']);
-			} else {
-				$result['success'] = true;
-			}
-		} while (0);
-		return $result;
+	public function insert($table, $rows, $keys = null, $options = []) {
+		$temp = current($rows);
+		$headers = $this->prepare_keys(array_keys($temp));
+		$sql = "INSERT INTO $table (" . $this->prepare_expression($headers) . ") VALUES ";
+		$sql_values = [];
+		foreach ($rows as $k => $v) {
+			$sql_values[] = "(" . $this->prepare_values($v) . ")";
+		}
+		$sql.= implode(', ', $sql_values);
+		// if we need to return updated/inserted rows
+		if (!empty($options['returning'])) {
+			$sql.= ' RETURNING *';
+		}
+		return $this->query($sql, $this->prepare_keys($keys));
+	}
+
+	/**
+	 * Update table
+	 *
+	 * @param string $table
+	 * @param array $data
+	 * @param mixed $keys
+	 * @param array $options
+	 * @return array
+	 */
+	public function update($table, $data, $keys, $options = []) {
+		// fixing keys
+		$keys = array_fix($keys);
+		// where clause
+		$where = [];
+		foreach ($keys as $key) {
+			$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
+			unset($data[$key]);
+		}
+		// assembling query
+		$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND');
+		if (!empty($options['returning'])) {
+			$sql.= ' RETURNING *';
+		}
+		return $this->query($sql, $this->prepare_keys($keys));
+	}
+
+	/**
+	 * Delete rows from table
+	 *
+	 * @param string $table
+	 * @param array $data
+	 * @param mixed $keys
+	 * @param array $options
+	 * @return array
+	 */
+	public function delete($table, $data, $keys, $options = []) {
+		// fixing keys
+		$keys = array_fix($keys);
+		// where clause
+		$where = [];
+		foreach ($keys as $key) {
+			$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
+			unset($data[$key]);
+		}
+		// assembling query
+		$sql = "DELETE FROM $table WHERE " . $this->prepare_condition($where, 'AND');
+		if (!empty($options['returning'])) {
+			$sql.= ' RETURNING *';
+		}
+		return $this->query($sql, $this->prepare_keys($keys));
 	}
 
 	/**
@@ -251,22 +308,13 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	 * @param string $table
 	 * @param array $data
 	 * @param mixed $keys
+	 * @param array $options
 	 * @return boolean
 	 */
-	public function save($table, $data, $keys) {
-		$result = [
-			'success' => false,
-			'error' => [],
-			'data' => [],
-			'inserted' => false
-		];
-
+	public function save($table, $data, $keys, $options = []) {
 		do {
-
-			// converting string to an array
-			if (!is_array($keys)) {
-				$keys = [$keys];
-			}
+			// fixing keys
+			$keys = array_fix($keys);
 
 			// where clause
 			$where = [];
@@ -275,42 +323,45 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 				if (!empty($data[$key])) {
 					$empty = false;
 				}
-				$where[$key] = isset($data[$key]) ? $data[$key] : null;
+				$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
 			}
 
 			// if keys are empty we must insert
 			$row_found = false;
 			if (!$empty) {
-				$select_result = $this->query("SELECT * FROM $table WHERE " . $this->prepare_condition($where, 'AND'));
-				if ($select_result['error']) {
-					$result['error'] = $select_result['error'];
+				$result = $this->query("SELECT * FROM $table WHERE " . $this->prepare_condition($where, 'AND'));
+				if (!$result['success']) {
 					break;
-				} else if ($select_result['num_rows']) {
+				} else if ($result['num_rows']) {
 					$row_found = true;
 				}
+			}
+
+			// if we need to return updated/inserted rows
+			$sql_addon = '';
+			if (!empty($options['returning'])) {
+				$sql_addon = ' RETURNING *';
 			}
 
 			// if row found we update
 			if ($row_found) {
 				$flag_inserted = false;
-				$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND') . ' RETURNING *';
+				$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND') . $sql_addon;
 			} else {
 				$flag_inserted = true;
 				// we need to unset key fields
-				if ($empty)
-					foreach ($keys as $key)
+				if ($empty) {
+					foreach ($keys as $key) {
 						unset($data[$key]);
+					}
+				}
 				// we insert
-				$sql = "INSERT INTO $table (" . $this->prepare_expression(array_keys($data)) . ") VALUES (" . $this->prepare_values($data) . ") RETURNING *";
+				$sql = "INSERT INTO $table (" . $this->prepare_expression(array_keys($data)) . ') VALUES (' . $this->prepare_values($data) . ')' . $sql_addon;
 			}
-			$result_sql = $this->query($sql);
-			if ($result_sql['error']) {
-				$result['error'] = $result_sql['error'];
-				break;
+			$result = $this->query($sql, $this->prepare_keys($keys));
+			if ($result['success']) {
+				$result['inserted'] = $flag_inserted;
 			}
-			$result['data'] = $result_sql['rows'][0];
-			$result['inserted'] = $flag_inserted;
-			$result['success'] = true;
 		} while (0);
 		return $result;
 	}

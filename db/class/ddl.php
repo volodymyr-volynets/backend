@@ -52,48 +52,15 @@ class numbers_backend_db_class_ddl {
 		do {
 			// table model
 			$model = new $model_class();
-
-			// processing db_link
-			$db_link = $model->db_link;
-			if (empty($db_link)) {
-				// if we have an override
-				if (!empty($model->db_link_flag)) {
-					$db_link = application::get(explode('.', $model->db_link_flag));
-				}
-				// we try to grab it from default link
-				if (empty($db_link)) {
-					$db_link = application::get(['flag', 'global', 'db', 'default_link']);
-					if (empty($db_link)) {
-						$result['error'][] = 'You must specify database link and/or class!';
-						break;
-					}
-				}
-			}
-
-			// get object from factory
-			$ddl = factory::get(['ddl', $db_link]);
-			if (empty($ddl['object'])) {
-				$db = factory::get(['db', $db_link]);
-				if (!empty($db['ddl_class'])) {
-					$ddl_class = $db['ddl_class'];
-					$ddl_object = new $ddl_class();
-					factory::set(['ddl', $db_link], ['object' => $ddl_object]);
-				} else {
-					Throw new Exception('You must initialize database connection!');
-				}
-			} else {
-				$ddl_object = $ddl['object'];
-			}
-
-			// table owner
-			$db2 = factory::get(['db', $db_link, 'object']);
-			$owner = $db2->connect_options['username'];
+			$db = factory::get(['db', $model->db_link]);
+			$ddl_object = $db['ddl_object'];
+			$owner = $db['object']->connect_options['username'];
 
 			// process table name and schema
 			$schema_supported = $ddl_object->is_schema_supported($model->table_name);
 			if ($schema_supported['success']) {
 				if (!empty($schema_supported['schema']) && $schema_supported['schema'] != 'public') {
-					$this->object_add(['type' => 'schema', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['schema'], 'data' => ['name' => $schema_supported['schema'], 'owner' => $owner]], $db_link);
+					$this->object_add(['type' => 'schema', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['schema'], 'data' => ['name' => $schema_supported['schema'], 'owner' => $owner]], $model->db_link);
 				}
 			}
 
@@ -109,13 +76,13 @@ class numbers_backend_db_class_ddl {
 				$column_temp = $ddl_object->is_column_type_supported($v, $model);
 				$columns[$k] = $column_temp['column'];
 			}
-			$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'], 'data' => ['columns' => $columns, 'owner' => $owner, 'full_table_name' => $schema_supported['full_table_name']]], $db_link);
+			$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'], 'data' => ['columns' => $columns, 'owner' => $owner, 'full_table_name' => $schema_supported['full_table_name']]], $model->db_link);
 
 			// processing constraints
 			if (!empty($model->table_constraints)) {
 				foreach ($model->table_constraints as $k => $v) {
 					$v['full_table_name'] = $schema_supported['full_table_name'];
-					$this->object_add(['type' => 'constraint', 'schema' => $schema_supported['schema'], 'table' => $schema_supported['table'], 'name' => $k, 'data' => $v], $db_link);
+					$this->object_add(['type' => 'constraint', 'schema' => $schema_supported['schema'], 'table' => $schema_supported['table'], 'name' => $k, 'data' => $v], $model->db_link);
 				}
 			}
 
@@ -123,7 +90,7 @@ class numbers_backend_db_class_ddl {
 			if (!empty($model->table_indexes)) {
 				foreach ($model->table_indexes as $k => $v) {
 					$v['full_table_name'] = $schema_supported['full_table_name'];
-					$this->object_add(['type' => 'index', 'schema' => $schema_supported['schema'], 'table' => $schema_supported['table'], 'name' => $k, 'data' => $v], $db_link);
+					$this->object_add(['type' => 'index', 'schema' => $schema_supported['schema'], 'table' => $schema_supported['table'], 'name' => $k, 'data' => $v], $model->db_link);
 				}
 			}
 

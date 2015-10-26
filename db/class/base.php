@@ -31,6 +31,16 @@ class numbers_backend_db_class_base {
 	public $commit_status = 0;
 
 	/**
+	 * Prepare keys
+	 *
+	 * @param mixed $keys
+	 * @return array
+	 */
+	public function prepare_keys($keys) {
+		return $this->prepare_expression($keys, ', ', ['return_raw_array' => true]);
+	}
+
+	/**
 	 * Prepare values for insert query
 	 *
 	 * @param array $options
@@ -62,14 +72,19 @@ class numbers_backend_db_class_base {
 	 *
 	 * @param mixed $options
 	 * @param mixed $delimiter
-	 * @return string
+	 * @param array $options2
+	 * @return mixed
 	 */
-	public function prepare_expression($options, $delimiter = ', ') {
+	public function prepare_expression($options, $delimiter = ', ', $options2 = []) {
 		if (is_array($options)) {
 			$temp = [];
 			foreach ($options as $v) {
 				$par = explode(',', $v);
 				$temp[] = $par[0];
+			}
+			// if we need raw array
+			if (!empty($options2['return_raw_array'])) {
+				return $temp;
 			}
 			$options = implode($delimiter, $temp);
 		}
@@ -119,7 +134,7 @@ class numbers_backend_db_class_base {
 				$par = explode(',', $k);
 				$key = $par[0];
 				$operator = !empty($par[1]) ? $par[1] : '=';
-				$as_is = (@$par[2] == '~~') ? true : false;
+				$as_is = (isset($par[2]) && $par[2] == '~~') ? true : false;
 				$string = $key;
 				switch ($operator) {
 					case 'LIKE%':
