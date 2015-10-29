@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implements numbers_backend_db_interface_base {
+class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base implements numbers_backend_db_interface_base {
 
 	/**
 	 * Constructing database object
@@ -26,24 +26,18 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			'success' => false
 		];
 		// we could pass an array or connection string right a way
-		if (is_array($options)) {
-			$str = 'host=' . $options['host'] . ' port=' . $options['port'] . ' dbname=' . $options['dbname'] . ' user=' . $options['username'] . ' password=' . $options['password'];
-		} else {
-			$str = $options;
-		}
-		$connection = pg_connect($str);
-		if ($connection !== false) {
+		$connection = mysqli_connect($options['host'], $options['username'], $options['password'], $options['dbname'], $options['port']);
+		if ($connection) {
 			$this->db_resource = $connection;
 			$this->connect_options = $options;
 			$this->commit_status = 0;
-			pg_set_error_verbosity($connection, PGSQL_ERRORS_VERBOSE);
-			pg_set_client_encoding($connection, 'UNICODE');
-			$result['version'] = pg_version($connection);
-			$result['status'] = pg_connection_status($connection) === PGSQL_CONNECTION_OK ? 1 : 0;
+			mysqli_set_charset($connection, 'utf8');
+			$result['version'] = mysqli_get_server_version($connection);
+			$result['status'] = 1;
 			$result['success'] = true;
 		} else {
-			$result['error'][] = 'db::connect() : Could not connect to database server!';
-			$result['errno'] = 1;
+			$result['error'][] = mysqli_connect_error();
+			$result['errno'] = mysqli_connect_errno();
 		}
 		return $result;
 	}
@@ -55,7 +49,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	 */
 	public function close() {
 		if (!empty($this->db_resource)) {
-			pg_close($this->db_resource);
+			mysqli_close($this->db_resource);
 			unset($this->db_resource);
 		}
 		return ['success' => true, 'error' => []];
@@ -70,14 +64,34 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	public function field_structures($resource) {
 		$result = [];
 		if ($resource) {
-			for ($i = 0; $i < pg_num_fields($resource); $i++) {
-				$name = pg_field_name($resource, $i);
-				$result[$name]['type'] = pg_field_type($resource, $i);
-				$result[$name]['null'] = pg_field_is_null($resource, $i);
-				$result[$name]['length'] = pg_field_size($resource, $i);
+			while ($finfo = mysqli_fetch_field($resource)) {
+				$result[$finfo->name]['type'] = $this->field_type($finfo->type);
+				$result[$finfo->name]['null'] = ($finfo->flags & 1 ? false : true);
+				$result[$finfo->name]['length'] = $finfo->length;
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * Determine field type
+	 *
+	 * @staticvar array $types
+	 * @param int $type_id
+	 * @return string
+	 */
+	public function field_type($type_id) {
+		static $types;
+		if (!isset($types)) {
+			$types = [];
+			$constants = get_defined_constants(true);
+			foreach ($constants['mysqli'] as $k => $v) {
+				if (preg_match('/^MYSQLI_TYPE_(.*)/', $k, $m)) {
+					$types[$v] = strtolower($m[1]);
+				}
+			}
+		}
+		return array_key_exists($type_id, $types) ? $types[$type_id] : null;
 	}
 
 	/**
@@ -118,38 +132,30 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		}
 
 		// quering
-		$resource = @pg_query($this->db_resource, $sql);
-		$result['status'] = pg_result_status($resource);
-		if (!$resource || $result['status'] > 4) {
-			$last_error = pg_last_error($this->db_resource);
-			if (empty($last_error)) {
-				$result['errno'] = 1;
-				$result['error'][] = 'DB Link ' . $this->db_link . ': ' . 'Unspecified error!';
-			} else {
-				preg_match("|ERROR:\s(.*?):|i", $last_error, $matches);
-				$result['errno'] = !empty($matches[1]) ? $matches[1] : 1;
-				$result['error'][] = 'Db Link ' . $this->db_link . ': ' . $last_error;
-			}
+		$resource = mysqli_query($this->db_resource, $sql);
+		if (!$resource) {
+			$result['error'][] = 'Db Link ' . $this->db_link . ': ' . mysqli_error($this->db_resource);
+			$result['errno'] = mysqli_errno($this->db_resource);
 			// we log this error message
 			// todo: process log policy here
 			error_log('Query error: ' . implode(' ', $result['error']) . ' [' . $sql . ']');
 		} else {
-			$result['affected_rows'] = pg_affected_rows($resource);
-			$result['num_rows'] = pg_num_rows($resource);
-			$result['structure'] = $this->field_structures($resource);
+			$result['affected_rows'] = mysqli_affected_rows($this->db_resource);
+			if ($resource !== true) {
+				$result['num_rows'] = mysqli_num_rows($resource);
+				$result['structure'] = $this->field_structures($resource);
+			}
 			if ($result['num_rows'] > 0) {
-				while ($rows = pg_fetch_assoc($resource)) {
+				while ($rows = mysqli_fetch_assoc($resource)) {
 					// transforming pg arrays to php arrays and casting types
 					foreach ($rows as $k => $v) {
-						if ($result['structure'][$k]['type'][0] == '_') {
-							$rows[$k] = $this->pg_parse_array($v);
-						} else if (in_array($result['structure'][$k]['type'], ['int2', 'int4', 'int8'])) {
+						// todo: add all types here!!!
+						if (in_array($result['structure'][$k]['type'], ['longlong'])) {
 							$rows[$k] = (int) $v;
 						} else if ($result['structure'][$k]['type'] == 'numeric') {
 							$rows[$k] = (float) $v;
 						}
 					}
-
 					// assigning keys
 					if (!empty($key)) {
 						array_key_set_by_key_name($result['rows'], $key, $rows);
@@ -158,7 +164,9 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 					}
 				}
 			}
-			pg_free_result($resource);
+			if ($resource !== true) {
+				mysqli_free_result($resource);
+			}
 			$result['success'] = true;
 		}
 
@@ -224,7 +232,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	 * @return string
 	 */
 	public function escape($value) {
-		return pg_escape_string($this->db_resource, $value);
+		return mysqli_real_escape_string($this->db_resource, $value);
 	}
 
 	/**
@@ -337,16 +345,10 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 				}
 			}
 
-			// if we need to return updated/inserted rows
-			$sql_addon = '';
-			if (!empty($options['returning'])) {
-				$sql_addon = ' RETURNING *';
-			}
-
 			// if row found we update
 			if ($row_found) {
 				$flag_inserted = false;
-				$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND') . $sql_addon;
+				$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND');
 			} else {
 				$flag_inserted = true;
 				// we need to unset key fields
@@ -356,88 +358,20 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 					}
 				}
 				// we insert
-				$sql = "INSERT INTO $table (" . $this->prepare_expression(array_keys($data)) . ') VALUES (' . $this->prepare_values($data) . ')' . $sql_addon;
+				$sql = "INSERT INTO $table (" . $this->prepare_expression(array_keys($data)) . ') VALUES (' . $this->prepare_values($data) . ')';
 			}
 			$result = $this->query($sql, $this->prepare_keys($keys));
 			if ($result['success']) {
 				$result['inserted'] = $flag_inserted;
 			}
+			// processing returning clause last
+			// todo: process last_insert_id here!!!
+			$temp = $this->query("SELECT * FROM $table WHERE " . $this->prepare_condition($where, 'AND'));
+			if ($temp['success']) {
+				$result['rows'] = $temp['rows'];
+				$result['num_rows'] = $temp['num_rows'];
+			}
 		} while (0);
 		return $result;
-	}
-
-	/**
-	 * Parsing pg array string into array
-	 *
-	 * @param string $arraystring
-	 * @param boolean $reset
-	 * @return array
-	 */
-	public function pg_parse_array($arraystring, $reset = true) {
-		static $i = 0;
-		if ($reset) {
-			$i = 0;
-		}
-		$matches = [];
-		$indexer = 0; // by default sql arrays start at 1
-		// handle [0,2]= cases
-		if (preg_match('/^\[(?P<index_start>\d+):(?P<index_end>\d+)]=/', substr($arraystring, $i), $matches)) {
-			$indexer = (int) $matches['index_start'];
-			$i = strpos($arraystring, '{');
-		}
-		if ($arraystring[$i] != '{') {
-			return [];
-		}
-		$i++;
-		$work = [];
-		$curr = '';
-		$length = strlen($arraystring);
-		$count = 0;
-		while ($i < $length) {
-			switch ($arraystring[$i]) {
-				case '{':
-					$sub = $this->pg_parse_array($arraystring, false);
-					if (!empty($sub)) {
-						$work[$indexer++] = $sub;
-					}
-					break;
-				case '}':
-					$i++;
-					//if ($curr<>'')
-					$work[$indexer++] = $curr;
-					return $work;
-					break;
-				case '\\':
-					$i++;
-					$curr.= $arraystring[$i];
-					$i++;
-					break;
-				case '"':
-					$openq = $i;
-					do {
-						$closeq = strpos($arraystring, '"', $i + 1);
-						if ($closeq > $openq && $arraystring[$closeq - 1] == '\\') {
-							$i = $closeq + 1;
-						} else {
-							break;
-						}
-					} while (true);
-					if ($closeq <= $openq) {
-						die;
-					}
-					$curr.= substr($arraystring, $openq + 1, $closeq - ($openq + 1));
-					$i = $closeq + 1;
-					break;
-				case ',':
-					//if ($curr<>'')
-					$work[$indexer++] = $curr;
-					$curr = '';
-					$i++;
-					break;
-				default:
-					$curr.= $arraystring[$i];
-					$i++;
-			}
-		}
 	}
 }

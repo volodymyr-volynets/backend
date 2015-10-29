@@ -70,9 +70,9 @@ class numbers_backend_ip_cache_base implements numbers_backend_ip_interface_base
 			$date = format::now('date', ['add_seconds' => -(14 * 24 * 60 * 60)]);
 			$db = new db($this->object->db_link);
 			$delete = [
-				'sm_ipcache_date,>' => $date
+				'sm_ipcache_date,<' => $date
 			];
-			$db->delete($this->object->table_name, $delete, 'sm_ipcache_date,>');
+			$db->delete($this->object->table_name, $delete, 'sm_ipcache_date,<');
 		}
 	}
 }

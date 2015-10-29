@@ -12,12 +12,12 @@ class numbers_backend_session_db_model_logins extends object_table {
 		'sm_login_started' => ['name' => 'Datetime Started', 'type' => 'datetime'],
 		'sm_login_last_requested' => ['name' => 'Datetime Last Requested', 'type' => 'datetime'],
 		'sm_login_pages_count' => ['name' => 'Pages Count', 'type' => 'integer', 'default' => 0],
-		'sm_login_user_ip' => ['name' => 'User IP', 'type' => 'text'],
+		'sm_login_user_ip' => ['name' => 'User IP', 'type' => 'varchar', 'length' => 50],
 		'sm_login_user_id' => ['name' => 'User #', 'type' => 'integer', 'default' => 0],
-		'sm_login_geo_country_code' => ['name' => 'Country', 'type' => 'text', 'null' => true],
-		'sm_login_geo_region' => ['name' => 'Region', 'type' => 'text', 'null' => true],
-		'sm_login_geo_city' => ['name' => 'City', 'type' => 'text', 'null' => true],
-		'sm_login_geo_postal' => ['name' => 'Postal Code', 'type' => 'text', 'null' => true],
+		'sm_login_geo_country_code' => ['name' => 'Country', 'type' => 'varchar', 'length' => 50, 'null' => true],
+		'sm_login_geo_region' => ['name' => 'Region', 'type' => 'varchar', 'length' => 50, 'null' => true],
+		'sm_login_geo_city' => ['name' => 'City', 'type' => 'varchar', 'length' => 50, 'null' => true],
+		'sm_login_geo_postal' => ['name' => 'Postal Code', 'type' => 'varchar', 'length' => 50, 'null' => true],
 		'sm_login_geo_lat' => ['name' => 'Latitude', 'type' => 'numeric', 'default' => 0],
 		'sm_login_geo_lon' => ['name' => 'Longitude', 'type' => 'numeric', 'default' => 0],
 	];
@@ -32,6 +32,9 @@ class numbers_backend_session_db_model_logins extends object_table {
 	public $table_row_details = [];
 	public $table_options_map = [];
 	public $table_options_active = [];
+	public $table_engine = [
+		'mysqli' => 'InnoDB'
+	];
 
 	public $cache = false;
 	public $cache_link;

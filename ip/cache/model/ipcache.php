@@ -8,12 +8,12 @@ class numbers_backend_ip_cache_model_ipcache extends object_table {
 	public $table_orderby = null;
 	public $table_get_limit;
 	public $table_columns = [
-		'sm_ipcache_ip' => ['name' => 'IP', 'type' => 'varchar', 'length' => 255],
+		'sm_ipcache_ip' => ['name' => 'IP', 'type' => 'varchar', 'length' => 50],
 		'sm_ipcache_date' => ['name' => 'Date', 'type' => 'date'],
-		'sm_ipcache_country' => ['name' => 'Country', 'type' => 'text', 'null' => true],
-		'sm_ipcache_region' => ['name' => 'Region', 'type' => 'text', 'null' => true],
-		'sm_ipcache_city' => ['name' => 'City', 'type' => 'text', 'null' => true],
-		'sm_ipcache_postal' => ['name' => 'Postal Code', 'type' => 'text', 'null' => true],
+		'sm_ipcache_country' => ['name' => 'Country', 'type' => 'varchar', 'length' => 50, 'null' => true],
+		'sm_ipcache_region' => ['name' => 'Region', 'type' => 'varchar', 'length' => 50, 'null' => true],
+		'sm_ipcache_city' => ['name' => 'City', 'type' => 'varchar', 'length' => 50, 'null' => true],
+		'sm_ipcache_postal' => ['name' => 'Postal Code', 'type' => 'varchar', 'length' => 50, 'null' => true],
 		'sm_ipcache_lat' => ['name' => 'Latitude', 'type' => 'numeric', 'default' => 0],
 		'sm_ipcache_lon' => ['name' => 'Longitude', 'type' => 'numeric', 'default' => 0]
 	];
@@ -26,6 +26,9 @@ class numbers_backend_ip_cache_model_ipcache extends object_table {
 	public $table_row_details = [];
 	public $table_options_map = [];
 	public $table_options_active = [];
+	public $table_engine = [
+		'mysqli' => 'InnoDB'
+	];
 
 	public $cache = false;
 	public $cache_link;

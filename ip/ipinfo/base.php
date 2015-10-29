@@ -40,7 +40,7 @@ class numbers_backend_ip_ipinfo_base implements numbers_backend_ip_interface_bas
 			];
 			$ip_cache->set($save);
 			return [
-				'success' => false,
+				'success' => true,
 				'error' => [],
 				'data' => [
 					'ip' => $save['sm_ipcache_ip'],

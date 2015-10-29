@@ -68,6 +68,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 					$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
 				}
 				break;
+			case 'smallserial':
 			case 'serial':
 			case 'bigserial':
 				$result['column'] = ['type' => $column['type']];
@@ -298,10 +299,10 @@ TTT;
 							FROM pg_class t, pg_class i, pg_index ix, pg_attribute a, pg_namespace n, pg_am f
 							WHERE 1=1
 								AND t.oid = ix.indrelid
-								and i.oid = ix.indexrelid
-								and a.attrelid = t.oid
-								and a.attnum = ANY(ix.indkey)
-								and t.relkind = 'r'
+								AND i.oid = ix.indexrelid
+								AND a.attrelid = t.oid
+								AND a.attnum = ANY(ix.indkey)
+								AND t.relkind = 'r'
 								AND n.oid = t.relnamespace
 								AND n.nspname NOT IN ('pg_catalog', 'information_schema')
 								AND ix.indisprimary != 't'
@@ -327,9 +328,9 @@ TTT;
 									null delete_rule
 							FROM information_schema.table_constraints tc, information_schema.key_column_usage kc  
 							WHERE 1=1
-									and kc.table_name = tc.table_name 
-									and kc.table_schema = tc.table_schema
-									and kc.constraint_name = tc.constraint_name
+									AND kc.table_name = tc.table_name
+									AND kc.table_schema = tc.table_schema
+									AND kc.constraint_name = tc.constraint_name
 									AND tc.constraint_type IN ('PRIMARY KEY', 'UNIQUE')
 							GROUP BY tc.table_schema, tc.table_name, tc.constraint_name
 
@@ -351,7 +352,7 @@ TTT;
 									min(delete_rule::text) delete_rule
 							FROM information_schema.referential_constraints c
 							JOIN information_schema.key_column_usage x ON x.constraint_name = c.constraint_name
-							JOIN information_schema.key_column_usage y ON y.ordinal_position = x.position_in_unique_constraint and y.constraint_name = c.unique_constraint_name
+							JOIN information_schema.key_column_usage y ON y.ordinal_position = x.position_in_unique_constraint AND y.constraint_name = c.unique_constraint_name
 							GROUP BY x.table_schema, x.table_name, c.constraint_name, y.table_schema, y.table_name
 
 							UNION ALL
@@ -385,7 +386,7 @@ TTT;
 							c.tableowner table_owner,
 							a.column_name column_name,
 							a.data_type "type",
-							CASE when a.is_nullable = 'NO' THEN 0 ELSE 1 END "null",
+							CASE WHEN a.is_nullable = 'NO' THEN 0 ELSE 1 END "null",
 							a.column_default "default",
 							a.character_maximum_length "length",
 							a.numeric_precision "precision",

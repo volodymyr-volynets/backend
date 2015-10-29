@@ -55,6 +55,7 @@ class numbers_backend_db_class_ddl {
 			$db = factory::get(['db', $model->db_link]);
 			$ddl_object = $db['ddl_object'];
 			$owner = $db['object']->connect_options['username'];
+			$engine = isset($model->table_engine[$db['backend']]) ? $model->table_engine[$db['backend']] : null;
 
 			// process table name and schema
 			$schema_supported = $ddl_object->is_schema_supported($model->table_name);
@@ -76,7 +77,7 @@ class numbers_backend_db_class_ddl {
 				$column_temp = $ddl_object->is_column_type_supported($v, $model);
 				$columns[$k] = $column_temp['column'];
 			}
-			$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'], 'data' => ['columns' => $columns, 'owner' => $owner, 'full_table_name' => $schema_supported['full_table_name']]], $model->db_link);
+			$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'], 'data' => ['columns' => $columns, 'owner' => $owner, 'full_table_name' => $schema_supported['full_table_name'], 'engine' => $engine]], $model->db_link);
 
 			// processing constraints
 			if (!empty($model->table_constraints)) {
@@ -107,7 +108,7 @@ class numbers_backend_db_class_ddl {
 	 * @param array $obj_slave
 	 * @return array
 	 */
-	public function compare_schemas($obj_master, $obj_slave) {
+	public function compare_schemas($obj_master, $obj_slave, $options = []) {
 		$result = [
 			'success' => false,
 			'error' => [],
@@ -213,7 +214,7 @@ class numbers_backend_db_class_ddl {
 						if ($v3['null'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['null']) {
 							$temp_error = true;
 						}
-						if ($v3['default'] !== $obj_slave['table'][$k][$k2]['columns'][$k3]['default']) {
+						if ($v3['default'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['default']) {
 							$temp_error = true;
 						}
 						if ($temp_error) {
@@ -228,6 +229,34 @@ class numbers_backend_db_class_ddl {
 					if (empty($obj_master['table'][$k][$k2]['columns'][$k3])) {
 						$result['data']['delete_columns'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'column_delete', 'name' => $k3, 'table' => $v2['full_table_name']);
 						$result['count']++;
+					}
+				}
+			}
+		}
+
+		// exceptions for mysqli submodule
+		if (!empty($options['backend'] == 'mysqli')) {
+			foreach ($obj_slave['constraint'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					foreach ($v2 as $k3 => $v3) {
+						if ($v3['type'] == 'pk') {
+							$found = null;
+							if (!empty($obj_master['constraint'][$k][$k2])) {
+								foreach ($obj_master['constraint'][$k][$k2] as $k4 => $v4) {
+									if ($v4['type'] == 'pk') {
+										$found = $k4;
+										break;
+									}
+									print_r($v4);
+									exit;
+								}
+							}
+							if (!empty($found)) {
+								$temp = $obj_slave['constraint'][$k][$k2][$k3];
+								unset($obj_slave['constraint'][$k][$k2][$k3]);
+								$obj_slave['constraint'][$k][$k2][$found] = $temp;
+							}
+						}
 					}
 				}
 			}
@@ -292,7 +321,7 @@ class numbers_backend_db_class_ddl {
 						}
 						// todo: comparison for foreign key & check
 						if ($temp_error) {
-							$result['data']['delete_indexes'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'index_delete', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
+							$result['data']['delete_indexes'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'index_delete', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $obj_slave['index'][$k][$k2][$k3]);
 							$result['data']['new_indexes'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'index_new', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
 							$result['count']+= 1;
 						}
@@ -315,194 +344,23 @@ class numbers_backend_db_class_ddl {
 			}
 		}
 
-/*
-		// new views
-		foreach ($data['master']['views'] as $k=>$v) {
-			foreach ($v as $k2=>$v2) {
-				if (empty($data['slave']['views'][$k][$k2])) {
-					$result['data']['new_views'][$k . '.' . $k2] = array('type'=>'view_new', 'name'=>$k . '.' . $k2, 'owner'=>$v2['view_owner'], 'definition'=>$v2['view_definition']);
-				} else {
-					// checking owner information
-					if ($v2['view_owner']!=$data['slave']['views'][$k][$k2]['view_owner']) {
-						$result['data']['new_view_owners'][$k . '.' . $k2] = array('type'=>'view_owner', 'name'=>$k . '.' . $k2, 'owner'=>$v2['view_owner']);
-					}
-					// if view has changed
-					if ($v2['view_definition']!=$data['slave']['views'][$k][$k2]['view_definition']) {
-						$result['hint'][] = "View $k.$k2 has different definition!";
-						$result['data']['change_views'][$k . '.' . $k2] = array('type'=>'view_change', 'name'=>$k . '.' . $k2, 'owner'=>$v2['view_owner'], 'definition'=>$v2['view_definition']);
-					}
+		// if we delete tables there's no need to delete constrants and/or indexes
+		foreach ($result['data']['delete_tables'] as $k => $v) {
+			// unsetting constraints
+			foreach ($result['data']['delete_constraints'] as $k2 => $v2) {
+				if ($v2['data']['full_table_name'] == $k) {
+					unset($result['data']['delete_constraints'][$k2]);
+				}
+			}
+			// unsetting indexes
+			foreach ($result['data']['delete_indexes'] as $k2 => $v2) {
+				if ($v2['data']['full_table_name'] == $k) {
+					unset($result['data']['delete_indexes'][$k2]);
 				}
 			}
 		}
 
-		// delete view
-		foreach ($data['slave']['views'] as $k=>$v) {
-			foreach ($v as $k2=>$v2) {
-				if (empty($data['master']['views'][$k][$k2])) {
-					$result['data']['delete_views'][$k . '.' . $k2] = array('type'=>'view_delete', 'name'=>$k . '.' . $k2);
-				}
-			}
-		}
-
-		// functions
-		if (!empty($data['master']['functions'])) {
-			foreach ($data['master']['functions'] as $k=>$v) {
-				foreach ($v as $k2=>$v2) {
-					if (empty($data['slave']['functions'][$k][$k2])) {
-						$result['data']['new_functions'][$k . '.' . $k2] = array('type'=>'function_new', 'name'=>$k . '.' . $k2, 'owner'=>$v2['function_owner'], 'definition'=>$v2['function_definition']);
-					} else {
-						// checking owner information
-						if ($v2['function_owner']!=$data['slave']['functions'][$k][$k2]['function_owner']) {
-							$result['data']['new_function_owners'][$k . '.' . $k2] = array('type'=>'function_owner', 'name'=>$k . '.' . $k2, 'owner'=>$v2['function_owner']);
-						}
-						// if view has changed
-						if ($v2['function_definition']!=$data['slave']['functions'][$k][$k2]['function_definition']) {
-							$result['hint'][] = "Function $k.$k2 has different definition!";
-							$result['data']['change_functions'][$k . '.' . $k2] = array('type'=>'function_change', 'name'=>$k . '.' . $k2, 'owner'=>$v2['function_owner'], 'definition'=>$v2['function_definition']);
-						}
-					}
-				}
-			}
-		}
-
-		// delete function
-		if (!empty($data['slave']['functions'])) {
-			foreach ($data['slave']['functions'] as $k=>$v) {
-				foreach ($v as $k2=>$v2) {
-					if (empty($data['master']['functions'][$k][$k2])) {
-						$result['data']['delete_function'][$k . '.' . $k2] = array('type'=>'function_delete', 'name'=>$k . '.' . $k2);
-					}
-				}
-			}
-		}
-
-		// new trigger
-		if (!empty($data['master']['triggers'])) {
-			foreach ($data['master']['triggers'] as $k=>$v) {
-				foreach ($v as $k2=>$v2) {
-					foreach ($v2 as $k3=>$v3) {
-						if (empty($data['slave']['triggers'][$k][$k2][$k3])) {
-							$result['data']['new_triggers'][$k . '.' . $k2 . '.' . $k3] = array('type'=>'trigger_new', 'name'=>$k3, 'table' => $k . '.' . $k2, 'definition'=>$v3['trigger_definition']);
-						} else {
-							// its safe to compare definition
-							if ($v3['trigger_definition']!=$data['slave']['triggers'][$k][$k2][$k3]['trigger_definition']) {
-								$result['hint'][] = "Trigger $k.$k2.$k3 has different structure!";
-								$result['data']['change_triggers'][$k . '.' . $k2 . '.' . $k3] = array('type'=>'trigger_change', 'name'=>$k3, 'table' => $k . '.' . $k2, 'definition'=>$v3['trigger_definition']);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// delete triggers
-		if (!empty($data['slave']['triggers'])) {
-			foreach ($data['slave']['triggers'] as $k=>$v) {
-				foreach ($v as $k2=>$v2) {
-					foreach ($v2 as $k3=>$v3) {
-						if (empty($data['master']['triggers'][$k][$k2][$k3])) {
-							$result['data']['delete_triggers'][$k . '.' . $k2 . '.' . $k3] = array('type'=>'trigger_delete', 'name'=>$k3, 'table' => $k . '.' . $k2, 'definition'=>$v3['trigger_definition']);
-						}
-					}
-				}
-			}
-		}
-
-		// new domains
-		if (!empty($data['master']['domains'])) {
-			foreach ($data['master']['domains'] as $k=>$v) {
-				foreach ($v as $k2=>$v2) {
-					if (empty($data['slave']['domains'][$k][$k2])) {
-						$result['data']['new_domains'][$k . '.' . $k2] = array('type'=>'domain_new', 'name'=>$k . '.' . $k2, 'owner'=>$v2['domain_owner'], 'definition'=>$v2);
-					} else {
-						// checking owner information
-						if ($v2['domain_owner']!=$data['slave']['domains'][$k][$k2]['domain_owner']) {
-							$result['data']['new_domain_owners'][$k . '.' . $k2] = array('type'=>'domain_owner', 'name'=>$k . '.' . $k2, 'owner'=>$v2['domain_owner']);
-						}
-						// comparing structure
-						$slave = $data['slave']['domains'][$k][$k2];
-						$master = $v2;
-						unset($slave['domain_owner'], $master['domain_owner']);
-						if (md5(serialize($slave))!=md5(serialize($master))) {
-							$result['hint'][] = "Domain $k.$k2 has different structure!";
-						}
-					}
-				}
-			}
-		}
-
-		// delete domain
-		if (!empty($data['slave']['domains'])) {
-			foreach ($data['slave']['domains'] as $k=>$v) {
-				foreach ($v as $k2=>$v2) {
-					if (empty($data['master']['domains'][$k][$k2])) {
-						$result['data']['delete_domains'][$k . '.' . $k2] = array('type'=>'domain_delete', 'name'=>$k . '.' . $k2);
-					}
-				}
-			}
-		}
-*/
-			// find all sequences for serial and bigserial columns
-/*
-			$sequence_serial_lock = array();
-			foreach ($obj_master['table'] as $k=>$v) {
-				foreach ($v as $k2=>$v2) {
-					foreach ($v2 as $k3=>$v3) {
-						if (in_array($v3['data_type'], array('bigint', 'integer')) && strpos($v3['column_default'], 'nextval(')!==false && strpos($v3['column_default'], "_seq'::regclass)")) {
-							$temp = str_replace(array("nextval('", "'::regclass)"), '', $v3['column_default']);
-							$temp = explode('.', $temp);
-							$s = isset($temp[1]) ? $temp[1] : $temp[0];
-							$sequence_serial_lock[$v3['schema_name']][$s] = $v3;
-						}
-					}
-				}
-			}
-			foreach ($data['slave']['columns'] as $k=>$v) {
-				foreach ($v as $k2=>$v2) {
-					foreach ($v2 as $k3=>$v3) {
-						if (in_array($v3['data_type'], array('bigint', 'integer')) && strpos($v3['column_default'], 'nextval(')!==false && strpos($v3['column_default'], "_seq'::regclass)")) {
-							$temp = str_replace(array("nextval('", "'::regclass)"), '', $v3['column_default']);
-							$temp = explode('.', $temp);
-							$s = isset($temp[1]) ? $temp[1] : $temp[0];
-							$sequence_serial_lock[$v3['schema_name']][$s] = $v3;
-						}
-					}
-				}
-			}
-
-			// new sequences
-			if (!empty($data['master']['sequences'])) {
-	            foreach ($data['master']['sequences'] as $k=>$v) {
-	                foreach ($v as $k2=>$v2) {
-	                    // do not process serial sequences
-	                    if (!empty($sequence_serial_lock[$k][$k2])) continue;
-	                    if (empty($data['slave']['sequences'][$k][$k2])) {
-	                        $result['data']['new_sequences'][$k . '.' . $k2] = array('type'=>'sequences_new', 'name'=>$k . '.' . $k2, 'owner'=>$v2['sequence_owner'], 'definition'=>$v2);
-	                    } else {
-	                        // checking owner information
-	                        if ($v2['sequence_owner']!=$data['slave']['sequences'][$k][$k2]['sequence_owner']) {
-	                            $result['data']['new_sequence_owners'][$k . '.' . $k2] = array('type'=>'sequence_owner', 'name'=>$k . '.' . $k2, 'owner'=>$v2['sequence_owner']);
-	                        }
-	                    }
-	                }
-	            }
-			}
-
-			// delete sequences
-			if (!empty($data['slave']['sequences'])) {
-	            foreach ($data['slave']['sequences'] as $k=>$v) {
-	                foreach ($v as $k2=>$v2) {
-	                    // do not process serial sequences
-	                    if (!empty($sequence_serial_lock[$k][$k2])) continue;
-	                    if (empty($data['master']['sequences'][$k][$k2])) {
-	                        $result['data']['delete_sequences'][$k . '.' . $k2] = array('type'=>'sequence_delete', 'name'=>$k . '.' . $k2);
-	                    }
-	                }
-	            }
-			}
-*/
-		
-		// final step generating sql
+		// final step clean up empty keys
 		foreach ($result['data'] as $k => $v) {
 			// clean up empty nodes
 			if (empty($v)) {
