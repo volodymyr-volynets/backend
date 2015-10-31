@@ -33,6 +33,10 @@ class numbers_backend_db_class_ddl {
 			$this->objects[$db_link][$object['type']][$object['name']] = $object['data'];
 		} else if ($object['type'] == 'constraint' || $object['type'] == 'index') {
 			$this->objects[$db_link][$object['type']][$object['schema']][$object['table']][$object['name']] = $object['data'];
+		} else if ($object['type'] == 'sequence') {
+			$this->objects[$db_link][$object['type']][$object['schema']][$object['name']] = $object['data'];
+		} else if ($object['type'] == 'function') {
+			$this->objects[$db_link][$object['type']][$object['schema']][$object['name']] = $object['data'];
 		}
 		$this->db_links[$db_link] = $db_link;
 	}
@@ -102,6 +106,92 @@ class numbers_backend_db_class_ddl {
 	}
 
 	/**
+	 * Process sequence
+	 *
+	 * @param string $model_class
+	 * @return array
+	 */
+	public function process_sequence_model($model_class) {
+		$result = [
+			'success' => false,
+			'error' => []
+		];
+		do {
+			// table model
+			$model = new $model_class();
+			$db = factory::get(['db', $model->db_link]);
+			$ddl_object = $db['ddl_object'];
+			$owner = $db['object']->connect_options['username'];
+
+			// process sequence name and schema
+			$schema_supported = $ddl_object->is_schema_supported($model->sequence_name);
+			$this->object_add([
+				'type' => 'sequence',
+				'schema' => $schema_supported['schema'],
+				'name' => $schema_supported['table'],
+				'data' => [
+					'owner' => $owner,
+					'full_sequence_name' => $schema_supported['full_table_name'],
+					'type' => $model->sequence_type,
+					'prefix' => $model->sequence_prefix,
+					'length' => $model->sequence_length,
+					'suffix' => $model->sequence_suffix
+				]
+			], $model->db_link);
+
+			// if we got here - we are ok
+			$result['success'] = true;
+		} while(0);
+		return $result;
+	}
+
+	/**
+	 * Process function model
+	 *
+	 * @param string $model_class
+	 * @return array
+	 */
+	public function process_function_model($model_class) {
+		$result = [
+			'success' => false,
+			'error' => []
+		];
+		do {
+			// table model
+			$model = new $model_class();
+			$db = factory::get(['db', $model->db_link]);
+			$ddl_object = $db['ddl_object'];
+			$ddl_backend = $db['backend'];
+			$owner = $db['object']->connect_options['username'];
+			// if we do not have sql or its natively supported we exit
+			if (empty($model->function_sql[$ddl_backend])) {
+				$result['success'] = true;
+				break;
+			}
+			// process function name and schema
+			$schema_supported = $ddl_object->is_schema_supported($model->function_name);
+			// we need to unset function definition
+			$sql_full_temp = $model->function_sql[$ddl_backend];
+			unset($sql_full_temp['definition']);
+			$this->object_add([
+				'type' => 'function',
+				'schema' => $schema_supported['schema'],
+				'name' => $schema_supported['table'],
+				'data' => [
+					'owner' => $owner,
+					'full_function_name' => $schema_supported['full_table_name'],
+					'sql_full' => implode('', $sql_full_temp),
+					'sql_parts' => $model->function_sql[$ddl_backend]
+				]
+			], $model->db_link);
+
+			// if we got here - we are ok
+			$result['success'] = true;
+		} while(0);
+		return $result;
+	}
+
+	/**
 	 * Compare two schemas
 	 *
 	 * @param array $obj_master
@@ -146,7 +236,6 @@ class numbers_backend_db_class_ddl {
 		$result['data']['new_view_owners'] = [];
 		$result['data']['new_functions'] = [];
 		$result['data']['new_function_owner'] = [];
-		$result['data']['change_functions'] = [];
 		$result['data']['new_triggers'] = []; // after functions
 		$result['data']['change_triggers'] = [];
 
@@ -217,6 +306,15 @@ class numbers_backend_db_class_ddl {
 						if ($v3['default'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['default']) {
 							$temp_error = true;
 						}
+						// auto_increment for mysqli
+						if ($options['backend'] == 'mysqli') {
+							if (!isset($v3['auto_increment'])) {
+								$v3['auto_increment'] = 0;
+							}
+							if ($v3['auto_increment'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['auto_increment']) {
+								$temp_error = true;
+							}
+						}
 						if ($temp_error) {
 							$result['data']['change_columns'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'column_change', 'name' => $k3, 'table' => $v2['full_table_name'], 'data'=>$v3, 'data_slave' => $obj_slave['table'][$k][$k2]['columns'][$k3]);
 							$result['count']++;
@@ -235,7 +333,7 @@ class numbers_backend_db_class_ddl {
 		}
 
 		// exceptions for mysqli submodule
-		if (!empty($options['backend'] == 'mysqli')) {
+		if ($options['backend'] == 'mysqli') {
 			foreach ($obj_slave['constraint'] as $k => $v) {
 				foreach ($v as $k2 => $v2) {
 					foreach ($v2 as $k3 => $v3) {
@@ -247,8 +345,6 @@ class numbers_backend_db_class_ddl {
 										$found = $k4;
 										break;
 									}
-									print_r($v4);
-									exit;
 								}
 							}
 							if (!empty($found)) {
@@ -339,6 +435,84 @@ class numbers_backend_db_class_ddl {
 							$result['data']['delete_indexes'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'index_delete', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
 							$result['count']++;
 						}
+					}
+				}
+			}
+		}
+
+		// for mysqli/pgsql we need to put new sequences after new tables
+		if ($options['backend'] == 'mysqli' || $options['backend'] == 'pgsql') {
+			unset($result['data']['new_sequences']);
+			$result['data']['new_sequences'] = [];
+		}
+
+		// new sequences
+		if (!empty($obj_master['sequence'])) {
+			foreach ($obj_master['sequence'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					if (empty($obj_slave['sequence'][$k][$k2])) {
+						$result['data']['new_sequences'][$k . '.' . $k2] = array('type' => 'sequences_new', 'name' => $v2['full_sequence_name'], 'owner' => $v2['owner'], 'data' => $v2);
+						$result['count']++;
+					} else if ($options['backend'] == 'pgsql') {
+						// todo: fix here for pgsql!!!
+						// checking owner information
+						if ($v2['owner'] != $obj_slave['sequence'][$k][$k2]['owner']) {
+							$result['data']['new_sequence_owners'][$k . '.' . $k2] = array('type' => 'sequence_owner', 'name' => $v2['full_sequence_name'], 'owner'=>$v2['owner'], 'data' => $v2);
+						}
+					}
+				}
+			}
+		}
+
+		// delete sequences
+		if (!empty($obj_slave['sequence'])) {
+			foreach ($obj_slave['sequence'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					if (empty($obj_master['sequence'][$k][$k2])) {
+						$result['data']['delete_sequences'][$k . '.' . $k2] = array('type' => 'sequence_delete', 'name' => $v2['full_sequence_name'], 'data' => $v2);
+						$result['count']++;
+					}
+				}
+			}
+		}
+
+		// functions
+		if (!empty($obj_master['function'])) {
+			foreach ($obj_master['function'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					if (empty($obj_slave['function'][$k][$k2])) {
+						$result['data']['new_functions'][$k . '.' . $k2] = array('type' => 'function_new', 'name' => $v2['full_function_name'], 'owner' => $v2['owner'], 'data' => $v2);
+						$result['count']++;
+					} else {
+						// if function has changed
+						if ($options['backend'] == 'mysqli') {
+							if ($v2['sql_parts']['body'] != $obj_slave['function'][$k][$k2]['sql_parts']['body']) {
+								$result['data']['delete_functions'][$k . '.' . $k2] = array('type' => 'function_delete', 'name' => $v2['full_function_name'], 'data' => $v2);
+								$result['data']['new_functions'][$k . '.' . $k2] = array('type' => 'function_new', 'name' => $v2['full_function_name'], 'owner' => $v2['owner'], 'data' => $v2);
+								$result['count']++;
+							}
+						} else if ($options['backend'] == 'pgsql') {
+							if ($v2['sql_full'] != $obj_slave['function'][$k][$k2]['sql_full']) {
+								$result['data']['delete_functions'][$k . '.' . $k2] = array('type' => 'function_delete', 'name' => $v2['full_function_name'], 'data' => $v2);
+								$result['data']['new_functions'][$k . '.' . $k2] = array('type' => 'function_new', 'name' => $v2['full_function_name'], 'owner' => $v2['owner'], 'data' => $v2);
+								$result['count']++;
+							} else if ($v2['owner'] != $obj_slave['function'][$k][$k2]['owner']) { // checking owner
+								$result['data']['new_function_owners'][$k . '.' . $k2] = array('type'=>'function_owner', 'name' => $v2['full_function_name'], 'owner' => $v2['owner'], 'data' => $v2);
+								$result['count']++;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// delete function
+		if (!empty($obj_slave['function'])) {
+			foreach ($obj_slave['function'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					if (empty($obj_master['function'][$k][$k2])) {
+						$result['data']['delete_functions'][$k . '.' . $k2] = array('type' => 'function_delete', 'name' => $k . '.' . $k2);
+						$result['count']++;
 					}
 				}
 			}

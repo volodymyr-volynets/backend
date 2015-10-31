@@ -440,4 +440,23 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			}
 		}
 	}
+
+	/**
+	 * Backend specific sequence queries
+	 *
+	 * @param string $sequence_name
+	 * @return string
+	 */
+	public function sequence($sequence_name, $sequence_table, $type) {
+		$sql = <<<TTT
+			SELECT
+				*,
+				{$type}('{$sequence_name}') counter
+			FROM
+				{$sequence_table}
+			WHERE 1=1
+					AND sm_sequence_name = '{$sequence_name}';
+TTT;
+		return $this->query($sql);
+	}
 }

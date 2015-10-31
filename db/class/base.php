@@ -192,5 +192,4 @@ class numbers_backend_db_class_base {
 		}
 		return $result;
 	}
-
 }

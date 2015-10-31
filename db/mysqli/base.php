@@ -125,54 +125,102 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 
 		// if we cache this query
 		if (!empty($options['cache'])) {
-			$cached_result = cache::get($cache_id, @$options['cache_link']);
+			$cached_result = cache::get($cache_id, $options['cache_link']);
 			if ($cached_result !== false) {
 				return $cached_result;
 			}
 		}
 
-		// quering
-		$resource = mysqli_query($this->db_resource, $sql);
-		if (!$resource) {
-			$result['error'][] = 'Db Link ' . $this->db_link . ': ' . mysqli_error($this->db_resource);
-			$result['errno'] = mysqli_errno($this->db_resource);
-			// we log this error message
-			// todo: process log policy here
-			error_log('Query error: ' . implode(' ', $result['error']) . ' [' . $sql . ']');
-		} else {
-			$result['affected_rows'] = mysqli_affected_rows($this->db_resource);
-			if ($resource !== true) {
-				$result['num_rows'] = mysqli_num_rows($resource);
-				$result['structure'] = $this->field_structures($resource);
-			}
-			if ($result['num_rows'] > 0) {
-				while ($rows = mysqli_fetch_assoc($resource)) {
-					// transforming pg arrays to php arrays and casting types
-					foreach ($rows as $k => $v) {
-						// todo: add all types here!!!
-						if (in_array($result['structure'][$k]['type'], ['longlong'])) {
-							$rows[$k] = (int) $v;
-						} else if ($result['structure'][$k]['type'] == 'numeric') {
-							$rows[$k] = (float) $v;
+		// quering regular query first
+		if (empty($options['multi_query'])) {
+			$resource = mysqli_query($this->db_resource, $sql);
+			if (!$resource) {
+				$result['error'][] = 'Db Link ' . $this->db_link . ': ' . mysqli_error($this->db_resource);
+				$result['errno'] = mysqli_errno($this->db_resource);
+				// todo: process log policy here
+			} else {
+				$result['affected_rows']+= mysqli_affected_rows($this->db_resource);
+				if ($resource !== true) {
+					$result['num_rows']+= mysqli_num_rows($resource);
+					$result['structure'] = $this->field_structures($resource);
+				}
+				if ($result['num_rows'] > 0) {
+					while ($rows = mysqli_fetch_assoc($resource)) {
+						// casting types
+						foreach ($rows as $k => $v) {
+							// todo: add all types here!!!
+							if (in_array($result['structure'][$k]['type'], ['longlong'])) {
+								$rows[$k] = (int) $v;
+							} else if ($result['structure'][$k]['type'] == 'numeric') {
+								$rows[$k] = (float) $v;
+							}
+						}
+						// assigning keys
+						if (!empty($key)) {
+							array_key_set_by_key_name($result['rows'], $key, $rows);
+						} else {
+							$result['rows'][] = $rows;
 						}
 					}
-					// assigning keys
-					if (!empty($key)) {
-						array_key_set_by_key_name($result['rows'], $key, $rows);
-					} else {
-						$result['rows'][] = $rows;
+				}
+				if ($resource !== true) {
+					mysqli_free_result($resource);
+				}
+				$result['success'] = true;
+			}
+		} else {
+			// multi query
+			$resource = mysqli_multi_query($this->db_resource, $sql);
+			if (!$resource) {
+				$result['error'][] = 'Db Link ' . $this->db_link . ': ' . mysqli_error($this->db_resource);
+				$result['errno'] = mysqli_errno($this->db_resource);
+				// todo: process log policy here
+			} else {
+				$result['affected_rows']+= mysqli_affected_rows($this->db_resource);
+				do {
+					if ($result_multi = mysqli_store_result($this->db_resource)) {
+						if ($result_multi) {
+							$result['num_rows']+= $num_rows = mysqli_num_rows($result_multi);
+							$result['structure'] = $this->field_structures($result_multi);
+						} else {
+							$num_rows = 0;
+							$result['error'][] = 'Db Link ' . $this->db_link . ': Multi query error!';
+							$result['errno'] = 1;
+						}
+						if ($num_rows > 0) {
+							while ($rows = mysqli_fetch_assoc($result_multi)) {
+								// casting types
+								foreach ($rows as $k => $v) {
+									// todo: add all types here!!!
+									if (in_array($result['structure'][$k]['type'], ['longlong'])) {
+										$rows[$k] = (int) $v;
+									} else if ($result['structure'][$k]['type'] == 'numeric') {
+										$rows[$k] = (float) $v;
+									}
+								}
+								// assigning keys
+								if (!empty($key)) {
+									array_key_set_by_key_name($result['rows'], $key, $rows);
+								} else {
+									$result['rows'][] = $rows;
+								}
+							}
+						}
+						mysqli_free_result($result_multi);
 					}
+				} while (mysqli_more_results($this->db_resource) && mysqli_next_result($this->db_resource));
+				if (empty($result['error'])) {
+					$result['success'] = true;
 				}
 			}
-			if ($resource !== true) {
-				mysqli_free_result($resource);
-			}
-			$result['success'] = true;
 		}
 
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
-			cache::set($cache_id, $result, null, ['tags' => @$options['cache_tags']], @$options['cache_link']);
+			if (!isset($options['cache_tags'])) {
+				$options['cache_tags'] = null;
+			}
+			cache::set($cache_id, $result, null, ['tags' => $options['cache_tags']], $options['cache_link']);
 		}
 
 		// end time
@@ -373,5 +421,25 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			}
 		} while (0);
 		return $result;
+	}
+
+	/**
+	 * Backend specific sequence queries
+	 *
+	 * @param string $sequence_name
+	 * @return string
+	 */
+	public function sequence($sequence_name, $sequence_table, $type) {
+		$sql = <<<TTT
+			SET @next_sequence = {$type}('{$sequence_name}');
+			SELECT
+				*,
+				@next_sequence counter
+			FROM
+				{$sequence_table}
+			WHERE 1=1
+					AND sm_sequence_name = '{$sequence_name}';
+TTT;
+		return $this->query($sql, null, ['multi_query' => true]);
 	}
 }

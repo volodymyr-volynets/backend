@@ -24,7 +24,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 				'error' => [],
 				'schema' => 'public',
 				'table' => $temp[0],
-				'full_table_name' => 'public.' . $temp[1]
+				'full_table_name' => $temp[0]
 			];
 		}
 	}
@@ -121,7 +121,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 			'data' => []
 		];
 		// getting information
-		foreach (array('schemas', 'columns', 'constraints', 'sequences') as $v) { //'views', 'domains', 'functions', 'triggers'
+		foreach (array('schemas', 'columns', 'constraints', 'sequences', 'functions') as $v) { //'views', 'domains', 'triggers'
 			$temp = $this->load_schema_details($v, $db_link);
 			if (!$temp['success']) {
 				$result['error'] = array_merge($result['error'], $temp['error']);
@@ -220,8 +220,39 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 					case 'schemas':
 						$result['data']['schema'] = $temp['data'];
 						break;
+					case 'sequences':
+						foreach ($temp['data'] as $k2 => $v2) {
+							foreach ($v2 as $k3 => $v3) {
+								$result['data']['sequence'][$k2][$k3] = [
+									'owner' => $v3['sequence_owner'],
+									'full_sequence_name' => $v3['sequence_name'],
+									'type' => $v3['type'],
+									'prefix' => $v3['prefix'],
+									'length' => $v3['length'],
+									'suffix' => $v3['suffix']
+								];
+							}
+						}
+						break;
+					case 'functions':
+						foreach ($temp['data'] as $k2 => $v2) {
+							foreach ($v2 as $k3 => $v3) {
+								$k3 = str_replace('public.', '', $k3);
+								$result['data']['function'][$k2][$k3] = [
+									'owner' => $v3['function_owner'],
+									'function_name' => $k3,
+									'sql_full' => $v3['routine_definition'],
+									'sql_parts' => [
+										'definition' => $v3['full_function_name'],
+										'header' => null,
+										'body' => $v3['routine_definition'],
+										'footer' => null
+									]
+								];
+							}
+						}
+						break;
 					default:
-						// todo: add sequencing processing
 						// nothing
 				}
 			}
@@ -463,47 +494,56 @@ TTT;
 			case 'sequences':
 				$key = array('schema_name', 'sequence_name');
 				$sql = <<<TTT
-					SELECT 
-							s.nspname schema_name, 
-							c.relname sequence_name, 
+					SELECT
+							s.nspname schema_name,
+							c.relname sequence_name,
 							c.rolname sequence_owner,
-							(pg_sequence_parameters(c.oid))."increment" sequence_increment, 
-							(pg_sequence_parameters(c.oid)).minimum_value sequence_minvalue, 
-							(pg_sequence_parameters(c.oid)).maximum_value sequence_maxvalue, 
-							(pg_sequence_parameters(c.oid)).start_value sequence_start, 
-							CASE WHEN (pg_sequence_parameters(c.oid)).cycle_option THEN 1 ELSE 0 END sequence_is_cycle, 
-							d.description AS description
+							null "type",
+							null prefix,
+							0 length,
+							null suffix
 					FROM (
 							SELECT 
 									a.oid,
 									a.relnamespace, 
 									a.relname,
-									x.rolname
+									r.rolname
 							FROM pg_class a
-							LEFT JOIN pg_catalog.pg_authid x ON x.oid = a.relowner
+							INNER JOIN pg_catalog.pg_roles r ON r.oid = a.relowner
 							WHERE a.relkind = 'S'
 					) c
 					LEFT JOIN pg_namespace s ON s.oid = c.relnamespace
-					LEFT JOIN pg_description d ON d.objoid = c.oid AND d.classoid = 'pg_class'::regclass::oid
+					WHERE 1=1
+						AND s.nspname || '.' || c.relname NOT IN (
+							SELECT
+								n.nspname || '.' || s.relname sequence_name
+							FROM pg_class s
+							INNER JOIN pg_depend d ON d.objid = s.oid
+							INNER JOIN pg_class t ON d.objid = s.oid AND d.refobjid = t.oid
+							INNER JOIN pg_attribute a ON (d.refobjid, d.refobjsubid) = (a.attrelid, a.attnum)
+							INNER JOIN pg_namespace n ON n.oid = s.relnamespace
+							WHERE s.relkind = 'S'
+						)
 TTT;
 				break;
-/*
 			case 'functions':
 				$key = array('schema_name', 'function_name');
 				$sql = <<<TTT
 					SELECT
 							n.nspname schema_name,
-							p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')' function_name,
-							o.rolname function_owner,
-							pg_catalog.pg_get_functiondef(p.oid) function_definition
+							p.proname function_name,
+							p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')' full_function_name,
+							r.rolname function_owner,
+							pg_catalog.pg_get_functiondef(p.oid) routine_definition
 					FROM pg_catalog.pg_proc p
+					INNER JOIN pg_catalog.pg_roles r ON r.oid = p.proowner
 					LEFT JOIN pg_catalog.pg_namespace n ON p.pronamespace = n.oid
-					LEFT JOIN pg_authid o ON o.oid = p.proowner
 					WHERE 1=1
 							AND n.nspname NOT IN ('pg_catalog', 'information_schema')
 							AND p.proisagg = 'f'
 TTT;
 				break;
+/*
 			case 'triggers':
 				$key = array('schema_name', 'table_name', 'trigger_name');
 				$sql = <<<TTT
@@ -552,7 +592,7 @@ TTT;
 		switch ($type) {
 			// schema
 			case 'schema':
-				$result = "CREATE SCHEMA {$data['name']} AUTHORIZATION {$data['owner']};";
+				$result = "CREATE SCHEMA {$data['data']['name']} AUTHORIZATION {$data['data']['owner']};";
 				break;
 			case 'schema_owner':
 				$result = "ALTER SCHEMA {$data['name']} OWNER TO {$data['owner']};";
@@ -605,10 +645,11 @@ TTT;
 				foreach ($data['data']['columns'] as $k => $v) {
 					$columns[] = $this->render_sql('column_new', ['table' => '', 'name' => $k, 'data' => $v], ['column_new_no_alter' => true]);
 				}
-				$result = "CREATE TABLE {$data['data']['full_table_name']} (\n\t";
-					$result.= implode(",\n\t", $columns);
-				$result.= "\n);";
-				$result.= "\nALTER TABLE {$data['data']['full_table_name']} OWNER TO {$data['data']['owner']};";
+				$result2 = "CREATE TABLE {$data['data']['full_table_name']} (\n\t";
+					$result2.= implode(",\n\t", $columns);
+				$result2.= "\n);";
+				$result = [$result2];
+				$result[]= "ALTER TABLE {$data['data']['full_table_name']} OWNER TO {$data['data']['owner']};";
 				break;
 			case 'table_delete':
 				$result = "DROP TABLE {$data['data']['full_table_name']};";
@@ -680,8 +721,28 @@ TTT;
 				break;
 			// sequences
 			case 'sequences_new':
-				$result = "CREATE SEQUENCE {$data['name']} INCREMENT {$data['definition']['sequence_increment']} MINVALUE {$data['definition']['sequence_minvalue']} MAXVALUE {$data['definition']['sequence_maxvalue']} START {$data['definition']['sequence_start']}" . ($data['definition']['sequence_is_cycle'] ? ' NO' : '') . " CYCLE;\n";
-				$result.= "ALTER SEQUENCE {$data['name']} OWNER TO {$data['owner']};";
+				$result = [];
+				$result[]= "CREATE SEQUENCE {$data['name']} START 1;";
+				$result[]= "ALTER SEQUENCE {$data['name']} OWNER TO {$data['owner']};";
+				$result[]= <<<TTT
+					INSERT INTO sm.sequences (
+						sm_sequence_name,
+						sm_sequence_description,
+						sm_sequence_prefix,
+						sm_sequence_length,
+						sm_sequence_suffix,
+						sm_sequence_count,
+						sm_sequence_type
+					) VALUES (
+						'{$data['name']}',
+						null,
+						'{$data['data']['prefix']}',
+						{$data['data']['length']},
+						'{$data['data']['suffix']}',
+						0,
+						'{$data['data']['type']}'
+					);
+TTT;
 				break;
 			case 'sequence_delete':
 				$result = "DROP SEQUENCE {$data['name']};";
@@ -691,19 +752,15 @@ TTT;
 				break;
 			// functions
 			case 'function_new':
-				$result = trim($data['definition']) . ";";
-				$result.= "ALTER FUNCTION {$data['name']} OWNER TO {$data['owner']};";
-				break;
-			case 'function_change':
-				$result = "DROP FUNCTION {$data['name']};\n";
-				$result.= trim($data['definition']) . ";";
-				$result.= "ALTER FUNCTION {$data['name']} OWNER TO {$data['owner']};";
+				$result = [];
+				$result[]= $data['data']['sql_full'] . ";";
+				$result[]= "ALTER FUNCTION {$data['data']['sql_parts']['definition']} OWNER TO {$data['owner']};";
 				break;
 			case 'function_delete':
-				$result = "DROP FUNCTION {$data['name']};";
+				$result = "DROP FUNCTION {$data['data']['sql_parts']['definition']};";
 				break;
 			case 'function_owner':
-				$result = "ALTER FUNCTION {$data['name']} OWNER TO {$data['owner']};";
+				$result = "ALTER FUNCTION {$data['data']['sql_parts']['definition']} OWNER TO {$data['owner']};";
 				break;
 			// trigger
 			case 'trigger_new':

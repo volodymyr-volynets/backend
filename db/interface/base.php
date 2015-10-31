@@ -12,6 +12,6 @@ interface numbers_backend_db_interface_base {
 	public function insert($table, $rows, $keys = null, $options = []);
 	public function update($table, $data, $keys, $options = []);
 	public function delete($table, $data, $keys, $options = []);
-	//public function remove($table, $where);
+	public function sequence($sequence_name, $sequence_table, $type);
 	public function close();
 }
