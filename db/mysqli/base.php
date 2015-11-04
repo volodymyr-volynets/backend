@@ -137,7 +137,9 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			if (!$resource) {
 				$result['error'][] = 'Db Link ' . $this->db_link . ': ' . mysqli_error($this->db_resource);
 				$result['errno'] = mysqli_errno($this->db_resource);
+				// we log this error message
 				// todo: process log policy here
+				error_log('Query error: ' . implode(' ', $result['error']) . ' [' . $sql . ']');
 			} else {
 				$result['affected_rows']+= mysqli_affected_rows($this->db_resource);
 				if ($resource !== true) {
@@ -174,7 +176,9 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			if (!$resource) {
 				$result['error'][] = 'Db Link ' . $this->db_link . ': ' . mysqli_error($this->db_resource);
 				$result['errno'] = mysqli_errno($this->db_resource);
+				// we log this error message
 				// todo: process log policy here
+				error_log('Query error: ' . implode(' ', $result['error']) . ' [' . $sql . ']');
 			} else {
 				$result['affected_rows']+= mysqli_affected_rows($this->db_resource);
 				do {
@@ -186,6 +190,9 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 							$num_rows = 0;
 							$result['error'][] = 'Db Link ' . $this->db_link . ': Multi query error!';
 							$result['errno'] = 1;
+							// we log this error message
+							// todo: process log policy here
+							error_log('Query error: ' . implode(' ', $result['error']) . ' [' . $sql . ']');
 						}
 						if ($num_rows > 0) {
 							while ($rows = mysqli_fetch_assoc($result_multi)) {

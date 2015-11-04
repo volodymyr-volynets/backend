@@ -37,8 +37,8 @@ class numbers_backend_crypt_class_base {
 	 */
 	public function __construct($crypt_link, $options = []) {
 		$this->crypt_link = $crypt_link;
-		$this->key = isset($options['key']) ? $options['key'] : md5(getenv('numbers_env'));
-		$this->salt = isset($options['salt']) ? $options['salt'] : 'a1b2c3';
+		$this->key = isset($options['key']) ? $options['key'] : sha1('key');
+		$this->salt = isset($options['salt']) ? $options['salt'] : 'salt';
 		$this->hash = isset($options['hash']) ? $options['hash'] : 'sha1';
 	}
 
@@ -57,7 +57,7 @@ class numbers_backend_crypt_class_base {
 		);
 		$serilialized = base64_encode(serialize($result));
 		$hash = $this->hash($serilialized . $this->salt);
-		return $this->encrypt($hash . $serilialized);
+		return urlencode($this->encrypt($hash . $serilialized));
 	}
 
 	/**

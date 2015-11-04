@@ -66,12 +66,13 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 * @return boolean
 	 */
 	public function write($id, $data) {
-		// todo: do not count ajax request as pages count
+		// we only count html pages
+		$inc = empty(self::$non_html_output) ? 1 : 0;
 		$save = [
 			'sm_session_id' => $id,
 			'sm_session_expires' => format::now('datetime', ['add_seconds' => session::$default_options['gc_maxlifetime']]),
 			'sm_session_last_requested' => format::now('datetime'),
-			'sm_session_pages_count,=,~~' => 'sm_session_pages_count + 1',
+			'sm_session_pages_count,=,~~' => 'sm_session_pages_count + ' . $inc,
 			'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
 			'sm_session_user_id' => 0,
 			'sm_session_data' => $data
@@ -81,7 +82,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		$result = $db->update($this->model_seessions->table_name, $save, 'sm_session_id');
 		if ($result['affected_rows'] == 0) {
 			$save['sm_session_started'] = format::now('datetime');
-			$save['sm_session_pages_count'] = 1;
+			$save['sm_session_pages_count'] = $inc;
 			unset($save['sm_session_pages_count,=,~~']);
 			// we insert
 			$result = $db->insert($this->model_seessions->table_name, [$save]);

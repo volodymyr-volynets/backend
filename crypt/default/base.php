@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_crypt_default_default extends numbers_backend_crypt_class_base implements numbers_backend_crypt_interface_base {
+class numbers_backend_crypt_default_base extends numbers_backend_crypt_class_base implements numbers_backend_crypt_interface_base {
 
 	/**
 	 * Encrypting data (URL safe)
@@ -38,6 +38,10 @@ class numbers_backend_crypt_default_default extends numbers_backend_crypt_class_
 	 * @return string
 	 */
 	public function hash($data) {
+		// serilializing array or object
+		if (is_array($data) || is_object($data)) {
+			$data = serialize($data);
+		}
 		if ($this->hash == 'md5' || $this->hash == 'sha1') {
 			$method = $this->hash;
 			return $method($data);
