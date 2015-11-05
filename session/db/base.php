@@ -66,8 +66,13 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 * @return boolean
 	 */
 	public function write($id, $data) {
-		// we only count html pages
-		$inc = empty(self::$non_html_output) ? 1 : 0;
+		// we only count for presentational content types
+		$object = new object_type_content();
+		if ($object->is_presentational(application::get('flag.global.__content_type'))) {
+			$inc = 1;
+		} else {
+			$inc = 0;
+		}
 		$save = [
 			'sm_session_id' => $id,
 			'sm_session_expires' => format::now('datetime', ['add_seconds' => session::$default_options['gc_maxlifetime']]),

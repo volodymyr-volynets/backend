@@ -25,6 +25,15 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 			'error' => []
 		];
 		$this->options = $options;
+		// for deployed code the directory is different because we relate it based on code
+		if (!empty($this->options['dir']) && application::is_deployed()) {
+			$temp = $this->options['dir'][0] . $this->options['dir'][1];
+			if ($temp == './') {
+				$this->options['dir'] = './.' . $this->options['dir'];
+			} else {
+				$this->options['dir'] = '../';
+			}
+		}
 		// check if we have valid directory
 		if (empty($this->options['dir']) || !is_dir($this->options['dir'])) {
 			$result['error'][] = 'Cache directory does not exists or not provided!';

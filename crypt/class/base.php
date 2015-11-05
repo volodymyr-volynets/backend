@@ -70,7 +70,7 @@ class numbers_backend_crypt_class_base {
 	 */
 	public function token_validate($token, $valid_hours = 2, $check_ip = false) {
 		do {
-			$token_decrypted = trim($this->decrypt($token));
+			$token_decrypted = $this->decrypt($token);
 			$hash_length = mb_strlen($this->hash(1));
 			$hash = mb_substr($token_decrypted, 0, $hash_length, 'latin1');
 			$serilialized = mb_substr($token_decrypted, $hash_length, mb_strlen($token_decrypted, 'latin1'), 'latin1');

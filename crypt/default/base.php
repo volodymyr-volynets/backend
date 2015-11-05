@@ -28,7 +28,7 @@ class numbers_backend_crypt_default_base extends numbers_backend_crypt_class_bas
 		$iv = mb_substr($decoded, 0, $iv_size, 'latin1');
 		$cipher = mb_substr($decoded, $iv_size, mb_strlen($decoded, 'latin1'), 'latin1');
 		$decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $this->key, $cipher, MCRYPT_MODE_CBC, $iv);
-		return $decrypted;
+		return rtrim($decrypted, "\0");
 	}
 
 	/**
