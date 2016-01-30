@@ -93,6 +93,9 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 			case 'datetime':
 				$result['column'] = ['type' => 'timestamp without time zone', 'null' => $column['null'], 'default' => $column['default']];
 				break;
+			case 'timestamp':
+				$result['column'] = ['type' => 'timestamp(6) without time zone', 'null' => $column['null'], 'default' => $column['default']];
+				break;
 			case 'numbers_code':
 				$result['column'] = ['type' => 'character varying(50)', 'null' => $column['null'], 'default' => $column['default']];
 				break;

@@ -99,6 +99,9 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 			case 'datetime':
 				$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
 				break;
+			case 'timestamp':
+				$result['column'] = ['type' => 'datetime(6)', 'null' => $column['null'], 'default' => $column['default']];
+				break;
 			case 'numbers_code':
 				$result['column'] = ['type' => 'varchar(50)', 'null' => $column['null'], 'default' => $column['default']];
 				break;

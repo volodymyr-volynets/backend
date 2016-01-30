@@ -240,21 +240,25 @@ class numbers_backend_db_class_ddl {
 		$result['data']['change_triggers'] = [];
 
 		// new schemas
-		foreach ($obj_master['schema'] as $k => $v) {
-			if (empty($obj_slave['schema'][$k])) {
-				$result['data']['new_schemas'][$k] = array('type' => 'schema', 'data' => $v);
-				$result['count']++;
-			} else if ($v['owner']!=$obj_slave['schema'][$k]['owner']) {
-				$result['data']['new_schema_owners'][$k] = array('type' => 'schema_owner', 'data' => $v);
-				$result['count']++;
+		if (!empty($obj_master['schema'])) {
+			foreach ($obj_master['schema'] as $k => $v) {
+				if (empty($obj_slave['schema'][$k])) {
+					$result['data']['new_schemas'][$k] = array('type' => 'schema', 'data' => $v);
+					$result['count']++;
+				} else if ($v['owner']!=$obj_slave['schema'][$k]['owner']) {
+					$result['data']['new_schema_owners'][$k] = array('type' => 'schema_owner', 'data' => $v);
+					$result['count']++;
+				}
 			}
 		}
 
 		// delete schema
-		foreach ($obj_slave['schema'] as $k => $v) {
-			if (empty($obj_master['schema'][$k])) {
-				$result['data']['delete_schemas'][$k] = array('type'=>'schema_delete', 'data' => $v);
-				$result['count']++;
+		if (!empty($obj_slave['schema'])) {
+			foreach ($obj_slave['schema'] as $k => $v) {
+				if (empty($obj_master['schema'][$k])) {
+					$result['data']['delete_schemas'][$k] = array('type'=>'schema_delete', 'data' => $v);
+					$result['count']++;
+				}
 			}
 		}
 
@@ -300,8 +304,20 @@ class numbers_backend_db_class_ddl {
 						if ($v3['type'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['type']) {
 							$temp_error = true;
 						}
+						if (!isset($v3['null'])) {
+							$v3['null'] = false;
+						}
+						if (!isset($obj_slave['table'][$k][$k2]['columns'][$k3]['null'])) {
+							$obj_slave['table'][$k][$k2]['columns'][$k3]['null'] = false;
+						}
 						if ($v3['null'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['null']) {
 							$temp_error = true;
+						}
+						if (!isset($v3['default'])) {
+							$v3['default'] = null;
+						}
+						if (!isset($obj_slave['table'][$k][$k2]['columns'][$k3]['default'])) {
+							$obj_slave['table'][$k][$k2]['columns'][$k3]['default'] = null;
 						}
 						if ($v3['default'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['default']) {
 							$temp_error = true;

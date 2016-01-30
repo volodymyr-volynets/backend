@@ -9,9 +9,9 @@ class numbers_backend_session_db_model_sessions extends object_table {
 	public $table_get_limit;
 	public $table_columns = [
 		'sm_session_id' => ['name' => 'Session #', 'type' => 'varchar', 'length' => 40],
-		'sm_session_started' => ['name' => 'Datetime Started', 'type' => 'datetime'],
-		'sm_session_expires' => ['name' => 'Datetime Expires', 'type' => 'datetime'],
-		'sm_session_last_requested' => ['name' => 'Datetime Last Requested', 'type' => 'datetime'],
+		'sm_session_started' => ['name' => 'Datetime Started', 'type' => 'timestamp'],
+		'sm_session_expires' => ['name' => 'Datetime Expires', 'type' => 'timestamp'],
+		'sm_session_last_requested' => ['name' => 'Datetime Last Requested', 'type' => 'timestamp'],
 		'sm_session_pages_count' => ['name' => 'Pages Count', 'type' => 'integer', 'default' => 0],
 		'sm_session_user_ip' => ['name' => 'User IP', 'type' => 'varchar', 'length' => 50],
 		'sm_session_user_id' => ['name' => 'User #', 'type' => 'integer', 'default' => 0],

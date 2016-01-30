@@ -66,7 +66,7 @@ class numbers_backend_ip_cache_base implements numbers_backend_ip_interface_base
 	 */
 	public function gc() {
 		// we need to cleanup ip addresses older than 2 weeks, 10% chance
-		if (rand(0, 99) <= 10 | true) {
+		if (rand(0, 99) <= 10) {
 			$date = format::now('date', ['add_seconds' => -(14 * 24 * 60 * 60)]);
 			$db = new db($this->object->db_link);
 			$delete = [

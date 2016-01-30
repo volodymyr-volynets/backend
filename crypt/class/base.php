@@ -17,6 +17,20 @@ class numbers_backend_crypt_class_base {
 	public $key;
 
 	/**
+	 * Cipher
+	 *
+	 * @var string
+	 */
+	public $cipher;
+
+	/**
+	 * Mode
+	 *
+	 * @var string
+	 */
+	public $mode;
+
+	/**
 	 * Salt
 	 *
 	 * @var string
@@ -31,15 +45,44 @@ class numbers_backend_crypt_class_base {
 	public $hash;
 
 	/**
-	 * Constructing
+	 * Base64
 	 *
-	 * @param string $key
+	 * @var boolean
 	 */
-	public function __construct($crypt_link, $options = []) {
-		$this->crypt_link = $crypt_link;
-		$this->key = isset($options['key']) ? $options['key'] : sha1('key');
-		$this->salt = isset($options['salt']) ? $options['salt'] : 'salt';
-		$this->hash = isset($options['hash']) ? $options['hash'] : 'sha1';
+	public $base64 = false;
+
+	/**
+	 * Generate a hash of a value
+	 *
+	 * @param string $data
+	 * @return string
+	 */
+	public function hash($data) {
+		// serilializing array or object
+		if (is_array($data) || is_object($data)) {
+			$data = serialize($data);
+		}
+		if ($this->hash == 'md5' || $this->hash == 'sha1') {
+			$method = $this->hash;
+			return $method($data);
+		} else {
+			return hash($this->hash, $data);
+		}
+	}
+
+	/**
+	 * Generate has of a file
+	 *
+	 * @param string $path
+	 * @return string
+	 */
+	public function hash_file($path) {
+		if ($this->hash == 'md5' || $this->hash == 'sha1') {
+			$method = $this->hash . '_file';
+			return $method($path);
+		} else {
+			return hash_file($this->hash, $data);
+		}
 	}
 
 	/**

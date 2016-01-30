@@ -52,9 +52,11 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 * @param string $id
 	 */
 	public function read($id) {
-		$data = $this->model_seessions->get(['sm_session_id' => $id, 'sm_session_expires,>=' => format::now()], ['columns' => ['sm_session_data'], 'limit' => 1, 'pk' => null]);
+		$data = $this->model_seessions->get(['sm_session_id' => $id, 'sm_session_expires,>=' => format::now('timestamp')], ['columns' => ['sm_session_data'], 'limit' => 1, 'pk' => null]);
 		if (isset($data[0])) {
 			return $data[0]['sm_session_data'];
+		} else {
+			return "";
 		}
 	}
 
@@ -75,8 +77,8 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		}
 		$save = [
 			'sm_session_id' => $id,
-			'sm_session_expires' => format::now('datetime', ['add_seconds' => session::$default_options['gc_maxlifetime']]),
-			'sm_session_last_requested' => format::now('datetime'),
+			'sm_session_expires' => format::now('timestamp', ['add_seconds' => session::$default_options['gc_maxlifetime']]),
+			'sm_session_last_requested' => format::now('timestamp'),
 			'sm_session_pages_count,=,~~' => 'sm_session_pages_count + ' . $inc,
 			'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
 			'sm_session_user_id' => 0,
@@ -86,13 +88,13 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		// we update first
 		$result = $db->update($this->model_seessions->table_name, $save, 'sm_session_id');
 		if ($result['affected_rows'] == 0) {
-			$save['sm_session_started'] = format::now('datetime');
+			$save['sm_session_started'] = format::now('timestamp');
 			$save['sm_session_pages_count'] = $inc;
 			unset($save['sm_session_pages_count,=,~~']);
 			// we insert
 			$result = $db->insert($this->model_seessions->table_name, [$save]);
 		}
-		return $result['affected_rows'];
+		return $result['affected_rows'] ? true : false;
 	}
 
 	/**
@@ -105,11 +107,11 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		// we set session expired 100 seconds ago, gc will do the rest
 		$save = [
 			'sm_session_id' => $id,
-			'sm_session_expires' => format::now('datetime', ['add_seconds' => -100]),
+			'sm_session_expires' => format::now('timestamp', ['add_seconds' => -100]),
 		];
 		$db = new db($this->model_seessions->db_link);
 		$result = $db->update($this->model_seessions->table_name, $save, 'sm_session_id');
-		return $result['affected_rows'];
+		return true;
 	}
 
 	/**
@@ -124,7 +126,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		$ip_submodule = application::get('flag.global.ip.submodule');
 		$session_model = new numbers_backend_session_db_model_sessions();
 		$login_model = new numbers_backend_session_db_model_logins();
-		$expire = format::now('datetime');
+		$expire = format::now('timestamp');
 
 		// generating sqls
 		if (!empty($ip_submodule)) {

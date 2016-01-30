@@ -9,8 +9,8 @@ class numbers_backend_session_db_model_logins extends object_table {
 	public $table_get_limit;
 	public $table_columns = [
 		'sm_login_id' => ['name' => 'Login #', 'type' => 'bigserial'],
-		'sm_login_started' => ['name' => 'Datetime Started', 'type' => 'datetime'],
-		'sm_login_last_requested' => ['name' => 'Datetime Last Requested', 'type' => 'datetime'],
+		'sm_login_started' => ['name' => 'Datetime Started', 'type' => 'timestamp'],
+		'sm_login_last_requested' => ['name' => 'Datetime Last Requested', 'type' => 'timestamp'],
 		'sm_login_pages_count' => ['name' => 'Pages Count', 'type' => 'integer', 'default' => 0],
 		'sm_login_user_ip' => ['name' => 'User IP', 'type' => 'varchar', 'length' => 50],
 		'sm_login_user_id' => ['name' => 'User #', 'type' => 'integer', 'default' => 0],
