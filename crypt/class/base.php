@@ -42,7 +42,7 @@ class numbers_backend_crypt_class_base {
 	 *
 	 * @var string
 	 */
-	public $hash;
+	public $hash = 'sha1';
 
 	/**
 	 * Base64
@@ -52,10 +52,21 @@ class numbers_backend_crypt_class_base {
 	public $base64 = false;
 
 	/**
-	 * Generate a hash of a value
+	 * Check ip
 	 *
-	 * @param string $data
-	 * @return string
+	 * @var type
+	 */
+	public $check_ip = false;
+
+	/**
+	 * Valid hours
+	 *
+	 * @var type
+	 */
+	public $valid_hours = 2;
+
+	/**
+	 * see crypt::hash();
 	 */
 	public function hash($data) {
 		// serilializing array or object
@@ -71,10 +82,7 @@ class numbers_backend_crypt_class_base {
 	}
 
 	/**
-	 * Generate has of a file
-	 *
-	 * @param string $path
-	 * @return string
+	 * see crypt::hash_file();
 	 */
 	public function hash_file($path) {
 		if ($this->hash == 'md5' || $this->hash == 'sha1') {
@@ -86,50 +94,45 @@ class numbers_backend_crypt_class_base {
 	}
 
 	/**
-	 * This would create encrypted token
-	 *
-	 * @param mixed $id
-	 * @param mixed $data
+	 * see crypt::token_create();
 	 */
 	public function token_create($id, $data = null) {
-		$result = array(
+		$result = [
 			'id' => $id,
 			'data' => $data,
 			'time' => time(),
 			'ip' => request::ip()
-		);
-		$serilialized = base64_encode(serialize($result));
-		$hash = $this->hash($serilialized . $this->salt);
-		return urlencode($this->encrypt($hash . $serilialized));
+		];
+		$encrypted = $this->encrypt(serialize($result));
+		if (empty($this->base64)) {
+			return urlencode(base64_encode($encrypted));
+		} else {
+			return urlencode($encrypted);
+		}
 	}
 
 	/**
-	 * Validate encrypted token
-	 *
-	 * @param string $token
-	 * @param int $valid
-	 * @param boolean $check_ip
-	 * @return array|boolean
+	 * see crypt::token_validate();
 	 */
-	public function token_validate($token, $valid_hours = 2, $check_ip = false) {
+	public function token_validate($token) {
 		do {
-			$token_decrypted = $this->decrypt($token);
-			$hash_length = mb_strlen($this->hash(1));
-			$hash = mb_substr($token_decrypted, 0, $hash_length, 'latin1');
-			$serilialized = mb_substr($token_decrypted, $hash_length, mb_strlen($token_decrypted, 'latin1'), 'latin1');
-			if (empty($hash) || $hash != $this->hash($serilialized . $this->salt)) {
+			if (empty($this->base64)) {
+				$token = base64_decode($token);
+			}
+			$decrypted = $this->decrypt($token);
+			if ($decrypted === false) {
 				break;
 			}
-			$result = unserialize(base64_decode($serilialized));
+			$result = unserialize($decrypted);
 			if (empty($result['id'])) {
 				break;
 			}
 			// validating valid hours
-			if ($result['time'] + ($valid_hours * 60 * 60) <= time()) {
+			if ($result['time'] + ($this->valid_hours * 60 * 60) <= time()) {
 				break;
 			}
 			// ip verification
-			if ($check_ip && $result['ip'] != request::ip()) {
+			if ($this->check_ip && $result['ip'] != request::ip()) {
 				break;
 			}
 			return $result;

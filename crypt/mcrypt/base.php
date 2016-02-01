@@ -5,7 +5,8 @@ class numbers_backend_crypt_mcrypt_base extends numbers_backend_crypt_class_base
 	/**
 	 * Constructing
 	 *
-	 * @param string $key
+	 * @param string $crypt_link
+	 * @param array $options
 	 */
 	public function __construct($crypt_link, $options = []) {
 		$this->crypt_link = $crypt_link;
@@ -15,13 +16,12 @@ class numbers_backend_crypt_mcrypt_base extends numbers_backend_crypt_class_base
 		$this->cipher = constant($options['cipher'] ?? 'MCRYPT_RIJNDAEL_256');
 		$this->mode = constant($options['mode'] ?? 'MCRYPT_MODE_CBC');
 		$this->base64 = !empty($options['base64']);
+		$this->check_ip = !empty($options['check_ip']);
+		$this->valid_hours = !empty($options['valid_hours']);
 	}
 
 	/**
-	 * Encrypting data (URL safe)
-	 *
-	 * @param string $data
-	 * @return string
+	 * see crypt::encrypt();
 	 */
 	public function encrypt($data) {
 		$iv_size = mcrypt_get_iv_size($this->cipher, $this->mode);
@@ -29,7 +29,7 @@ class numbers_backend_crypt_mcrypt_base extends numbers_backend_crypt_class_base
 		$encrypted = mcrypt_encrypt($this->cipher, $this->key, $data, $this->mode, $iv);
 		// important to compute hash of encrypted value for validation purposes
 		$hash = $this->hash($encrypted);
-		if (!empty($this->base64)) {
+		if ($this->base64) {
 			return base64_encode($iv . $hash . $encrypted);
 		} else {
 			return $iv . $hash . $encrypted;
@@ -37,17 +37,30 @@ class numbers_backend_crypt_mcrypt_base extends numbers_backend_crypt_class_base
 	}
 
 	/**
-	 * Decrypting data (URL safe)
-	 *
-	 * @param string $data
-	 * @return string
+	 * see crypt::decrypt();
 	 */
 	public function decrypt($data) {
-		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
-		$decoded = base64_decode($data);
+		if ($this->base64) {
+			$decoded = base64_decode($data);
+		} else {
+			$decoded = $data;
+		}
+		// extract values out of data
+		$iv_size = mcrypt_get_iv_size($this->cipher, $this->mode);
 		$iv = mb_substr($decoded, 0, $iv_size, 'latin1');
-		$cipher = mb_substr($decoded, $iv_size, mb_strlen($decoded, 'latin1'), 'latin1');
-		$decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $this->key, $cipher, MCRYPT_MODE_CBC, $iv);
-		return rtrim($decrypted, "\0");
+		$hash_size = mb_strlen($this->hash(1), 'latin1');
+		$hash = mb_substr($decoded, $iv_size, $hash_size, 'latin1');
+		$cipher = mb_substr($decoded, $iv_size + $hash_size, mb_strlen($decoded, 'latin1'), 'latin1');
+		// comparing ciper with hash
+		if ($this->hash($cipher) != $hash) {
+			return false;
+		}
+		// decrypting
+		$decrypted = mcrypt_decrypt($this->cipher, $this->key, $cipher, $this->mode, $iv);
+		if ($decrypted !== false) {
+			return rtrim($decrypted, "\0");
+		} else {
+			return false;
+		}
 	}
 }
