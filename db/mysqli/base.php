@@ -113,7 +113,8 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			'rows' => [],
 			'key' => & $key,
 			'structure' => [],
-			'time' => null
+			'time' => null,
+			'last_insert_id' => 0
 		];
 
 		// start time

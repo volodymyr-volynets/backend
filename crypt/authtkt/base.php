@@ -16,7 +16,7 @@ class numbers_backend_crypt_authtkt_base extends numbers_backend_crypt_class_bas
 		$this->mode = 0;
 		$this->base64 = !empty($options['base64']);
 		$this->check_ip = !empty($options['check_ip']);
-		$this->valid_hours = !empty($options['valid_hours']);
+		$this->valid_hours = $options['valid_hours'] ?? 2;
 	}
 
 	/**
@@ -26,14 +26,14 @@ class numbers_backend_crypt_authtkt_base extends numbers_backend_crypt_class_bas
 		$time = $options['time'] ?? time();
 		$ip = $options['ip'] ?? request::ip();
 		if (empty($this->check_ip)) {
-			$packed = pack("NN", 0, $time);
+			$packed = pack('NN', 0, $time);
 		} else {
-			$packed = pack("NN", ip2long($ip), $time);
+			$packed = pack('NN', ip2long($ip), $time);
 		}
 		$data = base64_encode(serialize($data));
 		$digest0 = md5($packed . $this->key . $id . "\0" . 'numbers' . "\0" . $data);
 		$digest = md5($digest0 . $this->key);
-		$result = sprintf("%s%08x%s!%s!%s", $digest, $time, $id, '', $data);
+		$result = sprintf('%s%08x%s!%s!%s', $digest, $time, $id, 'numbers', $data);
 		if ($this->base64) {
 			return urlencode(base64_encode($result));
 		} else {
@@ -65,6 +65,7 @@ class numbers_backend_crypt_authtkt_base extends numbers_backend_crypt_class_bas
 		if (urldecode($rebuilt) != $token) {
 			return false;
 		} else {
+			// todo: validate valid_hours
 			return $result;
 		}
 	}

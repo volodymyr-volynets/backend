@@ -99,7 +99,8 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			'rows' => [],
 			'key' => & $key,
 			'structure' => [],
-			'time' => null
+			'time' => null,
+			'last_insert_id' => 0
 		];
 
 		// start time
@@ -160,6 +161,12 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			}
 			pg_free_result($resource);
 			$result['success'] = true;
+		}
+
+		// last_insert_id is a last element in the last row
+		if (!empty($options['flag_came_from_insert']) && !empty($options['returning'])) {
+			$temp = end($result['rows']);
+			$result['last_insert_id'] = end($temp);
 		}
 
 		// caching if no error
@@ -245,9 +252,14 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		$sql.= implode(', ', $sql_values);
 		// if we need to return updated/inserted rows
 		if (!empty($options['returning'])) {
-			$sql.= ' RETURNING *';
+			if (is_array($options['returning'])) {
+				$sql.= ' RETURNING ' . implode(', ', $options['returning']);
+			} else {
+				$sql.= ' RETURNING *';
+			}
 		}
-		return $this->query($sql, $this->prepare_keys($keys));
+		$options['flag_came_from_insert'] = true;
+		return $this->query($sql, $this->prepare_keys($keys), $options);
 	}
 
 	/**

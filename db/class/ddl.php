@@ -289,7 +289,7 @@ class numbers_backend_db_class_ddl {
 		}
 
 		// new columns
-		foreach ($obj_master['table'] as $k=>$v) {
+		foreach ($obj_master['table'] as $k => $v) {
 			foreach ($v as $k2 => $v2) {
 				// if we have new table we do not need to check for new columns
 				if (!empty($result['data']['new_tables'][$v2['full_table_name']])) continue;
@@ -302,6 +302,10 @@ class numbers_backend_db_class_ddl {
 						// comparing data types
 						$temp_error = false;
 						if ($v3['type'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['type']) {
+							if (strpos($v3['type'], 'serial') !== false || strpos($obj_slave['table'][$k][$k2]['columns'][$k3]['type'], 'serial') !== false) {
+								$result['error'][] = 'Serial data type changes must be handled manually, column ' . $k . '.' . $k2 . '.' . $k3;
+								return $result;
+							}
 							$temp_error = true;
 						}
 						if (!isset($v3['null'])) {

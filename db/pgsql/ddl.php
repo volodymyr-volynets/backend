@@ -44,12 +44,14 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 		];
 
 		// presetting
-		$column['type'] = isset($column['type']) ? $column['type'] : 'text';
-		$column['null'] = isset($column['null']) ? $column['null'] : false;
-		$column['default'] = isset($column['default']) ? $column['default'] : null;
-		$column['length'] = isset($column['length']) ? $column['length'] : 0;
-		$column['precision'] = isset($column['precision']) ? $column['precision'] : 0;
-		$column['scale'] = isset($column['scale']) ? $column['scale'] : 0;
+		$column['type'] = $column['type'] ?? 'text';
+		$column['null'] = $column['null'] ?? false;
+		$column['default'] = $column['default'] ?? null;
+		$column['length'] = $column['length'] ?? 0;
+		$column['precision'] = $column['precision'] ?? 0;
+		$column['scale'] = $column['scale'] ?? 0;
+
+		// todo: add domains here
 
 		// simple switch would do the work
 		switch ($column['type']) {
@@ -91,16 +93,10 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 				$result['column'] = ['type' => 'time without time zone', 'null' => $column['null'], 'default' => $column['default']];
 				break;
 			case 'datetime':
-				$result['column'] = ['type' => 'timestamp without time zone', 'null' => $column['null'], 'default' => $column['default']];
+				$result['column'] = ['type' => 'timestamp(0) without time zone', 'null' => $column['null'], 'default' => $column['default']];
 				break;
 			case 'timestamp':
 				$result['column'] = ['type' => 'timestamp(6) without time zone', 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'numbers_code':
-				$result['column'] = ['type' => 'character varying(50)', 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'numbers_hash':
-				$result['column'] = ['type' => 'character varying(128)', 'null' => $column['null'], 'default' => $column['default']];
 				break;
 			case 'text':
 				$result['column'] = ['type' => 'text', 'null' => $column['null'], 'default' => $column['default']];
@@ -141,6 +137,8 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 										$type.= '(' . $v4['length'] . ')';
 									} else if ($type == 'numeric' && $v4['precision'] > 0) {
 										$type.= '(' . $v4['precision'] . ', ' . $v4['scale'] . ')';
+									} else if (strpos($type, 'timestamp') === 0) {
+										$type = str_replace('timestamp', 'timestamp(' . ($v4['precision'] ?? 0) . ')', $type);
 									}
 									// processing default
 									$default = $v4['default'];
@@ -228,7 +226,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 							foreach ($v2 as $k3 => $v3) {
 								$result['data']['sequence'][$k2][$k3] = [
 									'owner' => $v3['sequence_owner'],
-									'full_sequence_name' => $v3['sequence_name'],
+									'full_sequence_name' => $k2 . '.' . $v3['sequence_name'],
 									'type' => $v3['type'],
 									'prefix' => $v3['prefix'],
 									'length' => $v3['length'],
@@ -423,7 +421,7 @@ TTT;
 							CASE WHEN a.is_nullable = 'NO' THEN 0 ELSE 1 END "null",
 							a.column_default "default",
 							a.character_maximum_length "length",
-							a.numeric_precision "precision",
+							coalesce(a.numeric_precision, a.datetime_precision) "precision",
 							a.numeric_scale "scale"
 					FROM information_schema.columns a
 					LEFT JOIN information_schema.tables b ON a.table_schema = b.table_schema AND a.table_name = b.table_name
