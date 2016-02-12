@@ -241,7 +241,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 								$k3 = str_replace('public.', '', $k3);
 								$result['data']['function'][$k2][$k3] = [
 									'owner' => $v3['function_owner'],
-									'function_name' => $k3,
+									'function_name' => $k2. '.' . $k3,
 									'sql_full' => $v3['routine_definition'],
 									'sql_parts' => [
 										'definition' => $v3['full_function_name'],

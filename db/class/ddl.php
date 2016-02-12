@@ -59,10 +59,10 @@ class numbers_backend_db_class_ddl {
 			$db = factory::get(['db', $model->db_link]);
 			$ddl_object = $db['ddl_object'];
 			$owner = $db['object']->connect_options['username'];
-			$engine = isset($model->table_engine[$db['backend']]) ? $model->table_engine[$db['backend']] : null;
+			$engine = $model->engine[$db['backend']] ?? null;
 
 			// process table name and schema
-			$schema_supported = $ddl_object->is_schema_supported($model->table_name);
+			$schema_supported = $ddl_object->is_schema_supported($model->name);
 			if ($schema_supported['success']) {
 				if (!empty($schema_supported['schema']) && $schema_supported['schema'] != 'public') {
 					$this->object_add(['type' => 'schema', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['schema'], 'data' => ['name' => $schema_supported['schema'], 'owner' => $owner]], $model->db_link);
@@ -70,30 +70,30 @@ class numbers_backend_db_class_ddl {
 			}
 
 			// process columns
-			if (empty($model->table_columns)) {
-				$result['error'][] = 'Table must have atleast one column!';
+			if (empty($model->columns)) {
+				$result['error'][] = 'Table ' . $model->name . ' must have atleast one column!';
 				break;
 			}
 
 			// columns would be here
 			$columns = [];
-			foreach ($model->table_columns as $k => $v) {
+			foreach ($model->columns as $k => $v) {
 				$column_temp = $ddl_object->is_column_type_supported($v, $model);
 				$columns[$k] = $column_temp['column'];
 			}
 			$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'], 'data' => ['columns' => $columns, 'owner' => $owner, 'full_table_name' => $schema_supported['full_table_name'], 'engine' => $engine]], $model->db_link);
 
 			// processing constraints
-			if (!empty($model->table_constraints)) {
-				foreach ($model->table_constraints as $k => $v) {
+			if (!empty($model->constraints)) {
+				foreach ($model->constraints as $k => $v) {
 					$v['full_table_name'] = $schema_supported['full_table_name'];
 					$this->object_add(['type' => 'constraint', 'schema' => $schema_supported['schema'], 'table' => $schema_supported['table'], 'name' => $k, 'data' => $v], $model->db_link);
 				}
 			}
 
 			// processing indexes
-			if (!empty($model->table_indexes)) {
-				foreach ($model->table_indexes as $k => $v) {
+			if (!empty($model->indexes)) {
+				foreach ($model->indexes as $k => $v) {
 					$v['full_table_name'] = $schema_supported['full_table_name'];
 					$this->object_add(['type' => 'index', 'schema' => $schema_supported['schema'], 'table' => $schema_supported['table'], 'name' => $k, 'data' => $v], $model->db_link);
 				}
@@ -512,7 +512,7 @@ class numbers_backend_db_class_ddl {
 								$result['count']++;
 							}
 						} else if ($options['backend'] == 'pgsql') {
-							if ($v2['sql_full'] != $obj_slave['function'][$k][$k2]['sql_full']) {
+							if (numbers_backend_db_class_ddl::sanitize_function($v2['sql_full']) != numbers_backend_db_class_ddl::sanitize_function($obj_slave['function'][$k][$k2]['sql_full'])) {
 								$result['data']['delete_functions'][$k . '.' . $k2] = array('type' => 'function_delete', 'name' => $v2['full_function_name'], 'data' => $v2);
 								$result['data']['new_functions'][$k . '.' . $k2] = array('type' => 'function_new', 'name' => $v2['full_function_name'], 'owner' => $v2['owner'], 'data' => $v2);
 								$result['count']++;
@@ -531,7 +531,7 @@ class numbers_backend_db_class_ddl {
 			foreach ($obj_slave['function'] as $k => $v) {
 				foreach ($v as $k2 => $v2) {
 					if (empty($obj_master['function'][$k][$k2])) {
-						$result['data']['delete_functions'][$k . '.' . $k2] = array('type' => 'function_delete', 'name' => $k . '.' . $k2);
+						$result['data']['delete_functions'][$k . '.' . $k2] = array('type' => 'function_delete', 'name' => $v2['full_function_name'], 'data' => $v2);
 						$result['count']++;
 					}
 				}
@@ -565,5 +565,20 @@ class numbers_backend_db_class_ddl {
 
 		$result['success'] = true;
 		return $result;
+	}
+
+	/**
+	 * Sanitize function
+	 *
+	 * @param string $sql
+	 * @return string
+	 */
+	public static function sanitize_function($sql) {
+		$sql = trim(str_replace(['$BODY$', '$function$'], '$$$', $sql), " \t\n\r");
+		$temp = explode("\n", $sql);
+		foreach ($temp as $k => $v) {
+			$temp[$k] = trim($v, " \t\n\r");
+		}
+		return implode("\n", $temp);
 	}
 }

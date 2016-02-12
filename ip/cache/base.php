@@ -27,7 +27,7 @@ class numbers_backend_ip_cache_base implements numbers_backend_ip_interface_base
 		// gc
 		$this->gc();
 		// query table for ip address information
-		$data = $this->object->get(['sm_ipcache_ip' => $ip], ['limit' => 1, 'orderby' => 'sm_ipcache_date DESC', 'pk' => null]);
+		$data = $this->object->get(['limit' => 1, 'orderby' => ['sm_ipcache_date' => SORT_DESC], 'pk' => null, 'where' => ['sm_ipcache_ip' => $ip]]);
 		if (isset($data[0])) {
 			return [
 				'success' => true,
@@ -72,7 +72,7 @@ class numbers_backend_ip_cache_base implements numbers_backend_ip_interface_base
 			$delete = [
 				'sm_ipcache_date,<' => $date
 			];
-			$db->delete($this->object->table_name, $delete, 'sm_ipcache_date,<');
+			$db->delete($this->object->name, $delete, 'sm_ipcache_date,<');
 		}
 	}
 }

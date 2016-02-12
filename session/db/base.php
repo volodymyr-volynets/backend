@@ -52,7 +52,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 * @param string $id
 	 */
 	public function read($id) {
-		$data = $this->model_seessions->get(['sm_session_id' => $id, 'sm_session_expires,>=' => format::now('timestamp')], ['columns' => ['sm_session_data'], 'limit' => 1, 'pk' => null]);
+		$data = $this->model_seessions->get(['columns' => ['sm_session_data'], 'limit' => 1, 'pk' => null, 'where' => ['sm_session_id' => $id, 'sm_session_expires,>=' => format::now('timestamp')]]);
 		if (isset($data[0])) {
 			return $data[0]['sm_session_data'];
 		} else {
@@ -69,7 +69,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 */
 	public function write($id, $data) {
 		// we only count for presentational content types
-		$object = new object_type_content();
+		$object = new object_content_types();
 		if ($object->is_presentational(application::get('flag.global.__content_type'))) {
 			$inc = 1;
 		} else {
@@ -86,13 +86,13 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		];
 		$db = new db($this->model_seessions->db_link);
 		// we update first
-		$result = $db->update($this->model_seessions->table_name, $save, 'sm_session_id');
+		$result = $db->update($this->model_seessions->name, $save, 'sm_session_id');
 		if ($result['affected_rows'] == 0) {
 			$save['sm_session_started'] = format::now('timestamp');
 			$save['sm_session_pages_count'] = $inc;
 			unset($save['sm_session_pages_count,=,~~']);
 			// we insert
-			$result = $db->insert($this->model_seessions->table_name, [$save]);
+			$result = $db->insert($this->model_seessions->name, [$save]);
 		}
 		return $result['affected_rows'] ? true : false;
 	}
@@ -110,7 +110,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 			'sm_session_expires' => format::now('timestamp', ['add_seconds' => -100]),
 		];
 		$db = new db($this->model_seessions->db_link);
-		$result = $db->update($this->model_seessions->table_name, $save, 'sm_session_id');
+		$result = $db->update($this->model_seessions->name, $save, 'sm_session_id');
 		return true;
 	}
 
@@ -131,9 +131,9 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		// generating sqls
 		if (!empty($ip_submodule)) {
 			$ip_cache = new numbers_backend_ip_cache_model_ipcache();
-			//$ip_table = $ip_cache->table_name;
+			//$ip_table = $ip_cache->name;
 			$sql_move = <<<TTT
-				INSERT INTO {$login_model->table_name} (
+				INSERT INTO {$login_model->name} (
 					sm_login_started,
 					sm_login_last_requested,
 					sm_login_pages_count,
@@ -158,14 +158,14 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 					i.sm_ipcache_postal sm_login_geo_postal,
 					coalesce(i.sm_ipcache_lat, 0) sm_login_geo_lat,
 					coalesce(i.sm_ipcache_lon, 0) sm_login_geo_lon
-				FROM {$session_model->table_name} s
-				LEFT JOIN {$ip_cache->table_name} i ON s.sm_session_user_ip = i.sm_ipcache_ip
+				FROM {$session_model->name} s
+				LEFT JOIN {$ip_cache->name} i ON s.sm_session_user_ip = i.sm_ipcache_ip
 				WHERE 1=1
 					AND s.sm_session_expires < '{$expire}'
 TTT;
 		} else {
 			$sql_move = <<<TTT
-				INSERT INTO {$login_model->table_name} (
+				INSERT INTO {$login_model->name} (
 					sm_login_started,
 					sm_login_last_requested,
 					sm_login_pages_count,
@@ -178,7 +178,7 @@ TTT;
 					s.sm_session_pages_count sm_login_pages_count,
 					s.sm_session_user_ip sm_login_user_ip,
 					s.sm_session_user_id sm_login_user_id
-				FROM {$session_model->table_name} s
+				FROM {$session_model->name} s
 				WHERE 1=1
 					AND s.sm_session_expires < '{$expire}'
 TTT;
@@ -186,7 +186,7 @@ TTT;
 
 		// session cleaning sql
 		$sql_delete = <<<TTT
-			DELETE FROM {$session_model->table_name} s
+			DELETE FROM {$session_model->name} s
 			WHERE 1=1
 				AND s.sm_session_expires < '{$expire}'
 TTT;

@@ -15,7 +15,7 @@ class numbers_backend_misc_tinyurl_db_base implements numbers_backend_misc_tinyu
 			$id = (int) base_convert($hash . '', 36, 10);
 			if ($id == 0) break;
 			$object = new numbers_backend_misc_tinyurl_db_model_tinyurls();
-			$get = $object->get(['sm_tinyurl_id' => $id], ['pk' => null]);
+			$get = $object->get(['pk' => null, 'where' => ['sm_tinyurl_id' => $id]]);
 			if (count($get) == 0) break;
 			if (!empty($get[0]['sm_tinyurl_expires']) && strtotime($get[0]['sm_tinyurl_expires']) < time()) break;
 			$result['success'] = true;
@@ -34,6 +34,7 @@ class numbers_backend_misc_tinyurl_db_base implements numbers_backend_misc_tinyu
 		// insert new row into the table
 		$object = new numbers_backend_misc_tinyurl_db_model_tinyurls();
 		$result = $object->insert([
+			'sm_tinyurl_inserted' => format::now('datetime'),
 			'sm_tinyurl_url' => $url . '',
 			'sm_tinyurl_expires' => $options['expires'] ?? null,
 		]);
