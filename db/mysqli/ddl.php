@@ -527,7 +527,8 @@ TTT;
 TTT;
 				break;
 			case 'sequence_delete':
-				$result = "DELETE FROM sm_sequences WHERE sm_sequence_name = '{$data['name']}'";
+				$result = [];
+				$result[]= "DELETE FROM sm_sequences WHERE sm_sequence_name = '{$data['name']}'";
 				break;
 			case 'function_delete':
 				$result = "DROP FUNCTION IF EXISTS {$data['name']}";

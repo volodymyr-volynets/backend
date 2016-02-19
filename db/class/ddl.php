@@ -124,7 +124,7 @@ class numbers_backend_db_class_ddl {
 			$owner = $db['object']->connect_options['username'];
 
 			// process sequence name and schema
-			$schema_supported = $ddl_object->is_schema_supported($model->sequence_name);
+			$schema_supported = $ddl_object->is_schema_supported($model->name);
 			$this->object_add([
 				'type' => 'sequence',
 				'schema' => $schema_supported['schema'],
@@ -132,10 +132,10 @@ class numbers_backend_db_class_ddl {
 				'data' => [
 					'owner' => $owner,
 					'full_sequence_name' => $schema_supported['full_table_name'],
-					'type' => $model->sequence_type,
-					'prefix' => $model->sequence_prefix,
-					'length' => $model->sequence_length,
-					'suffix' => $model->sequence_suffix
+					'type' => $model->type,
+					'prefix' => $model->prefix,
+					'length' => $model->length,
+					'suffix' => $model->suffix
 				]
 			], $model->db_link);
 

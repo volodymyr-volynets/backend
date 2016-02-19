@@ -69,8 +69,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 */
 	public function write($id, $data) {
 		// we only count for presentational content types
-		$object = new object_content_types();
-		if ($object->is_presentational(application::get('flag.global.__content_type'))) {
+		if (object_content_types::exists_static(['where' => ['no_virtual_controller_code' => application::get('flag.global.__content_type'), 'no_content_type_presentation' => 1]])) {
 			$inc = 1;
 		} else {
 			$inc = 0;

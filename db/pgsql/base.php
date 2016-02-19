@@ -454,18 +454,16 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	}
 
 	/**
-	 * Backend specific sequence queries
-	 *
-	 * @param string $sequence_name
-	 * @return string
+	 * @see db::sequence();
 	 */
-	public function sequence($sequence_name, $sequence_table, $type) {
+	public function sequence($sequence_name, $type) {
+		$sequence_model = new numbers_backend_db_class_model_sequences();
 		$sql = <<<TTT
 			SELECT
 				*,
 				{$type}('{$sequence_name}') counter
 			FROM
-				{$sequence_table}
+				{$sequence_model->name}
 			WHERE 1=1
 					AND sm_sequence_name = '{$sequence_name}';
 TTT;

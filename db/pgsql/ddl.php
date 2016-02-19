@@ -746,7 +746,9 @@ TTT;
 TTT;
 				break;
 			case 'sequence_delete':
-				$result = "DROP SEQUENCE {$data['name']};";
+				$result = [];
+				$result[]= "DROP SEQUENCE {$data['name']};";
+				$result[]= "DELETE FROM sm.sequences WHERE sm_sequence_name = '{$data['name']}'";
 				break;
 			case 'sequence_owner':
 				$result = "ALTER SEQUENCE {$data['name']} OWNER TO {$data['owner']};";
