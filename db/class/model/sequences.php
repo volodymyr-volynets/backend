@@ -5,8 +5,9 @@ class numbers_backend_db_class_model_sequences extends object_table {
 	public $db_link_flag;
 	public $name = 'sm.sequences';
 	public $pk = ['sm_sequence_name'];
-	public $orderby = null;
-	public $get_limit;
+	public $orderby;
+	public $limit;
+	public $column_prefix = 'sm_sequence_';
 	public $columns = [
 		'sm_sequence_name' => ['name' => 'Name', 'type' => 'varchar', 'length' => 50],
 		'sm_sequence_description' => ['name' => 'Description', 'type' => 'varchar', 'length' => 255, 'null' => true],
@@ -21,7 +22,6 @@ class numbers_backend_db_class_model_sequences extends object_table {
 	];
 	public $history = false;
 	public $audit = false;
-	public $row_details = [];
 	public $options_map = [];
 	public $options_active = [];
 	public $engine = [

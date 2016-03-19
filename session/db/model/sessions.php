@@ -5,8 +5,9 @@ class numbers_backend_session_db_model_sessions extends object_table {
 	public $db_link_flag = 'flag.numbers.backend.session.db.default_db_link';
 	public $name = 'sm.sessions';
 	public $pk = ['sm_session_id'];
-	public $orderby = null;
-	public $get_limit;
+	public $orderby;
+	public $limit;
+	public $column_prefix = 'sm_session_';
 	public $columns = [
 		'sm_session_id' => ['name' => 'Session #', 'type' => 'varchar', 'length' => 40],
 		'sm_session_started' => ['name' => 'Datetime Started', 'type' => 'timestamp'],
@@ -26,7 +27,6 @@ class numbers_backend_session_db_model_sessions extends object_table {
 	];
 	public $history = false;
 	public $audit = false;
-	public $row_details = [];
 	public $options_map = [];
 	public $options_active = [];
 	public $engine = [

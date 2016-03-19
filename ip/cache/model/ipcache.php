@@ -5,8 +5,9 @@ class numbers_backend_ip_cache_model_ipcache extends object_table {
 	public $db_link_flag = 'flag.numbers.backend.ip.cache.default_db_link';
 	public $name = 'sm.ip_cache';
 	public $pk = ['sm_ipcache_ip', 'sm_ipcache_date'];
-	public $orderby = null;
-	public $get_limit;
+	public $orderby;
+	public $limit;
+	public $column_prefix = 'sm_ipcache_';
 	public $columns = [
 		'sm_ipcache_ip' => ['name' => 'IP', 'type' => 'varchar', 'length' => 50],
 		'sm_ipcache_date' => ['name' => 'Date', 'type' => 'date'],
@@ -23,7 +24,6 @@ class numbers_backend_ip_cache_model_ipcache extends object_table {
 	public $indexes = [];
 	public $history = false;
 	public $audit = false;
-	public $row_details = [];
 	public $options_map = [];
 	public $options_active = [];
 	public $engine = [

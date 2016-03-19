@@ -5,8 +5,9 @@ class numbers_backend_misc_tinyurl_db_model_tinyurls extends object_table {
 	public $db_link_flag = 'flag.numbers.backend.misc.tinyurl.db.default_db_link';
 	public $name = 'sm.tinyurls';
 	public $pk = ['sm_tinyurl_id'];
-	public $orderby = null;
-	public $get_limit;
+	public $orderby;
+	public $limit;
+	public $column_prefix = 'sm_tinyurl_';
 	public $columns = [
 		'sm_tinyurl_id' => ['name' => 'Tinyurl #', 'type' => 'bigserial'],
 		'sm_tinyurl_inserted' => ['name' => 'Inserted', 'type' => 'datetime'],
@@ -21,7 +22,6 @@ class numbers_backend_misc_tinyurl_db_model_tinyurls extends object_table {
 	];
 	public $history = false;
 	public $audit = false;
-	public $row_details = [];
 	public $options_map = [];
 	public $options_active = [];
 	public $engine = [

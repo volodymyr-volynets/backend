@@ -5,8 +5,8 @@ class numbers_backend_flow_db_model_flows extends object_table {
 	public $db_link_flag = 'flag.numbers.backend.flow.db.default_db_link';
 	public $name = 'sm.flows';
 	public $pk = ['sm_flow_id', 'sm_flow_subflow_id', 'sm_flow_transaction_id'];
-	public $orderby = null;
-	public $get_limit;
+	public $orderby;
+	public $limit;
 	public $column_prefix = 'sm_flow_';
 	public $columns = [
 		'sm_flow_id' => ['name' => 'Flow #', 'type' => 'bigint'],
@@ -23,7 +23,6 @@ class numbers_backend_flow_db_model_flows extends object_table {
 	public $indexes = [];
 	public $history = false;
 	public $audit = false;
-	public $row_details = [];
 	public $options_map = [];
 	public $options_active = [];
 	public $engine = [
