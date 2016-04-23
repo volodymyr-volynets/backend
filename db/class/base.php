@@ -61,7 +61,7 @@ class numbers_backend_db_class_base {
 			} else if (is_null($v)) {
 				$result[] = 'NULL';
 			} else {
-				$result[] = '/** Unknown Type **/';
+				Throw new Exception('Unknown data type');
 			}
 		}
 		return implode(', ', $result);
@@ -160,8 +160,7 @@ class numbers_backend_db_class_base {
 				} else if (is_null($v)) {
 					$v = 'NULL';
 				} else {
-					// todo fix here
-					die('Unknown data type');
+					Throw new Exception('Unknown data type');
 				}
 				$string .= $v;
 				// special for array operators: ANY, ALL

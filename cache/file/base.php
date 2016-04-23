@@ -25,6 +25,8 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 			'error' => []
 		];
 		$this->options = $options;
+		// expiration
+		$this->options['expire'] = $this->options['expire'] ?? 7200;
 		// for deployed code the directory is different because we relate it based on code
 		if (!empty($this->options['dir']) && application::is_deployed()) {
 			$temp = $this->options['dir'][0] . $this->options['dir'][1];
@@ -35,24 +37,21 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 			}
 		}
 		// check if we have valid directory
-		if (empty($this->options['dir']) || !is_dir($this->options['dir'])) {
+		if (empty($this->options['dir'])) {
 			$result['error'][] = 'Cache directory does not exists or not provided!';
 		} else {
 			// fixing path
 			$this->options['dir'] = rtrim($this->options['dir'], '/') . '/';
-			// expiration
-			$this->options['expire'] = !empty($this->options['expire']) ? $this->options['expire'] : 7200;
-			// determining key
-			$this->cache_key = application::get(['wildcard', 'keys', 'cache_key']);
 			// we need to create directory
 			if (!empty($this->cache_key)) {
-				$this->options['dir'].= $this->cache_key;
-				// create a cache directory for selected key
-				if (!file_exists($this->options['dir'])) {
-					mkdir($this->options['dir'], 0777, true);
-					chmod($this->options['dir'], 0777);
+				$this->options['dir'].= $this->cache_key . '/';
+			}
+			// we need to create cache directory
+			if (!is_dir($this->options['dir'])) {
+				if (!helper_file::mkdir($this->options['dir'])) {
+					$result['error'][] = 'Unable to create caching directory!';
+					return $result;
 				}
-				$this->options['dir'].= '/';
 			}
 			$result['success'] = true;
 		}
@@ -63,6 +62,10 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 	 * Close
 	 */
 	public function close() {
+		// 5 percent chance to call garbage collector
+		if (chance(5)) {
+			$this->gc(1);
+		}
 		return ['success' => true, 'error' => []];
 	}
 
@@ -73,18 +76,19 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 	 * @return mixed
 	 */
 	public function get($cache_id) {
-		$data_name = $this->options['dir'] . 'cache--' . $cache_id . '.data';
-		if (!file_exists($data_name)) {
+		// load cookie
+		$cookie_name = $this->options['dir'] . 'cache--cookie--' . $cache_id . '.data';
+		if (!file_exists($cookie_name)) {
 			return false;
 		}
-		// check expiration
-		if ((filemtime($data_name) + $this->options['expire']) < time()) {
-			unlink($this->options['dir'] . 'cache--cookie--' . $cache_id . '.data');
-			unlink($data_name);
+		$cookie_data = unserialize(helper_file::read($cookie_name));
+		if ($cookie_data['expire'] < time()) {
+			helper_file::delete($cookie_name);
+			helper_file::delete($cookie_data['file']);
 			return false;
 		}
 		// returning unserialized content
-		return unserialize(file_get_contents($data_name));
+		return unserialize(helper_file::read($cookie_data['file']));
 	}
 
 	/**
@@ -93,23 +97,27 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 	 * @param string $cache_id
 	 * @param mixed $data
 	 * @param mixed $tags
+	 * @param int $expire
 	 * @return boolean
 	 */
-	public function set($cache_id, $data, $tags = []) {
+	public function set($cache_id, $data, $tags = [], $expire = null) {
 		// writing data first
 		$data_name = $this->options['dir'] . 'cache--' . $cache_id . '.data';
-		file_put_contents($data_name, serialize($data), LOCK_EX);
+		if (helper_file::write($data_name, serialize($data), 0777, LOCK_EX) ===false) {
+			return false;
+		}
 		// writing cookie
 		$time = time();
+		$expire = !empty($expire) ? $expire : ($time + $this->options['expire']);
+		// generating cookie array
 		$cookie_data = array(
 			'time' => $time,
-			'expire' => $time + $this->options['expire'],
+			'expire' => $expire,
 			'tags' => array_fix($tags),
 			'file' => $data_name
 		);
 		$cookie_name = $this->options['dir'] . 'cache--cookie--' . $cache_id . '.data';
-		file_put_contents($cookie_name, serialize($cookie_data), LOCK_EX);
-		return true;
+		return helper_file::write($cookie_name, serialize($cookie_data), 0777, LOCK_EX);
 	}
 
 	/**
@@ -117,10 +125,11 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 	 *
 	 * @param int $mode - 1 - old, 2 - all
 	 * @param array $tags
+	 * @return boolean
 	 */
 	public function gc($mode = 1, $tags = []) {
 		if (($cookies = glob($this->options['dir'] . 'cache--cookie--*')) === false) {
-			return true;
+			return false;
 		}
 		$time = time();
 		$tags= array_fix($tags);
@@ -130,7 +139,7 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 				if (!is_file($file)) {
 					break;
 				}
-				$cookie = unserialize(file_get_contents($file));
+				$cookie = unserialize(helper_file::read($file));
 				// if we delete all caches
 				if ($mode == 2) {
 					$flag_delete = true;
