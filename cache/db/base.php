@@ -76,10 +76,17 @@ class numbers_backend_cache_db_base extends numbers_backend_cache_class_base imp
 		} else {
 			$tags = null;
 		}
+		// processing expire
+		if (empty($expire)) {
+			$expire = format::now('timestamp', ['add_seconds' => $this->options['expire']]);
+		} else {
+			$expire = format::read_date($expire, 'datetime');
+		}
+		// generating array for saving
 		$save = [
 			'sm_cache_id' => $cache_id . '',
 			'sm_cache_time' => format::now('timestamp'),
-			'sm_cache_expire' => format::now('timestamp', ['add_seconds' => $expire ?? $this->options['expire']]),
+			'sm_cache_expire' => $expire,
 			'sm_cache_data' => json_encode($data),
 			'sm_cache_tags' => $tags
 		];

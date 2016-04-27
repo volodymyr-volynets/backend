@@ -26,8 +26,9 @@ class numbers_backend_cache_file_unit_tests_base extends PHPUnit_Framework_TestC
 		$this->assertEquals(false, $result);
 		// test garbage collector
 		$result = $object->set('cache-2', 'data', ['tags2'], time() + 15);
-		$result = $object->gc();
+		$result = $object->gc(1, ['tags2']);
 		$this->assertEquals(true, $result);
+		$this->assertEquals(false, $object->get('cache-2'));
 		// close the object
 		$result = $object->close();
 		$this->assertEquals(true, $result['success']);

@@ -17,7 +17,10 @@ class numbers_backend_crypt_mcrypt_base extends numbers_backend_crypt_class_base
 		$this->mode = constant($options['mode'] ?? 'MCRYPT_MODE_CBC');
 		$this->base64 = !empty($options['base64']);
 		$this->check_ip = !empty($options['check_ip']);
-		$this->valid_hours = !empty($options['valid_hours']);
+		$this->valid_hours = $options['valid_hours'] ?? 2;
+		if (!empty($options['password'])) {
+			$this->password = constant($options['password']);
+		}
 	}
 
 	/**

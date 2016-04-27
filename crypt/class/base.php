@@ -54,16 +54,23 @@ class numbers_backend_crypt_class_base {
 	/**
 	 * Check ip
 	 *
-	 * @var type
+	 * @var boolean
 	 */
 	public $check_ip = false;
 
 	/**
 	 * Valid hours
 	 *
-	 * @var type
+	 * @var int
 	 */
 	public $valid_hours = 2;
+
+	/**
+	 * Password hash algorithm
+	 *
+	 * @var int
+	 */
+	public $password = PASSWORD_DEFAULT;
 
 	/**
 	 * see crypt::hash();
@@ -128,7 +135,7 @@ class numbers_backend_crypt_class_base {
 				break;
 			}
 			// validating valid hours
-			if ($result['time'] + ($this->valid_hours * 60 * 60) <= time()) {
+			if (($result['time'] + ($this->valid_hours * 60 * 60)) <= time()) {
 				break;
 			}
 			// ip verification
@@ -138,5 +145,26 @@ class numbers_backend_crypt_class_base {
 			return $result;
 		} while(0);
 		return false;
+	}
+
+	/**
+	 * Hash password
+	 *
+	 * @param string $password
+	 * @return string
+	 */
+	public function password_hash($password) {
+		return password_hash($password, $this->password);
+	}
+
+	/**
+	 * Verify password
+	 *
+	 * @param string $password
+	 * @param string $hash
+	 * @return boolean
+	 */
+	public function password_verify($password, $hash) {
+		return password_verify($password, $hash);
 	}
 }
