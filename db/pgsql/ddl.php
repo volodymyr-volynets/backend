@@ -120,7 +120,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 			'data' => []
 		];
 		// getting information
-		foreach (array('schemas', 'columns', 'constraints', 'sequences', 'functions') as $v) { //'views', 'domains', 'triggers'
+		foreach (array('extensions', 'schemas', 'columns', 'constraints', 'sequences', 'functions') as $v) { //'views', 'domains', 'triggers'
 			$temp = $this->load_schema_details($v, $db_link);
 			if (!$temp['success']) {
 				$result['error'] = array_merge($result['error'], $temp['error']);
@@ -217,6 +217,9 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 								}
 							}
 						}
+						break;
+					case 'extensions':
+						$result['data']['extension'] = $temp['data'];
 						break;
 					case 'schemas':
 						$result['data']['schema'] = $temp['data'];
@@ -544,6 +547,18 @@ TTT;
 							AND p.proisagg = 'f'
 TTT;
 				break;
+
+			case 'extensions':
+				$key = array('schema_name', 'extension_name');
+				$sql = <<<TTT
+					SELECT
+						n.nspname schema_name,
+						a.extname extension_name
+					FROM pg_catalog.pg_extension a
+					LEFT JOIN pg_catalog.pg_namespace n ON a.extnamespace = n.oid
+TTT;
+				break;
+
 /*
 			case 'triggers':
 				$key = array('schema_name', 'table_name', 'trigger_name');
@@ -591,12 +606,19 @@ TTT;
 	public function render_sql($type, $data, $options = array()) {
 		$result = '';
 		switch ($type) {
+			// extension
+			case 'extension':
+				$result = "CREATE EXTENSION {$data['data']['name']} SCHEMA {$data['data']['schema']};";
+				break;
+			case 'extension_delete':
+				$result = "DROP EXTENSION {$data['data']['extension_name']};";
+				break;
 			// schema
 			case 'schema':
 				$result = "CREATE SCHEMA {$data['data']['name']} AUTHORIZATION {$data['data']['owner']};";
 				break;
 			case 'schema_owner':
-				$result = "ALTER SCHEMA {$data['name']} OWNER TO {$data['owner']};";
+				$result = "ALTER SCHEMA {$data['data']['name']} OWNER TO {$data['data']['owner']};";
 				break;
 			case 'schema_delete':
 				$result = "DROP SCHEMA {$data['name']};";
@@ -639,7 +661,7 @@ TTT;
 				break;
 			// table
 			case 'table_owner':
-				$result = "ALTER TABLE {$data['name']} OWNER TO {$data['owner']};";
+				$result = "ALTER TABLE {$data['data']['full_table_name']} OWNER TO {$data['data']['owner']};";
 				break;
 			case 'table_new':
 				$columns = array();

@@ -148,6 +148,8 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 							$rows[$k] = (int) $v;
 						} else if ($result['structure'][$k]['type'] == 'numeric') {
 							$rows[$k] = (float) $v;
+						} else if ($result['structure'][$k]['type'] == 'bytea') {
+							$rows[$k] = pg_unescape_bytea($v);
 						}
 					}
 

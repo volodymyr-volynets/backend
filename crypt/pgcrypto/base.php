@@ -3,6 +3,20 @@
 class numbers_backend_crypt_pgcrypto_base extends numbers_backend_crypt_class_base implements numbers_backend_crypt_interface_base {
 
 	/**
+	 * Link to database
+	 *
+	 * @var string
+	 */
+	private $db_link;
+
+	/**
+	 * Indicator whether key is set to db
+	 *
+	 * @var boolean
+	 */
+	public static $flag_key_sent_to_db = false;
+
+	/**
 	 * Constructing
 	 *
 	 * @param string $crypt_link
@@ -13,54 +27,46 @@ class numbers_backend_crypt_pgcrypto_base extends numbers_backend_crypt_class_ba
 		$this->key = $options['key'] ?? sha1('key');
 		$this->salt = $options['salt'] ?? 'salt';
 		$this->hash = $options['hash'] ?? 'sha1';
-		$this->cipher = constant($options['cipher'] ?? 'MCRYPT_RIJNDAEL_256');
-		$this->mode = constant($options['mode'] ?? 'MCRYPT_MODE_CBC');
-		$this->base64 = !empty($options['base64']);
-		$this->check_ip = !empty($options['check_ip']);
-		$this->valid_hours = !empty($options['valid_hours']);
+		$this->cipher = 'compress-algo=1, cipher-algo=aes256';
+		$this->mode = null;
+		if (empty($options['db_link'])) {
+			Throw new Exception('You must indicate db link!');
+		}
+		$this->db_link = $options['db_link'];
 	}
 
 	/**
 	 * see crypt::encrypt();
 	 */
 	public function encrypt($data) {
-		$iv_size = mcrypt_get_iv_size($this->cipher, $this->mode);
-		$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-		$encrypted = mcrypt_encrypt($this->cipher, $this->key, $data, $this->mode, $iv);
-		// important to compute hash of encrypted value for validation purposes
-		$hash = $this->hash($encrypted);
-		if ($this->base64) {
-			return base64_encode($iv . $hash . $encrypted);
-		} else {
-			return $iv . $hash . $encrypted;
-		}
+		$this->send_key_to_db();
+		$db = new db($this->db_link);
+		$result = $db->query("SELECT sm.encrypt('" . $db->escape($data) . "') AS encrypted;");
+		return $result['rows'][0]['encrypted'] ?? false;
 	}
 
 	/**
 	 * see crypt::decrypt();
 	 */
 	public function decrypt($data) {
-		if ($this->base64) {
-			$decoded = base64_decode($data);
-		} else {
-			$decoded = $data;
+		$this->send_key_to_db();
+		$db = new db($this->db_link);
+		$result = $db->query("SELECT sm.decrypt('" . pg_escape_bytea($data) . "') AS decrypted;");
+		return $result['rows'][0]['decrypted'] ?? false;
+	}
+
+	/**
+	 * Send key to db
+	 */
+	public function send_key_to_db() {
+		if (!self::$flag_key_sent_to_db) {
+			$db = new db($this->db_link);
+			// todo: disable logging in db
+			$db->query("SELECT set_config('sm.numbers.crypt.key', '" . $db->escape($this->key) . "', false)");
+			$db->query("SELECT set_config('sm.numbers.crypt.options', '" . $db->escape($this->cipher) . "', false)");
+			// todo: enable logging in db
+			self::$flag_key_sent_to_db = true;
 		}
-		// extract values out of data
-		$iv_size = mcrypt_get_iv_size($this->cipher, $this->mode);
-		$iv = mb_substr($decoded, 0, $iv_size, 'latin1');
-		$hash_size = mb_strlen($this->hash(1), 'latin1');
-		$hash = mb_substr($decoded, $iv_size, $hash_size, 'latin1');
-		$cipher = mb_substr($decoded, $iv_size + $hash_size, mb_strlen($decoded, 'latin1'), 'latin1');
-		// comparing ciper with hash
-		if ($this->hash($cipher) != $hash) {
-			return false;
-		}
-		// decrypting
-		$decrypted = mcrypt_decrypt($this->cipher, $this->key, $cipher, $this->mode, $iv);
-		if ($decrypted !== false) {
-			return rtrim($decrypted, "\0");
-		} else {
-			return false;
-		}
+		return true;
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_db_class_model_crypt_encrypt extends object_function {
+class numbers_backend_crypt_pgcrypto_model_encrypt extends object_function {
 	public $db_link;
 	public $db_link_flag;
 	public $function_name = "sm.encrypt";
@@ -10,11 +10,11 @@ class numbers_backend_db_class_model_crypt_encrypt extends object_function {
 			'header' => '',
 			'body' =>
 'CREATE OR REPLACE FUNCTION sm.encrypt(data text)
- RETURNS text
+ RETURNS bytea
  LANGUAGE plpgsql
 AS $function$
 BEGIN
-	RETURN encrypt(data::bytea, current_setting(\'sm.numbers.crypt.key\')::bytea, \'aes\')::text;
+	RETURN pgp_sym_encrypt(data, current_setting(\'sm.numbers.crypt.key\'), current_setting(\'sm.numbers.crypt.options\'));
 END;
 $function$
 ',

@@ -37,6 +37,8 @@ class numbers_backend_db_class_ddl {
 			$this->objects[$db_link][$object['type']][$object['schema']][$object['name']] = $object['data'];
 		} else if ($object['type'] == 'function') {
 			$this->objects[$db_link][$object['type']][$object['schema']][$object['name']] = $object['data'];
+		} else if ($object['type'] == 'extension') {
+			$this->objects[$db_link][$object['type']][$object['schema']][$object['name']] = $object;
 		}
 		$this->db_links[$db_link] = $db_link;
 	}
@@ -192,6 +194,42 @@ class numbers_backend_db_class_ddl {
 	}
 
 	/**
+	 * Process extension
+	 *
+	 * @param string $model_class
+	 * @return array
+	 */
+	public function process_function_extension($model_class) {
+		$result = [
+			'success' => false,
+			'error' => []
+		];
+		do {
+			// table model
+			$model = new $model_class();
+			$db = factory::get(['db', $model->db_link]);
+			$ddl_object = $db['ddl_object'];
+			$ddl_backend = $db['backend'];
+			// if we do not have sql or its natively supported we exit
+			if ($model->extension_submodule != $ddl_backend) {
+				$result['success'] = true;
+				break;
+			}
+			// process extension name and schema
+			$schema_supported = $ddl_object->is_schema_supported($model->extension_name);
+			$this->object_add([
+				'type' => 'extension',
+				'schema' => $schema_supported['schema'],
+				'name' => $schema_supported['table']
+			], $model->db_link);
+
+			// if we got here - we are ok
+			$result['success'] = true;
+		} while(0);
+		return $result;
+	}
+
+	/**
 	 * Compare two schemas
 	 *
 	 * @param array $obj_master
@@ -216,10 +254,12 @@ class numbers_backend_db_class_ddl {
 		$result['data']['delete_tables'] = [];
 		$result['data']['delete_domains'] = []; // after tables and columns
 		$result['data']['delete_sequences'] = []; // after domains
-		$result['data']['delete_schemas'] = []; // last
+		$result['data']['delete_schemas'] = [];
+		$result['data']['delete_extensions'] = []; // last
 
 		// new second
-		$result['data']['new_schemas'] = []; // first
+		$result['data']['new_extensions'] = []; // first
+		$result['data']['new_schemas'] = [];
 		$result['data']['new_schema_owners'] = [];
 		$result['data']['new_domains'] = []; // after schema
 		$result['data']['new_domain_owners'] = [];
@@ -238,6 +278,30 @@ class numbers_backend_db_class_ddl {
 		$result['data']['new_function_owner'] = [];
 		$result['data']['new_triggers'] = []; // after functions
 		$result['data']['change_triggers'] = [];
+
+		// add extension
+		if (!empty($obj_master['extension'])) {
+			foreach ($obj_master['extension'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					if (empty($obj_slave['extension'][$k][$k2])) {
+						$result['data']['new_extensions'][$k . '.' . $k2] = array('type' => 'extension', 'data' => $v2);
+						$result['count']++;
+					}
+				}
+			}
+		}
+
+		// delete extensions
+		if (!empty($obj_slave['extension'])) {
+			foreach ($obj_slave['extension'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					if (empty($obj_master['extension'][$k][$k2])) {
+						$result['data']['delete_extensions'][$k . '.' . $k2] = array('type'=>'extension_delete', 'data' => $v2);
+						$result['count']++;
+					}
+				}
+			}
+		}
 
 		// new schemas
 		if (!empty($obj_master['schema'])) {
@@ -559,7 +623,6 @@ class numbers_backend_db_class_ddl {
 			// clean up empty nodes
 			if (empty($v)) {
 				unset($result['data'][$k]);
-				continue;
 			}
 		}
 
