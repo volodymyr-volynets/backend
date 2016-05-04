@@ -209,6 +209,21 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 												'full_table_name' => $v5['schema_name'] . '.' . $v5['table_name']
 											];
 											$result['data']['index'][$k3][$k4][$k5] = $temp2;
+										} else if ($v5['constraint_type'] == 'FOREIGN_KEY') {
+											$temp2 = [
+												'type' => 'fk',
+												'columns' => $v5['column_names'],
+												'foreign_table' => $v5['foreign_schema_name'] . '.' . $v5['foreign_table_name'],
+												'foreign_columns' => $v5['foreign_column_names'],
+												'options' => [
+													'match' => $v5['match_option'],
+													'update' => $v5['update_rule'],
+													'delete' => $v5['delete_rule']
+												],
+												'name' => $v5['constraint_name'],
+												'full_table_name' => $v5['schema_name'] . '.' . $v5['table_name']
+											];
+											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else {
 											print_r($v5);
 											exit;
@@ -696,8 +711,14 @@ TTT;
 					case 'pk':
 						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} PRIMARY KEY (" . implode(", ", $data['data']['columns']) . ");";
 						break;
+					case 'unique':
+						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} UNIQUE (" . implode(", ", $data['data']['columns']) . ");";
+						break;
+					case 'fk':
+						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} FOREIGN KEY (" . implode(", ", $data['data']['columns']) . ") REFERENCES {$data['data']['foreign_table']} (" . implode(", ", $data['data']['foreign_columns']) . ") MATCH " . strtoupper($data['data']['options']['match'] ?? 'SIMPLE') . " ON UPDATE " . strtoupper($data['data']['options']['update'] ?? 'NO ACTION') . " ON DELETE " . strtoupper($data['data']['options']['delete'] ?? 'NO ACTION') . ";";
+						break;
 					default:
-						Throw new Exeption($data['data']['type'] . '?');
+						Throw new Exception($data['data']['type'] . '?');
 				}
 				/*
 				if ($data['index']['constraint_type']=='INDEX') {

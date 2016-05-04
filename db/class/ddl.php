@@ -89,6 +89,12 @@ class numbers_backend_db_class_ddl {
 			if (!empty($model->constraints)) {
 				foreach ($model->constraints as $k => $v) {
 					$v['full_table_name'] = $schema_supported['full_table_name'];
+					// additional processing for fk type constraints
+					if ($v['type'] == 'fk') {
+						$temp_class_name = $v['foreign_model'];
+						$temp_object = new $temp_class_name();
+						$v['foreign_table'] = $temp_object->name;
+					}
 					$this->object_add(['type' => 'constraint', 'schema' => $schema_supported['schema'], 'table' => $schema_supported['table'], 'name' => $k, 'data' => $v], $model->db_link);
 				}
 			}
@@ -455,10 +461,22 @@ class numbers_backend_db_class_ddl {
 						if ($v3['type'] != $obj_slave['constraint'][$k][$k2][$k3]['type']) {
 							$temp_error = true;
 						}
+						if ($v3['full_table_name'] != $obj_slave['constraint'][$k][$k2][$k3]['full_table_name']) {
+							$temp_error = true;
+						}
 						if (!array_compare_level1($v3['columns'], $obj_slave['constraint'][$k][$k2][$k3]['columns'])) {
 							$temp_error = true;
 						}
-						// todo: comparison for foreign key & check
+						// additiona verifications for fk constraints
+						if ($v3['type'] == 'fk') {
+							if ($v3['foreign_table'] != $obj_slave['constraint'][$k][$k2][$k3]['foreign_table']) {
+								$temp_error = true;
+							}
+							if (!array_compare_level1($v3['foreign_columns'], $obj_slave['constraint'][$k][$k2][$k3]['foreign_columns'])) {
+								$temp_error = true;
+							}
+						}
+						// if we have an error we rebuild
 						if ($temp_error) {
 							$result['data']['delete_constraints'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'constraint_delete', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
 							$result['data']['new_constraints'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'constraint_new', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);

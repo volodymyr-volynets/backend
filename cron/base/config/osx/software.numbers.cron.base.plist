@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>software.numbers.cron.base</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/curl</string>
+        <string>--data</string>
+        <string>token=secret_token</string>
+        <string>http://playground.local/numbers/backend/cron/base/controller/execute</string>
+    </array>
+    <key>StartInterval</key>
+    <integer>60</integer>
+	<key>KeepAlive</key>
+    <true/>
+</dict>
+</plist>

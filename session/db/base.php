@@ -122,66 +122,29 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	public function gc($life) {
 		// step 1: we need to move expired sessions to logins table
 		$db = new db($this->model_seessions->db_link);
-		$ip_submodule = application::get('flag.global.ip.submodule');
 		$session_model = new numbers_backend_session_db_model_sessions();
 		$login_model = new numbers_backend_session_db_model_logins();
 		$expire = format::now('timestamp');
 
 		// generating sqls
-		if (!empty($ip_submodule)) {
-			$ip_cache = new numbers_backend_ip_cache_model_ipcache();
-			//$ip_table = $ip_cache->name;
-			$sql_move = <<<TTT
-				INSERT INTO {$login_model->name} (
-					sm_login_started,
-					sm_login_last_requested,
-					sm_login_pages_count,
-					sm_login_user_ip,
-					sm_login_user_id,
-					sm_login_geo_country_code,
-					sm_login_geo_region,
-					sm_login_geo_city,
-					sm_login_geo_postal,
-					sm_login_geo_lat,
-					sm_login_geo_lon
-				)
-				SELECT
-					s.sm_session_started sm_login_started,
-					s.sm_session_last_requested sm_login_last_requested,
-					s.sm_session_pages_count sm_login_pages_count,
-					s.sm_session_user_ip sm_login_user_ip,
-					s.sm_session_user_id sm_login_user_id,
-					i.sm_ipcache_country sm_login_geo_country_code,
-					i.sm_ipcache_region sm_login_geo_region,
-					i.sm_ipcache_city sm_login_geo_city,
-					i.sm_ipcache_postal sm_login_geo_postal,
-					coalesce(i.sm_ipcache_lat, 0) sm_login_geo_lat,
-					coalesce(i.sm_ipcache_lon, 0) sm_login_geo_lon
-				FROM {$session_model->name} s
-				LEFT JOIN {$ip_cache->name} i ON s.sm_session_user_ip = i.sm_ipcache_ip
-				WHERE 1=1
-					AND s.sm_session_expires < '{$expire}'
+		$sql_move = <<<TTT
+			INSERT INTO {$login_model->name} (
+				sm_login_started,
+				sm_login_last_requested,
+				sm_login_pages_count,
+				sm_login_user_ip,
+				sm_login_user_id
+			)
+			SELECT
+				s.sm_session_started sm_login_started,
+				s.sm_session_last_requested sm_login_last_requested,
+				s.sm_session_pages_count sm_login_pages_count,
+				s.sm_session_user_ip sm_login_user_ip,
+				s.sm_session_user_id sm_login_user_id
+			FROM {$session_model->name} s
+			WHERE 1=1
+				AND s.sm_session_expires < '{$expire}'
 TTT;
-		} else {
-			$sql_move = <<<TTT
-				INSERT INTO {$login_model->name} (
-					sm_login_started,
-					sm_login_last_requested,
-					sm_login_pages_count,
-					sm_login_user_ip,
-					sm_login_user_id
-				)
-				SELECT
-					s.sm_session_started sm_login_started,
-					s.sm_session_last_requested sm_login_last_requested,
-					s.sm_session_pages_count sm_login_pages_count,
-					s.sm_session_user_ip sm_login_user_ip,
-					s.sm_session_user_id sm_login_user_id
-				FROM {$session_model->name} s
-				WHERE 1=1
-					AND s.sm_session_expires < '{$expire}'
-TTT;
-		}
 
 		// session cleaning sql
 		$sql_delete = <<<TTT
