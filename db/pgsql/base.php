@@ -357,6 +357,12 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 				$sql_addon = ' RETURNING *';
 			}
 
+			// if we are in inser mode we exit
+			if ($row_found && !empty($options['flag_insert_only'])) {
+				$result['success'] = true;
+				break;
+			}
+
 			// if row found we update
 			if ($row_found) {
 				$flag_inserted = false;

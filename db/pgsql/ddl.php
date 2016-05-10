@@ -44,7 +44,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 		];
 
 		// presetting
-		$column['type'] = $column['type'] ?? 'text';
+		$column['type'] = $column['type'] ?? 'unsupported';
 		$column['null'] = $column['null'] ?? false;
 		$column['default'] = $column['default'] ?? null;
 		$column['length'] = $column['length'] ?? 0;
@@ -100,6 +100,11 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 				break;
 			case 'text':
 				$result['column'] = ['type' => 'text', 'null' => $column['null'], 'default' => $column['default']];
+				break;
+			case 'unsupported':
+				print_r($table_object->columns);
+				Throw new Exception($table_object->name . ': unsupported type for column: ' . $column['name']);
+				break;
 			default:
 				// if we got here, means we do not replace data type and send it to db as is !!!
 				$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
@@ -644,11 +649,11 @@ TTT;
 				break;
 			case 'column_new':
 				$type = $data['data']['type'];
-				$default = $data['data']['default'];
+				$default = $data['data']['default'] ?? null;
 				if (is_string($default)) {
 					$default = "'" . $default . "'";
 				}
-				$null = $data['data']['null'];
+				$null = $data['data']['null'] ?? false;
 				if (empty($options['column_new_no_alter'])) {
 					$result = "ALTER TABLE {$data['table']} ADD COLUMN {$data['name']} {$type}" . ($default !== null ? (' DEFAULT ' . $default) : '') . (!$null ? (' NOT NULL') : '') . ";";
 				} else {
