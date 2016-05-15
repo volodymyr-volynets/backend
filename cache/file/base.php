@@ -10,7 +10,7 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 	 */
 	public function __construct($cache_link) {
 		$this->cache_link = $cache_link;
-		$this->cache_key = application::get(['wildcard', 'keys', 'cache_key']);
+		$this->cache_key = application::get(['wildcard', 'keys', $cache_link, 'cache_key']);
 	}
 
 	/**
@@ -48,7 +48,7 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 			}
 			// we need to create cache directory
 			if (!is_dir($this->options['dir'])) {
-				if (!helper_file::mkdir($this->options['dir'])) {
+				if (!helper_file::mkdir($this->options['dir'], 0777)) {
 					$result['error'][] = 'Unable to create caching directory!';
 					return $result;
 				}

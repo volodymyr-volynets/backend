@@ -29,8 +29,6 @@ class numbers_backend_db_class_model_sequences extends object_table {
 	];
 
 	public $cache = false;
-	public $cache_link;
-	public $cache_link_flag;
 	public $cache_tags = [];
 	public $cache_memory = false;
 }

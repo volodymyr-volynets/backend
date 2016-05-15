@@ -29,8 +29,6 @@ class numbers_backend_misc_tinyurl_db_model_tinyurls extends object_table {
 	];
 
 	public $cache = false;
-	public $cache_link;
-	public $cache_link_flag;
 	public $cache_tags = [];
 	public $cache_memory = false;
 }

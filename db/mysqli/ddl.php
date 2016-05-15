@@ -51,12 +51,12 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 		];
 
 		// presetting
-		$column['type'] = isset($column['type']) ? $column['type'] : 'text';
-		$column['null'] = isset($column['null']) ? $column['null'] : false;
-		$column['default'] = isset($column['default']) ? $column['default'] : null;
-		$column['length'] = isset($column['length']) ? $column['length'] : 0;
-		$column['precision'] = isset($column['precision']) ? $column['precision'] : 0;
-		$column['scale'] = isset($column['scale']) ? $column['scale'] : 0;
+		$column['type'] = $column['type'] ?? 'unsupported';
+		$column['null'] = $column['null'] ?? false;
+		$column['default'] = $column['default'] ?? null;
+		$column['length'] = $column['length'] ?? 0;
+		$column['precision'] = $column['precision'] ?? 0;
+		$column['scale'] = $column['scale'] ?? 0;
 
 		// simple switch would do the work
 		switch ($column['type']) {
@@ -110,6 +110,10 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 				break;
 			case 'text':
 				$result['column'] = ['type' => 'text', 'null' => $column['null'], 'default' => $column['default']];
+				break;
+			case 'unsupported':
+				Throw new Exception($table_object->name . ': unsupported type for column: ' . $column['name']);
+				break;
 			default:
 				// if we got here, means we do not replace data type and send it to db as is !!!
 				$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];

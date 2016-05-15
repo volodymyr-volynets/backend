@@ -30,8 +30,6 @@ class numbers_backend_cache_db_model_cache extends object_table {
 	];
 
 	public $cache = false;
-	public $cache_link;
-	public $cache_link_flag;
 	public $cache_tags = [];
 	public $cache_memory = false;
 }

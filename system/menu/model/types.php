@@ -25,8 +25,6 @@ class numbers_backend_system_menu_model_types extends object_table {
 	];
 
 	public $cache = false;
-	public $cache_link;
-	public $cache_link_flag;
 	public $cache_tags = [];
 	public $cache_memory = false;
 }

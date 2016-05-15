@@ -102,7 +102,6 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 				$result['column'] = ['type' => 'text', 'null' => $column['null'], 'default' => $column['default']];
 				break;
 			case 'unsupported':
-				print_r($table_object->columns);
 				Throw new Exception($table_object->name . ': unsupported type for column: ' . $column['name']);
 				break;
 			default:

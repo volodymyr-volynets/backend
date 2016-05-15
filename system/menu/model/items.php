@@ -12,9 +12,9 @@ class numbers_backend_system_menu_model_items extends object_table {
 		'sm_menuitm_code' => ['name' => 'Code', 'domain' => 'code'],
 		'sm_menuitm_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_menuitm_type_id' => ['name' => 'Type', 'domain' => 'type_id', 'default' => 1],
-		'sm_menuitm_group1_id' => ['name' => 'Group 1', 'domain' => 'group_id', 'null' => true],
-		'sm_menuitm_group2_id' => ['name' => 'Group 2', 'domain' => 'group_id', 'null' => true],
-		'sm_menuitm_group3_id' => ['name' => 'Group 3', 'domain' => 'group_id', 'null' => true],
+		'sm_menuitm_group1_code' => ['name' => 'Group 1', 'domain' => 'group_code', 'null' => true],
+		'sm_menuitm_group2_code' => ['name' => 'Group 2', 'domain' => 'group_code', 'null' => true],
+		'sm_menuitm_group3_code' => ['name' => 'Group 3', 'domain' => 'group_code', 'null' => true],
 		'sm_menuitm_order' => ['name' => 'Order', 'domain' => 'order'],
 		'sm_menuitm_acl_controller_id' => ['name' => 'Acl Controller #', 'domain' => 'controller_id', 'null' => true],
 		'sm_menuitm_acl_action_id' => ['name' => 'Acl Action #', 'domain' => 'action_id', 'null' => true],
@@ -34,33 +34,33 @@ class numbers_backend_system_menu_model_items extends object_table {
 				'delete' => 'no action'
 			]
 		],
-		'sm_menuitm_group1_id_fk' => [
+		'sm_menuitm_group1_code_fk' => [
 			'type' => 'fk',
-			'columns' => ['sm_menuitm_group1_id'],
+			'columns' => ['sm_menuitm_group1_code'],
 			'foreign_model' => 'numbers_backend_system_menu_model_groups',
-			'foreign_columns' => ['sm_menugrp_id'],
+			'foreign_columns' => ['sm_menugrp_code'],
 			'options' => [
 				'match' => 'simple',
 				'update' => 'no action',
 				'delete' => 'no action'
 			]
 		],
-		'sm_menuitm_group2_id_fk' => [
+		'sm_menuitm_group2_code_fk' => [
 			'type' => 'fk',
-			'columns' => ['sm_menuitm_group2_id'],
+			'columns' => ['sm_menuitm_group2_code'],
 			'foreign_model' => 'numbers_backend_system_menu_model_groups',
-			'foreign_columns' => ['sm_menugrp_id'],
+			'foreign_columns' => ['sm_menugrp_code'],
 			'options' => [
 				'match' => 'simple',
 				'update' => 'no action',
 				'delete' => 'no action'
 			]
 		],
-		'sm_menuitm_group3_id_fk' => [
+		'sm_menuitm_group3_code_fk' => [
 			'type' => 'fk',
-			'columns' => ['sm_menuitm_group3_id'],
+			'columns' => ['sm_menuitm_group3_code'],
 			'foreign_model' => 'numbers_backend_system_menu_model_groups',
-			'foreign_columns' => ['sm_menugrp_id'],
+			'foreign_columns' => ['sm_menugrp_code'],
 			'options' => [
 				'match' => 'simple',
 				'update' => 'no action',
@@ -99,8 +99,6 @@ class numbers_backend_system_menu_model_items extends object_table {
 	];
 
 	public $cache = false;
-	public $cache_link;
-	public $cache_link_flag;
 	public $cache_tags = [];
 	public $cache_memory = false;
 }

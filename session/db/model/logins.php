@@ -37,8 +37,6 @@ class numbers_backend_session_db_model_logins extends object_table {
 	];
 
 	public $cache = false;
-	public $cache_link;
-	public $cache_link_flag;
 	public $cache_tags = [];
 	public $cache_memory = false;
 }

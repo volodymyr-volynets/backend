@@ -112,7 +112,8 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 
 		// if we cache this query
 		if (!empty($options['cache'])) {
-			$cached_result = cache::get($cache_id, @$options['cache_link']);
+			$cache_object = new cache($this->connect_options['cache_link']);
+			$cached_result = $cache_object->get($cache_id);
 			if ($cached_result !== false) {
 				return $cached_result;
 			}
@@ -173,7 +174,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
-			cache::set($cache_id, $result, null, ['tags' => @$options['cache_tags']], @$options['cache_link']);
+			$cache_object->set($cache_id, $result, ['tags' => $options['cache_tags'] ?? null]);
 		}
 
 		// end time
