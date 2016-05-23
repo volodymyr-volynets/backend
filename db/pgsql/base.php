@@ -3,12 +3,23 @@
 class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implements numbers_backend_db_interface_base {
 
 	/**
+	 * SQL keyword overrides
+	 *
+	 * @var string 
+	 */
+	public $sql_keywords_overrides = [
+		'like' => 'ILIKE'
+	];
+
+	/**
 	 * Constructing database object
 	 *
 	 * @param string $db_link
 	 */
 	public function __construct($db_link) {
 		$this->db_link = $db_link;
+		// keywords overrides
+		$this->sql_keywords = array_merge_hard($this->sql_keywords, $this->sql_keywords_overrides);
 	}
 
 	/**
@@ -477,5 +488,24 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 					AND sm_sequence_name = '{$sequence_name}';
 TTT;
 		return $this->query($sql);
+	}
+
+	/**
+	 * SQL hemper
+	 *
+	 * @param string $statement
+	 * @param array $options
+	 * @return string
+	 */
+	public function sql_helper($statement, $options) {
+		$result = '';
+		switch ($statement) {
+			case 'string_agg':
+				$result = 'string_agg(' . $options['expression'] . ', \'' . ($options['delimiter'] ?? ';') . '\')';
+				break;
+			default:
+				Throw new Exception('Statement?');
+		}
+		return $result;
 	}
 }

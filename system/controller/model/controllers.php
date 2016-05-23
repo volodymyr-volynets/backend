@@ -12,6 +12,7 @@ class numbers_backend_system_controller_model_controllers extends object_table {
 		'sm_controller_id' => ['name' => 'Controller #', 'domain' => 'controller_id_sequence'],
 		'sm_controller_code' => ['name' => 'Code', 'domain' => 'code'],
 		'sm_controller_name' => ['name' => 'Name', 'domain' => 'name'],
+		'sm_controller_icon' => ['name' => 'Icon', 'domain' => 'icon', 'null' => true],
 		'sm_controller_group1_id' => ['name' => 'Group 1', 'domain' => 'group_id', 'null' => true],
 		'sm_controller_group2_id' => ['name' => 'Group 2', 'domain' => 'group_id', 'null' => true],
 		'sm_controller_group3_id' => ['name' => 'Group 3', 'domain' => 'group_id', 'null' => true],
@@ -69,4 +70,22 @@ class numbers_backend_system_controller_model_controllers extends object_table {
 	public $cache = false;
 	public $cache_tags = [];
 	public $cache_memory = false;
+
+	/**
+	 * Get Controller id for its code
+	 *
+	 * @param string $sm_controller_code
+	 * @param boolean $id_only
+	 */
+	public static function get_id_by_code($sm_controller_code, $id_only = true) {
+		$sm_controller_code = $sm_controller_code . '';
+		$model = new numbers_backend_system_controller_model_controllers();
+		$data = $model->get(['where' => ['sm_controller_code' => $sm_controller_code]]);
+		if (!$id_only) {
+			return current($data);
+		} else {
+			$temp = current($data);
+			return $temp['sm_controller_id'];
+		}
+	}
 }

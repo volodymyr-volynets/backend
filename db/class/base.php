@@ -31,6 +31,15 @@ class numbers_backend_db_class_base {
 	public $commit_status = 0;
 
 	/**
+	 * SQL keyword
+	 *
+	 * @var string 
+	 */
+	public $sql_keywords = [
+		'like' => 'LIKE'
+	];
+
+	/**
 	 * Prepare keys
 	 *
 	 * @param mixed $keys
@@ -56,8 +65,6 @@ class numbers_backend_db_class_base {
 				$result[] = "'" . $this->escape($v) . "'";
 			} else if ((isset($temp[2]) && $temp[2] == '~~') || is_numeric($v)) {
 				$result[] = $v;
-			} else if (is_array($v)) {
-				$result[] = "'" . $this->prepare_array($v) . "'";
 			} else if (is_null($v)) {
 				$result[] = 'NULL';
 			} else {
@@ -92,33 +99,6 @@ class numbers_backend_db_class_base {
 	}
 
 	/**
-	 * Accepts an array of values and then returns delimited and comma separated list of
-	 * value for use in an sql statement.
-	 *
-	 * @param array $options
-	 * @return string
-	 */
-	public function prepare_array($options) {
-		$result = [];
-		if (empty($options))
-			$options = [];
-		foreach ($options as $v) {
-			if (is_array($v)) {
-				$result[] = $this->prepare_array($v);
-			} else {
-				$str = $this->escape($v);
-				$str = str_replace('"', '\\\"', $str);
-				if (strpos($str, ',') !== false || strpos($str, ' ') !== false || strpos($str, '{') !== false || strpos($str, '}') !== false || strpos($str, '"') !== false) {
-					$result[] = '"' . $str . '"';
-				} else {
-					$result[] = $str;
-				}
-			}
-		}
-		return '{' . implode(',', $result) . '}';
-	}
-
-	/**
 	 * Convert an array into sql string
 	 *
 	 * @param  array $options
@@ -133,39 +113,43 @@ class numbers_backend_db_class_base {
 			foreach ($options as $k => $v) {
 				$par = explode(',', $k);
 				$key = $par[0];
-				$operator = !empty($par[1]) ? $par[1] : '=';
+				$operator = $par[1] ?? '=';
 				$as_is = (isset($par[2]) && $par[2] == '~~') ? true : false;
 				$string = $key;
+				// special handling if we got an array
+				if (is_array($v) && $operator == '=') {
+					$operator = 'IN';
+				}
+				// processing per operator
 				switch ($operator) {
+					// todo: add ALL and ANY operators
+					/*
+					if ($operator == 'ANY' || $operator == 'ALL') {
+						$string = $v . ' = ' . $operator . '(' . $key . ')';
+					}
+					*/
+					case 'IN':
+						$string.= ' IN(' . implode(', ', $this->escape_array($v, ['quotes' => true])) . ')';
+						break;
 					case 'LIKE%':
-					case 'ILIKE%':
 						$v = '%' . $v . '%';
 					case 'LIKE':
-					case 'ILIKE':
-						$string.= ' ILIKE ';
+						$v = "'" . $this->escape($v) . "'";
+						$string.= ' ' . $this->sql_keywords['like'] . ' ' . $v;
 						break;
 					default:
-						$string.= ' ' . $operator . ' ';
-				}
-
-				// value
-				if ($as_is) {
-					// no changes
-				} else if (is_string($v)) {
-					$v = "'" . $this->escape($v) . "'";
-				} else if (is_numeric($v)) {
-					// no changes
-				} else if (is_array($v)) {
-					$v = "'" . $this->prepare_array($v) . "'";
-				} else if (is_null($v)) {
-					$v = 'NULL';
-				} else {
-					Throw new Exception('Unknown data type');
-				}
-				$string .= $v;
-				// special for array operators: ANY, ALL
-				if ($operator == 'ANY' || $operator == 'ALL') {
-					$string = $v . ' = ' . $operator . '(' . $key . ')';
+						if ($as_is) {
+							// do not remove it !!!
+						} else if (is_string($v)) {
+							$v = "'" . $this->escape($v) . "'";
+						} else if (is_numeric($v)) {
+							// no changes
+						} else if (is_null($v)) {
+							$v = 'NULL';
+						} else {
+							Throw new Exception('Unknown data type');
+						}
+						$string.= ' ' . $operator . ' ' . $v;
 				}
 				$temp[] = $string;
 			}
@@ -181,13 +165,21 @@ class numbers_backend_db_class_base {
 	 * Escape array
 	 *
 	 * @param array $value
-	 * @param string $link
+	 * @param array $options
 	 * @return array
 	 */
-	public function escape_array($value) {
+	public function escape_array($value, $options = []) {
 		$result = [];
 		foreach ($value as $k => $v) {
-			$result[$k] = $this->escape($v);
+			if (is_string($v) && !empty($options['quotes'])) {
+				$result[$k] = "'" . $this->escape($v) . "'";
+			} else if (is_string($v) && empty($options['quotes'])) {
+				$result[$k] = $this->escape($v);
+			} else if (is_numeric($v)) {
+				$result[$k] = $v;
+			} else if (is_null($v)) {
+				$result[$k] = 'NULL';
+			}
 		}
 		return $result;
 	}

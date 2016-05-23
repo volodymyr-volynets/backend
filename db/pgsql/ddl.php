@@ -51,8 +51,6 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 		$column['precision'] = $column['precision'] ?? 0;
 		$column['scale'] = $column['scale'] ?? 0;
 
-		// todo: add domains here
-
 		// simple switch would do the work
 		switch ($column['type']) {
 			case 'boolean':
@@ -649,7 +647,7 @@ TTT;
 			case 'column_new':
 				$type = $data['data']['type'];
 				$default = $data['data']['default'] ?? null;
-				if (is_string($default)) {
+				if (is_string($default) && $default != 'now()') {
 					$default = "'" . $default . "'";
 				}
 				$null = $data['data']['null'] ?? false;

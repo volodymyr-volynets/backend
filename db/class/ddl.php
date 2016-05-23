@@ -85,6 +85,34 @@ class numbers_backend_db_class_ddl {
 			}
 			$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'], 'data' => ['columns' => $columns, 'owner' => $owner, 'full_table_name' => $schema_supported['full_table_name'], 'engine' => $engine]], $model->db_link);
 
+			// history
+			if ($model->history) {
+				$temp = $model->column_prefix . 'inserted';
+				if (empty($model->columns[$temp]) || $model->columns[$temp]['type'] != 'timestamp') {
+					$result['error'][] = 'Table ' . $model->name . ' history column inserted is missing or is not timestamp!';
+				}
+				$temp = $model->column_prefix . 'updated';
+				if (empty($model->columns[$temp]) || $model->columns[$temp]['type'] != 'timestamp') {
+					$result['error'][] = 'Table ' . $model->name . ' history column updated is missing or is not timestamp!';
+				}
+				if ($result['error']) {
+					break;
+				}
+				// fix columns with serial types
+				$columns_history = $columns;
+				foreach ($model->pk as $v) {
+					if ($columns_history[$v]['type'] == 'serial') {
+						$columns_history[$v]['type'] = 'integer';
+					} else if ($columns_history[$v]['type'] == 'bigserial') {
+						$columns_history[$v]['type'] = 'bigint';
+					} else if ($columns_history[$v]['type'] == 'smallserial') {
+						$columns_history[$v]['type'] = 'smallint';
+					}
+				}
+				// add new history table
+				$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'] . '__history', 'data' => ['columns' => $columns_history, 'owner' => $owner, 'full_table_name' => $schema_supported['full_table_name'] . '__history', 'engine' => $engine]], $model->db_link);
+			}
+
 			// processing constraints
 			if (!empty($model->constraints)) {
 				foreach ($model->constraints as $k => $v) {
@@ -337,6 +365,7 @@ class numbers_backend_db_class_ddl {
 			foreach ($v as $k2 => $v2) {
 				if (empty($obj_slave['table'][$k][$k2])) {
 					$result['data']['new_tables'][$v2['full_table_name']] = array('type' => 'table_new', 'data' => $v2);
+					$result['count']++;
 				} else {
 					if ($v2['owner'] != $obj_slave['table'][$k][$k2]['owner']) {
 						$result['data']['new_table_owners'][$v2['full_table_name']] = array('type'=>'table_owner', 'data' => $v2);

@@ -11,6 +11,7 @@ class numbers_backend_system_menu_model_items extends object_table {
 	public $columns = [
 		'sm_menuitm_code' => ['name' => 'Code', 'domain' => 'code'],
 		'sm_menuitm_name' => ['name' => 'Name', 'domain' => 'name'],
+		'sm_menuitm_icon' => ['name' => 'Name', 'domain' => 'icon', 'null' => true],
 		'sm_menuitm_type_id' => ['name' => 'Type', 'domain' => 'type_id', 'default' => 1],
 		'sm_menuitm_group1_code' => ['name' => 'Group 1', 'domain' => 'group_code', 'null' => true],
 		'sm_menuitm_group2_code' => ['name' => 'Group 2', 'domain' => 'group_code', 'null' => true],

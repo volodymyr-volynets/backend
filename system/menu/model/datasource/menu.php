@@ -11,6 +11,7 @@ class numbers_backend_system_menu_model_datasource_menu extends object_datasourc
 			SELECT
 				a.sm_menuitm_code,
 				a.sm_menuitm_name,
+				a.sm_menuitm_icon,
 				a.sm_menuitm_type_id,
 				a.sm_menuitm_order, 
 				a.sm_menuitm_acl_controller_id,
@@ -45,6 +46,10 @@ TTT;
 		$temp = [];
 		// loop though data
 		foreach ($data as $k => $v) {
+			// determine acl
+			if (!empty($v['sm_menuitm_acl_controller_id']) && !helper_acl::can_see_this_controller($v['sm_menuitm_acl_controller_id'])) {
+				continue;
+			}
 			// loop though groups and add them to menu
 			$key = [];
 			for ($i = 1; $i <= 3; $i++) {
@@ -66,6 +71,7 @@ TTT;
 			$key[] = $v['sm_menuitm_code'];
 			array_key_set($temp, $key, [
 				'name' => $v['sm_menuitm_name'],
+				'icon' => $v['sm_menuitm_icon'],
 				'url' => $v['sm_menuitm_url'],
 				'order' => $v['sm_menuitm_order']
 			]);

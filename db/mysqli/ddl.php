@@ -442,7 +442,7 @@ TTT;
 			case 'column_new':
 				$type = $data['data']['type'];
 				$default = $data['data']['default'];
-				if (is_string($default)) {
+				if (is_string($default) && $default != 'now()') {
 					$default = "'" . $default . "'";
 				}
 				$null = $data['data']['null'];
