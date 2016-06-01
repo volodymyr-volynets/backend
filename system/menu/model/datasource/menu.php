@@ -21,14 +21,17 @@ class numbers_backend_system_menu_model_datasource_menu extends object_datasourc
 				a.sm_menuitm_group1_code g1_code, 
 				g1.sm_menugrp_name g1_name,
 				g1.sm_menugrp_order g1_order,
+				g1.sm_menugrp_icon g1_icon,
 				-- group 2
 				a.sm_menuitm_group2_code g2_code,
 				g2.sm_menugrp_name g2_name,
 				g2.sm_menugrp_order g2_order,
+				g2.sm_menugrp_icon g2_icon,
 				-- group 3
 				a.sm_menuitm_group3_code g3_code,
 				g3.sm_menugrp_name g3_name,
-				g3.sm_menugrp_order g3_order
+				g3.sm_menugrp_order g3_order,
+				g3.sm_menugrp_icon g3_icon
 			FROM [table[numbers_backend_system_menu_model_items]] a
 			LEFT JOIN [table[numbers_backend_system_menu_model_groups]] g1 ON a.sm_menuitm_group1_code = g1.sm_menugrp_code
 			LEFT JOIN [table[numbers_backend_system_menu_model_groups]] g2 ON a.sm_menuitm_group2_code = g2.sm_menugrp_code
@@ -47,7 +50,7 @@ TTT;
 		// loop though data
 		foreach ($data as $k => $v) {
 			// determine acl
-			if (!empty($v['sm_menuitm_acl_controller_id']) && !helper_acl::can_see_this_controller($v['sm_menuitm_acl_controller_id'])) {
+			if (!empty($v['sm_menuitm_acl_controller_id']) && !helper_acl::can_see_this_controller($v['sm_menuitm_acl_controller_id'], $v['sm_menuitm_acl_action_id'])) {
 				continue;
 			}
 			// loop though groups and add them to menu
@@ -59,7 +62,9 @@ TTT;
 					$temp2 = array_key_get($temp, $key);
 					if (is_null($temp2)) {
 						array_key_set($temp, $key, [
+							'code' => $v['g' . $i . '_code'],
 							'name' => $v['g' . $i . '_name'],
+							'icon' => $v['g' . $i . '_icon'],
 							'order' => $v['g' . $i . '_order'],
 							'options' => []
 						]);
@@ -67,10 +72,17 @@ TTT;
 					$key[] = 'options';
 				}
 			}
-			// finali we need to add menu item to the array
+			// some replaces
+			$name_extension = null;
+			if ($v['sm_menuitm_code'] == 'entites.authorization.__entity_name') {
+				$name_extension = '<b>' . session::get(['numbers', 'entity', 'em_entity_name']) . '</b>';
+			}
+			// finally we need to add menu item to the array
 			$key[] = $v['sm_menuitm_code'];
 			array_key_set($temp, $key, [
+				'code' => $v['sm_menuitm_code'],
 				'name' => $v['sm_menuitm_name'],
+				'name_extension' => $name_extension,
 				'icon' => $v['sm_menuitm_icon'],
 				'url' => $v['sm_menuitm_url'],
 				'order' => $v['sm_menuitm_order']

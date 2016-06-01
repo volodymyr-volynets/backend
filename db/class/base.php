@@ -118,9 +118,10 @@ class numbers_backend_db_class_base {
 				$string = $key;
 				// special handling if we got an array
 				if (is_array($v) && $operator == '=') {
-					$operator = 'IN';
+					$operator = 'in';
 				}
 				// processing per operator
+				$operator = strtolower($operator);
 				switch ($operator) {
 					// todo: add ALL and ANY operators
 					/*
@@ -128,14 +129,21 @@ class numbers_backend_db_class_base {
 						$string = $v . ' = ' . $operator . '(' . $key . ')';
 					}
 					*/
-					case 'IN':
+					case 'in':
 						$string.= ' IN(' . implode(', ', $this->escape_array($v, ['quotes' => true])) . ')';
 						break;
-					case 'LIKE%':
+					case 'like%':
 						$v = '%' . $v . '%';
-					case 'LIKE':
+					case 'like':
 						$v = "'" . $this->escape($v) . "'";
 						$string.= ' ' . $this->sql_keywords['like'] . ' ' . $v;
+						break;
+					case 'fts':
+						$temp2 = $this->full_text_search_query($v['fields'], $v['str']);
+						if (empty($temp2['where'])) {
+							continue;
+						}
+						$string = $temp2['where'];
 						break;
 					default:
 						if ($as_is) {

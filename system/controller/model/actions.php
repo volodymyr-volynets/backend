@@ -27,7 +27,7 @@ class numbers_backend_system_controller_model_actions extends object_table {
 		'mysqli' => 'MyISAM'
 	];
 
-	public $cache = false;
+	public $cache = true;
 	public $cache_tags = [];
 	public $cache_memory = false;
 }

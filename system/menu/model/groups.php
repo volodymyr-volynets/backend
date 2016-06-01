@@ -11,6 +11,7 @@ class numbers_backend_system_menu_model_groups extends object_table {
 	public $columns = [
 		'sm_menugrp_code' => ['name' => 'Group #', 'domain' => 'group_code'],
 		'sm_menugrp_name' => ['name' => 'Name', 'domain' => 'name'],
+		'sm_menugrp_icon' => ['name' => 'Icon', 'domain' => 'icon', 'null' => true],
 		'sm_menugrp_parent_code' => ['name' => 'Parent #', 'domain' => 'group_code', 'null' => true],
 		'sm_menugrp_order' => ['name' => 'Order', 'domain' => 'order'],
 		'sm_menugrp_inactive' => ['name' => 'Inactive', 'type' => 'boolean']

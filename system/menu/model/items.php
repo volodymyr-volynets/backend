@@ -11,7 +11,7 @@ class numbers_backend_system_menu_model_items extends object_table {
 	public $columns = [
 		'sm_menuitm_code' => ['name' => 'Code', 'domain' => 'code'],
 		'sm_menuitm_name' => ['name' => 'Name', 'domain' => 'name'],
-		'sm_menuitm_icon' => ['name' => 'Name', 'domain' => 'icon', 'null' => true],
+		'sm_menuitm_icon' => ['name' => 'Icon', 'domain' => 'icon', 'null' => true],
 		'sm_menuitm_type_id' => ['name' => 'Type', 'domain' => 'type_id', 'default' => 1],
 		'sm_menuitm_group1_code' => ['name' => 'Group 1', 'domain' => 'group_code', 'null' => true],
 		'sm_menuitm_group2_code' => ['name' => 'Group 2', 'domain' => 'group_code', 'null' => true],
@@ -19,7 +19,7 @@ class numbers_backend_system_menu_model_items extends object_table {
 		'sm_menuitm_order' => ['name' => 'Order', 'domain' => 'order'],
 		'sm_menuitm_acl_controller_id' => ['name' => 'Acl Controller #', 'domain' => 'controller_id', 'null' => true],
 		'sm_menuitm_acl_action_id' => ['name' => 'Acl Action #', 'domain' => 'action_id', 'null' => true],
-		'sm_menuitm_url' => ['name' => 'URL', 'type' => 'text'],
+		'sm_menuitm_url' => ['name' => 'URL', 'type' => 'text', 'null' => true],
 		'sm_menuitm_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
 	public $constraints = [

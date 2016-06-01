@@ -28,11 +28,28 @@ class numbers_backend_system_menu_data_import extends object_import {
 		],
 		'groups' => [
 			'options' => [
-				'pk' => ['sm_menugrp_id'],
+				'pk' => ['sm_menugrp_code'],
 				'model' => 'numbers_backend_system_menu_model_groups',
 				'method' => 'save_insert_new'
 			],
-			'data' => []
+			'data' => [
+				[
+					'sm_menugrp_code' => 'operations',
+					'sm_menugrp_name' => 'Operations',
+					'sm_menugrp_icon' => 'cogs',
+					'sm_menugrp_order' => 32000,
+					'sm_menugrp_parent_code' => null,
+					'sm_menugrp_inactive' => 0
+				],
+				[
+					'sm_menugrp_code' => 'account',
+					'sm_menugrp_name' => 'Account',
+					'sm_menugrp_icon' => 'user',
+					'sm_menugrp_parent_code' => null,
+					'sm_menugrp_order' => 32001,
+					'sm_menugrp_inactive' => 0
+				]
+			]
 		],
 		'items' => [
 			'options' => [

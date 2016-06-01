@@ -399,81 +399,6 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	}
 
 	/**
-	 * Parsing pg array string into array
-	 *
-	 * @param string $arraystring
-	 * @param boolean $reset
-	 * @return array
-	 */
-	public function pg_parse_array($arraystring, $reset = true) {
-		static $i = 0;
-		if ($reset) {
-			$i = 0;
-		}
-		$matches = [];
-		$indexer = 0; // by default sql arrays start at 1
-		// handle [0,2]= cases
-		if (preg_match('/^\[(?P<index_start>\d+):(?P<index_end>\d+)]=/', substr($arraystring, $i), $matches)) {
-			$indexer = (int) $matches['index_start'];
-			$i = strpos($arraystring, '{');
-		}
-		if ($arraystring[$i] != '{') {
-			return [];
-		}
-		$i++;
-		$work = [];
-		$curr = '';
-		$length = strlen($arraystring);
-		$count = 0;
-		while ($i < $length) {
-			switch ($arraystring[$i]) {
-				case '{':
-					$sub = $this->pg_parse_array($arraystring, false);
-					if (!empty($sub)) {
-						$work[$indexer++] = $sub;
-					}
-					break;
-				case '}':
-					$i++;
-					//if ($curr<>'')
-					$work[$indexer++] = $curr;
-					return $work;
-					break;
-				case '\\':
-					$i++;
-					$curr.= $arraystring[$i];
-					$i++;
-					break;
-				case '"':
-					$openq = $i;
-					do {
-						$closeq = strpos($arraystring, '"', $i + 1);
-						if ($closeq > $openq && $arraystring[$closeq - 1] == '\\') {
-							$i = $closeq + 1;
-						} else {
-							break;
-						}
-					} while (true);
-					if ($closeq <= $openq) {
-						die;
-					}
-					$curr.= substr($arraystring, $openq + 1, $closeq - ($openq + 1));
-					$i = $closeq + 1;
-					break;
-				case ',':
-					//if ($curr<>'')
-					$work[$indexer++] = $curr;
-					$curr = '';
-					$i++;
-					break;
-				default:
-					$curr.= $arraystring[$i];
-					$i++;
-			}
-		}
-	}
-
-	/**
 	 * @see db::sequence();
 	 */
 	public function sequence($sequence_name, $type) {
@@ -491,7 +416,7 @@ TTT;
 	}
 
 	/**
-	 * SQL hemper
+	 * SQL helper
 	 *
 	 * @param string $statement
 	 * @param array $options
@@ -505,6 +430,57 @@ TTT;
 				break;
 			default:
 				Throw new Exception('Statement?');
+		}
+		return $result;
+	}
+
+	/**
+	 * Full text filtering
+	 *
+	 * @param mixed $fields
+	 * @param string $str
+	 * @param string $operator
+	 * @return string
+	 */
+	public function full_text_search_query($fields, $str, $operator = '&') {
+		$result = [
+			'where' => '',
+			'orderby' => '',
+			'rank' => ''
+		];
+		$str = trim($str);
+		$str_escaped = $this->escape($str);
+		$flag_do_not_escape = false;
+		if (!empty($fields)) {
+			$sql = '';
+			$sql2 = '';
+			if (is_array($fields)) {
+				$sql = "concat_ws(' ', " . implode(', ', $fields) . ')';
+				$temp = array();
+				foreach ($fields as $f) {
+					$temp[] = "$f::text ILIKE '%" . $str_escaped . "%'";
+				}
+				$sql2 = ' OR (' . implode(' OR ', $temp) . ')';
+			} else {
+				if (strpos($fields, '::tsvector') !== false) {
+					$flag_do_not_escape = true;
+				}
+				$sql = $fields;
+				$sql2 = " OR $fields::text ILIKE '%" . $str_escaped . "%'";
+			}
+			$escaped = preg_replace('/\s\s+/', ' ', $str);
+			$escaped = str_replace(' ', ":*$operator", $this->escape($str)) . ":*";
+			if ($escaped) {
+				if ($flag_do_not_escape) {
+					$result['where'] = "($sql @@ to_tsquery('simple', '" . $escaped . "') $sql2)";
+					$result['orderby'] = "(ts_rank_cd($sql, to_tsquery('simple', '" . $escaped . "')))";
+					$result['rank'] = "(ts_rank_cd($sql, to_tsquery('simple', '" . $escaped . "')))";
+				} else {
+					$result['where'] = "(to_tsvector('simple', $sql) @@ to_tsquery('simple', '" . $escaped . "') $sql2)";
+					$result['orderby'] = "(ts_rank_cd(to_tsvector($sql), to_tsquery('simple', '" . $escaped . "')))";
+					$result['rank'] = "(ts_rank_cd(to_tsvector($sql), to_tsquery('simple', '" . $escaped . "')))";
+				}
+			}
 		}
 		return $result;
 	}

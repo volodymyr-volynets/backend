@@ -8,7 +8,7 @@ class numbers_backend_system_controller_model_datasource_controllers extends obj
 	public function query($options = []) {
 		$model = new numbers_backend_system_controller_model_controllers();
 		$db = new db($model->db_link);
-		$string_agg = $db->sql_helper('string_agg', ['expression' => "concat_ws(sm_cntrmap_action_code, ',', sm_cntrmap_action_id)", 'delimiter' => ';']);
+		$string_agg = $db->sql_helper('string_agg', ['expression' => "concat_ws(',', sm_cntrmap_action_code, sm_cntrmap_action_id)", 'delimiter' => ';']);
 		return <<<TTT
 			SELECT
 				a.sm_controller_id,
@@ -43,9 +43,26 @@ class numbers_backend_system_controller_model_datasource_controllers extends obj
 				AND coalesce(g3.sm_cntrgrp_inactive, 0) = 0
 TTT;
 	}
-	/*
 	public function process($data, $options = []) {
-
+		// we need to process actions column
+		foreach ($data as $k => $v) {
+			$actions = $v['actions'];
+			$data[$k]['actions'] = [
+				'by_id' => [],
+				'by_code' => []
+			];
+			if (!empty($actions)) {
+				$temp = explode(';', $actions);
+				foreach ($temp as $v2) {
+					$temp2 = explode(',', $v2);
+					$temp2[1] = (int) $temp2[1];
+					$data[$k]['actions']['by_id'][$temp2[1]] = $data[$k]['actions']['by_id'][$temp2[1]] ?? [];
+					$data[$k]['actions']['by_id'][$temp2[1]][] = $temp2[0];
+					$data[$k]['actions']['by_code'][$temp2[0]] = $data[$k]['actions']['by_code'][$temp2[0]] ?? [];
+					$data[$k]['actions']['by_code'][$temp2[0]][] = $temp2[1];
+				}
+			}
+		}
+		return $data;
 	}
-	*/
 }

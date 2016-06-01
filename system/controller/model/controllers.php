@@ -70,22 +70,4 @@ class numbers_backend_system_controller_model_controllers extends object_table {
 	public $cache = false;
 	public $cache_tags = [];
 	public $cache_memory = false;
-
-	/**
-	 * Get Controller id for its code
-	 *
-	 * @param string $sm_controller_code
-	 * @param boolean $id_only
-	 */
-	public static function get_id_by_code($sm_controller_code, $id_only = true) {
-		$sm_controller_code = $sm_controller_code . '';
-		$model = new numbers_backend_system_controller_model_controllers();
-		$data = $model->get(['where' => ['sm_controller_code' => $sm_controller_code]]);
-		if (!$id_only) {
-			return current($data);
-		} else {
-			$temp = current($data);
-			return $temp['sm_controller_id'];
-		}
-	}
 }
