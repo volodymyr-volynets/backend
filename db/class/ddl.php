@@ -110,7 +110,7 @@ class numbers_backend_db_class_ddl {
 					}
 				}
 				// add new history table
-				$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'] . '__history', 'data' => ['columns' => $columns_history, 'owner' => $owner, 'full_table_name' => $schema_supported['full_table_name'] . '__history', 'engine' => $engine]], $model->db_link);
+				$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'] . '__history', 'data' => ['columns' => $columns_history, 'owner' => $owner, 'full_table_name' => $model->history_name, 'engine' => $engine]], $model->db_link);
 			}
 
 			// processing constraints

@@ -210,7 +210,11 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		}
 		if ($this->commit_status == 0) {
 			$this->commit_status++;
-			return $this->query('BEGIN');
+			$result = $this->query('BEGIN');
+			if (!$result['success']) {
+				Throw new Exception('Could not start transaction: ' . implode(', ', $result['error']));
+			}
+			return $result;
 		}
 		$this->commit_status++;
 	}
@@ -223,7 +227,11 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	public function commit() {
 		if ($this->commit_status == 1) {
 			$this->commit_status = 0;
-			return $this->query('COMMIT');
+			$result = $this->query('COMMIT');
+			if (!$result['success']) {
+				Throw new Exception('Could not commit transaction: ' . implode(', ', $result['error']));
+			}
+			return $result;
 		}
 		$this->commit_status--;
 	}
@@ -235,7 +243,11 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	 */
 	public function rollback() {
 		$this->commit_status = 0;
-		return $this->query('ROLLBACK');
+		$result = $this->query('ROLLBACK');
+		if (!$result['success']) {
+			Throw new Exception('Could not rollback transaction: ' . implode(', ', $result['error']));
+		}
+		return $result;
 	}
 
 	/**
@@ -246,6 +258,81 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	 */
 	public function escape($value) {
 		return pg_escape_string($this->db_resource, $value);
+	}
+
+	/**
+	 * Parsing pg array string into array
+	 *
+	 * @param string $arraystring
+	 * @param boolean $reset
+	 * @return array
+	 */
+	public function pg_parse_array($arraystring, $reset = true) {
+		static $i = 0;
+		if ($reset) {
+			$i = 0;
+		}
+		$matches = [];
+		$indexer = 0; // by default sql arrays start at 1
+		// handle [0,2]= cases
+		if (preg_match('/^\[(?P<index_start>\d+):(?P<index_end>\d+)]=/', substr($arraystring, $i), $matches)) {
+			$indexer = (int) $matches['index_start'];
+			$i = strpos($arraystring, '{');
+		}
+		if ($arraystring[$i] != '{') {
+			return [];
+		}
+		$i++;
+		$work = [];
+		$curr = '';
+		$length = strlen($arraystring);
+		$count = 0;
+		while ($i < $length) {
+			switch ($arraystring[$i]) {
+				case '{':
+					$sub = $this->pg_parse_array($arraystring, false);
+					if (!empty($sub)) {
+						$work[$indexer++] = $sub;
+					}
+					break;
+				case '}':
+					$i++;
+					//if ($curr<>'')
+					$work[$indexer++] = $curr;
+					return $work;
+					break;
+				case '\\':
+					$i++;
+					$curr.= $arraystring[$i];
+					$i++;
+					break;
+				case '"':
+					$openq = $i;
+					do {
+						$closeq = strpos($arraystring, '"', $i + 1);
+						if ($closeq > $openq && $arraystring[$closeq - 1] == '\\') {
+							$i = $closeq + 1;
+						} else {
+							break;
+						}
+					} while (true);
+					if ($closeq <= $openq) {
+						die;
+					}
+					$curr.= substr($arraystring, $openq + 1, $closeq - ($openq + 1));
+					$i = $closeq + 1;
+					break;
+				case ',':
+					//if ($curr<>'')
+					$work[$indexer++] = $curr;
+					$curr = '';
+					$i++;
+					break;
+				default:
+					$curr.= $arraystring[$i];
+					$i++;
+			}
+		}
 	}
 
 	/**
@@ -283,16 +370,21 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	 * @param array $data
 	 * @param mixed $keys
 	 * @param array $options
+	 *		where - already assembles array of pk
 	 * @return array
 	 */
 	public function update($table, $data, $keys, $options = []) {
 		// fixing keys
 		$keys = array_fix($keys);
 		// where clause
-		$where = [];
-		foreach ($keys as $key) {
-			$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
-			unset($data[$key]);
+		if (!empty($options['where'])) {
+			$where = $options['where'];
+		} else {
+			$where = [];
+			foreach ($keys as $key) {
+				$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
+				unset($data[$key]);
+			}
 		}
 		// assembling query
 		$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND');
@@ -315,10 +407,14 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		// fixing keys
 		$keys = array_fix($keys);
 		// where clause
-		$where = [];
-		foreach ($keys as $key) {
-			$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
-			unset($data[$key]);
+		if (!empty($options['where'])) {
+			$where = $options['where'];
+		} else {
+			$where = [];
+			foreach ($keys as $key) {
+				$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
+				unset($data[$key]);
+			}
 		}
 		// assembling query
 		$sql = "DELETE FROM $table WHERE " . $this->prepare_condition($where, 'AND');
