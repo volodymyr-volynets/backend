@@ -110,6 +110,9 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 		$time = time();
 		$expire = !empty($expire) ? $expire : ($time + $this->options['expire']);
 		// generating cookie array
+		if (empty($tags)) {
+			$tags = [];
+		}
 		$cookie_data = array(
 			'time' => $time,
 			'expire' => $expire,
@@ -146,7 +149,11 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base i
 					break;
 				}
 				// processing tags
-				if ($tags) {
+				if (!empty($tags) && !empty($cookie['tags'])) {
+					$temp = current($cookie['tags']);
+					if (is_array($temp)) {
+						$cookie['tags'] = $temp;
+					}
 					if (array_intersect($tags, $cookie['tags'])) {
 						$flag_delete = true;
 						break;

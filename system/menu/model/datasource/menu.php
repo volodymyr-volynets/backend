@@ -6,7 +6,25 @@ class numbers_backend_system_menu_model_datasource_menu extends object_datasourc
 	public $cache_tags = [];
 	public $cache_memory = false;
 	public function query($options = []) {
-		$type = $options['where']['type'] ?? 1;
+		$type = '';
+		if (!empty($options['where']['type'])) {
+			if (is_array($options['where']['type'])) {
+				$type = ' AND a.sm_menuitm_type_id IN (' . implode(',', $options['where']['type']) . ')';
+			} else {
+				$type = ' AND a.sm_menuitm_type_id = ' . $options['where']['type'];
+			}
+		}
+		$db = factory::model('numbers_backend_system_menu_model_groups')->db_object();
+		$groups_filtering = '';
+		if (!empty($options['where']['group1_code'])) {
+			$groups_filtering.= " AND a.sm_menuitm_group1_code = '" . $db->escape($options['where']['group1_code']) . "'";
+		}
+		if (!empty($options['where']['group2_code'])) {
+			$groups_filtering.= " AND a.sm_menuitm_group2_code = '" . $db->escape($options['where']['group2_code']) . "'";
+		}
+		if (!empty($options['where']['group3_code'])) {
+			$groups_filtering.= " AND a.sm_menuitm_group3_code = '" . $db->escape($options['where']['group3_code']) . "'";
+		}
 		return <<<TTT
 			SELECT
 				a.sm_menuitm_code,
@@ -22,22 +40,26 @@ class numbers_backend_system_menu_model_datasource_menu extends object_datasourc
 				g1.sm_menugrp_name g1_name,
 				g1.sm_menugrp_order g1_order,
 				g1.sm_menugrp_icon g1_icon,
+				g1.sm_menugrp_url g1_url,
 				-- group 2
 				a.sm_menuitm_group2_code g2_code,
 				g2.sm_menugrp_name g2_name,
 				g2.sm_menugrp_order g2_order,
 				g2.sm_menugrp_icon g2_icon,
+				g2.sm_menugrp_url g2_url,
 				-- group 3
 				a.sm_menuitm_group3_code g3_code,
 				g3.sm_menugrp_name g3_name,
 				g3.sm_menugrp_order g3_order,
-				g3.sm_menugrp_icon g3_icon
+				g3.sm_menugrp_icon g3_icon,
+				g3.sm_menugrp_url g3_url
 			FROM [table[numbers_backend_system_menu_model_items]] a
 			LEFT JOIN [table[numbers_backend_system_menu_model_groups]] g1 ON a.sm_menuitm_group1_code = g1.sm_menugrp_code
 			LEFT JOIN [table[numbers_backend_system_menu_model_groups]] g2 ON a.sm_menuitm_group2_code = g2.sm_menugrp_code
 			LEFT JOIN [table[numbers_backend_system_menu_model_groups]] g3 ON a.sm_menuitm_group3_code = g3.sm_menugrp_code
 			WHERE 1=1
-				AND a.sm_menuitm_type_id = $type
+				{$type}
+				{$groups_filtering}
 				AND a.sm_menuitm_inactive = 0
 				AND (CASE WHEN g1.sm_menugrp_inactive IS NULL THEN true ELSE g1.sm_menugrp_inactive = 0 END)
 				AND (CASE WHEN g2.sm_menugrp_inactive IS NULL THEN true ELSE g2.sm_menugrp_inactive = 0 END)
@@ -61,11 +83,20 @@ TTT;
 					// we need to set all groups
 					$temp2 = array_key_get($temp, $key);
 					if (is_null($temp2)) {
+						// if we do not have url we assume visitor wants to see extended menu
+						if (empty($v['g' . $i . '_url'])) {
+							$params = [];
+							for ($j = 1; $j <= $i; $j++) {
+								$params['group' . $j . '_code'] = $v['g' . $j . '_code'];
+							}
+							$v['g' . $i . '_url'] = '/numbers/backend/system/menu/controller/menu?' . http_build_query2($params);
+						}
 						array_key_set($temp, $key, [
 							'code' => $v['g' . $i . '_code'],
 							'name' => $v['g' . $i . '_name'],
 							'icon' => $v['g' . $i . '_icon'],
 							'order' => $v['g' . $i . '_order'],
+							'url' => $v['g' . $i . '_url'],
 							'options' => []
 						]);
 					}

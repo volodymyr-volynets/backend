@@ -14,6 +14,7 @@ class numbers_backend_system_menu_model_groups extends object_table {
 		'sm_menugrp_icon' => ['name' => 'Icon', 'domain' => 'icon', 'null' => true],
 		'sm_menugrp_parent_code' => ['name' => 'Parent #', 'domain' => 'group_code', 'null' => true],
 		'sm_menugrp_order' => ['name' => 'Order', 'domain' => 'order'],
+		'sm_menugrp_url' => ['name' => 'URL', 'type' => 'text', 'null' => true],
 		'sm_menugrp_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
 	public $constraints = [

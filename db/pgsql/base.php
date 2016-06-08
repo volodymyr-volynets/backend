@@ -185,7 +185,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
-			$cache_object->set($cache_id, $result, ['tags' => $options['cache_tags'] ?? null]);
+			$cache_object->set($cache_id, $result, ['tags' => $options['cache_tags'] ?? []]);
 		}
 
 		// end time

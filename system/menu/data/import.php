@@ -37,8 +37,9 @@ class numbers_backend_system_menu_data_import extends object_import {
 					'sm_menugrp_code' => 'operations',
 					'sm_menugrp_name' => 'Operations',
 					'sm_menugrp_icon' => 'cogs',
-					'sm_menugrp_order' => 32000,
 					'sm_menugrp_parent_code' => null,
+					'sm_menugrp_order' => 32000,
+					'sm_menugrp_url' => null,
 					'sm_menugrp_inactive' => 0
 				],
 				[
@@ -47,6 +48,7 @@ class numbers_backend_system_menu_data_import extends object_import {
 					'sm_menugrp_icon' => 'user',
 					'sm_menugrp_parent_code' => null,
 					'sm_menugrp_order' => 32001,
+					'sm_menugrp_url' => null,
 					'sm_menugrp_inactive' => 0
 				]
 			]
