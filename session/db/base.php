@@ -80,7 +80,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 			'sm_session_last_requested' => format::now('timestamp'),
 			'sm_session_pages_count,=,~~' => 'sm_session_pages_count + ' . $inc,
 			'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
-			'sm_session_user_id' => 0,
+			'sm_session_user_id' => $_SESSION['numbers']['entity']['em_entity_id'] ?? 0,
 			'sm_session_data' => $data
 		];
 		$db = new db($this->model_seessions->db_link);
@@ -167,5 +167,118 @@ TTT;
 		}
 		$db->commit();
 		return true;
+	}
+
+	/**
+	 * Expiry dialog
+	 *
+	 * @return string
+	 */
+	public function expiry_dialog() {
+		$body = i18n(null, 'Your session is about to expire, would you like to renew your session?');
+		$body.= '<br/><br/>';
+		$body.= i18n(null, 'This dialog would close in [seconds] seconds.', [
+			'replace' => [
+				'[seconds]' => '<span id="modal_session_expiry_seconds">60</span>'
+			]
+		]);
+		$buttons = '';
+		$buttons.= html::button2(['id' => 'modal_session_expiry_renew_button', 'type' => 'primary', 'value' => i18n(null, 'Renew'), 'onclick' => 'modal_session_expiry_renew_session();']) . ' ';
+		$url = application::get('flag.global.authorization.logout.controller');
+		$buttons.= html::button2(['id' => 'modal_session_expiry_close_button', 'type' => 'danger', 'value' => i18n(null, 'Close'), 'onclick' => "window.location.href = '{$url}'"]);
+		$options = [
+			'id' => 'modal_session_expiry',
+			'title' => i18n(null, 'Session'),
+			'body' => $body,
+			'footer' => $buttons,
+			'no_header_close' => true,
+			'close_by_click_disabled' => true
+		];
+		$js = <<<TTT
+			// Session handling logic
+			var flag_modal_session_expiry_waiting = false;
+			var modal_session_expiry_waiting_interval;
+			var modal_session_expiry_counter_interval, modal_session_expiry_counter_value;
+			function modal_session_expiry_init() {
+				modal_session_expiry_counter_value = 60;
+				$('#modal_session_expiry_seconds').html(modal_session_expiry_counter_value);
+				modal_session_expiry_waiting_interval = setInterval(function(){ modal_session_expiry_check(); }, 2 * 60 * 1000);
+			}
+			function modal_session_expiry_check() {
+				if (flag_modal_session_expiry_waiting) {
+					return;
+				}
+				// we make a call to the server to see session status
+				var request = $.ajax({
+					url: '/numbers/backend/session/db/controller/check/_index',
+					method: "POST",
+					data: {
+						token: numbers.token,
+						__skip_session: true
+					},
+					dataType: "json"
+				});
+				request.done(function(data) {
+					var flag_expired = false;
+					if (data.success) {
+						// if not logged in we redirect
+						if (!data.loggedin || data.expired) {
+							flag_expired = true;
+						}
+						// we check if session expires in 5 minutes, if yes we show dialog
+						if (data.expires_in <= 300) {
+							numbers.modal.show('modal_session_expiry');
+							flag_modal_session_expiry_waiting = true;
+							modal_session_expiry_counter_interval = setInterval(function(){
+								modal_session_expiry_counter_value--;
+								$('#modal_session_expiry_seconds').html(modal_session_expiry_counter_value);
+								if (modal_session_expiry_counter_value == 0) {
+									window.location.href = '{$url}';
+								}
+							}, 1000);
+				
+						}
+					} else {
+						flag_expired = true;
+					}
+					// if expired we redirect to logout
+					if (flag_expired) {
+						window.location.href = '{$url}';
+					}
+				});
+				request.fail(function(jqXHR, textStatus) {
+					window.location.href = '{$url}';
+				});
+			}
+			window.modal_session_expiry_renew_session = function() {
+				numbers.modal.hide('modal_session_expiry');
+				clearInterval(modal_session_expiry_waiting_interval);
+				clearInterval(modal_session_expiry_counter_interval);
+				// we make a call to the server to renew session
+				var request = $.ajax({
+					url: '/numbers/backend/session/db/controller/check/_renew',
+					method: "POST",
+					data: {
+						token: numbers.token
+					},
+					dataType: "json"
+				});
+				request.done(function(data) {
+					if (data.success) {
+						flag_modal_session_expiry_waiting = false;
+						modal_session_expiry_init();
+					} else {
+						window.location.href = '{$url}';
+					}
+				});
+				request.fail(function(jqXHR, textStatus) {
+					window.location.href = '{$url}';
+				});
+			}
+			// initialize the engine
+			modal_session_expiry_init();
+TTT;
+		layout::onload($js);
+		return html::modal($options);
 	}
 }

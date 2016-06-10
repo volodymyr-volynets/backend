@@ -8,21 +8,6 @@ class numbers_backend_i18n_class_base implements numbers_backend_i18n_interface_
 	 * @param array $options
 	 */
 	public static function init($options = []) {
-		$i18n = application::get('flag.global.i18n');
-		// merge options into settings
-		if (!empty($options)) {
-			$i18n = array_merge2($i18n, $options);
-		}
-		// mode
-		$content_type = application::get('flag.global.__content_type');
-		if ($content_type != 'text/html') {
-			$i18n['mode'] = 'spot';
-		} else if (!isset($i18n['mode'])) {
-			// default mode is postponed for html pages
-			$i18n['mode'] = 'postponed';
-		}
-		// put everything back into settings
-		application::set('flag.global.i18n', $i18n);
 		return ['success' => 1, 'error' => []];
 	}
 
