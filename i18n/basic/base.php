@@ -124,16 +124,26 @@ TTT;
 	public static function get($i18n, $text, $options = []) {
 		// try to ge it by i18n
 		$i18n = intval($i18n);
+		$translated = false;
+		// some texts we skip
+		if (in_array($text . '', [' ', '&nbsp;', '-', '', '  '])) {
+			$result = $text;
+			$skip_translation_symbol = true;
+			goto finish;
+		}
+		// we translate if language is not system
 		if (self::$language_code != 'sys') {
 			if ($i18n > 0 && isset(self::$data['ids'][$i18n])) {
 				$result = self::$data['hashes'][self::$data['ids'][$i18n]];
 			} else {
+				// continue logic
 				$hash = $text;
 				if (strlen($hash) > 40) {
 					$hash = sha1($hash);
 				}
 				if (array_key_exists($hash, self::$data['hashes'])) {
 					$result = self::$data['hashes'][$hash];
+					$translated = true;
 				} else {
 					$result = $text;
 					// put data into missing
@@ -149,6 +159,7 @@ TTT;
 		} else {
 			$result = $text;
 		}
+finish:
 		// if we need to handle replaces, for example:
 		// "Error occured on line [line_number]"
 		if (!empty($options['replace'])) {
@@ -157,8 +168,9 @@ TTT;
 			}
 		}
 		// todo: add debug mode, maybe append i18n
-		if (debug::$debug && application::get('flag.global.__content_type') == 'text/html') {
-			$result.= ' <span style="color:blue">i</span>';
+		if (debug::$debug && application::get('flag.global.__content_type') == 'text/html' && empty($skip_translation_symbol) && self::$language_code == 'sys') {
+			$color = $translated ? 'blue' : 'red';
+			$result.= ' <span style="color: ' . $color . '; font-weight: bold:">i</span>';
 		}
 		return $result;
 	}

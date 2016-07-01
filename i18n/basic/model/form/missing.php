@@ -73,8 +73,6 @@ class numbers_backend_i18n_basic_model_form_missing extends numbers_frontend_htm
 				'css' => ''
 			]
 		];
-		
-		print_r2($form->values);
 		$params = [
 			'lc_translation_language_code' => $form->values['lc_missing_language_code'],
 			'lc_translation_text_sys' => $form->values['lc_missing_text_sys']

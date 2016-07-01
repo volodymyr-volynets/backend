@@ -145,6 +145,9 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 				if ($result['errno'] == '23503') {
 					// foregn key constraint violation
 					$result['error'][] = 'The record you are trying to delete is used in other areas, please unset it there first.';
+				} else if ($result['errno'] == '23505') {
+					// duplicate key value violates unique constraint
+					$result['error'][] = 'Duplicate key value violates unique constraint.';
 				} else {
 					$result['error'][] = 'Db Link ' . $this->db_link . ': ' . $last_error;
 				}

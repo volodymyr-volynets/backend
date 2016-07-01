@@ -27,7 +27,8 @@ class numbers_backend_i18n_basic_model_form_languages extends numbers_frontend_h
 				'lc_language_code' => ['order' => 1, 'label_name' => 'Language Code', 'domain' => 'language_code', 'percent' => 100, 'required' => true]
 			],
 			'lc_language_name' => [
-				'lc_language_name' => ['order' => 1, 'label_name' => 'Name', 'domain' => 'name', 'percent' => 100, 'required' => true]
+				'lc_language_name' => ['order' => 1, 'label_name' => 'Name', 'domain' => 'name', 'percent' => 50, 'required' => true],
+				'lc_language_rtl' => ['order' => 2, 'label_name' => 'Right-to-left', 'type' => 'boolean', 'percent' => 50, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => 'object_data_model_inactive']
 			],
 			'lc_language_locale' => [
 				'lc_language_locale' => ['order' => 1, 'label_name' => 'Locale', 'percent' => 50, 'required' => true],

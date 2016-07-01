@@ -12,6 +12,7 @@ class numbers_backend_i18n_basic_model_languages extends object_table {
 		'lc_language_code' => ['name' => 'Code', 'domain' => 'language_code'],
 		'lc_language_name' => ['name' => 'Name', 'domain' => 'name'],
 		'lc_language_locale' => ['name' => 'Locale', 'type' => 'text'],
+		'lc_language_rtl' => ['name' => 'RTL', 'type' => 'boolean'],
 		'lc_language_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
 	];
 	public $constraints = [
