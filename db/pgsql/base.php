@@ -110,8 +110,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			'rows' => [],
 			'key' => & $key,
 			'structure' => [],
-			'time' => null,
-			'last_insert_id' => 0
+			'time' => null
 		];
 
 		// start time
@@ -184,12 +183,6 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			}
 			pg_free_result($resource);
 			$result['success'] = true;
-		}
-
-		// last_insert_id is a last element in the last row
-		if (!empty($options['flag_came_from_insert']) && !empty($options['returning'])) {
-			$temp = end($result['rows']);
-			$result['last_insert_id'] = end($temp);
 		}
 
 		// caching if no error
@@ -368,7 +361,6 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 				$sql.= ' RETURNING *';
 			}
 		}
-		$options['flag_came_from_insert'] = true;
 		return $this->query($sql, $this->prepare_keys($keys), $options);
 	}
 
@@ -492,6 +484,11 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 						unset($data[$key]);
 					}
 				}
+				// if we have a sequence
+				if (!empty($options['sequence'])) {
+					$temp = $this->sequence($options['sequence']['sequence_name']);
+					$data[$options['sequence']['sequence_column']] = $temp['rows'][0]['counter'];
+				}
 				// we insert
 				$sql = "INSERT INTO $table (" . $this->prepare_expression(array_keys($data)) . ') VALUES (' . $this->prepare_values($data) . ')' . $sql_addon;
 			}
@@ -506,16 +503,17 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	/**
 	 * @see db::sequence();
 	 */
-	public function sequence($sequence_name, $type) {
+	public function sequence($sequence_name, $type = 'nextval') {
 		$sequence_model = new numbers_backend_db_class_model_sequences();
 		$sql = <<<TTT
 			SELECT
-				*,
-				{$type}('{$sequence_name}') counter
-			FROM
-				{$sequence_model->name}
-			WHERE 1=1
-					AND sm_sequence_name = '{$sequence_name}';
+				a.counter,
+				b.*,
+				'{$sequence_name}' sm_sequence_name
+			FROM (
+				SELECT {$type}('{$sequence_name}') counter
+			) a
+			LEFT JOIN sm.sequences b ON sm_sequence_name = '{$sequence_name}';
 TTT;
 		return $this->query($sql);
 	}

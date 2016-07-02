@@ -22,7 +22,7 @@ class numbers_backend_i18n_basic_model_missing extends object_table {
 	public $options_map = [];
 	public $options_active = [];
 	public $engine = [
-		'mysqli' => 'MyISAM'
+		'mysqli' => 'InnoDB'
 	];
 
 	public $cache = false;

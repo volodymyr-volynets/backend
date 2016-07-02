@@ -25,7 +25,7 @@ class numbers_backend_cron_base_model_entries extends object_table {
 	public $options_map = [];
 	public $options_active = [];
 	public $engine = [
-		'mysqli' => 'MyISAM'
+		'mysqli' => 'InnoDB'
 	];
 
 	public $cache = false;

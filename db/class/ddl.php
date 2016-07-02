@@ -80,8 +80,25 @@ class numbers_backend_db_class_ddl {
 			// columns would be here
 			$columns = [];
 			foreach ($model->columns as $k => $v) {
+				$v['column_name'] = $k;
 				$column_temp = $ddl_object->is_column_type_supported($v, $model);
 				$columns[$k] = $column_temp['column'];
+				// handle sequence
+				if (!empty($column_temp['column']['sequence'])) {
+					$this->object_add([
+						'type' => 'sequence',
+						'schema' => $schema_supported['schema'],
+						'name' => $column_temp['column']['sequence'],
+						'data' => [
+							'owner' => $owner,
+							'full_sequence_name' => $column_temp['column']['sequence'],
+							'type' => 'simple',
+							'prefix' => null,
+							'length' => 0,
+							'suffix' => null
+						]
+					], $model->db_link);
+				}
 			}
 			$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'], 'data' => ['columns' => $columns, 'owner' => $owner, 'full_table_name' => $schema_supported['full_table_name'], 'engine' => $engine]], $model->db_link);
 

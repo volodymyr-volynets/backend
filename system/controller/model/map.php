@@ -44,7 +44,7 @@ class numbers_backend_system_controller_model_map extends object_table {
 	public $options_map = [];
 	public $options_active = [];
 	public $engine = [
-		'mysqli' => 'MyISAM'
+		'mysqli' => 'InnoDB'
 	];
 
 	public $cache = false;

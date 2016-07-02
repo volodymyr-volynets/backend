@@ -95,6 +95,21 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 	}
 
 	/**
+	 * Process value as per type
+	 *
+	 * @param mixed $value
+	 */
+	private function process_value_as_per_type($value, $type) {
+		if (in_array($type, ['char', 'short', 'long', 'longlong'])) {
+			return (int) $value;
+		} else if (in_array($type, ['numeric', 'decimal', 'float', 'double', 'newdecimal'])) {
+			return (float) $value;
+		} else {
+			return $value;
+		}
+	}
+
+	/**
 	 * This will run SQL query and return structured data
 	 *
 	 * @param string $sql
@@ -151,19 +166,15 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 				if ($result['num_rows'] > 0) {
 					while ($rows = mysqli_fetch_assoc($resource)) {
 						// casting types
+						$data = [];
 						foreach ($rows as $k => $v) {
-							// todo: add all types here!!!
-							if (in_array($result['structure'][$k]['type'], ['longlong'])) {
-								$rows[$k] = (int) $v;
-							} else if ($result['structure'][$k]['type'] == 'numeric') {
-								$rows[$k] = (float) $v;
-							}
+							$data[$k] = $this->process_value_as_per_type($v, $result['structure'][$k]['type']);
 						}
 						// assigning keys
 						if (!empty($key)) {
-							array_key_set_by_key_name($result['rows'], $key, $rows);
+							array_key_set_by_key_name($result['rows'], $key, $data);
 						} else {
-							$result['rows'][] = $rows;
+							$result['rows'][] = $data;
 						}
 					}
 				}
@@ -199,19 +210,15 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 						if ($num_rows > 0) {
 							while ($rows = mysqli_fetch_assoc($result_multi)) {
 								// casting types
+								$data = [];
 								foreach ($rows as $k => $v) {
-									// todo: add all types here!!!
-									if (in_array($result['structure'][$k]['type'], ['longlong'])) {
-										$rows[$k] = (int) $v;
-									} else if ($result['structure'][$k]['type'] == 'numeric') {
-										$rows[$k] = (float) $v;
-									}
+									$data[$k] = $this->process_value_as_per_type($v, $result['structure'][$k]['type']);
 								}
 								// assigning keys
 								if (!empty($key)) {
-									array_key_set_by_key_name($result['rows'], $key, $rows);
+									array_key_set_by_key_name($result['rows'], $key, $data);
 								} else {
-									$result['rows'][] = $rows;
+									$result['rows'][] = $data;
 								}
 							}
 						}
@@ -223,7 +230,8 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 				}
 			}
 		}
-
+		// last insert id for auto increment columns
+		$result['last_insert_id'] = mysqli_insert_id($this->db_resource);
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
 			$cache_object->set($cache_id, $result, ['tags' => $options['cache_tags'] ?? null]);
@@ -251,7 +259,11 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 		}
 		if ($this->commit_status == 0) {
 			$this->commit_status++;
-			return $this->query('BEGIN');
+			$result = $this->query('BEGIN');
+			if (!$result['success']) {
+				Throw new Exception('Could not start transaction: ' . implode(', ', $result['error']));
+			}
+			return $result;
 		}
 		$this->commit_status++;
 	}
@@ -264,7 +276,11 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 	public function commit() {
 		if ($this->commit_status == 1) {
 			$this->commit_status = 0;
-			return $this->query('COMMIT');
+			$result = $this->query('COMMIT');
+			if (!$result['success']) {
+				Throw new Exception('Could not commit transaction: ' . implode(', ', $result['error']));
+			}
+			return $result;
 		}
 		$this->commit_status--;
 	}
@@ -276,7 +292,11 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 	 */
 	public function rollback() {
 		$this->commit_status = 0;
-		return $this->query('ROLLBACK');
+		$result = $this->query('ROLLBACK');
+		if (!$result['success']) {
+			Throw new Exception('Could not rollback transaction: ' . implode(', ', $result['error']));
+		}
+		return $result;
 	}
 
 	/**
@@ -305,10 +325,6 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			$sql_values[] = "(" . $this->prepare_values($v) . ")";
 		}
 		$sql.= implode(', ', $sql_values);
-		// if we need to return updated/inserted rows
-		if (!empty($options['returning'])) {
-			$sql.= ' RETURNING *';
-		}
 		return $this->query($sql, $this->prepare_keys($keys));
 	}
 
@@ -325,16 +341,17 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 		// fixing keys
 		$keys = array_fix($keys);
 		// where clause
-		$where = [];
-		foreach ($keys as $key) {
-			$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
-			unset($data[$key]);
+		if (!empty($options['where'])) {
+			$where = $options['where'];
+		} else {
+			$where = [];
+			foreach ($keys as $key) {
+				$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
+				unset($data[$key]);
+			}
 		}
 		// assembling query
 		$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND');
-		if (!empty($options['returning'])) {
-			$sql.= ' RETURNING *';
-		}
 		return $this->query($sql, $this->prepare_keys($keys));
 	}
 
@@ -351,16 +368,17 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 		// fixing keys
 		$keys = array_fix($keys);
 		// where clause
-		$where = [];
-		foreach ($keys as $key) {
-			$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
-			unset($data[$key]);
+		if (!empty($options['where'])) {
+			$where = $options['where'];
+		} else {
+			$where = [];
+			foreach ($keys as $key) {
+				$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
+				unset($data[$key]);
+			}
 		}
 		// assembling query
 		$sql = "DELETE FROM $table WHERE " . $this->prepare_condition($where, 'AND');
-		if (!empty($options['returning'])) {
-			$sql.= ' RETURNING *';
-		}
 		return $this->query($sql, $this->prepare_keys($keys));
 	}
 
@@ -417,6 +435,11 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 						unset($data[$key]);
 					}
 				}
+				// if we have a sequence
+				if (!empty($options['sequence'])) {
+					$temp = $this->sequence($options['sequence']['sequence_name']);
+					$data[$options['sequence']['sequence_column']] = $temp['rows'][0]['counter'];
+				}
 				// we insert
 				$sql = "INSERT INTO $table (" . $this->prepare_expression(array_keys($data)) . ') VALUES (' . $this->prepare_values($data) . ')';
 			}
@@ -425,7 +448,6 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 				$result['inserted'] = $flag_inserted;
 			}
 			// processing returning clause last
-			// todo: process last_insert_id here!!!
 			$temp = $this->query("SELECT * FROM $table WHERE " . $this->prepare_condition($where, 'AND'));
 			if ($temp['success']) {
 				$result['rows'] = $temp['rows'];
@@ -438,7 +460,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 	/**
 	 *	@see db::sequence();
 	 */
-	public function sequence($sequence_name, $type) {
+	public function sequence($sequence_name, $type = 'nextval') {
 		$sequence_model = new numbers_backend_db_class_model_sequences();
 		$sql = <<<TTT
 			SET @next_sequence = {$type}('{$sequence_name}');
@@ -451,5 +473,24 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 					AND sm_sequence_name = '{$sequence_name}';
 TTT;
 		return $this->query($sql, null, ['multi_query' => true]);
+	}
+
+	/**
+	 * SQL helper
+	 *
+	 * @param string $statement
+	 * @param array $options
+	 * @return string
+	 */
+	public function sql_helper($statement, $options) {
+		$result = '';
+		switch ($statement) {
+			case 'string_agg':
+				$result = 'GROUP_CONCAT(' . $options['expression'] . ' SEPARATOR \'' . ($options['delimiter'] ?? ';') . '\')';
+				break;
+			default:
+				Throw new Exception('Statement?');
+		}
+		return $result;
 	}
 }

@@ -16,7 +16,7 @@ class numbers_backend_i18n_basic_model_translations extends object_table {
 	];
 	public $constraints = [
 		'lc_translations_pk' => ['type' => 'pk', 'columns' => ['lc_translation_id']],
-		'lc_translation_text_sys_un' => ['type' => 'unique', 'columns' => ['lc_translation_language_code', 'lc_translation_text_sys']],
+		//'lc_translation_text_sys_un' => ['type' => 'unique', 'columns' => ['lc_translation_language_code', 'lc_translation_text_sys']], // MySQL key can only be 3k long
 		'lc_translation_language_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['lc_translation_language_code'],
@@ -34,7 +34,7 @@ class numbers_backend_i18n_basic_model_translations extends object_table {
 	public $options_map = [];
 	public $options_active = [];
 	public $engine = [
-		'mysqli' => 'MyISAM'
+		'mysqli' => 'InnoDB'
 	];
 
 	public $cache = false;

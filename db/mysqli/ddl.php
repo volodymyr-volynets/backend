@@ -81,7 +81,9 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 			case 'serial':
 			case 'bigserial':
 				$temp = str_replace('serial', 'int', $column['type']);
-				$result['column'] = ['type' => $temp, 'auto_increment' => 1];
+				$sequence = $table_object->name . '_' . $column['column_name'] . '_seq';
+				$result['column'] = ['type' => $temp, 'sequence' => $sequence];
+				// 'auto_increment' => 1, there are issues with auto increment in MySQL, it does not work as a sequence
 				break;
 			case 'char':
 				$temp = 'char(' . $column['length'] . ')';
@@ -101,12 +103,6 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 				break;
 			case 'timestamp':
 				$result['column'] = ['type' => 'datetime(6)', 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'numbers_code':
-				$result['column'] = ['type' => 'varchar(50)', 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'numbers_hash':
-				$result['column'] = ['type' => 'varchar(128)', 'null' => $column['null'], 'default' => $column['default']];
 				break;
 			case 'text':
 				$result['column'] = ['type' => 'text', 'null' => $column['null'], 'default' => $column['default']];
@@ -162,6 +158,8 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 											$default = (int) $default;
 										} else if ($v4['type'] == 'decimal') {
 											$default = (float) $default;
+										} else if (is_string($default) && strpos($default, 'CURRENT_TIMESTAMP') !== false) {
+											$default = 'now()';
 										} else {
 											// as is
 										}
@@ -210,6 +208,21 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 												'full_table_name' => $v5['table_name']
 											];
 											$result['data']['index'][$k3][$k4][$k5] = $temp2;
+										} else if ($v5['constraint_type'] == 'FOREIGN KEY') {
+											$temp2 = [
+												'type' => 'fk',
+												'columns' => explode(',', $v5['column_names']),
+												'foreign_table' => $v5['foreign_table_name'],
+												'foreign_columns' => explode(',', $v5['foreign_column_names']),
+												'options' => [
+													'match' => 'SIMPLE',
+													'update' => 'NO ACTION',
+													'delete' => 'NO ACTION'
+												],
+												'name' => $v5['constraint_name'],
+												'full_table_name' => $v5['table_name']
+											];
+											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else {
 											print_r($v5);
 											exit;
@@ -296,9 +309,9 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 							a.constraint_name,
 							null index_type,
 							b.column_names,
-							null foreign_schema_name,
-							null foreign_table_name,
-							null foreign_column_names,
+							b.referenced_table_schema foreign_schema_name,
+							b.referenced_table_name foreign_table_name,
+							b.referenced_column_name foreign_column_names,
 							null match_option,
 							null update_rule,
 							null delete_rule
@@ -308,7 +321,10 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 								table_schema schema_name,
 								table_name,
 								constraint_name,
-								GROUP_CONCAT(column_name ORDER BY ordinal_position SEPARATOR ',') column_names
+								GROUP_CONCAT(column_name ORDER BY ordinal_position SEPARATOR ',') column_names,
+								MAX(referenced_table_schema) referenced_table_schema,
+								MAX(referenced_table_name) referenced_table_name,
+								GROUP_CONCAT(referenced_column_name ORDER BY ordinal_position SEPARATOR ',') referenced_column_name
 							FROM information_schema.key_column_usage c
 							WHERE 1=1
 								AND c.table_schema = '{$database_name}'
@@ -339,6 +355,7 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 							WHERE 1=1
 								AND b.table_schema = '{$database_name}'
 								AND b.non_unique = 1
+								AND b.index_name NOT LIKE '%_fk'
 							ORDER BY b.seq_in_index
 						) a
 						GROUP BY a.table_schema, a.table_name, a.index_name
@@ -442,8 +459,16 @@ TTT;
 			case 'column_new':
 				$type = $data['data']['type'];
 				$default = $data['data']['default'];
-				if (is_string($default) && $default != 'now()') {
+				if (is_string($default) && $default !== 'now()' && strpos($default, 'nextval') === false) {
 					$default = "'" . $default . "'";
+				} else if ($default === 'now()') {
+					if ($type == 'datetime(6)') {
+						$default = 'CURRENT_TIMESTAMP(6)';
+					} else {
+						$default = 'CURRENT_TIMESTAMP';
+					}
+				} else if (strpos($default, 'nextval') !== false) {
+					// we do nothing
 				}
 				$null = $data['data']['null'];
 				if (empty($options['column_new_no_alter'])) {
@@ -459,7 +484,19 @@ TTT;
 				break;
 			case 'column_change':
 				$master = $data['data'];
-				$result = "ALTER TABLE {$data['table']} CHANGE {$data['name']} {$data['name']} {$master['type']}" . (!$master['null'] ? ' NOT NULL' : '') . ($master['default'] !== null ? (" DEFAULT " . (is_string($master['default']) ? ("'" . $master['default'] . "'") : $master['default'])) : '') . (!empty($master['auto_increment']) ? ' AUTO_INCREMENT' : '') . ";";
+				$default = $data['data']['default'];
+				if (is_string($default) && $default !== 'now()' && strpos($default, 'nextval') === false) {
+					$default = "'" . $default . "'";
+				} else if ($default === 'now()') {
+					if ($type == 'datetime(6)') {
+						$default = 'CURRENT_TIMESTAMP(6)';
+					} else {
+						$default = 'CURRENT_TIMESTAMP';
+					}
+				} else if (strpos($default, 'nextval') !== false) {
+					// we do nothing
+				}
+				$result = "ALTER TABLE {$data['table']} CHANGE {$data['name']} {$data['name']} {$master['type']}" . (!$master['null'] ? ' NOT NULL' : '') . ($default !== null ? (' DEFAULT ' . $default) : '') . (!empty($master['auto_increment']) ? ' AUTO_INCREMENT' : '') . ";";
 				break;
 			// table
 			case 'table_owner':
@@ -485,9 +522,14 @@ TTT;
 						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD PRIMARY KEY (" . implode(", ", $data['data']['columns']) . ");";
 						// adding auto_increment after we add primary key
 						if (!empty(self::$extra['auto_increment'][$data['data']['full_table_name']])) {
-							$temp = $result;
-							$result = [$temp, self::$extra['auto_increment'][$data['data']['full_table_name']]];
+							$result = [$result, self::$extra['auto_increment'][$data['data']['full_table_name']]];
 						}
+						break;
+					case 'unique':
+						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} UNIQUE (" . implode(", ", $data['data']['columns']) . ")";
+						break;
+					case 'fk':
+						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} FOREIGN KEY (" . implode(", ", $data['data']['columns']) . ") REFERENCES {$data['data']['foreign_table']} (" . implode(", ", $data['data']['foreign_columns']) . ") ON UPDATE " . strtoupper($data['data']['options']['update'] ?? 'NO ACTION') . " ON DELETE " . strtoupper($data['data']['options']['delete'] ?? 'NO ACTION') . ";";
 						break;
 					default:
 						Throw new Exception($data['data']['type'] . '?');
