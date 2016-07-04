@@ -17,6 +17,9 @@ class numbers_backend_i18n_basic_model_missing extends object_table {
 	public $constraints = [
 		'lc_missing_pk' => ['type' => 'pk', 'columns' => ['lc_missing_id']]
 	];
+	public $indexes = [
+		'lc_missing_fulltext_idx' => ['type' => 'fulltext', 'columns' => ['lc_missing_language_code', 'lc_missing_text_sys']]
+	];
 	public $history = false;
 	public $audit = false;
 	public $options_map = [];

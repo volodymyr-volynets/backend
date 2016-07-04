@@ -29,6 +29,9 @@ class numbers_backend_i18n_basic_model_translations extends object_table {
 			]
 		]
 	];
+	public $indexes = [
+		'lc_translations_fulltext_idx' => ['type' => 'fulltext', 'columns' => ['lc_translation_language_code', 'lc_translation_text_sys', 'lc_translation_text_new']]
+	];
 	public $history = false;
 	public $audit = false;
 	public $options_map = [];

@@ -493,4 +493,37 @@ TTT;
 		}
 		return $result;
 	}
+
+	/**
+	 * Full text filtering
+	 *
+	 * @param mixed $fields
+	 * @param string $str
+	 * @param string $operator
+	 * @return string
+	 */
+	public function full_text_search_query($fields, $str, $operator = '&') {
+		$result = [
+			'where' => '',
+			'orderby' => '',
+			'rank' => ''
+		];
+		$str = trim($str);
+		$flag_do_not_escape = false;
+		if (!empty($fields)) {
+			$sql = '';
+			if (is_array($fields)) {
+				$sql = implode(', ', $fields);
+			} else {
+				$sql = $fields;
+			}
+			$escaped = preg_replace('/\s\s+/', ' ', $str);
+			if ($escaped) {
+				$result['where'] = "MATCH ({$sql}) AGAINST ('" . $this->escape($escaped) . "' IN NATURAL LANGUAGE MODE)";
+				$result['orderby'] = '(' . $result['where'] . ')';
+				$result['rank'] = '(' . $result['where'] . ') rank';
+			}
+		}
+		return $result;
+	}
 }

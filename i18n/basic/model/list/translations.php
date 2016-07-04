@@ -16,7 +16,7 @@ class numbers_backend_i18n_basic_model_list_translations extends numbers_fronten
 		'lc_translation_language_code' => ['name' => 'Language Code', 'domain' => 'language_code', 'method' => 'html::multiselect', 'options_model' => 'numbers_backend_i18n_basic_model_languages'],
 		'lc_translation_text_sys' => ['name' => 'System Text', 'type' => 'varchar', 'length' => 2500, 'operator' => 'like%'],
 		'lc_translation_text_new' => ['name' => 'Translated Text', 'type' => 'varchar', 'length' => 2500, 'operator' => 'like%'],
-		'full_text_search' => ['lc_translation_id', 'lc_translation_language_code', 'lc_translation_text_sys', 'lc_translation_text_new']
+		'full_text_search' => ['lc_translation_language_code', 'lc_translation_text_sys', 'lc_translation_text_new']
 	];
 	public $orderby = [
 		'lc_translation_id' => SORT_ASC

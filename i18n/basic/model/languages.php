@@ -18,6 +18,9 @@ class numbers_backend_i18n_basic_model_languages extends object_table {
 	public $constraints = [
 		'lc_languages_pk' => ['type' => 'pk', 'columns' => ['lc_language_code']]
 	];
+	public $indexes = [
+		'lc_languages_fulltext_idx' => ['type' => 'fulltext', 'columns' => ['lc_language_code', 'lc_language_name', 'lc_language_locale']]
+	];
 	public $history = false;
 	public $audit = false;
 	public $options_map = [];

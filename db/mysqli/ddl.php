@@ -546,7 +546,11 @@ TTT;
 				break;
 			// indexes
 			case 'index_new':
-				$result = "CREATE INDEX {$data['name']} ON {$data['data']['full_table_name']} (" . implode(", ", $data['data']['columns']) . ") USING {$data['data']['type']};";
+				if ($data['data']['type'] == 'fulltext') {
+					$result = "CREATE FULLTEXT INDEX {$data['name']} ON {$data['data']['full_table_name']} (" . implode(", ", $data['data']['columns']) . ")";
+				} else {
+					$result = "CREATE INDEX {$data['name']} ON {$data['data']['full_table_name']} (" . implode(", ", $data['data']['columns']) . ") USING {$data['data']['type']};";
+				}
 				break;
 			case 'index_delete':
 				$result = "DROP INDEX {$data['name']} ON {$data['data']['full_table_name']};";
