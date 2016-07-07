@@ -170,7 +170,7 @@ finish:
 		// todo: add debug mode, maybe append i18n
 		if (debug::$debug && application::get('flag.global.__content_type') == 'text/html' && empty($skip_translation_symbol) && self::$language_code == 'sys') {
 			$color = $translated ? 'blue' : 'red';
-			$result.= ' <span style="color: ' . $color . '; font-weight: bold:">i</span>';
+			$result.= '<span style="color: ' . $color . '; font-weight: bold:">i</span>';
 		}
 		return $result;
 	}

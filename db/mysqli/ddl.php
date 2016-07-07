@@ -458,7 +458,7 @@ TTT;
 				break;
 			case 'column_new':
 				$type = $data['data']['type'];
-				$default = $data['data']['default'];
+				$default = $data['data']['default'] ?? null;
 				if (is_string($default) && $default !== 'now()' && strpos($default, 'nextval') === false) {
 					$default = "'" . $default . "'";
 				} else if ($default === 'now()') {
@@ -470,7 +470,7 @@ TTT;
 				} else if (strpos($default, 'nextval') !== false) {
 					// we do nothing
 				}
-				$null = $data['data']['null'];
+				$null = $data['data']['null'] ?? false;
 				if (empty($options['column_new_no_alter'])) {
 					$result = "ALTER TABLE {$data['table']} ADD COLUMN {$data['name']} {$type}" . ($default !== null ? (' DEFAULT ' . $default) : '') . (!$null ? (' NOT NULL') : '') . (!empty($data['data']['auto_increment']) ? ' AUTO_INCREMENT' : '') . ";";
 				} else {
@@ -484,7 +484,7 @@ TTT;
 				break;
 			case 'column_change':
 				$master = $data['data'];
-				$default = $data['data']['default'];
+				$default = $data['data']['default'] ?? null;
 				if (is_string($default) && $default !== 'now()' && strpos($default, 'nextval') === false) {
 					$default = "'" . $default . "'";
 				} else if ($default === 'now()') {
