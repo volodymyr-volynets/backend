@@ -9,7 +9,8 @@ class numbers_backend_i18n_basic_model_form_translations extends numbers_fronten
 				'icon' => ['type' => 'pencil-square-o'],
 				'title' => 'View / Edit:'
 			]
-		]
+		],
+		'no_ajax_form_reload' => true
 	];
 	public $containers = [
 		'default' => ['default_row_type' => 'grid', 'order' => 1]

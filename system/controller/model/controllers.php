@@ -70,4 +70,11 @@ class numbers_backend_system_controller_model_controllers extends object_table {
 	public $cache = false;
 	public $cache_tags = [];
 	public $cache_memory = false;
+
+	public $optmultis_map = [
+		'sm_controller_group1_id' => ['alias' => 'group1_id', 'disabled' => true, 'model' => 'numbers_backend_system_controller_model_groups'],
+		'sm_controller_group2_id' => ['alias' => 'group2_id', 'disabled' => true, 'model' => 'numbers_backend_system_controller_model_groups'],
+		'sm_controller_group3_id' => ['alias' => 'group3_id', 'disabled' => true, 'model' => 'numbers_backend_system_controller_model_groups'],
+		'sm_controller_id' => ['alias' => 'sm_controller_id', 'only_this_value' => true, 'column' => 'sm_controller_name', 'icon_column' => 'sm_controller_icon']
+	];
 }

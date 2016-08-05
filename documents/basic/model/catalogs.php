@@ -12,7 +12,11 @@ class numbers_backend_documents_basic_model_catalogs extends object_table {
 		'dc_catalog_code' => ['name' => 'Catalog Code', 'domain' => 'type_code'],
 		'dc_catalog_name' => ['name' => 'Name', 'domain' => 'name'],
 		'dc_catalog_storage_id' => ['name' => 'Storage #', 'domain' => 'type_id'],
-		'dc_catalog_extensions' => ['name' => 'Extensions', 'type' => 'text', 'null' => true],
+		'dc_catalog_multiple' => ['name' => 'Multiple', 'type' => 'boolean'],
+		'dc_catalog_id_required' => ['name' => 'Number Required', 'type' => 'boolean'],
+		'dc_catalog_date_required' => ['name' => 'Date Required', 'type' => 'boolean'],
+		'dc_catalog_comment_required' => ['name' => 'Comment Required', 'type' => 'boolean'],
+		'dc_catalog_valid_extensions' => ['name' => 'Valid Extensions', 'type' => 'text', 'null' => true],
 		'dc_catalog_thumbnail_settings' => ['name' => 'Thumbnail Settings', 'type' => 'text', 'null' => true],
 		'dc_catalog_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
@@ -29,6 +33,9 @@ class numbers_backend_documents_basic_model_catalogs extends object_table {
 				'delete' => 'no action'
 			]
 		]
+	];
+	public $indexes = [
+		'dc_catalogs_fulltext_idx' => ['type' => 'fulltext', 'columns' => ['dc_catalog_code', 'dc_catalog_name']]
 	];
 	public $history = false;
 	public $audit = false;

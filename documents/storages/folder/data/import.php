@@ -11,7 +11,7 @@ class numbers_backend_documents_storages_folder_data_import extends object_impor
 			'data' => [
 				[
 					'dc_storage_id' => 100,
-					'dc_storage_name' => 'Folder'
+					'dc_storage_name' => 'Storage Folder'
 				]
 			]
 		]
