@@ -77,4 +77,16 @@ class numbers_backend_system_controller_model_controllers extends object_table {
 		'sm_controller_group3_id' => ['alias' => 'group3_id', 'disabled' => true, 'model' => 'numbers_backend_system_controller_model_groups'],
 		'sm_controller_id' => ['alias' => 'sm_controller_id', 'only_this_value' => true, 'column' => 'sm_controller_name', 'icon_column' => 'sm_controller_icon']
 	];
+
+	/**
+	 * Get filtered by permission
+	 *
+	 * @param array $options
+	 * @return array
+	 */
+	public function optmultis_filtered_by_permission($options = []) {
+		$data = $this->get(['where' => ['sm_controller_acl_permission' => 1, 'sm_controller_inactive' => 0]]);
+		$optmultis_map = $this->optmultis_map;
+		return object_data_common::optmultis($data, $optmultis_map, $options);
+	}
 }

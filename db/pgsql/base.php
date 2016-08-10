@@ -3,6 +3,16 @@
 class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implements numbers_backend_db_interface_base {
 
 	/**
+	 * Error overrides
+	 *
+	 * @var array
+	 */
+	public $error_overrides = [
+		'23503' => 'The record you are trying to delete is used in other areas, please unset it there first.',
+		'23505' => 'Duplicate key value violates unique constraint.',
+	];
+
+	/**
 	 * SQL keyword overrides
 	 *
 	 * @var string 
@@ -135,25 +145,14 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		if (!$resource || $result['status'] > 4) {
 			$last_error = pg_last_error($this->db_resource);
 			if (empty($last_error)) {
-				$result['errno'] = 1;
-				$result['error'][] = 'DB Link ' . $this->db_link . ': ' . 'Unspecified error!';
+				$errno = 1;
+				$error = 'DB Link ' . $this->db_link . ': ' . 'Unspecified error!';
 			} else {
 				preg_match("|ERROR:\s(.*?):|i", $last_error, $matches);
-				$result['errno'] = !empty($matches[1]) ? $matches[1] : 1;
-				// some replaces
-				if ($result['errno'] == '23503') {
-					// foregn key constraint violation
-					$result['error'][] = 'The record you are trying to delete is used in other areas, please unset it there first.';
-				} else if ($result['errno'] == '23505') {
-					// duplicate key value violates unique constraint
-					$result['error'][] = 'Duplicate key value violates unique constraint.';
-				} else {
-					$result['error'][] = 'Db Link ' . $this->db_link . ': ' . $last_error;
-				}
+				$errno = !empty($matches[1]) ? $matches[1] : 1;
+				$error = $last_error;
 			}
-			// we log this error message
-			// todo: process log policy here
-			error_log('Query error: ' . implode(' ', $result['error']) . ' [' . $sql . ']');
+			$this->error_overrides($result, $errno, $error);
 		} else {
 			$result['affected_rows'] = pg_affected_rows($resource);
 			$result['num_rows'] = pg_num_rows($resource);

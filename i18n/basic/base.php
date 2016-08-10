@@ -48,7 +48,7 @@ class numbers_backend_i18n_basic_base implements numbers_backend_i18n_interface_
 					lc_translation_id id,
 					lc_translation_text_sys sys, 
 					lc_translation_text_new new
-				FROM lc.translations
+				FROM lc_translations
 				WHERE 1=1
 					AND lc_translation_language_code = '{$options['language_code']}'
 TTT;
@@ -74,8 +74,7 @@ TTT;
 	public static function destroy() {
 		if (empty(self::$missing)) return;
 		// we would create temp table
-		$model = factory::model('numbers_backend_i18n_basic_model_missing');
-		$db = $model->db_object();
+		$db = factory::model('numbers_backend_i18n_basic_model_missing')->db_object();
 		$db->query("CREATE TEMPORARY TABLE temp_translations (sys text, counter integer, lang text)");
 		// insert data
 		$data = [];
@@ -85,22 +84,24 @@ TTT;
 		$db->insert('temp_translations', $data);
 		// merge data
 		$sql = <<<TTT
-			INSERT INTO {$model->name} (
+			INSERT INTO lc_translations (
+				lc_missing_id,
 				lc_missing_language_code,
 				lc_missing_text_sys, 
 				lc_missing_counter
 			)
 			SELECT
+				nextval('lc_missing_lc_missing_id_seq'),
 				lang lc_missing_language_code,
-				sys lc_missing_text_sys, 
+				sys lc_missing_text_sys,
 				0 lc_missing_counter
 			FROM temp_translations a
-			LEFT JOIN {$model->name} b ON a.sys = b.lc_missing_text_sys AND a.lang = b.lc_missing_language_code
+			LEFT JOIN lc_translations b ON a.sys = b.lc_missing_text_sys AND a.lang = b.lc_missing_language_code
 			WHERE b.lc_missing_language_code IS NULL
 TTT;
 		$db->query($sql);
 		// last step perform update
-		$sql = "UPDATE lc.missing a SET lc_missing_counter = lc_missing_counter + coalesce((SELECT counter FROM temp_translations b WHERE b.sys = a.lc_missing_text_sys AND b.lang = a.lc_missing_language_code), 0)";
+		$sql = "UPDATE lc_translations a SET lc_missing_counter = lc_missing_counter + coalesce((SELECT counter FROM temp_translations b WHERE b.sys = a.lc_missing_text_sys AND b.lang = a.lc_missing_language_code), 0)";
 		$db->query($sql);
 	}
 

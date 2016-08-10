@@ -3,6 +3,16 @@
 class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base implements numbers_backend_db_interface_base {
 
 	/**
+	 * Error overrides
+	 *
+	 * @var array
+	 */
+	public $error_overrides = [
+		'1451' => 'The record you are trying to delete is used in other areas, please unset it there first.',
+		'1062' => 'Duplicate key value violates unique constraint.',
+	];
+
+	/**
 	 * Constructing database object
 	 *
 	 * @param string $db_link
@@ -152,17 +162,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 		if (empty($options['multi_query'])) {
 			$resource = mysqli_query($this->db_resource, $sql);
 			if (!$resource) {
-				$result['errno'] = mysqli_errno($this->db_resource);
-				// some replaces
-				if ($result['errno'] == '1451') {
-					// foregn key constraint violation
-					$result['error'][] = 'The record you are trying to delete is used in other areas, please unset it there first.';
-				} else {
-					$result['error'][] = 'Db Link ' . $this->db_link . ': ' . mysqli_error($this->db_resource);
-				}
-				// we log this error message
-				// todo: process log policy here
-				error_log('Query error: ' . implode(' ', $result['error']) . ' [' . $sql . ']');
+				$this->error_overrides($result, mysqli_errno($this->db_resource), mysqli_error($this->db_resource));
 			} else {
 				$result['affected_rows']+= mysqli_affected_rows($this->db_resource);
 				if ($resource !== true) {

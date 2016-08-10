@@ -191,4 +191,31 @@ class numbers_backend_db_class_base {
 		}
 		return $result;
 	}
+
+	/**
+	 * Error Overrides
+	 *
+	 * @var array
+	 */
+	public $error_overrides = [];
+
+	/**
+	 * Error Overrides
+	 *
+	 * @param arary $result
+	 * @param string $errno
+	 * @param string $error
+	 */
+	protected function error_overrides(& $result, $errno, $error) {
+		$result['errno'] = $errno . '';
+		if (isset($this->error_overrides[$result['errno']])) {
+			$result['error'][] = $this->error_overrides[$result['errno']];
+		} else {
+			$temp = 'Db Link ' . $this->db_link . ': Errno: ' . $result['errno'] . ': ' . $error;
+			$result['error'][] = $temp;
+			// we need to trown en error if this happens
+			trigger_error($temp);
+			error_log('Query error: ' . implode(' ', $result['error']) . ' [' . $result['sql'] . ']');
+		}
+	}
 }
