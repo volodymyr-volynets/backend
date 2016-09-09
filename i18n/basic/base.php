@@ -106,15 +106,6 @@ TTT;
 	}
 
 	/**
-	 * List of available languages
-	 *
-	 * @return array
-	 */
-	public static function languages() {
-		return factory::model('numbers_backend_i18n_basic_model_languages')->get();
-	}
-
-	/**
 	 * Get translation
 	 *
 	 * @param string $i18n
@@ -171,7 +162,7 @@ finish:
 		// todo: add debug mode, maybe append i18n
 		if (debug::$debug && application::get('flag.global.__content_type') == 'text/html' && empty($skip_translation_symbol) && self::$language_code == 'sys') {
 			$color = $translated ? 'blue' : 'red';
-			$result.= '<span style="color: ' . $color . '; font-weight: bold:"><span style="display:none">&nbsp;(</span>i<span style="display:none">)</span></span>';
+			$result.= '<span style="color: ' . $color . '; font-weight: bold:"><span style="display:none"> (</span>i<span style="display:none">)</span></span>';
 		}
 		return $result;
 	}

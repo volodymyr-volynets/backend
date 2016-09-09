@@ -10,33 +10,6 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 	public static $extra = [];
 
 	/**
-	 * Check is schema suported
-	 *
-	 * @param string $table_name
-	 * @return boolean
-	 */
-	public function is_schema_supported($table_name) {
-		$temp = explode('.', $table_name);
-		if (count($temp) > 1) {
-			return [
-				'success' => true,
-				'error' => [],
-				'schema' => '',
-				'table' => $temp[0] . '_' . $temp[1],
-				'full_table_name' => $temp[0] . '_' . $temp[1]
-			];
-		} else {
-			return [
-				'success' => true,
-				'error' => [],
-				'schema' => '',
-				'table' => $temp[0],
-				'full_table_name' => $temp[0]
-			];
-		}
-	}
-
-	/**
 	 * Column type checker and converter
 	 *
 	 * @param array $column
@@ -540,6 +513,8 @@ TTT;
 					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP PRIMARY KEY;";
 				} else if ($data['data']['type'] == 'unique') {
 					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP INDEX {$data['name']};";
+				} else if ($data['data']['type'] == 'fk') {
+					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP FOREIGN KEY {$data['name']};";
 				} else {
 					Throw new Exception($data['data']['type'] . '?');
 				}

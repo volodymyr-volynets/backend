@@ -112,7 +112,8 @@ class numbers_backend_db_class_base {
 			$string = '';
 			foreach ($options as $k => $v) {
 				$par = explode(',', $k);
-				$key = $par[0];
+				// we use [comma] instead of comma in statements
+				$key = str_replace('[comma]', ',', $par[0]);
 				$operator = $par[1] ?? '=';
 				$as_is = (isset($par[2]) && $par[2] == '~~') ? true : false;
 				$string = $key;

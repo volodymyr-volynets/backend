@@ -3,7 +3,7 @@
 class numbers_backend_db_mysqli_model_currval extends object_function {
 	public $db_link;
 	public $db_link_flag;
-	public $function_name = "currval";
+	public $name = "currval";
 	public $function_sql = [
 		'mysqli' => [
 			'header' =>

@@ -53,7 +53,7 @@ class numbers_backend_mail_class_base {
 			foreach ($result['data']['message'] as $k => $v) {
 				// we need to determine mesage type
 				if (!isset($v['type'])) {
-					if ($v['data'] == strip_tags($v['data'])) {
+					if ($v['data'] == html_entity_decode(strip_tags($v['data']))) {
 						$result['data']['message'][$k]['type'] = 'text/plain';
 						$flags['text'] = 1;
 					} else {
@@ -77,12 +77,12 @@ class numbers_backend_mail_class_base {
 			// if we have html version but does not that text version we autogenerate
 			if (isset($flags['html']) && empty($flags['text'])) {
 				$temp = str_replace(['<br/>', '<br />', '<br>', '<hr/>', '<hr />', '<hr>'], "\n", $result['data']['message'][$flags['html']]['data']);
-				$result['data']['message'][] = [
+				array_unshift($result['data']['message'], [
 					'type' => 'text/plain',
-					'data' => strip_tags($temp),
+					'data' => html_entity_decode(strip_tags($temp)),
 					'charset' => 'utf-8',
 					'encoding' => '7bit'
-				];
+				]);
 			}
 			// validating receipients
 			foreach (['to', 'cc', 'bcc'] as $r) {

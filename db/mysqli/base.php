@@ -111,9 +111,17 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 	 */
 	private function process_value_as_per_type($value, $type) {
 		if (in_array($type, ['char', 'short', 'long', 'longlong'])) {
-			return (int) $value;
+			if (!is_null($value)) {
+				return (int) $value;
+			} else {
+				return null;
+			}
 		} else if (in_array($type, ['numeric', 'decimal', 'float', 'double', 'newdecimal'])) {
-			return (float) $value;
+			if (!is_null($value)) {
+				return (float) $value;
+			} else {
+				return null;
+			}
 		} else {
 			return $value;
 		}
@@ -524,11 +532,16 @@ TTT;
 				$sql = $fields;
 			}
 			$escaped = preg_replace('/\s\s+/', ' ', $str);
-			if ($escaped) {
-				$result['where'] = "MATCH ({$sql}) AGAINST ('" . $this->escape($escaped) . "' IN NATURAL LANGUAGE MODE)";
-				$result['orderby'] = '(' . $result['where'] . ')';
-				$result['rank'] = '(' . $result['where'] . ') rank';
+			$escaped = str_replace(' ', ',', $escaped);
+			$where = "MATCH ({$sql}) AGAINST ('" . $this->escape($escaped) . "' IN NATURAL LANGUAGE MODE)";
+			$temp = [];
+			foreach ($fields as $f) {
+				$temp[] = "{$f} LIKE '%" . $this->escape($str) . "%'";
 			}
+			$sql2 = ' OR (' . implode(' OR ', $temp) . ')';
+			$result['where'] = "(" . $where . $sql2 . ")";
+			$result['orderby'] = 'ts_rank';
+			$result['rank'] = '(' . $where . ') ts_rank';
 		}
 		return $result;
 	}

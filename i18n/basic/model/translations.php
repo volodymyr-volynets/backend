@@ -3,7 +3,7 @@
 class numbers_backend_i18n_basic_model_translations extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.system.default_db_link';
-	public $name = 'lc.translations';
+	public $name = 'lc_translations';
 	public $pk = ['lc_translation_id'];
 	public $orderby;
 	public $limit;
@@ -20,7 +20,7 @@ class numbers_backend_i18n_basic_model_translations extends object_table {
 		'lc_translation_language_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['lc_translation_language_code'],
-			'foreign_model' => 'numbers_backend_i18n_basic_model_languages',
+			'foreign_model' => 'numbers_backend_i18n_languages_model_languages',
 			'foreign_columns' => ['lc_language_code'],
 			'options' => [
 				'match' => 'simple',

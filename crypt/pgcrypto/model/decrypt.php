@@ -3,13 +3,13 @@
 class numbers_backend_crypt_pgcrypto_model_decrypt extends object_function {
 	public $db_link;
 	public $db_link_flag;
-	public $function_name = "sm.decrypt";
+	public $name = "sm_decrypt";
 	public $function_sql = [
 		'pgsql' => [
-			'definition' => 'sm.encrypt(text)',
+			'definition' => 'sm_decrypt(bytea)',
 			'header' => '',
 			'body' =>
-'CREATE OR REPLACE FUNCTION sm.decrypt(data bytea)
+'CREATE OR REPLACE FUNCTION sm_decrypt(data bytea)
  RETURNS text
  LANGUAGE plpgsql
 AS $function$

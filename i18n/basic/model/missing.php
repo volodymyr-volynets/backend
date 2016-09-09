@@ -3,7 +3,7 @@
 class numbers_backend_i18n_basic_model_missing extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.system.default_db_link';
-	public $name = 'lc.missing';
+	public $name = 'lc_missing';
 	public $pk = ['lc_missing_id'];
 	public $orderby;
 	public $limit;

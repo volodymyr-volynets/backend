@@ -3,33 +3,6 @@
 class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implements numbers_backend_db_interface_ddl {
 
 	/**
-	 * Check is schema suported
-	 *
-	 * @param string $table_name
-	 * @return boolean
-	 */
-	public function is_schema_supported($table_name) {
-		$temp = explode('.', $table_name);
-		if (count($temp) > 1) {
-			return [
-				'success' => true,
-				'error' => [],
-				'schema' => $temp[0],
-				'table' => $temp[1],
-				'full_table_name' => $temp[0] . '.' . $temp[1]
-			];
-		} else {
-			return [
-				'success' => true,
-				'error' => [],
-				'schema' => 'public',
-				'table' => $temp[0],
-				'full_table_name' => $temp[0]
-			];
-		}
-	}
-
-	/**
 	 * Column type checker and converter
 	 *
 	 * @param array $column
@@ -131,6 +104,9 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 					case 'columns':
 						// small conversion for columns
 						foreach ($temp['data'] as $k2 => $v2) {
+							if ($k2 == 'public') {
+								$k2 = '';
+							}
 							foreach ($v2 as $k3 => $v3) {
 								foreach ($v3 as $k4 => $v4) {
 									// processing type
@@ -179,7 +155,11 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 										$result['data']['table'][$k2][$k3]['owner'] = $v4['table_owner'];
 									}
 									if (!isset($result['data']['table'][$k2][$k3]['full_table_name'])) {
-										$result['data']['table'][$k2][$k3]['full_table_name'] = $v4['schema_name'] . '.' . $v4['table_name'];
+										if ($v4['schema_name'] == 'public') {
+											$result['data']['table'][$k2][$k3]['full_table_name'] = $v4['table_name'];
+										} else {
+											$result['data']['table'][$k2][$k3]['full_table_name'] = $v4['schema_name'] . '.' . $v4['table_name'];
+										}
 									}
 								}
 							}
@@ -188,34 +168,43 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 					case 'constraints':
 						foreach ($temp['data'] as $k2 => $v2) {
 							foreach ($v2 as $k3 => $v3) {
+								if ($k3 == 'public') {
+									$k3 = '';
+								}
 								foreach ($v3 as $k4 => $v4) {
 									foreach ($v4 as $k5 => $v5) {
+										if ($k3 == '') {
+											$name = $v5['table_name'];
+										} else {
+											$name = $v5['schema_name'] . '.' . $v5['table_name'];
+										}
 										if ($v5['constraint_type'] == 'PRIMARY KEY') {
 											$temp2 = [
 												'type' => 'pk',
 												'columns' => $v5['column_names'],
-												'full_table_name' => $v5['schema_name'] . '.' . $v5['table_name']
+												'full_table_name' => $name
 											];
 											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else if ($v5['constraint_type'] == 'UNIQUE') {
 											$temp2 = [
 												'type' => 'unique',
 												'columns' => $v5['column_names'],
-												'full_table_name' => $v5['schema_name'] . '.' . $v5['table_name']
+												'full_table_name' => $name
 											];
 											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else if ($v5['constraint_type'] == 'INDEX') {
 											$temp2 = [
 												'type' => $v5['index_type'],
 												'columns' => $v5['column_names'],
-												'full_table_name' => $v5['schema_name'] . '.' . $v5['table_name']
+												'full_table_name' => $name
 											];
 											$result['data']['index'][$k3][$k4][$k5] = $temp2;
 										} else if ($v5['constraint_type'] == 'FOREIGN_KEY') {
+											$name2 = ($k3 == '') ? $v5['foreign_table_name'] : ($v5['foreign_schema_name'] . '.' . $v5['foreign_table_name']);
 											$temp2 = [
 												'type' => 'fk',
 												'columns' => $v5['column_names'],
-												'foreign_table' => $v5['foreign_schema_name'] . '.' . $v5['foreign_table_name'],
+												'foreign_table' => $name2,
 												'foreign_columns' => $v5['foreign_column_names'],
 												'options' => [
 													'match' => $v5['match_option'],
@@ -223,7 +212,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 													'delete' => $v5['delete_rule']
 												],
 												'name' => $v5['constraint_name'],
-												'full_table_name' => $v5['schema_name'] . '.' . $v5['table_name']
+												'full_table_name' => $name
 											];
 											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else {
@@ -243,6 +232,9 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 						break;
 					case 'sequences':
 						foreach ($temp['data'] as $k2 => $v2) {
+							if ($k2 == 'public') {
+								$k2 = '';
+							}
 							foreach ($v2 as $k3 => $v3) {
 								$result['data']['sequence'][$k2][$k3] = [
 									'owner' => $v3['sequence_owner'],
@@ -257,11 +249,15 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 						break;
 					case 'functions':
 						foreach ($temp['data'] as $k2 => $v2) {
+							if ($k2 == 'public') {
+								$k2 = '';
+							}
 							foreach ($v2 as $k3 => $v3) {
-								$k3 = str_replace('public.', '', $k3);
+								//$k3 = str_replace('public.', '', $k3);
+								$name = ($k2 == '') ? $k3 : ($k2 . '.' . $k3);
 								$result['data']['function'][$k2][$k3] = [
 									'owner' => $v3['function_owner'],
-									'function_name' => $k2. '.' . $k3,
+									'full_function_name' => $name,
 									'sql_full' => $v3['routine_definition'],
 									'sql_parts' => [
 										'definition' => $v3['full_function_name'],
@@ -403,7 +399,9 @@ TTT;
 									min(update_rule::text) update_rule,
 									min(delete_rule::text) delete_rule
 							FROM information_schema.referential_constraints c
-							JOIN information_schema.key_column_usage x ON x.constraint_name = c.constraint_name
+							JOIN (
+								SELECT * FROM information_schema.key_column_usage ORDER BY position_in_unique_constraint
+							) x ON x.constraint_name = c.constraint_name
 							JOIN information_schema.key_column_usage y ON y.ordinal_position = x.position_in_unique_constraint AND y.constraint_name = c.unique_constraint_name
 							GROUP BY x.table_schema, x.table_name, c.constraint_name, y.table_schema, y.table_name
 
@@ -771,7 +769,7 @@ TTT;
 				$result[]= "CREATE SEQUENCE {$data['name']} START 1;";
 				$result[]= "ALTER SEQUENCE {$data['name']} OWNER TO {$data['owner']};";
 				$result[]= <<<TTT
-					INSERT INTO sm.sequences (
+					INSERT INTO sm_sequences (
 						sm_sequence_name,
 						sm_sequence_description,
 						sm_sequence_prefix,
@@ -793,7 +791,7 @@ TTT;
 			case 'sequence_delete':
 				$result = [];
 				$result[]= "DROP SEQUENCE {$data['name']};";
-				$result[]= "DELETE FROM sm.sequences WHERE sm_sequence_name = '{$data['name']}'";
+				$result[]= "DELETE FROM sm_sequences WHERE sm_sequence_name = '{$data['name']}'";
 				break;
 			case 'sequence_owner':
 				$result = "ALTER SEQUENCE {$data['name']} OWNER TO {$data['owner']};";

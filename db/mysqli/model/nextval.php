@@ -3,7 +3,7 @@
 class numbers_backend_db_mysqli_model_nextval extends object_function {
 	public $db_link;
 	public $db_link_flag;
-	public $function_name = "nextval";
+	public $name = "nextval";
 	public $function_sql = [
 		'mysqli' => [
 			'header' =>

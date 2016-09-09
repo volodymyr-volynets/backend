@@ -8,13 +8,13 @@ class numbers_backend_documents_basic_model_list_catalogs extends numbers_fronte
 		'action' => ['name' => 'Action', 'width' => '1%'],
 		'dc_catalog_code' => ['name' => 'Catalog Code', 'domain' => 'type_code'],
 		'dc_catalog_name' => ['name' => 'Name', 'domain' => 'name'],
-		'dc_catalog_storage_id' => ['name' => 'Storage #', 'domain' => 'type_id', 'options_model' => 'numbers_backend_documents_basic_model_storages'],
+		'dc_catalog_storage_id' => ['name' => 'Storage', 'domain' => 'type_id', 'options_model' => 'numbers_backend_documents_basic_model_storages'],
 		'dc_catalog_inactive' => ['name' => 'Inactive', 'type' => 'boolean', 'options_model' => 'object_data_model_inactive']
 	];
 	public $filter = [
 		'dc_catalog_code' => ['name' => 'Catalog Code', 'domain' => 'type_code'],
 		'dc_catalog_name' => ['name' => 'Name', 'domain' => 'name'],
-		'dc_catalog_storage_id' => ['name' => 'Storage #', 'domain' => 'type_id', 'method' => 'html::multiselect', 'options_model' => 'numbers_backend_documents_basic_model_storages'],
+		'dc_catalog_storage_id' => ['name' => 'Storage', 'domain' => 'type_id', 'method' => 'html::multiselect', 'options_model' => 'numbers_backend_documents_basic_model_storages'],
 		'dc_catalog_inactive' => ['name' => 'Inactive', 'type' => 'boolean', 'options_model' => 'object_data_model_inactive'],
 		'full_text_search' => ['dc_catalog_code', 'dc_catalog_name']
 	];

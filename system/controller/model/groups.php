@@ -3,7 +3,7 @@
 class numbers_backend_system_controller_model_groups extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.system.default_db_link';
-	public $name = 'sm.controller_groups';
+	public $name = 'sm_controller_groups';
 	public $pk = ['sm_cntrgrp_id'];
 	public $orderby;
 	public $limit;

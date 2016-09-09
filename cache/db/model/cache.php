@@ -3,7 +3,7 @@
 class numbers_backend_cache_db_model_cache extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.cache.db.default_db_link';
-	public $name = 'sm.cache';
+	public $name = 'sm_cache';
 	public $pk = ['sm_cache_id'];
 	public $orderby;
 	public $limit;

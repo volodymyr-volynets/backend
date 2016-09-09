@@ -3,7 +3,7 @@
 class numbers_backend_system_controller_model_map extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.system.default_db_link';
-	public $name = 'sm.controller_map';
+	public $name = 'sm_controller_map';
 	public $pk = ['sm_cntrmap_controller_id', 'sm_cntrmap_action_code', 'sm_cntrmap_action_id'];
 	public $orderby;
 	public $limit;

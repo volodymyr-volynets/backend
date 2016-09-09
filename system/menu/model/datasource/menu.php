@@ -35,6 +35,7 @@ class numbers_backend_system_menu_model_datasource_menu extends object_datasourc
 				a.sm_menuitm_acl_controller_id,
 				a.sm_menuitm_acl_action_id,
 				a.sm_menuitm_url,
+				a.sm_menuitm_options_generator,
 				-- group 1
 				a.sm_menuitm_group1_code g1_code, 
 				g1.sm_menugrp_name g1_name,
@@ -61,9 +62,9 @@ class numbers_backend_system_menu_model_datasource_menu extends object_datasourc
 				{$type}
 				{$groups_filtering}
 				AND a.sm_menuitm_inactive = 0
-				AND (CASE WHEN g1.sm_menugrp_inactive IS NULL THEN true ELSE g1.sm_menugrp_inactive = 0 END)
-				AND (CASE WHEN g2.sm_menugrp_inactive IS NULL THEN true ELSE g2.sm_menugrp_inactive = 0 END)
-				AND (CASE WHEN g3.sm_menugrp_inactive IS NULL THEN true ELSE g3.sm_menugrp_inactive = 0 END)
+				AND coalesce(g1.sm_menugrp_inactive, 0) = 0
+				AND coalesce(g2.sm_menugrp_inactive, 0) = 0
+				AND coalesce(g3.sm_menugrp_inactive, 0) = 0
 			ORDER BY a.sm_menuitm_order
 TTT;
 	}
@@ -116,8 +117,21 @@ TTT;
 				'name_extension' => $name_extension,
 				'icon' => $v['sm_menuitm_icon'],
 				'url' => $v['sm_menuitm_url'],
-				'order' => $v['sm_menuitm_order']
+				'order' => $v['sm_menuitm_order'],
+				'options' => [] // a must
 			]);
+			//
+			if (!empty($v['sm_menuitm_options_generator'])) {
+				$temp3 = explode('::', $v['sm_menuitm_options_generator']);
+				$temp_data = factory::model($temp3[0])->{$temp3[1]}();
+				$temp_key = $key;
+				$temp_key[] = 'options';
+				foreach ($temp_data as $k2 => $v2) {
+					$temp_key2 = $temp_key;
+					$temp_key2[] = $k2;
+					array_key_set($temp, $temp_key2, $v2);
+				}
+			}
 		}
 		// sorting
 		foreach ($temp as $k => $v) {

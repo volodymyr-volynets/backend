@@ -3,7 +3,7 @@
 class numbers_backend_cron_base_model_details extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.cron.base.default_db_link';
-	public $name = 'sc.details';
+	public $name = 'sc_details';
 	public $pk = ['sc_detail_id'];
 	public $orderby;
 	public $limit;

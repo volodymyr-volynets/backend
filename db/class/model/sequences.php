@@ -3,7 +3,7 @@
 class numbers_backend_db_class_model_sequences extends object_table {
 	public $db_link;
 	public $db_link_flag;
-	public $name = 'sm.sequences';
+	public $name = 'sm_sequences';
 	public $pk = ['sm_sequence_name'];
 	public $orderby;
 	public $limit;

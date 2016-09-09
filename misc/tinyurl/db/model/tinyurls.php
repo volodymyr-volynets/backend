@@ -3,7 +3,7 @@
 class numbers_backend_misc_tinyurl_db_model_tinyurls extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.misc.tinyurl.db.default_db_link';
-	public $name = 'sm.tinyurls';
+	public $name = 'sm_tinyurls';
 	public $pk = ['sm_tinyurl_id'];
 	public $orderby;
 	public $limit;

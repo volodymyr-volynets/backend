@@ -3,7 +3,7 @@
 class numbers_backend_session_db_model_logins extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.session.db.default_db_link';
-	public $name = 'sm.logins';
+	public $name = 'sm_logins';
 	public $pk = ['sm_login_id'];
 	public $orderby;
 	public $limit;

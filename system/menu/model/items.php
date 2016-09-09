@@ -3,7 +3,7 @@
 class numbers_backend_system_menu_model_items extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.system.default_db_link';
-	public $name = 'sm.menu_items';
+	public $name = 'sm_menu_items';
 	public $pk = ['sm_menuitm_code'];
 	public $orderby;
 	public $limit;
@@ -20,7 +20,8 @@ class numbers_backend_system_menu_model_items extends object_table {
 		'sm_menuitm_acl_controller_id' => ['name' => 'Acl Controller #', 'domain' => 'controller_id', 'null' => true],
 		'sm_menuitm_acl_action_id' => ['name' => 'Acl Action #', 'domain' => 'action_id', 'null' => true],
 		'sm_menuitm_url' => ['name' => 'URL', 'type' => 'text', 'null' => true],
-		'sm_menuitm_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
+		'sm_menuitm_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
+		'sm_menuitm_options_generator' => ['name' => 'URL', 'type' => 'text', 'null' => true]
 	];
 	public $constraints = [
 		'sm_menu_items_pk' => ['type' => 'pk', 'columns' => ['sm_menuitm_code']],

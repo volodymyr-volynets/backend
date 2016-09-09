@@ -1,8 +1,8 @@
 <?php
 
-class numbers_backend_i18n_basic_model_list_languages extends numbers_frontend_html_list_base {
+class numbers_backend_i18n_languages_model_list_languages extends numbers_frontend_html_list_base {
 	public $list_link = 'languages';
-	public $model = 'numbers_backend_i18n_basic_model_languages';
+	public $model = 'numbers_backend_i18n_languages_model_languages';
 	public $columns = [
 		'offset_number' => ['name' => '&nbsp;', 'width' => '1%', 'align' => 'right'],
 		'action' => ['name' => 'Action', 'width' => '1%'],

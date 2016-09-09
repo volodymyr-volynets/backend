@@ -63,14 +63,6 @@ class numbers_backend_db_class_ddl {
 			$owner = $db['object']->connect_options['username'];
 			$engine = $model->engine[$db['backend']] ?? null;
 
-			// process table name and schema
-			$schema_supported = $ddl_object->is_schema_supported($model->name);
-			if ($schema_supported['success']) {
-				if (!empty($schema_supported['schema']) && $schema_supported['schema'] != 'public') {
-					$this->object_add(['type' => 'schema', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['schema'], 'data' => ['name' => $schema_supported['schema'], 'owner' => $owner]], $model->db_link);
-				}
-			}
-
 			// process columns
 			if (empty($model->columns)) {
 				$result['error'][] = 'Table ' . $model->name . ' must have atleast one column!';
@@ -87,7 +79,7 @@ class numbers_backend_db_class_ddl {
 				if (!empty($column_temp['column']['sequence'])) {
 					$this->object_add([
 						'type' => 'sequence',
-						'schema' => $schema_supported['schema'],
+						'schema' => '',
 						'name' => $column_temp['column']['sequence'],
 						'data' => [
 							'owner' => $owner,
@@ -100,7 +92,7 @@ class numbers_backend_db_class_ddl {
 					], $model->db_link);
 				}
 			}
-			$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'], 'data' => ['columns' => $columns, 'owner' => $owner, 'full_table_name' => $schema_supported['full_table_name'], 'engine' => $engine]], $model->db_link);
+			$this->object_add(['type' => 'table', 'schema' => '', 'name' => $model->name, 'data' => ['columns' => $columns, 'owner' => $owner, 'full_table_name' => $model->name, 'engine' => $engine]], $model->db_link);
 
 			// history
 			if ($model->history) {
@@ -127,28 +119,32 @@ class numbers_backend_db_class_ddl {
 					}
 				}
 				// add new history table
-				$this->object_add(['type' => 'table', 'schema' => $schema_supported['schema'], 'name' => $schema_supported['table'] . '__history', 'data' => ['columns' => $columns_history, 'owner' => $owner, 'full_table_name' => $model->history_name, 'engine' => $engine]], $model->db_link);
+				$this->object_add(['type' => 'table', 'schema' => '', 'name' => $model->name . '__history', 'data' => ['columns' => $columns_history, 'owner' => $owner, 'full_table_name' => $model->history_name, 'engine' => $engine]], $model->db_link);
 			}
 
 			// processing constraints
 			if (!empty($model->constraints)) {
 				foreach ($model->constraints as $k => $v) {
-					$v['full_table_name'] = $schema_supported['full_table_name'];
+					$v['full_table_name'] = $model->name;
 					// additional processing for fk type constraints
 					if ($v['type'] == 'fk') {
 						$temp_class_name = $v['foreign_model'];
 						$temp_object = new $temp_class_name();
 						$v['foreign_table'] = $temp_object->name;
 					}
-					$this->object_add(['type' => 'constraint', 'schema' => $schema_supported['schema'], 'table' => $schema_supported['table'], 'name' => $k, 'data' => $v], $model->db_link);
+					$this->object_add(['type' => 'constraint', 'schema' => '', 'table' => $model->name, 'name' => $k, 'data' => $v], $model->db_link);
 				}
 			}
 
 			// processing indexes
 			if (!empty($model->indexes)) {
 				foreach ($model->indexes as $k => $v) {
-					$v['full_table_name'] = $schema_supported['full_table_name'];
-					$this->object_add(['type' => 'index', 'schema' => $schema_supported['schema'], 'table' => $schema_supported['table'], 'name' => $k, 'data' => $v], $model->db_link);
+					// we skipp full text indexes for pgsql
+					if ($db['backend'] == 'pgsql' && $v['type'] == 'fulltext') {
+						continue;
+					}
+					$v['full_table_name'] = $model->name;
+					$this->object_add(['type' => 'index', 'schema' => '', 'table' => $model->name, 'name' => $k, 'data' => $v], $model->db_link);
 				}
 			}
 
@@ -177,14 +173,13 @@ class numbers_backend_db_class_ddl {
 			$owner = $db['object']->connect_options['username'];
 
 			// process sequence name and schema
-			$schema_supported = $ddl_object->is_schema_supported($model->name);
 			$this->object_add([
 				'type' => 'sequence',
-				'schema' => $schema_supported['schema'],
-				'name' => $schema_supported['table'],
+				'schema' => '',
+				'name' => $model->name,
 				'data' => [
 					'owner' => $owner,
-					'full_sequence_name' => $schema_supported['full_table_name'],
+					'full_sequence_name' => $model->name,
 					'type' => $model->type,
 					'prefix' => $model->prefix,
 					'length' => $model->length,
@@ -221,18 +216,16 @@ class numbers_backend_db_class_ddl {
 				$result['success'] = true;
 				break;
 			}
-			// process function name and schema
-			$schema_supported = $ddl_object->is_schema_supported($model->function_name);
 			// we need to unset function definition
 			$sql_full_temp = $model->function_sql[$ddl_backend];
 			unset($sql_full_temp['definition']);
 			$this->object_add([
 				'type' => 'function',
-				'schema' => $schema_supported['schema'],
-				'name' => $schema_supported['table'],
+				'schema' => '',
+				'name' => $model->name,
 				'data' => [
 					'owner' => $owner,
-					'full_function_name' => $schema_supported['full_table_name'],
+					'full_function_name' => $model->name,
 					'sql_full' => implode('', $sql_full_temp),
 					'sql_parts' => $model->function_sql[$ddl_backend]
 				]
@@ -267,11 +260,10 @@ class numbers_backend_db_class_ddl {
 				break;
 			}
 			// process extension name and schema
-			$schema_supported = $ddl_object->is_schema_supported($model->extension_name);
 			$this->object_add([
 				'type' => 'extension',
-				'schema' => $schema_supported['schema'],
-				'name' => $schema_supported['table']
+				'schema' => $model->schema,
+				'name' => $model->name
 			], $model->db_link);
 
 			// if we got here - we are ok
@@ -469,7 +461,7 @@ class numbers_backend_db_class_ddl {
 		}
 
 		// exceptions for mysqli submodule
-		if ($options['backend'] == 'mysqli') {
+		if ($options['backend'] == 'mysqli' && !empty($obj_slave['constraint'])) {
 			foreach ($obj_slave['constraint'] as $k => $v) {
 				foreach ($v as $k2 => $v2) {
 					foreach ($v2 as $k3 => $v3) {
@@ -706,6 +698,8 @@ class numbers_backend_db_class_ddl {
 		foreach ($temp as $k => $v) {
 			$temp[$k] = trim($v, " \t\n\r");
 		}
-		return implode("\n", $temp);
+		$temp = implode("\n", $temp);
+		$temp = str_replace('FUNCTION public.', 'FUNCTION ', $temp);
+		return $temp;
 	}
 }

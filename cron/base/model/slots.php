@@ -3,7 +3,7 @@
 class numbers_backend_cron_base_model_slots extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.cron.base.default_db_link';
-	public $name = 'sc.slots';
+	public $name = 'sc_slots';
 	public $pk = ['sc_slot_id'];
 	public $orderby;
 	public $limit;

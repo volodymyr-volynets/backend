@@ -3,7 +3,7 @@
 class numbers_backend_system_menu_model_groups extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.system.default_db_link';
-	public $name = 'sm.menu_groups';
+	public $name = 'sm_menu_groups';
 	public $pk = ['sm_menugrp_code'];
 	public $orderby;
 	public $limit;

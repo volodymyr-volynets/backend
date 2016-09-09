@@ -26,7 +26,7 @@ class numbers_backend_i18n_basic_model_form_translations extends numbers_fronten
 		'default' => [
 			'lc_translation_id' => [
 				'lc_translation_id' => ['order' => 1, 'label_name' => 'Translation #', 'type' => 'serial', 'percent' => 50, 'required' => false],
-				'lc_translation_language_code' => ['order' => 2, 'label_name' => 'Language Code', 'domain' => 'language_code', 'percent' => 50, 'required' => true, 'method' => 'select', 'options_model' => 'numbers_backend_i18n_basic_model_languages'],
+				'lc_translation_language_code' => ['order' => 2, 'label_name' => 'Language Code', 'domain' => 'language_code', 'percent' => 50, 'required' => true, 'method' => 'select', 'options_model' => 'numbers_backend_i18n_languages_model_languages'],
 			],
 			'lc_translation_text_sys' => [
 				'lc_translation_text_sys' => ['order' => 1, 'label_name' => 'System Text', 'percent' => 100, 'required' => true, 'rows' => 6, 'method' => 'textarea']

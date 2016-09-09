@@ -3,7 +3,7 @@
 class numbers_backend_db_mysqli_model_setval extends object_function {
 	public $db_link;
 	public $db_link_flag;
-	public $function_name = "setval";
+	public $name = "setval";
 	public $function_sql = [
 		'mysqli' => [
 			'header' =>

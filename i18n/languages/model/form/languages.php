@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_i18n_basic_model_form_languages extends numbers_frontend_html_form_wrapper_base {
+class numbers_backend_i18n_languages_model_form_languages extends numbers_frontend_html_form_wrapper_base {
 	public $form_link = 'languages';
 	public $options = [
 		'segment' => [
@@ -43,7 +43,7 @@ class numbers_backend_i18n_basic_model_form_languages extends numbers_frontend_h
 		]
 	];
 	public $collection = [
-		'model' => 'numbers_backend_i18n_basic_model_languages'
+		'model' => 'numbers_backend_i18n_languages_model_languages'
 	];
 
 	public function overrides() {

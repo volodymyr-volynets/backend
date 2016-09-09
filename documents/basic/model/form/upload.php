@@ -145,6 +145,15 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 					$temp_name = html::mandatory(['type' => 'mandatory', 'value' => $temp_name]);
 				}
 				$temp_name.= ':';
+				$data['options'][$row_number . '_2nd']['row_number']['row_number'] = [
+					'label' => '&nbsp;',
+					'value' => '&nbsp;',
+					'options' => [
+						'percent' => 1
+					],
+					'class' => 'grid_counter_row',
+					'row_class' => $row_class
+				];
 				$data['options'][$row_number . '_2nd']['id_required']['id_required'] = [
 					'label' => html::label(['value' => $temp_name, 'class' => 'control-label']),
 					'error' => $form->get_field_errors(['options' => ['name' => $name . '[id_required]']]),
@@ -175,6 +184,7 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 							'id' => 'date_required_' . $row_number,
 							'name' => $name . '[date_required]',
 							'method' => 'html::calendar',
+							'calendar_icon' => 'right'
 						]
 					], $input['upload'][$row_number]['date_required'] ?? null),
 					'options' => [

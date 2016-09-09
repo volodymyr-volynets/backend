@@ -3,7 +3,7 @@
 class numbers_backend_documents_basic_model_catalogs extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.system.default_db_link';
-	public $name = 'dc.catalogs';
+	public $name = 'dc_catalogs';
 	public $pk = ['dc_catalog_code'];
 	public $orderby;
 	public $limit;

@@ -3,7 +3,7 @@
 class numbers_backend_system_controller_model_actions extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.system.default_db_link';
-	public $name = 'sm.controller_actions';
+	public $name = 'sm_controller_actions';
 	public $pk = ['sm_cntractn_id'];
 	public $orderby;
 	public $limit;
@@ -30,4 +30,20 @@ class numbers_backend_system_controller_model_actions extends object_table {
 	public $cache = true;
 	public $cache_tags = [];
 	public $cache_memory = false;
+
+	/**
+	 * A list of parent options
+	 *
+	 * @param array $options
+	 * @return array
+	 */
+	public function get_all_parents_options($options) {
+		$result = [];
+		$data = helper_tree::convert_by_parent($this->get(), 'sm_cntractn_parent_id');
+		helper_tree::convert_tree_to_options_multi($data, 0, [
+			'name_field' => 'sm_cntractn_name',
+			'i18n' => true
+		], $result);
+		return $result;
+	}
 }

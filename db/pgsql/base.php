@@ -164,9 +164,13 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 						if ($result['structure'][$k]['type'][0] == '_') {
 							$rows[$k] = $this->pg_parse_array($v);
 						} else if (in_array($result['structure'][$k]['type'], ['int2', 'int4', 'int8'])) {
-							$rows[$k] = (int) $v;
+							if (!is_null($v)) {
+								$rows[$k] = (int) $v;
+							}
 						} else if ($result['structure'][$k]['type'] == 'numeric') {
-							$rows[$k] = (float) $v;
+							if (!is_null($v)) {
+								$rows[$k] = (float) $v;
+							}
 						} else if ($result['structure'][$k]['type'] == 'bytea') {
 							$rows[$k] = pg_unescape_bytea($v);
 						}
@@ -512,7 +516,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			FROM (
 				SELECT {$type}('{$sequence_name}') counter
 			) a
-			LEFT JOIN sm.sequences b ON sm_sequence_name = '{$sequence_name}';
+			LEFT JOIN sm_sequences b ON sm_sequence_name = '{$sequence_name}';
 TTT;
 		return $this->query($sql);
 	}
@@ -558,7 +562,7 @@ TTT;
 			$sql2 = '';
 			if (is_array($fields)) {
 				$sql = "concat_ws(' ', " . implode(', ', $fields) . ')';
-				$temp = array();
+				$temp = [];
 				foreach ($fields as $f) {
 					$temp[] = "$f::text ILIKE '%" . $str_escaped . "%'";
 				}
@@ -571,17 +575,18 @@ TTT;
 				$sql2 = " OR $fields::text ILIKE '%" . $str_escaped . "%'";
 			}
 			$escaped = preg_replace('/\s\s+/', ' ', $str);
-			$escaped = str_replace(' ', ":*$operator", $this->escape($str)) . ":*";
-			if ($escaped) {
-				if ($flag_do_not_escape) {
-					$result['where'] = "($sql @@ to_tsquery('simple', '" . $escaped . "') $sql2)";
-					$result['orderby'] = "(ts_rank_cd($sql, to_tsquery('simple', '" . $escaped . "')))";
-					$result['rank'] = "(ts_rank_cd($sql, to_tsquery('simple', '" . $escaped . "')))";
-				} else {
-					$result['where'] = "(to_tsvector('simple', $sql) @@ to_tsquery('simple', '" . $escaped . "') $sql2)";
-					$result['orderby'] = "(ts_rank_cd(to_tsvector($sql), to_tsquery('simple', '" . $escaped . "')))";
-					$result['rank'] = "(ts_rank_cd(to_tsvector($sql), to_tsquery('simple', '" . $escaped . "')))";
-				}
+			if ($escaped == '') {
+				$escaped = '*';
+			}
+			$escaped = str_replace(' ', ":*$operator", $this->escape($escaped)) . ":*";
+			if ($flag_do_not_escape) {
+				$result['where'] = "($sql @@ to_tsquery('simple', '" . $escaped . "') $sql2)";
+				$result['orderby'] = "ts_rank";
+				$result['rank'] = "(ts_rank_cd($sql, to_tsquery('simple', '" . $escaped . "'))) ts_rank";
+			} else {
+				$result['where'] = "(to_tsvector('simple', $sql) @@ to_tsquery('simple', '" . $escaped . "') $sql2)";
+				$result['orderby'] = "ts_rank";
+				$result['rank'] = "(ts_rank_cd(to_tsvector($sql), to_tsquery('simple', '" . $escaped . "'))) ts_rank";
 			}
 		}
 		return $result;

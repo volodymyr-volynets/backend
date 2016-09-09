@@ -3,7 +3,7 @@
 class numbers_backend_flow_db_model_flows extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.flow.db.default_db_link';
-	public $name = 'sm.flows';
+	public $name = 'sm_flows';
 	public $pk = ['sm_flow_id', 'sm_flow_subflow_id', 'sm_flow_transaction_id'];
 	public $orderby;
 	public $limit;

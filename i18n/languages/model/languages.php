@@ -1,9 +1,9 @@
 <?php
 
-class numbers_backend_i18n_basic_model_languages extends object_table {
+class numbers_backend_i18n_languages_model_languages extends object_table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.system.default_db_link';
-	public $name = 'lc.languages';
+	public $name = 'lc_languages';
 	public $pk = ['lc_language_code'];
 	public $orderby;
 	public $limit;

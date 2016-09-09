@@ -122,13 +122,12 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	public function gc($life) {
 		// step 1: we need to move expired sessions to logins table
 		$db = new db($this->model_seessions->db_link);
-		$session_model = new numbers_backend_session_db_model_sessions();
-		$login_model = new numbers_backend_session_db_model_logins();
 		$expire = format::now('timestamp');
 
 		// generating sqls
 		$sql_move = <<<TTT
-			INSERT INTO {$login_model->name} (
+			INSERT INTO sm_logins (
+				sm_login_id,
 				sm_login_started,
 				sm_login_last_requested,
 				sm_login_pages_count,
@@ -136,21 +135,22 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 				sm_login_user_id
 			)
 			SELECT
+				nextval('sm_logins_sm_login_id_seq') sm_login_id,
 				s.sm_session_started sm_login_started,
 				s.sm_session_last_requested sm_login_last_requested,
 				s.sm_session_pages_count sm_login_pages_count,
 				s.sm_session_user_ip sm_login_user_ip,
 				s.sm_session_user_id sm_login_user_id
-			FROM {$session_model->name} s
+			FROM sm_sessions s
 			WHERE 1=1
 				AND s.sm_session_expires < '{$expire}'
 TTT;
 
 		// session cleaning sql
 		$sql_delete = <<<TTT
-			DELETE FROM {$session_model->name} s
+			DELETE FROM sm_sessions
 			WHERE 1=1
-				AND s.sm_session_expires < '{$expire}'
+				AND sm_session_expires < '{$expire}'
 TTT;
 
 		// making changes to database

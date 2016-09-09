@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_documents_basic_data_controllers extends object_import {
+class numbers_backend_i18n_languages_data_controllers extends object_import {
 	public $import_data = [
 		'groups' => [
 			'options' => [
@@ -17,10 +17,10 @@ class numbers_backend_documents_basic_data_controllers extends object_import {
 					'sm_cntrgrp_inactive' => 0
 				],
 				[
-					'sm_cntrgrp_id' => 32500,
-					'sm_cntrgrp_name' => 'Documents',
+					'sm_cntrgrp_id' => 32100,
+					'sm_cntrgrp_name' => 'Localization',
 					'sm_cntrgrp_parent_id' => 32000,
-					'sm_cntrgrp_order' => 32500,
+					'sm_cntrgrp_order' => 32100,
 					'sm_cntrgrp_inactive' => 0
 				]
 			]
@@ -33,11 +33,11 @@ class numbers_backend_documents_basic_data_controllers extends object_import {
 			],
 			'data' => [
 				[
-					'sm_controller_code' => 'numbers_backend_documents_basic_controller_catalogs',
-					'sm_controller_name' => 'Catalogs',
-					'sm_controller_icon' => 'files-o',
+					'sm_controller_code' => 'numbers_backend_i18n_languages_controller_languages',
+					'sm_controller_name' => 'Languages',
+					'sm_controller_icon' => 'language',
 					'sm_controller_group1_id' => 32000,
-					'sm_controller_group2_id' => 32500,
+					'sm_controller_group2_id' => 32100,
 					'sm_controller_group3_id' => null,
 					'sm_controller_order' => 100,
 					'sm_controller_acl_public' => 0,
@@ -56,13 +56,13 @@ class numbers_backend_documents_basic_data_controllers extends object_import {
 			],
 			'data' => [
 				[
-					'sm_cntrmap_controller_id' => '~id~numbers_backend_documents_basic_controller_catalogs',
+					'sm_cntrmap_controller_id' => '~id~numbers_backend_i18n_languages_controller_languages',
 					'sm_cntrmap_action_code' => 'index',
 					'sm_cntrmap_action_id' => [1000, 1010],
 					'sm_cntrmap_inactive' => 0
 				],
 				[
-					'sm_cntrmap_controller_id' => '~id~numbers_backend_documents_basic_controller_catalogs',
+					'sm_cntrmap_controller_id' => '~id~numbers_backend_i18n_languages_controller_languages',
 					'sm_cntrmap_action_code' => 'edit',
 					'sm_cntrmap_action_id' => [2000, 2010, 2020, 2040],
 					'sm_cntrmap_inactive' => 0
