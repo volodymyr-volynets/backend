@@ -450,9 +450,13 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 					}
 				}
 				// if we have a sequence
-				if (!empty($options['sequence'])) {
-					$temp = $this->sequence($options['sequence']['sequence_name']);
-					$data[$options['sequence']['sequence_column']] = $temp['rows'][0]['counter'];
+				if (!empty($options['sequences'])) {
+					foreach ($options['sequences'] as $k => $v) {
+						if (empty($data[$k])) {
+							$temp = $this->sequence($v['sequence_name']);
+							$data[$k] = $temp['rows'][0]['counter'];
+						}
+					}
 				}
 				// we insert
 				$sql = "INSERT INTO $table (" . $this->prepare_expression(array_keys($data)) . ') VALUES (' . $this->prepare_values($data) . ')';
@@ -514,14 +518,16 @@ TTT;
 	 * @param mixed $fields
 	 * @param string $str
 	 * @param string $operator
+	 * @param array $options
 	 * @return string
 	 */
-	public function full_text_search_query($fields, $str, $operator = '&') {
+	public function full_text_search_query($fields, $str, $operator = '&', $options = []) {
 		$result = [
 			'where' => '',
 			'orderby' => '',
 			'rank' => ''
 		];
+		$mode = $options['mode'] ?? 'IN NATURAL LANGUAGE MODE';
 		$str = trim($str);
 		$flag_do_not_escape = false;
 		if (!empty($fields)) {
@@ -533,7 +539,7 @@ TTT;
 			}
 			$escaped = preg_replace('/\s\s+/', ' ', $str);
 			$escaped = str_replace(' ', ',', $escaped);
-			$where = "MATCH ({$sql}) AGAINST ('" . $this->escape($escaped) . "' IN NATURAL LANGUAGE MODE)";
+			$where = "MATCH ({$sql}) AGAINST ('" . $this->escape($escaped) . "' {$mode})";
 			$temp = [];
 			foreach ($fields as $f) {
 				$temp[] = "{$f} LIKE '%" . $this->escape($str) . "%'";

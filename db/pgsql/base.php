@@ -488,9 +488,13 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 					}
 				}
 				// if we have a sequence
-				if (!empty($options['sequence'])) {
-					$temp = $this->sequence($options['sequence']['sequence_name']);
-					$data[$options['sequence']['sequence_column']] = $temp['rows'][0]['counter'];
+				if (!empty($options['sequences'])) {
+					foreach ($options['sequences'] as $k => $v) {
+						if (empty($data[$k])) {
+							$temp = $this->sequence($v['sequence_name']);
+							$data[$k] = $temp['rows'][0]['counter'];
+						}
+					}
 				}
 				// we insert
 				$sql = "INSERT INTO $table (" . $this->prepare_expression(array_keys($data)) . ') VALUES (' . $this->prepare_values($data) . ')' . $sql_addon;
@@ -546,9 +550,10 @@ TTT;
 	 * @param mixed $fields
 	 * @param string $str
 	 * @param string $operator
+	 * @param array $options
 	 * @return string
 	 */
-	public function full_text_search_query($fields, $str, $operator = '&') {
+	public function full_text_search_query($fields, $str, $operator = '&', $options = []) {
 		$result = [
 			'where' => '',
 			'orderby' => '',

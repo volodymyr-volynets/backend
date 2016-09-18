@@ -68,6 +68,7 @@ class numbers_backend_db_class_base {
 			} else if (is_null($v)) {
 				$result[] = 'NULL';
 			} else {
+				print_r2($v);
 				Throw new Exception('Unknown data type');
 			}
 		}

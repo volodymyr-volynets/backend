@@ -690,7 +690,7 @@ TTT;
 				$result[]= "ALTER TABLE {$data['data']['full_table_name']} OWNER TO {$data['data']['owner']};";
 				break;
 			case 'table_delete':
-				$result = "DROP TABLE {$data['data']['full_table_name']};";
+				$result = "DROP TABLE {$data['data']['full_table_name']} CASCADE;";
 				break;
 			// view
 			case 'view_new':
