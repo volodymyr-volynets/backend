@@ -13,10 +13,10 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 	 * Column type checker and converter
 	 *
 	 * @param array $column
-	 * @param object $table_object
+	 * @param object $table
 	 * @return array
 	 */
-	public function is_column_type_supported($column, $table_object) {
+	public function is_column_type_supported($column, $table) {
 		$result = [
 			'success' => true,
 			'error' => [],
@@ -45,7 +45,7 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 				break;
 			case 'numeric':
 				if ($column['precision'] > 0) {
-					$result['column'] = ['type' => 'decimal(' . $column['precision'] . ', ' . $column['scale'] . ')', 'null' => $column['null'], 'default' => $column['default']];
+					$result['column'] = ['type' => 'decimal(' . $column['precision'] . ',' . $column['scale'] . ')', 'null' => $column['null'], 'default' => $column['default']];
 				} else {
 					$result['column'] = ['type' => 'decimal(30,10)', 'null' => $column['null'], 'default' => $column['default']];
 				}
@@ -54,8 +54,8 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 			case 'serial':
 			case 'bigserial':
 				$temp = str_replace('serial', 'int', $column['type']);
-				$sequence = $table_object->name . '_' . $column['column_name'] . '_seq';
-				$result['column'] = ['type' => $temp, 'sequence' => $sequence];
+				$sequence = $table . '_' . $column['column_name'] . '_seq';
+				$result['column'] = ['type' => $temp, 'type_original' => $column['type'], 'sequence' => $sequence];
 				// 'auto_increment' => 1, there are issues with auto increment in MySQL, it does not work as a sequence
 				break;
 			case 'char':
@@ -81,7 +81,7 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 				$result['column'] = ['type' => 'text', 'null' => $column['null'], 'default' => $column['default']];
 				break;
 			case 'unsupported':
-				Throw new Exception($table_object->name . ': unsupported type for column: ' . $column['name']);
+				Throw new Exception($table . ': unsupported type for column: ' . $column['name']);
 				break;
 			default:
 				// if we got here, means we do not replace data type and send it to db as is !!!

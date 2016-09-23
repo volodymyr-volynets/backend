@@ -6,10 +6,10 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 	 * Column type checker and converter
 	 *
 	 * @param array $column
-	 * @param object $table_object
+	 * @param object $table
 	 * @return array
 	 */
-	public function is_column_type_supported($column, $table_object) {
+	public function is_column_type_supported($column, $table) {
 		$result = [
 			'success' => true,
 			'error' => [],
@@ -73,7 +73,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 				$result['column'] = ['type' => 'text', 'null' => $column['null'], 'default' => $column['default']];
 				break;
 			case 'unsupported':
-				Throw new Exception($table_object->name . ': unsupported type for column: ' . $column['name']);
+				Throw new Exception($table . ': unsupported type for column: ' . $column['name']);
 				break;
 			default:
 				// if we got here, means we do not replace data type and send it to db as is !!!
@@ -720,19 +720,6 @@ TTT;
 					default:
 						Throw new Exception($data['data']['type'] . '?');
 				}
-				/*
-				if ($data['index']['constraint_type']=='INDEX') {
-					$result = "CREATE INDEX {$data['name']} ON {$data['table']} USING {$data['index']['index_type']} (" . implode(", ", $data['index']['column_names']) . ");";
-				} else if (in_array($data['data']['type'], array('PRIMARY KEY', 'UNIQUE'))) {
-					$result = "ALTER TABLE {$data['table']} ADD CONSTRAINT {$data['name']} {$data['index']['constraint_type']} (" . implode(", ", $data['index']['column_names']) . ");";
-				} else if ($data['index']['constraint_type']=='FOREIGN_KEY') {
-					if ($data['index']['match_option']=='NONE') $data['index']['match_option'] = 'SIMPLE';
-					$result = "ALTER TABLE {$data['table']} ADD CONSTRAINT {$data['name']} FOREIGN KEY (" . implode(", ", $data['index']['column_names']) . ") REFERENCES {$data['index']['foreign_schema_name']}.{$data['index']['foreign_table_name']} (" . implode(", ", $data['index']['foreign_column_names']) . ") MATCH {$data['index']['match_option']} ON UPDATE {$data['index']['update_rule']} ON DELETE {$data['index']['delete_rule']};";
-				} else if ($data['index']['constraint_type']=='CHECK') {
-					$result = "ALTER TABLE {$data['table']} ADD CONSTRAINT {$data['name']} CHECK {$data['index']['match_option']};";
-				}
-				 * 
-				 */
 				break;
 			case 'constraint_delete':
 				$result = "ALTER TABLE {$data['data']['full_table_name']} DROP CONSTRAINT {$data['name']};";

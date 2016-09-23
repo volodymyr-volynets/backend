@@ -7,7 +7,7 @@ class numbers_backend_db_mysqli_model_setval extends object_function {
 	public $function_sql = [
 		'mysqli' => [
 			'header' =>
-'CREATE FUNCTION setval(sequence_name varchar(50), value int, nextval tinyint)
+'CREATE FUNCTION setval(sequence_name varchar(255), value int, nextval tinyint)
 RETURNS bigint
 CONTAINS SQL
 ',

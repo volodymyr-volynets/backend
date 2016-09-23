@@ -14,4 +14,6 @@ interface numbers_backend_db_interface_base {
 	public function delete($table, $data, $keys, $options = []);
 	public function sequence($sequence_name, $type);
 	public function close();
+	public function full_text_search_query($fields, $str, $operator = '&', $options = []);
+	public function create_temp_table($table, $columns, $pk = null, $options = []);
 }

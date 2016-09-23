@@ -7,7 +7,7 @@ class numbers_backend_db_mysqli_model_currval extends object_function {
 	public $function_sql = [
 		'mysqli' => [
 			'header' =>
-'CREATE FUNCTION currval(sequence_name varchar(50))
+'CREATE FUNCTION currval(sequence_name varchar(255))
 RETURNS bigint
 CONTAINS SQL
 ',

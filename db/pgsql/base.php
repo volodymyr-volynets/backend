@@ -112,13 +112,13 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	public function query($sql, $key = null, $options = []) {
 		$result = [
 			'success' => false,
-			'sql' => & $sql,
+			'sql' => $sql,
 			'error' => [],
 			'errno' => 0,
 			'num_rows' => 0,
 			'affected_rows' => 0,
 			'rows' => [],
-			'key' => & $key,
+			'key' => $key,
 			'structure' => [],
 			'time' => null
 		];
@@ -595,5 +595,41 @@ TTT;
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * Create temporary table
+	 *
+	 * @param string $table
+	 * @param array $columns
+	 * @param array $pk
+	 * @param array $options
+	 *		skip_serials
+	 * @return array
+	 */
+	public function create_temp_table($table, $columns, $pk = null, $options = []) {
+		$ddl_object = factory::model(str_replace('_base_123', '_ddl', get_called_class() . '_123'));
+		$columns_sql = [];
+		foreach ($columns as $k => $v) {
+			$temp = $ddl_object->is_column_type_supported($v, $table);
+			// default
+			$default = $temp['column']['default'] ?? null;
+			if (is_string($default) && $default != 'now()') {
+				$default = "'" . $default . "'";
+			}
+			// we need to cancel serial types
+			if (!empty($options['skip_serials']) && strpos($temp['column']['type'], 'serial') !== false) {
+				$temp['column']['type'] = str_replace('serial', 'int', $temp['column']['type']);
+				$default = 0;
+			}
+			$columns_sql[] = $k . ' ' . $temp['column']['type'] . ($default !== null ? (' DEFAULT ' . $default) : '') . (!($temp['column']['null'] ?? false) ? ' NOT NULL' : '');
+		}
+		// pk
+		if ($pk) {
+			$columns_sql[] = "CONSTRAINT {$table}_pk PRIMARY KEY (" . implode(', ', $pk) . ")";
+		}
+		$columns_sql = implode(', ', $columns_sql);
+		$sql = "CREATE TEMP TABLE {$table} ({$columns_sql})";
+		return $this->query($sql);
 	}
 }

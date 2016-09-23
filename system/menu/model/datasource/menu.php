@@ -1,6 +1,8 @@
 <?php
 
 class numbers_backend_system_menu_model_datasource_menu extends object_datasource {
+	public $db_link;
+	public $db_link_flag = 'flag.numbers.data.entities.default_db_link';
 	public $pk;
 	public $cache = true;
 	public $cache_tags = [];
@@ -24,6 +26,9 @@ class numbers_backend_system_menu_model_datasource_menu extends object_datasourc
 		}
 		if (!empty($options['where']['group3_code'])) {
 			$groups_filtering.= " AND a.sm_menuitm_group3_code = '" . $db->escape($options['where']['group3_code']) . "'";
+		}
+		if (!empty($options['where']['group4_code'])) {
+			$groups_filtering.= " AND a.sm_menuitm_group4_code = '" . $db->escape($options['where']['group4_code']) . "'";
 		}
 		return <<<TTT
 			SELECT
@@ -53,11 +58,18 @@ class numbers_backend_system_menu_model_datasource_menu extends object_datasourc
 				g3.sm_menugrp_name g3_name,
 				g3.sm_menugrp_order g3_order,
 				g3.sm_menugrp_icon g3_icon,
-				g3.sm_menugrp_url g3_url
-			FROM [table[numbers_backend_system_menu_model_items]] a
-			LEFT JOIN [table[numbers_backend_system_menu_model_groups]] g1 ON a.sm_menuitm_group1_code = g1.sm_menugrp_code
-			LEFT JOIN [table[numbers_backend_system_menu_model_groups]] g2 ON a.sm_menuitm_group2_code = g2.sm_menugrp_code
-			LEFT JOIN [table[numbers_backend_system_menu_model_groups]] g3 ON a.sm_menuitm_group3_code = g3.sm_menugrp_code
+				g3.sm_menugrp_url g3_url,
+				-- group 4
+				a.sm_menuitm_group4_code g4_code,
+				g4.sm_menugrp_name g4_name,
+				g4.sm_menugrp_order g4_order,
+				g4.sm_menugrp_icon g4_icon,
+				g4.sm_menugrp_url g4_url
+			FROM sm_menu_items a
+			LEFT JOIN sm_menu_groups g1 ON a.sm_menuitm_group1_code = g1.sm_menugrp_code
+			LEFT JOIN sm_menu_groups g2 ON a.sm_menuitm_group2_code = g2.sm_menugrp_code
+			LEFT JOIN sm_menu_groups g3 ON a.sm_menuitm_group3_code = g3.sm_menugrp_code
+			LEFT JOIN sm_menu_groups g4 ON a.sm_menuitm_group4_code = g4.sm_menugrp_code
 			WHERE 1=1
 				{$type}
 				{$groups_filtering}
@@ -65,6 +77,7 @@ class numbers_backend_system_menu_model_datasource_menu extends object_datasourc
 				AND coalesce(g1.sm_menugrp_inactive, 0) = 0
 				AND coalesce(g2.sm_menugrp_inactive, 0) = 0
 				AND coalesce(g3.sm_menugrp_inactive, 0) = 0
+				AND coalesce(g4.sm_menugrp_inactive, 0) = 0
 			ORDER BY a.sm_menuitm_order
 TTT;
 	}
@@ -78,7 +91,7 @@ TTT;
 			}
 			// loop though groups and add them to menu
 			$key = [];
-			for ($i = 1; $i <= 3; $i++) {
+			for ($i = 1; $i <= 4; $i++) {
 				if (!empty($v['g' . $i . '_code'])) {
 					$key[] = $v['g' . $i . '_code'];
 					// we need to set all groups
@@ -140,6 +153,11 @@ TTT;
 					if (!empty($v2['options'])) {
 						foreach ($v2['options'] as $k3 => $v3) {
 							if (!empty($v3['options'])) {
+								foreach ($v3['options'] as $k4 => $v4) {
+									if (!empty($v4['options'])) {
+										array_key_sort($temp[$k]['options'][$k2]['options'][$k3]['options'][$k4]['options'], ['order' => SORT_ASC], ['order' => SORT_NUMERIC]);
+									}
+								}
 								array_key_sort($temp[$k]['options'][$k2]['options'][$k3]['options'], ['order' => SORT_ASC], ['order' => SORT_NUMERIC]);
 							}
 						}

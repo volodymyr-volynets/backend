@@ -73,7 +73,7 @@ class numbers_backend_db_class_ddl {
 			$columns = [];
 			foreach ($model->columns as $k => $v) {
 				$v['column_name'] = $k;
-				$column_temp = $ddl_object->is_column_type_supported($v, $model);
+				$column_temp = $ddl_object->is_column_type_supported($v, $model->name);
 				$columns[$k] = $column_temp['column'];
 				// handle sequence
 				if (!empty($column_temp['column']['sequence'])) {
