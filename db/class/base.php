@@ -209,7 +209,7 @@ class numbers_backend_db_class_base {
 	 * @param string $error
 	 */
 	protected function error_overrides(& $result, $errno, $error) {
-		$result['errno'] = $errno . '';
+		$result['errno'] = trim($errno . '');
 		if (isset($this->error_overrides[$result['errno']])) {
 			$result['error'][] = $this->error_overrides[$result['errno']];
 		} else {

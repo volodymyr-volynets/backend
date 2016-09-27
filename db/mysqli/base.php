@@ -268,9 +268,6 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 	 * @return array
 	 */
 	public function begin() {
-		if (!isset($this->commit_status)) {
-			$this->commit_status = 0;
-		}
 		if ($this->commit_status == 0) {
 			$this->commit_status++;
 			$result = $this->query('BEGIN');

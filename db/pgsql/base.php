@@ -128,7 +128,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 
 		// cache id
 		$crypt_object = new crypt();
-		$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . $crypt_object->hash($sql);
+		$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . $crypt_object->hash($sql . serialize($key));
 
 		// if we cache this query
 		if (!empty($options['cache'])) {
@@ -210,9 +210,6 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	 * @return array
 	 */
 	public function begin() {
-		if (!isset($this->commit_status)) {
-			$this->commit_status = 0;
-		}
 		if ($this->commit_status == 0) {
 			$this->commit_status++;
 			$result = $this->query('BEGIN');

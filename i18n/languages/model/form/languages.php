@@ -31,7 +31,7 @@ class numbers_backend_i18n_languages_model_form_languages extends numbers_fronte
 				'lc_language_rtl' => ['order' => 2, 'label_name' => 'Right-to-left', 'type' => 'boolean', 'percent' => 50, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => 'object_data_model_inactive']
 			],
 			'lc_language_locale' => [
-				'lc_language_locale' => ['order' => 1, 'label_name' => 'Locale', 'percent' => 50, 'required' => true],
+				'lc_language_locale' => ['order' => 1, 'label_name' => 'Locale', 'type' => 'text', 'percent' => 50, 'required' => true],
 				'lc_language_inactive' => ['order' => 2, 'label_name' => 'Inactive', 'type' => 'boolean', 'percent' => 50, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => 'object_data_model_inactive']
 			],
 			self::BUTTONS => [
