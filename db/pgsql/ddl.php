@@ -34,6 +34,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 			case 'bigint':
 				$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
 				break;
+			case 'bcnumeric':
 			case 'numeric':
 				if ($column['precision'] > 0) {
 					$result['column'] = ['type' => 'numeric(' . $column['precision'] . ', ' . $column['scale'] . ')', 'null' => $column['null'], 'default' => $column['default']];

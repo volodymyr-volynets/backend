@@ -116,9 +116,15 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			} else {
 				return null;
 			}
-		} else if (in_array($type, ['numeric', 'decimal', 'float', 'double', 'newdecimal'])) {
+		} else if (in_array($type, ['float', 'double'])) {
 			if (!is_null($value)) {
 				return (float) $value;
+			} else {
+				return null;
+			}
+		} else if (in_array($type, ['numeric', 'decimal', 'newdecimal'])) {
+			if (!is_null($value)) {
+				return (string) $value;
 			} else {
 				return null;
 			}

@@ -43,6 +43,7 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 			case 'integer':
 				$result['column'] = ['type' => 'int', 'null' => $column['null'], 'default' => $column['default']];
 				break;
+			case 'bcnumeric':
 			case 'numeric':
 				if ($column['precision'] > 0) {
 					$result['column'] = ['type' => 'decimal(' . $column['precision'] . ',' . $column['scale'] . ')', 'null' => $column['null'], 'default' => $column['default']];

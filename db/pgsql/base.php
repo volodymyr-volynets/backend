@@ -167,7 +167,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 							if (!is_null($v)) {
 								$rows[$k] = (int) $v;
 							}
-						} else if ($result['structure'][$k]['type'] == 'numeric') {
+						} else if (in_array($result['structure'][$k]['type'], ['real', 'double precision'])) {
 							if (!is_null($v)) {
 								$rows[$k] = (float) $v;
 							}
