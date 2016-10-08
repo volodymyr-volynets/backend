@@ -83,12 +83,30 @@ TTT;
 	}
 	public function process($data, $options = []) {
 		$temp = [];
-		// loop though data
+		// we need to precess items that are controller and suboptions at the same time
+		$subgroups = [];
 		foreach ($data as $k => $v) {
 			// determine acl
 			if (!empty($v['sm_menuitm_acl_controller_id']) && !helper_acl::can_see_this_controller($v['sm_menuitm_acl_controller_id'], $v['sm_menuitm_acl_action_id'])) {
+				unset($data[$k]);
 				continue;
 			}
+			// go though each group
+			for ($i = 1; $i <= 4; $i++) {
+				if (!empty($v["g{$i}_code"])) {
+					$subgroups[$v["g{$i}_code"]] = true;
+				}
+			}
+		}
+		$subgroup_items = [];
+		foreach ($data as $k => $v) {
+			if (isset($subgroups[$v['sm_menuitm_code']])) {
+				$subgroup_items[$v['sm_menuitm_code']]= $v;
+				unset($data[$k]);
+			}
+		}
+		// loop though data
+		foreach ($data as $k => $v) {
 			// loop though groups and add them to menu
 			$key = [];
 			for ($i = 1; $i <= 4; $i++) {
@@ -97,22 +115,36 @@ TTT;
 					// we need to set all groups
 					$temp2 = array_key_get($temp, $key);
 					if (is_null($temp2)) {
-						// if we do not have url we assume visitor wants to see extended menu
-						if (empty($v['g' . $i . '_url'])) {
-							$params = [];
-							for ($j = 1; $j <= $i; $j++) {
-								$params['group' . $j . '_code'] = $v['g' . $j . '_code'];
+						// if we have a controller that acts as submenu
+						if (!empty($subgroup_items[$v['g' . $i . '_code']])) {
+							$v9 = $subgroup_items[$v['g' . $i . '_code']];
+							array_key_set($temp, $key, [
+								'code' => $v9['sm_menuitm_code'],
+								'name' => $v9['sm_menuitm_name'],
+								'name_extension' => null,
+								'icon' => $v9['sm_menuitm_icon'],
+								'url' => $v9['sm_menuitm_url'],
+								'order' => $v9['sm_menuitm_order'],
+								'options' => [] // a must
+							]);
+						} else {
+							// if we do not have url we assume visitor wants to see extended menu
+							if (empty($v['g' . $i . '_url'])) {
+								$params = [];
+								for ($j = 1; $j <= $i; $j++) {
+									$params['group' . $j . '_code'] = $v['g' . $j . '_code'];
+								}
+								$v['g' . $i . '_url'] = '/numbers/backend/system/menu/controller/menu?' . http_build_query2($params);
 							}
-							$v['g' . $i . '_url'] = '/numbers/backend/system/menu/controller/menu?' . http_build_query2($params);
+							array_key_set($temp, $key, [
+								'code' => $v['g' . $i . '_code'],
+								'name' => $v['g' . $i . '_name'],
+								'icon' => $v['g' . $i . '_icon'],
+								'order' => $v['g' . $i . '_order'],
+								'url' => $v['g' . $i . '_url'],
+								'options' => []
+							]);
 						}
-						array_key_set($temp, $key, [
-							'code' => $v['g' . $i . '_code'],
-							'name' => $v['g' . $i . '_name'],
-							'icon' => $v['g' . $i . '_icon'],
-							'order' => $v['g' . $i . '_order'],
-							'url' => $v['g' . $i . '_url'],
-							'options' => []
-						]);
 					}
 					$key[] = 'options';
 				}
@@ -133,7 +165,7 @@ TTT;
 				'order' => $v['sm_menuitm_order'],
 				'options' => [] // a must
 			]);
-			//
+			// options generator
 			if (!empty($v['sm_menuitm_options_generator'])) {
 				$temp3 = explode('::', $v['sm_menuitm_options_generator']);
 				$temp_data = factory::model($temp3[0])->{$temp3[1]}();

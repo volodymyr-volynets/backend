@@ -65,29 +65,29 @@ class numbers_backend_documents_basic_model_form_catalogs extends numbers_fronte
 		// multiple can not have required fields
 		if (!empty($form->values['dc_catalog_multiple'])) {
 			if (!empty($form->values['dc_catalog_id_required'])) {
-				$form->error('danger', i18n(null, 'Can not be set when multiple is set!'), 'dc_catalog_id_required');
+				$form->error('danger', 'Can not be set when multiple is set!', 'dc_catalog_id_required');
 			}
 			if (!empty($form->values['dc_catalog_date_required'])) {
-				$form->error('danger', i18n(null, 'Can not be set when multiple is set!'), 'dc_catalog_date_required');
+				$form->error('danger', 'Can not be set when multiple is set!', 'dc_catalog_date_required');
 			}
 			if (!empty($form->values['dc_catalog_comment_required'])) {
-				$form->error('danger', i18n(null, 'Can not be set when multiple is set!'), 'dc_catalog_comment_required');
+				$form->error('danger', 'Can not be set when multiple is set!', 'dc_catalog_comment_required');
 			}
 		}
 		// thumbnails
 		if (!empty($form->values['dc_catalog_thumbnail_settings'])) {
 			if (!extension_loaded('imagick')) {
-				$form->error('danger', i18n(null, 'You must load imagick extension to use thumbnails!'), 'dc_catalog_thumbnail_settings');
+				$form->error('danger', 'You must load imagick extension to use thumbnails!', 'dc_catalog_thumbnail_settings');
 			}
 			// tokens
 			$tokens = explode(',', $form->values['dc_catalog_thumbnail_settings']);
 			foreach ($tokens as $v) {
 				$v = explode('=', $v);
 				if (!in_array($v[0], ['width', 'height'])) {
-					$form->error('danger', i18n(null, 'Unknown variable [var]!', ['replace' => ['[var]' => $v[0]]]), 'dc_catalog_thumbnail_settings');
+					$form->error('danger', i18n(null, 'Unknown variable [var]!', ['replace' => ['[var]' => $v[0]]]), 'dc_catalog_thumbnail_settings', ['skip_i18n' => true]);
 				}
 				if (!isset($v[1]) || !is_numeric($v[1])) {
-					$form->error('danger', i18n(null, 'Unknown value [var]!', ['replace' => ['[var]' => $v[1]]]), 'dc_catalog_thumbnail_settings');
+					$form->error('danger', i18n(null, 'Unknown value [var]!', ['replace' => ['[var]' => $v[1]]]), 'dc_catalog_thumbnail_settings', ['skip_i18n' => true]);
 				}
 			}
 			// preset valid extensions

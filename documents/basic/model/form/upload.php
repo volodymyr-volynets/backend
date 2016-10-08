@@ -43,18 +43,18 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 				// validate required fields
 				if ($current_catalog['dc_catalog_id_required']) {
 					if (empty($v['id_required'])) {
-						$form->error('danger', i18n(null, object_content_messages::$required_field), $name . '[id_required]');
+						$form->error('danger', object_content_messages::$required_field, $name . '[id_required]');
 					}
 				}
 				if ($current_catalog['dc_catalog_date_required']) {
 					if (empty($v['date_required'])) {
 						// todo: validate date
-						$form->error('danger', i18n(null, object_content_messages::$required_field), $name . '[date_required]');
+						$form->error('danger', object_content_messages::$required_field, $name . '[date_required]');
 					}
 				}
 				if ($current_catalog['dc_catalog_comment_required']) {
 					if (empty($v['comment_required'])) {
-						$form->error('danger', i18n(null, object_content_messages::$required_field), $name . '[comment_required]');
+						$form->error('danger', object_content_messages::$required_field, $name . '[comment_required]');
 					}
 				}
 				
@@ -62,7 +62,7 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 		}
 		// we must have atleast one file
 		if (!$file_uploaded) {
-			$form->error('danger', i18n(null, 'You must upload atleast one file!'));
+			$form->error('danger', 'You must upload atleast one file!');
 		}
 	}
 
