@@ -34,12 +34,7 @@ class numbers_backend_i18n_basic_model_form_translations extends numbers_fronten
 			'lc_translation_text_new' => [
 				'lc_translation_text_new' => ['order' => 1, 'label_name' => 'Translated Text', 'percent' => 100, 'required' => true, 'rows' => 6, 'method' => 'textarea']
 			],
-			self::BUTTONS => [
-				self::BUTTON_SUBMIT_SAVE => self::BUTTON_SUBMIT_SAVE_DATA,
-				self::BUTTON_SUBMIT_SAVE_AND_NEW => self::BUTTON_SUBMIT_SAVE_AND_NEW_DATA,
-				self::BUTTON_SUBMIT_SAVE_AND_CLOSE => self::BUTTON_SUBMIT_SAVE_AND_CLOSE_DATA,
-				self::BUTTON_SUBMIT_DELETE => self::BUTTON_SUBMIT_DELETE_DATA
-			]
+			self::buttons => self::buttons_data_group
 		]
 	];
 	public $collection = [

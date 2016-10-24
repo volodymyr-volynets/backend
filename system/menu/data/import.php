@@ -50,6 +50,22 @@ class numbers_backend_system_menu_data_import extends object_import {
 					'sm_menugrp_order' => 32001,
 					'sm_menugrp_url' => null,
 					'sm_menugrp_inactive' => 0
+				],
+				[
+					'sm_menugrp_code' => 'operations.system',
+					'sm_menugrp_name' => 'System',
+					'sm_menugrp_icon' => 'cogs',
+					'sm_menugrp_order' => 32100,
+					'sm_menugrp_parent_code' => 'operations',
+					'sm_menugrp_inactive' => 0
+				],
+				[
+					'sm_menugrp_code' => 'operations.system.settings',
+					'sm_menugrp_name' => 'Settings',
+					'sm_menugrp_icon' => 'wrench',
+					'sm_menugrp_order' => 50000,
+					'sm_menugrp_parent_code' => 'operations.system',
+					'sm_menugrp_inactive' => 0
 				]
 			]
 		],

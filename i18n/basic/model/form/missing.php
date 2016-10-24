@@ -13,7 +13,7 @@ class numbers_backend_i18n_basic_model_form_missing extends numbers_frontend_htm
 	];
 	public $containers = [
 		'default' => ['default_row_type' => 'grid', 'order' => 1],
-		'preset' => ['default_row_type' => 'grid', 'order' => 2, 'custom_renderer' => 'numbers_backend_i18n_languages_model_form_missing::render_preset_url'],
+		'preset' => ['default_row_type' => 'grid', 'order' => 2, 'custom_renderer' => 'numbers_backend_i18n_basic_model_form_missing::render_preset_url'],
 		'buttons' => ['default_row_type' => 'grid', 'order' => 3],
 	];
 	public $rows = [
@@ -37,25 +37,12 @@ class numbers_backend_i18n_basic_model_form_missing extends numbers_frontend_htm
 			],
 		],
 		'buttons' => [
-			self::BUTTONS => [
-				self::BUTTON_SUBMIT_SAVE => self::BUTTON_SUBMIT_SAVE_DATA,
-				self::BUTTON_SUBMIT_SAVE_AND_NEW => self::BUTTON_SUBMIT_SAVE_AND_NEW_DATA,
-				self::BUTTON_SUBMIT_SAVE_AND_CLOSE => self::BUTTON_SUBMIT_SAVE_AND_CLOSE_DATA,
-				self::BUTTON_SUBMIT_DELETE => self::BUTTON_SUBMIT_DELETE_DATA
-			]
+			self::buttons => self::buttons_data_group
 		]
 	];
 	public $collection = [
 		'model' => 'numbers_backend_i18n_basic_model_missing'
 	];
-
-	public function overrides() {
-		// todo: handle overrides here
-	}
-
-	public function validate(& $form) {
-		// validation
-	}
 
 	/**
 	 * Render preset url

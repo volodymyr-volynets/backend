@@ -12,16 +12,12 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 	public $rows = [];
 	public $elements = [
 		'buttons' => [
-			self::BUTTONS => [
-				self::BUTTON_SUBMIT => self::BUTTON_SUBMIT_DATA
+			self::buttons => [
+				self::button_submit => self::button_submit_data
 			]
 		]
 	];
 	public $collection = [];
-
-	public function overrides() {
-		// todo: handle overrides here
-	}
 
 	public function validate(& $form) {
 		// values
@@ -43,18 +39,18 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 				// validate required fields
 				if ($current_catalog['dc_catalog_id_required']) {
 					if (empty($v['id_required'])) {
-						$form->error('danger', object_content_messages::$required_field, $name . '[id_required]');
+						$form->error('danger', object_content_messages::required_field, $name . '[id_required]');
 					}
 				}
 				if ($current_catalog['dc_catalog_date_required']) {
 					if (empty($v['date_required'])) {
 						// todo: validate date
-						$form->error('danger', object_content_messages::$required_field, $name . '[date_required]');
+						$form->error('danger', object_content_messages::required_field, $name . '[date_required]');
 					}
 				}
 				if ($current_catalog['dc_catalog_comment_required']) {
 					if (empty($v['comment_required'])) {
-						$form->error('danger', object_content_messages::$required_field, $name . '[comment_required]');
+						$form->error('danger', object_content_messages::required_field, $name . '[comment_required]');
 					}
 				}
 				
@@ -222,9 +218,5 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 		$result['data']['html'] = html::grid($data);
 		$result['success'] = true;
 		return $result;
-	}
-
-	public function save(& $form) {
-		
 	}
 }

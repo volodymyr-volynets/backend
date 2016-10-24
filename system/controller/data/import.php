@@ -44,6 +44,7 @@ class numbers_backend_system_controller_data_import extends object_import {
 				// do inactivation later
 				//['sm_cntractn_id' => 2030, 'sm_cntractn_code' => 'record_inactivate', 'sm_cntractn_name' => 'Inactivate Record', 'sm_cntractn_parent_id' => 2020, 'sm_cntractn_inactive' => 0],
 				['sm_cntractn_id' => 2040, 'sm_cntractn_code' => 'record_delete', 'sm_cntractn_name' => 'Delete Record', 'sm_cntractn_parent_id' => 2020, 'sm_cntractn_inactive' => 0],
+				['sm_cntractn_id' => 2050, 'sm_cntractn_code' => 'record_post', 'sm_cntractn_name' => 'Post Record', 'sm_cntractn_parent_id' => 2020, 'sm_cntractn_inactive' => 0],
 				// login related items, requires View Record permission
 				//['sm_cntractn_id' => 2100, 'sm_cntractn_code' => 'login_freeze_account', 'sm_cntractn_name' => 'Login Freeze Account', 'sm_cntractn_parent_id' => 2000, 'sm_cntractn_inactive' => 0],
 				//['sm_cntractn_id' => 2110, 'sm_cntractn_code' => 'login_reset_password', 'sm_cntractn_name' => 'Login Reset Password', 'sm_cntractn_parent_id' => 2000, 'sm_cntractn_inactive' => 0]

@@ -45,21 +45,12 @@ class numbers_backend_documents_basic_model_form_catalogs extends numbers_fronte
 			'dc_catalog_thumbnail_settings' => [
 				'dc_catalog_thumbnail_settings' => ['order' => 1, 'label_name' => 'Thumbnail Settings', 'description' => 'Example: width=120,height=90', 'type' => 'text', 'null' => true, 'percent' => 100, 'required' => false]
 			],
-			self::BUTTONS => [
-				self::BUTTON_SUBMIT_SAVE => self::BUTTON_SUBMIT_SAVE_DATA,
-				self::BUTTON_SUBMIT_SAVE_AND_NEW => self::BUTTON_SUBMIT_SAVE_AND_NEW_DATA,
-				self::BUTTON_SUBMIT_SAVE_AND_CLOSE => self::BUTTON_SUBMIT_SAVE_AND_CLOSE_DATA,
-				self::BUTTON_SUBMIT_DELETE => self::BUTTON_SUBMIT_DELETE_DATA
-			]
+			self::buttons => self::buttons_data_group
 		]
 	];
 	public $collection = [
 		'model' => 'numbers_backend_documents_basic_model_catalogs'
 	];
-
-	public function overrides() {
-		// todo: handle overrides here
-	}
 
 	public function validate(& $form) {
 		// multiple can not have required fields

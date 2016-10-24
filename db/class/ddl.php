@@ -57,7 +57,7 @@ class numbers_backend_db_class_ddl {
 		];
 		do {
 			// table model
-			$model = new $model_class();
+			$model = is_object($model_class) ? $model_class : factory::model($model_class, true);
 			$db = factory::get(['db', $model->db_link]);
 			$ddl_object = $db['ddl_object'];
 			$owner = $db['object']->connect_options['username'];
@@ -96,26 +96,14 @@ class numbers_backend_db_class_ddl {
 
 			// history
 			if ($model->history) {
-				$temp = $model->column_prefix . 'inserted';
-				if (empty($model->columns[$temp]) || $model->columns[$temp]['type'] != 'timestamp') {
-					$result['error'][] = 'Table ' . $model->name . ' history column inserted is missing or is not timestamp!';
-				}
-				$temp = $model->column_prefix . 'updated';
-				if (empty($model->columns[$temp]) || $model->columns[$temp]['type'] != 'timestamp') {
-					$result['error'][] = 'Table ' . $model->name . ' history column updated is missing or is not timestamp!';
-				}
-				if ($result['error']) {
-					break;
+				if (empty($model->who['inserted']) || empty($model->who['updated'])) {
+					$result['error'][] = 'History table ' . $model->name . ' must have inserted and updated who timestamps!';
 				}
 				// fix columns with serial types
 				$columns_history = $columns;
 				foreach ($model->pk as $v) {
-					if ($columns_history[$v]['type'] == 'serial') {
-						$columns_history[$v]['type'] = 'integer';
-					} else if ($columns_history[$v]['type'] == 'bigserial') {
-						$columns_history[$v]['type'] = 'bigint';
-					} else if ($columns_history[$v]['type'] == 'smallserial') {
-						$columns_history[$v]['type'] = 'smallint';
+					foreach (['serial' => 'integer', 'bigserial' => 'bigint', 'smallserial' => 'smallint'] as $k2 => $v2) {
+						if ($columns_history[$v]['type'] == $k2) $columns_history[$v]['type'] = $v2;
 					}
 				}
 				// add new history table
@@ -128,8 +116,7 @@ class numbers_backend_db_class_ddl {
 					$v['full_table_name'] = $model->name;
 					// additional processing for fk type constraints
 					if ($v['type'] == 'fk') {
-						$temp_class_name = $v['foreign_model'];
-						$temp_object = new $temp_class_name();
+						$temp_object = factory::model($v['foreign_model'], true);
 						$v['foreign_table'] = $temp_object->name;
 					}
 					$this->object_add(['type' => 'constraint', 'schema' => '', 'table' => $model->name, 'name' => $k, 'data' => $v], $model->db_link);

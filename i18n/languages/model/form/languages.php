@@ -34,12 +34,7 @@ class numbers_backend_i18n_languages_model_form_languages extends numbers_fronte
 				'lc_language_locale' => ['order' => 1, 'label_name' => 'Locale', 'type' => 'text', 'percent' => 50, 'required' => true],
 				'lc_language_inactive' => ['order' => 2, 'label_name' => 'Inactive', 'type' => 'boolean', 'percent' => 50, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => 'object_data_model_inactive']
 			],
-			self::BUTTONS => [
-				self::BUTTON_SUBMIT_SAVE => self::BUTTON_SUBMIT_SAVE_DATA,
-				self::BUTTON_SUBMIT_SAVE_AND_NEW => self::BUTTON_SUBMIT_SAVE_AND_NEW_DATA,
-				self::BUTTON_SUBMIT_SAVE_AND_CLOSE => self::BUTTON_SUBMIT_SAVE_AND_CLOSE_DATA,
-				self::BUTTON_SUBMIT_DELETE => self::BUTTON_SUBMIT_DELETE_DATA
-			]
+			self::buttons => self::buttons_data_group
 		]
 	];
 	public $collection = [

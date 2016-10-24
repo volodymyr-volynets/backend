@@ -68,7 +68,6 @@ class numbers_backend_db_class_base {
 			} else if (is_null($v)) {
 				$result[] = 'NULL';
 			} else {
-				print_r2($v);
 				Throw new Exception('Unknown data type');
 			}
 		}
@@ -115,6 +114,7 @@ class numbers_backend_db_class_base {
 				$par = explode(',', $k);
 				// we use [comma] instead of comma in statements
 				$key = str_replace('[comma]', ',', $par[0]);
+				// todo: handle type casts (::)
 				$operator = $par[1] ?? '=';
 				$as_is = (isset($par[2]) && $par[2] == '~~') ? true : false;
 				$string = $key;
