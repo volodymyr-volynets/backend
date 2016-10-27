@@ -173,9 +173,11 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 							}
 						} else if ($result['structure'][$k]['type'] == 'bytea') {
 							$rows[$k] = pg_unescape_bytea($v);
+						} else if ($result['structure'][$k]['type'] == 'jsonb') {
+							// we must get json vallues to PHP format
+							$rows[$k] = json_encode(json_decode($v, true));
 						}
 					}
-
 					// assigning keys
 					if (!empty($key)) {
 						array_key_set_by_key_name($result['rows'], $key, $rows);

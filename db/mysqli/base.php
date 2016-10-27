@@ -128,6 +128,9 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			} else {
 				return null;
 			}
+		} else if ($type == 'json') {
+			// we must convert to PHP json
+			return json_encode(json_decode($value, true));
 		} else {
 			return $value;
 		}
@@ -161,7 +164,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 
 		// cache id
 		$crypt_object = new crypt();
-		$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . $crypt_object->hash($sql);
+		$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . $crypt_object->hash($sql . serialize($key));
 
 		// if we cache this query
 		if (!empty($options['cache'])) {
