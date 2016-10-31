@@ -239,7 +239,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 							foreach ($v2 as $k3 => $v3) {
 								$result['data']['sequence'][$k2][$k3] = [
 									'owner' => $v3['sequence_owner'],
-									'full_sequence_name' => $k2 . '.' . $v3['sequence_name'],
+									'full_sequence_name' => ltrim($k2 . '.' . $v3['sequence_name'], '.'),
 									'type' => $v3['type'],
 									'prefix' => $v3['prefix'],
 									'length' => $v3['length'],
@@ -616,6 +616,7 @@ TTT;
 	 * @param string $type
 	 * @param array $data
 	 * @param array $options
+	 *		string mode
 	 * @return string
 	 * @throws Exception
 	 */
@@ -779,7 +780,9 @@ TTT;
 			case 'sequence_delete':
 				$result = [];
 				$result[]= "DROP SEQUENCE {$data['name']};";
-				$result[]= "DELETE FROM sm_sequences WHERE sm_sequence_name = '{$data['name']}'";
+				if (($options['mode'] ?? '') != 'drop') {
+					$result[]= "DELETE FROM sm_sequences WHERE sm_sequence_name = '{$data['name']}'";
+				}
 				break;
 			case 'sequence_owner':
 				$result = "ALTER SEQUENCE {$data['name']} OWNER TO {$data['owner']};";

@@ -22,7 +22,6 @@ class numbers_backend_db_class_ddl {
 	 * @param string $type - code or db
 	 * @param array $object
 	 * @param string $db_link
-	 * @param string $db_link_flag
 	 * @throws Exception
 	 */
 	public function object_add($object, $db_link) {
@@ -158,7 +157,6 @@ class numbers_backend_db_class_ddl {
 			$db = factory::get(['db', $model->db_link]);
 			$ddl_object = $db['ddl_object'];
 			$owner = $db['object']->connect_options['username'];
-
 			// process sequence name and schema
 			$this->object_add([
 				'type' => 'sequence',
@@ -357,15 +355,17 @@ class numbers_backend_db_class_ddl {
 		}
 
 		// new tables
-		foreach ($obj_master['table'] as $k => $v) {
-			foreach ($v as $k2 => $v2) {
-				if (empty($obj_slave['table'][$k][$k2])) {
-					$result['data']['new_tables'][$v2['full_table_name']] = array('type' => 'table_new', 'data' => $v2);
-					$result['count']++;
-				} else {
-					if ($v2['owner'] != $obj_slave['table'][$k][$k2]['owner']) {
-						$result['data']['new_table_owners'][$v2['full_table_name']] = array('type'=>'table_owner', 'data' => $v2);
+		if (!empty($obj_master['table'])) {
+			foreach ($obj_master['table'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					if (empty($obj_slave['table'][$k][$k2])) {
+						$result['data']['new_tables'][$v2['full_table_name']] = array('type' => 'table_new', 'data' => $v2);
 						$result['count']++;
+					} else {
+						if ($v2['owner'] != $obj_slave['table'][$k][$k2]['owner']) {
+							$result['data']['new_table_owners'][$v2['full_table_name']] = array('type'=>'table_owner', 'data' => $v2);
+							$result['count']++;
+						}
 					}
 				}
 			}
@@ -384,64 +384,66 @@ class numbers_backend_db_class_ddl {
 		}
 
 		// new columns
-		foreach ($obj_master['table'] as $k => $v) {
-			foreach ($v as $k2 => $v2) {
-				// if we have new table we do not need to check for new columns
-				if (!empty($result['data']['new_tables'][$v2['full_table_name']])) continue;
-				// finding new column
-				foreach ($v2['columns'] as $k3 => $v3) {
-					if (empty($obj_slave['table'][$k][$k2]['columns'][$k3])) {
-						$result['data']['new_columns'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'column_new', 'name' => $k3, 'table' => $v2['full_table_name'], 'data' => $v3);
-						$result['count']++;
-					} else {
-						// comparing data types
-						$temp_error = false;
-						if ($v3['type'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['type']) {
-							if (strpos($v3['type'], 'serial') !== false || strpos($obj_slave['table'][$k][$k2]['columns'][$k3]['type'], 'serial') !== false) {
-								$result['error'][] = 'Serial data type changes must be handled manually, column ' . $k . '.' . $k2 . '.' . $k3;
-								return $result;
-							}
-							$temp_error = true;
-						}
-						if (!isset($v3['null'])) {
-							$v3['null'] = false;
-						}
-						if (!isset($obj_slave['table'][$k][$k2]['columns'][$k3]['null'])) {
-							$obj_slave['table'][$k][$k2]['columns'][$k3]['null'] = false;
-						}
-						if ($v3['null'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['null']) {
-							$temp_error = true;
-						}
-						if (!isset($v3['default'])) {
-							$v3['default'] = null;
-						}
-						if (!isset($obj_slave['table'][$k][$k2]['columns'][$k3]['default'])) {
-							$obj_slave['table'][$k][$k2]['columns'][$k3]['default'] = null;
-						}
-						if ($v3['default'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['default']) {
-							$temp_error = true;
-						}
-						// auto_increment for mysqli
-						if ($options['backend'] == 'mysqli') {
-							if (!isset($v3['auto_increment'])) {
-								$v3['auto_increment'] = 0;
-							}
-							if ($v3['auto_increment'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['auto_increment']) {
+		if (!empty($obj_master['table'])) {
+			foreach ($obj_master['table'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					// if we have new table we do not need to check for new columns
+					if (!empty($result['data']['new_tables'][$v2['full_table_name']])) continue;
+					// finding new column
+					foreach ($v2['columns'] as $k3 => $v3) {
+						if (empty($obj_slave['table'][$k][$k2]['columns'][$k3])) {
+							$result['data']['new_columns'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'column_new', 'name' => $k3, 'table' => $v2['full_table_name'], 'data' => $v3);
+							$result['count']++;
+						} else {
+							// comparing data types
+							$temp_error = false;
+							if ($v3['type'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['type']) {
+								if (strpos($v3['type'], 'serial') !== false || strpos($obj_slave['table'][$k][$k2]['columns'][$k3]['type'], 'serial') !== false) {
+									$result['error'][] = 'Serial data type changes must be handled manually, column ' . $k . '.' . $k2 . '.' . $k3;
+									return $result;
+								}
 								$temp_error = true;
 							}
-						}
-						if ($temp_error) {
-							$result['data']['change_columns'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'column_change', 'name' => $k3, 'table' => $v2['full_table_name'], 'data'=>$v3, 'data_slave' => $obj_slave['table'][$k][$k2]['columns'][$k3]);
-							$result['count']++;
+							if (!isset($v3['null'])) {
+								$v3['null'] = false;
+							}
+							if (!isset($obj_slave['table'][$k][$k2]['columns'][$k3]['null'])) {
+								$obj_slave['table'][$k][$k2]['columns'][$k3]['null'] = false;
+							}
+							if ($v3['null'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['null']) {
+								$temp_error = true;
+							}
+							if (!isset($v3['default'])) {
+								$v3['default'] = null;
+							}
+							if (!isset($obj_slave['table'][$k][$k2]['columns'][$k3]['default'])) {
+								$obj_slave['table'][$k][$k2]['columns'][$k3]['default'] = null;
+							}
+							if ($v3['default'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['default']) {
+								$temp_error = true;
+							}
+							// auto_increment for mysqli
+							if ($options['backend'] == 'mysqli') {
+								if (!isset($v3['auto_increment'])) {
+									$v3['auto_increment'] = 0;
+								}
+								if ($v3['auto_increment'] != $obj_slave['table'][$k][$k2]['columns'][$k3]['auto_increment']) {
+									$temp_error = true;
+								}
+							}
+							if ($temp_error) {
+								$result['data']['change_columns'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'column_change', 'name' => $k3, 'table' => $v2['full_table_name'], 'data'=>$v3, 'data_slave' => $obj_slave['table'][$k][$k2]['columns'][$k3]);
+								$result['count']++;
+							}
 						}
 					}
-				}
 
-				// finding columns to be deleted
-				foreach ($obj_slave['table'][$k][$k2]['columns'] as $k3 => $v3) {
-					if (empty($obj_master['table'][$k][$k2]['columns'][$k3])) {
-						$result['data']['delete_columns'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'column_delete', 'name' => $k3, 'table' => $v2['full_table_name']);
-						$result['count']++;
+					// finding columns to be deleted
+					foreach ($obj_slave['table'][$k][$k2]['columns'] as $k3 => $v3) {
+						if (empty($obj_master['table'][$k][$k2]['columns'][$k3])) {
+							$result['data']['delete_columns'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'column_delete', 'name' => $k3, 'table' => $v2['full_table_name']);
+							$result['count']++;
+						}
 					}
 				}
 			}
