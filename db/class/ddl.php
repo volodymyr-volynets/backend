@@ -476,38 +476,40 @@ class numbers_backend_db_class_ddl {
 		}
 
 		// new constraints
-		foreach ($obj_master['constraint'] as $k => $v) {
-			foreach ($v as $k2 => $v2) {
-				foreach ($v2 as $k3 => $v3) {
-					if (empty($obj_slave['constraint'][$k][$k2][$k3])) {
-						$result['data']['new_constraints'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'constraint_new', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
-						$result['count']++;
-					} else {
-						// comparing structure
-						$temp_error = false;
-						if ($v3['type'] != $obj_slave['constraint'][$k][$k2][$k3]['type']) {
-							$temp_error = true;
-						}
-						if ($v3['full_table_name'] != $obj_slave['constraint'][$k][$k2][$k3]['full_table_name']) {
-							$temp_error = true;
-						}
-						if (!array_compare_level1($v3['columns'], $obj_slave['constraint'][$k][$k2][$k3]['columns'])) {
-							$temp_error = true;
-						}
-						// additiona verifications for fk constraints
-						if ($v3['type'] == 'fk') {
-							if ($v3['foreign_table'] != $obj_slave['constraint'][$k][$k2][$k3]['foreign_table']) {
-								$temp_error = true;
-							}
-							if (!array_compare_level1($v3['foreign_columns'], $obj_slave['constraint'][$k][$k2][$k3]['foreign_columns'])) {
-								$temp_error = true;
-							}
-						}
-						// if we have an error we rebuild
-						if ($temp_error) {
-							$result['data']['delete_constraints'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'constraint_delete', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
+		if (!empty($obj_master['constraint'])) {
+			foreach ($obj_master['constraint'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					foreach ($v2 as $k3 => $v3) {
+						if (empty($obj_slave['constraint'][$k][$k2][$k3])) {
 							$result['data']['new_constraints'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'constraint_new', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
-							$result['count']+= 1;
+							$result['count']++;
+						} else {
+							// comparing structure
+							$temp_error = false;
+							if ($v3['type'] != $obj_slave['constraint'][$k][$k2][$k3]['type']) {
+								$temp_error = true;
+							}
+							if ($v3['full_table_name'] != $obj_slave['constraint'][$k][$k2][$k3]['full_table_name']) {
+								$temp_error = true;
+							}
+							if (!array_compare_level1($v3['columns'], $obj_slave['constraint'][$k][$k2][$k3]['columns'])) {
+								$temp_error = true;
+							}
+							// additiona verifications for fk constraints
+							if ($v3['type'] == 'fk') {
+								if ($v3['foreign_table'] != $obj_slave['constraint'][$k][$k2][$k3]['foreign_table']) {
+									$temp_error = true;
+								}
+								if (!array_compare_level1($v3['foreign_columns'], $obj_slave['constraint'][$k][$k2][$k3]['foreign_columns'])) {
+									$temp_error = true;
+								}
+							}
+							// if we have an error we rebuild
+							if ($temp_error) {
+								$result['data']['delete_constraints'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'constraint_delete', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
+								$result['data']['new_constraints'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'constraint_new', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
+								$result['count']+= 1;
+							}
 						}
 					}
 				}
@@ -529,26 +531,28 @@ class numbers_backend_db_class_ddl {
 		}
 
 		// new indexes
-		foreach ($obj_master['index'] as $k => $v) {
-			foreach ($v as $k2 => $v2) {
-				foreach ($v2 as $k3 => $v3) {
-					if (empty($obj_slave['index'][$k][$k2][$k3])) {
-						$result['data']['new_indexes'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'index_new', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
-						$result['count']++;
-					} else {
-						// comparing structure
-						$temp_error = false;
-						if ($v3['type'] != $obj_slave['index'][$k][$k2][$k3]['type']) {
-							$temp_error = true;
-						}
-						if (!array_compare_level1($v3['columns'], $obj_slave['index'][$k][$k2][$k3]['columns'])) {
-							$temp_error = true;
-						}
-						// todo: comparison for foreign key & check
-						if ($temp_error) {
-							$result['data']['delete_indexes'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'index_delete', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $obj_slave['index'][$k][$k2][$k3]);
+		if (!empty($obj_master['index'])) {
+			foreach ($obj_master['index'] as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					foreach ($v2 as $k3 => $v3) {
+						if (empty($obj_slave['index'][$k][$k2][$k3])) {
 							$result['data']['new_indexes'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'index_new', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
-							$result['count']+= 1;
+							$result['count']++;
+						} else {
+							// comparing structure
+							$temp_error = false;
+							if ($v3['type'] != $obj_slave['index'][$k][$k2][$k3]['type']) {
+								$temp_error = true;
+							}
+							if (!array_compare_level1($v3['columns'], $obj_slave['index'][$k][$k2][$k3]['columns'])) {
+								$temp_error = true;
+							}
+							// todo: comparison for foreign key & check
+							if ($temp_error) {
+								$result['data']['delete_indexes'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'index_delete', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $obj_slave['index'][$k][$k2][$k3]);
+								$result['data']['new_indexes'][$k . '.' . $k2 . '.' . $k3] = array('type' => 'index_new', 'name' => $k3, 'table' => $v3['full_table_name'], 'data' => $v3);
+								$result['count']+= 1;
+							}
 						}
 					}
 				}
