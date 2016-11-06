@@ -212,6 +212,7 @@ class numbers_backend_db_class_base {
 		$result['errno'] = trim($errno . '');
 		if (isset($this->error_overrides[$result['errno']])) {
 			$result['error'][] = $this->error_overrides[$result['errno']];
+			$result['error_original'][] = $error;
 		} else {
 			$temp = 'Db Link ' . $this->db_link . ': Errno: ' . $result['errno'] . ': ' . $error;
 			$result['error'][] = $temp;
