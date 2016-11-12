@@ -121,7 +121,7 @@ class numbers_backend_crypt_class_base {
 	/**
 	 * see crypt::token_validate();
 	 */
-	public function token_validate($token) {
+	public function token_validate($token, $options = []) {
 		do {
 			if (empty($this->base64)) {
 				$token = base64_decode($token);
@@ -135,7 +135,7 @@ class numbers_backend_crypt_class_base {
 				break;
 			}
 			// validating valid hours
-			if (($result['time'] + ($this->valid_hours * 60 * 60)) <= time()) {
+			if (empty($options['skip_time_validation']) && ($result['time'] + ($this->valid_hours * 60 * 60)) <= time()) {
 				break;
 			}
 			// ip verification

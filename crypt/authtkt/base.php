@@ -44,7 +44,7 @@ class numbers_backend_crypt_authtkt_base extends numbers_backend_crypt_class_bas
 	/**
 	 * see crypt::token_validate();
 	 */
-	public function token_validate($token) {
+	public function token_validate($token, $options = []) {
 		$result = [
 			'id' => null,
 			'data' => null,

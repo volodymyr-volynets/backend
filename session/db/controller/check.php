@@ -19,7 +19,7 @@ class numbers_backend_session_db_controller_check extends object_controller {
 		];
 		if (!empty($input['token']) && !empty($input[session_name()])) {
 			$crypt = new crypt();
-			$token_data = $crypt->token_validate($input['token'], 1, true);
+			$token_data = $crypt->token_validate($input['token'], ['skip_time_validation' => true]);
 			if (!($token_data === false || $token_data['id'] !== 'general')) {
 				// quering database
 				$model = new numbers_backend_session_db_model_sessions();
@@ -63,7 +63,7 @@ TTT;
 		];
 		if (!empty($input['token'])) {
 			$crypt = new crypt();
-			$token_data = $crypt->token_validate($input['token'], 1, true);
+			$token_data = $crypt->token_validate($input['token'], ['skip_time_validation' => true]);
 			if (!($token_data === false || $token_data['id'] !== 'general')) {
 				$result['success'] = true;
 			}

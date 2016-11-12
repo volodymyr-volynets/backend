@@ -26,7 +26,7 @@ class numbers_backend_i18n_basic_model_form_missing extends numbers_frontend_htm
 	public $elements = [
 		'default' => [
 			'lc_missing_id' => [
-				'lc_missing_id' => ['order' => 1, 'label_name' => 'Missing Translation #', 'type' => 'serial', 'percent' => 100, 'required' => false],
+				'lc_missing_id' => ['order' => 1, 'label_name' => 'Missing Translation #', 'domain' => 'big_id_sequence', 'percent' => 100, 'navigation' => true],
 			],
 			'lc_missing_language_code' => [
 				'lc_missing_language_code' => ['order' => 1, 'label_name' => 'Language Code', 'domain' => 'language_code', 'percent' => 50, 'required' => true, 'method' => 'select', 'options_model' => 'numbers_backend_i18n_languages_model_languages'],

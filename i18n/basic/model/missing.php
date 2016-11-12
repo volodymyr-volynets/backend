@@ -9,10 +9,11 @@ class numbers_backend_i18n_basic_model_missing extends object_table {
 	public $limit;
 	public $column_prefix = 'lc_missing_';
 	public $columns = [
-		'lc_missing_id' => ['name' => 'Missing Translation #', 'type' => 'serial'],
+		'lc_missing_id' => ['name' => 'Missing Translation #', 'domain' => 'big_id_sequence'],
 		'lc_missing_language_code' => ['name' => 'Language Code', 'domain' => 'language_code'],
 		'lc_missing_text_sys' => ['name' => 'System Text', 'type' => 'varchar', 'length' => 2500],
-		'lc_missing_counter' => ['name' => 'Counter', 'domain' => 'counter', 'default' => 1]
+		'lc_missing_counter' => ['name' => 'Counter', 'domain' => 'counter', 'default' => 1],
+		'lc_missing_javascript' => ['name' => 'Javascript', 'type' => 'boolean']
 	];
 	public $constraints = [
 		'lc_missing_pk' => ['type' => 'pk', 'columns' => ['lc_missing_id']]

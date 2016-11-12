@@ -11,9 +11,17 @@ class numbers_backend_i18n_languages_model_languages extends object_table {
 	public $columns = [
 		'lc_language_code' => ['name' => 'Code', 'domain' => 'language_code'],
 		'lc_language_name' => ['name' => 'Name', 'domain' => 'name'],
-		'lc_language_locale' => ['name' => 'Locale', 'type' => 'text'],
 		'lc_language_rtl' => ['name' => 'RTL', 'type' => 'boolean'],
 		'lc_language_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
+		// the same set of fields as in entities model
+		'lc_language_locale' => ['name' => 'Locale', 'type' => 'text'],
+		'lc_language_timezone' => ['name' => 'Timezone', 'domain' => 'code', 'null' => true],
+		'lc_language_date' => ['name' => 'Date Format', 'domain' => 'code', 'null' => true],
+		'lc_language_time' => ['name' => 'Time Format', 'domain' => 'code', 'null' => true],
+		'lc_language_datetime' => ['name' => 'Datetime Format', 'domain' => 'code', 'null' => true],
+		'lc_language_timestamp' => ['name' => 'Timestamp Format', 'domain' => 'code', 'null' => true],
+		'lc_language_amount_frm' => ['name' => 'Amounts In Forms', 'domain' => 'type_id', 'null' => true],
+		'lc_language_amount_fs' => ['name' => 'Amounts In Financial Statement', 'domain' => 'type_id', 'null' => true],
 	];
 	public $constraints = [
 		'lc_languages_pk' => ['type' => 'pk', 'columns' => ['lc_language_code']]

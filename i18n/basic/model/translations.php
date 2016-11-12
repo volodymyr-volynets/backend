@@ -9,10 +9,11 @@ class numbers_backend_i18n_basic_model_translations extends object_table {
 	public $limit;
 	public $column_prefix = 'lc_translation_';
 	public $columns = [
-		'lc_translation_id' => ['name' => 'Translation #', 'type' => 'serial'],
+		'lc_translation_id' => ['name' => 'Translation #', 'domain' => 'big_id_sequence'],
 		'lc_translation_language_code' => ['name' => 'Language Code', 'domain' => 'language_code'],
 		'lc_translation_text_sys' => ['name' => 'System Text', 'type' => 'varchar', 'length' => 2500],
-		'lc_translation_text_new' => ['name' => 'Translated Text', 'type' => 'varchar', 'length' => 2500]
+		'lc_translation_text_new' => ['name' => 'Translated Text', 'type' => 'varchar', 'length' => 2500],
+		'lc_translation_javascript' => ['name' => 'Javascript', 'type' => 'boolean']
 	];
 	public $constraints = [
 		'lc_translations_pk' => ['type' => 'pk', 'columns' => ['lc_translation_id']],
