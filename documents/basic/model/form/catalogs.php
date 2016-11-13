@@ -75,10 +75,10 @@ class numbers_backend_documents_basic_model_form_catalogs extends numbers_fronte
 			foreach ($tokens as $v) {
 				$v = explode('=', $v);
 				if (!in_array($v[0], ['width', 'height'])) {
-					$form->error('danger', i18n(null, 'Unknown variable [var]!', ['replace' => ['[var]' => $v[0]]]), 'dc_catalog_thumbnail_settings', ['skip_i18n' => true]);
+					$form->error('danger', 'Unknown variable [var]!', 'dc_catalog_thumbnail_settings', ['replace' => ['[var]' => $v[0]]]);
 				}
 				if (!isset($v[1]) || !is_numeric($v[1])) {
-					$form->error('danger', i18n(null, 'Unknown value [var]!', ['replace' => ['[var]' => $v[1]]]), 'dc_catalog_thumbnail_settings', ['skip_i18n' => true]);
+					$form->error('danger', 'Unknown value [var]!', 'dc_catalog_thumbnail_settings', ['replace' => ['[var]' => $v[1]]]);
 				}
 			}
 			// preset valid extensions
