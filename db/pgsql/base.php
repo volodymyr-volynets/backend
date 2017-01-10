@@ -61,6 +61,9 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			pg_set_client_encoding($connection, 'UNICODE');
 			$result['version'] = pg_version($connection);
 			$result['status'] = pg_connection_status($connection) === PGSQL_CONNECTION_OK ? 1 : 0;
+			// set settings
+			$this->query("SET TIME ZONE '" . application::get('php.date.timezone') . "';");
+			// success
 			$result['success'] = true;
 		} else {
 			$result['error'][] = 'db::connect() : Could not connect to database server!';
@@ -126,17 +129,19 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		// start time
 		$result['time'] = debug::get_microtime();
 
-		// cache id
-		$crypt_object = new crypt();
-		$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . $crypt_object->hash($sql . serialize($key));
-
-		// if we cache this query
-		if (!empty($options['cache'])) {
-			$cache_object = new cache($this->connect_options['cache_link']);
-			$cached_result = $cache_object->get($cache_id);
-			if ($cached_result !== false) {
-				return $cached_result;
+		// if query caching is enabled
+		if (!empty($this->connect_options['cache_link'])) {
+			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . sha1($sql . serialize($key));
+			// if we cache this query
+			if (!empty($options['cache'])) {
+				$cache_object = new cache($this->connect_options['cache_link']);
+				$cached_result = $cache_object->get($cache_id);
+				if ($cached_result !== false) {
+					return $cached_result;
+				}
 			}
+		} else {
+			$options['cache'] = false;
 		}
 
 		// quering
@@ -531,11 +536,25 @@ TTT;
 	 * @param array $options
 	 * @return string
 	 */
-	public function sql_helper($statement, $options) {
+	public function sql_helper($statement, $options = []) {
 		$result = '';
 		switch ($statement) {
 			case 'string_agg':
 				$result = 'string_agg(' . $options['expression'] . ', \'' . ($options['delimiter'] ?? ';') . '\')';
+				break;
+			case 'fetch_databases':
+				$result = 'SELECT datname database_name FROM pg_database WHERE datistemplate = false ORDER BY database_name ASC';
+				break;
+			case 'fetch_tables':
+				$result = <<<TTT
+					SELECT
+						CASE WHEN schemaname = 'public' THEN '' ELSE schemaname END schema_name,
+						tablename table_name
+					FROM pg_tables a
+					WHERE 1=1
+						AND schemaname NOT IN ('pg_catalog', 'information_schema')
+					ORDER BY schema_name, table_name
+TTT;
 				break;
 			default:
 				Throw new Exception('Statement?');

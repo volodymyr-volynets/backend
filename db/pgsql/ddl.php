@@ -3,84 +3,49 @@
 class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implements numbers_backend_db_interface_ddl {
 
 	/**
-	 * Column type checker and converter
+	 * Column SQL type
 	 *
 	 * @param array $column
-	 * @param object $table
 	 * @return array
 	 */
-	public function is_column_type_supported($column, $table) {
-		$result = [
-			'success' => true,
-			'error' => [],
-			'column' => []
-		];
-
+	public function column_sql_type($column) {
 		// presetting
-		$column['type'] = $column['type'] ?? 'unsupported';
-		$column['null'] = $column['null'] ?? false;
-		$column['default'] = $column['default'] ?? null;
-		$column['length'] = $column['length'] ?? 0;
-		$column['precision'] = $column['precision'] ?? 0;
-		$column['scale'] = $column['scale'] ?? 0;
-
+		$column = parent::column_sql_type($column);
 		// simple switch would do the work
 		switch ($column['type']) {
 			case 'boolean':
-				$result['column'] = ['type' => 'smallint', 'null' => false, 'default' => 0];
-				break;
-			case 'smallint':
-			case 'integer':
-			case 'bigint':
-				$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = 'smallint';
 				break;
 			case 'bcnumeric':
 			case 'numeric':
 				if ($column['precision'] > 0) {
-					$result['column'] = ['type' => 'numeric(' . $column['precision'] . ', ' . $column['scale'] . ')', 'null' => $column['null'], 'default' => $column['default']];
+					$column['sql_type'] = 'numeric(' . $column['precision'] . ', ' . $column['scale'] . ')';
 				} else {
-					$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
+					$column['sql_type'] = 'numeric';
 				}
 				break;
-			case 'smallserial':
-			case 'serial':
-			case 'bigserial':
-				$result['column'] = ['type' => $column['type']];
-				break;
 			case 'char':
-				$temp = 'character(' . $column['length'] . ')';
-				$result['column'] = ['type' => $temp, 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = 'character(' . $column['length'] . ')';
 				break;
 			case 'varchar':
-				$temp = 'character varying(' . $column['length'] . ')';
-				$result['column'] = ['type' => $temp, 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = 'character varying(' . $column['length'] . ')';
 				break;
 			case 'json':
-				$result['column'] = ['type' => 'jsonb', 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'date':
-				$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = 'jsonb';
 				break;
 			case 'time':
-				$result['column'] = ['type' => 'time without time zone', 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = 'time without time zone';
 				break;
 			case 'datetime':
-				$result['column'] = ['type' => 'timestamp(0) without time zone', 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = 'timestamp(0) without time zone';
 				break;
 			case 'timestamp':
-				$result['column'] = ['type' => 'timestamp(6) without time zone', 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'text':
-				$result['column'] = ['type' => 'text', 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'unsupported':
-				Throw new Exception($table . ': unsupported type for column: ' . $column['name']);
+				$column['sql_type'] = 'timestamp(6) without time zone';
 				break;
 			default:
-				// if we got here, means we do not replace data type and send it to db as is !!!
-				$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = $column['type'];
 		}
-		return $result;
+		return $column;
 	}
 
 	/**
@@ -93,7 +58,8 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 		$result = [
 			'success' => false,
 			'error' => [],
-			'data' => []
+			'data' => [],
+			'count' => []
 		];
 		// getting information
 		foreach (array('extensions', 'schemas', 'columns', 'constraints', 'sequences', 'functions') as $v) { //'views', 'domains', 'triggers'
@@ -103,6 +69,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 			} else {
 				switch ($v) {
 					case 'columns':
+						$tables = [];
 						// small conversion for columns
 						foreach ($temp['data'] as $k2 => $v2) {
 							if ($k2 == 'public') {
@@ -110,8 +77,29 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 							}
 							foreach ($v2 as $k3 => $v3) {
 								foreach ($v3 as $k4 => $v4) {
+									// full table name
+									if ($k2 == '') {
+										$full_table_name = $v4['table_name'];
+									} else {
+										$full_table_name = $v4['schema_name'] . '.' . $v4['table_name'];
+									}
+									// preset empty table
+									if (!isset($tables[$full_table_name])) {
+										$tables[$full_table_name] = [
+											'type' => 'table',
+											'schema' => $k2,
+											'name' => $v4['table_name'],
+											'data' => [
+												'columns' => [],
+												'owner' => $v4['table_owner'],
+												'engine' => [],
+												'full_table_name' => $full_table_name
+											]
+										];
+									}
 									// processing type
 									$type = $v4['type'];
+									$sequence = false;
 									if ($v4['length'] > 0) {
 										$type.= '(' . $v4['length'] . ')';
 									} else if ($type == 'numeric' && $v4['precision'] > 0) {
@@ -134,6 +122,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 													$type = 'bigserial';
 												}
 												$default = null;
+												$sequence = true;
 											} else if (strpos($default, '::') !== false) {
 												$temp3 = explode('::', $default);
 												$default = $temp3[0];
@@ -145,25 +134,23 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 											}
 										}
 									}
-									$temp2 = [
-										'type' => $type,
-										'null' => ($v4['null'] ? true : false),
-										'default' => $default
-									];
 									// putting column back into array
-									$result['data']['table'][$k2][$k3]['columns'][$k4] = $temp2;
-									if (!isset($result['data']['table'][$k2][$k3]['owner'])) {
-										$result['data']['table'][$k2][$k3]['owner'] = $v4['table_owner'];
-									}
-									if (!isset($result['data']['table'][$k2][$k3]['full_table_name'])) {
-										if ($v4['schema_name'] == 'public') {
-											$result['data']['table'][$k2][$k3]['full_table_name'] = $v4['table_name'];
-										} else {
-											$result['data']['table'][$k2][$k3]['full_table_name'] = $v4['schema_name'] . '.' . $v4['table_name'];
-										}
-									}
+									$tables[$full_table_name]['data']['columns'][$k4] = [
+										'type' => $type,
+										'null' => !empty($v4['null']) ? true : false,
+										'default' => $default,
+										'length' => $v4['length'],
+										'precision' => $v4['precision'],
+										'scale' => $v4['scale'],
+										'sequence' => $sequence,
+										'sql_type' => $type
+									];
 								}
 							}
+						}
+						// add tables
+						foreach ($tables as $v2) {
+							$this->object_add($v2, $db_link);
 						}
 						break;
 					case 'constraints':
@@ -175,61 +162,80 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 								foreach ($v3 as $k4 => $v4) {
 									foreach ($v4 as $k5 => $v5) {
 										if ($k3 == '') {
-											$name = $v5['table_name'];
+											$full_table_name = $v5['table_name'];
 										} else {
-											$name = $v5['schema_name'] . '.' . $v5['table_name'];
+											$full_table_name = $v5['schema_name'] . '.' . $v5['table_name'];
 										}
 										if ($v5['constraint_type'] == 'PRIMARY KEY') {
 											$temp2 = [
 												'type' => 'pk',
 												'columns' => $v5['column_names'],
-												'full_table_name' => $name
+												'full_table_name' => $full_table_name
 											];
-											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else if ($v5['constraint_type'] == 'UNIQUE') {
 											$temp2 = [
 												'type' => 'unique',
 												'columns' => $v5['column_names'],
-												'full_table_name' => $name
+												'full_table_name' => $full_table_name
 											];
-											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else if ($v5['constraint_type'] == 'INDEX') {
 											$temp2 = [
 												'type' => $v5['index_type'],
 												'columns' => $v5['column_names'],
-												'full_table_name' => $name
+												'full_table_name' => $full_table_name
 											];
-											$result['data']['index'][$k3][$k4][$k5] = $temp2;
 										} else if ($v5['constraint_type'] == 'FOREIGN_KEY') {
 											$name2 = ($k3 == '') ? $v5['foreign_table_name'] : ($v5['foreign_schema_name'] . '.' . $v5['foreign_table_name']);
+											if ($v5['match_option'] == 'NONE') $v5['match_option'] = 'SIMPLE';
 											$temp2 = [
 												'type' => 'fk',
 												'columns' => $v5['column_names'],
 												'foreign_table' => $name2,
 												'foreign_columns' => $v5['foreign_column_names'],
 												'options' => [
-													'match' => $v5['match_option'],
-													'update' => $v5['update_rule'],
-													'delete' => $v5['delete_rule']
+													'match' => mixedtolower($v5['match_option']),
+													'update' => mixedtolower($v5['update_rule']),
+													'delete' => mixedtolower($v5['delete_rule'])
 												],
 												'name' => $v5['constraint_name'],
-												'full_table_name' => $name
+												'full_table_name' => $full_table_name
 											];
-											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else {
 											print_r($v5);
 											exit;
 										}
+										// add constraint
+										$this->object_add([
+											'type' => 'constraint',
+											'schema' => $k3,
+											'table' => $v5['table_name'],
+											'name' => $k5,
+											'data' => $temp2
+										], $db_link);
 									}
 								}
 							}
 						}
 						break;
 					case 'extensions':
-						$result['data']['extension'] = $temp['data'];
+						$result['data']['extension'] = [];
+						foreach ($temp['data'] as $k4 => $v4) {
+							foreach ($v4 as $k5 => $v5) {
+								$result['data']['extension'][$k4][$k5] = [
+									'type' => 'extension',
+									'schema' => $k4,
+									'name' => $k5,
+									'backends' => [
+										'plsql'
+									]
+								];
+							}
+						}
 						break;
 					case 'schemas':
-						$result['data']['schema'] = $temp['data'];
+						if (!empty($temp['data'])) {
+							$result['data']['schema'] = $temp['data'];
+						}
 						break;
 					case 'sequences':
 						foreach ($temp['data'] as $k2 => $v2) {
@@ -278,6 +284,8 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 		if (empty($result['error'])) {
 			$result['success'] = true;
 		}
+		$result['data'] = $this->objects;
+		$result['count'] = $this->count;
 		return $result;
 	}
 
@@ -401,9 +409,11 @@ TTT;
 									min(delete_rule::text) delete_rule
 							FROM information_schema.referential_constraints c
 							JOIN (
-								SELECT * FROM information_schema.key_column_usage ORDER BY position_in_unique_constraint
+								SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position DESC --position_in_unique_constraint
 							) x ON x.constraint_name = c.constraint_name
-							JOIN information_schema.key_column_usage y ON y.ordinal_position = x.position_in_unique_constraint AND y.constraint_name = c.unique_constraint_name
+							JOIN (
+								SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position DESC
+							) y ON y.ordinal_position = x.position_in_unique_constraint AND y.constraint_name = c.unique_constraint_name
 							GROUP BY x.table_schema, x.table_name, c.constraint_name, y.table_schema, y.table_name
 
 							UNION ALL
@@ -611,8 +621,8 @@ TTT;
 	}
 
 	/**
-	 * Render sql
-	 * 
+	 * Render SQL
+	 *
 	 * @param string $type
 	 * @param array $data
 	 * @param array $options
@@ -628,7 +638,7 @@ TTT;
 				$result = "CREATE EXTENSION {$data['data']['name']} SCHEMA {$data['data']['schema']};";
 				break;
 			case 'extension_delete':
-				$result = "DROP EXTENSION {$data['data']['extension_name']};";
+				$result = "DROP EXTENSION {$data['data']['name']};";
 				break;
 			// schema
 			case 'schema':
@@ -638,42 +648,41 @@ TTT;
 				$result = "ALTER SCHEMA {$data['data']['name']} OWNER TO {$data['data']['owner']};";
 				break;
 			case 'schema_delete':
-				$result = "DROP SCHEMA {$data['name']};";
+				$result = "DROP SCHEMA {$data['data']['name']};";
 				break;
 			// columns
 			case 'column_delete':
 				$result = "ALTER TABLE {$data['table']} DROP COLUMN {$data['name']};";
 				break;
 			case 'column_new':
-				$type = $data['data']['type'];
 				$default = $data['data']['default'] ?? null;
 				if (is_string($default) && $default != 'now()') {
 					$default = "'" . $default . "'";
 				}
 				$null = $data['data']['null'] ?? false;
 				if (empty($options['column_new_no_alter'])) {
-					$result = "ALTER TABLE {$data['table']} ADD COLUMN {$data['name']} {$type}" . ($default !== null ? (' DEFAULT ' . $default) : '') . (!$null ? (' NOT NULL') : '') . ";";
+					$result = "ALTER TABLE {$data['table']} ADD COLUMN {$data['name']} {$data['data']['sql_type']}" . ($default !== null ? (' DEFAULT ' . $default) : '') . (!$null ? (' NOT NULL') : '') . ";";
 				} else {
-					$result = "{$data['name']} {$type}" . ($default !== null ? (' DEFAULT ' . $default) : '') . (!$null ? (' NOT NULL') : '');
+					$result = "{$data['name']} {$data['data']['sql_type']}" . ($default !== null ? (' DEFAULT ' . $default) : '') . (!$null ? (' NOT NULL') : '');
 				}
 				break;
 			case 'column_change':
-				$result = '';
+				$result = [];
 				$master = $data['data'];
 				$slave = $data['data_slave'];
-				if ($master['type'] != $slave['type']) {
-					$result.= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} SET DATA TYPE {$master['type']};\n";
+				if ($master['sql_type'] !== $slave['sql_type']) {
+					$result[]= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} SET DATA TYPE {$master['sql_type']};\n";
 				}
 				if ($master['default'] !== $slave['default']) {
 					if (is_string($master['default'])) {
 						$master['default'] = "'" . $master['default'] . "'";
 					}
 					$temp = !isset($master['default']) ? ' DROP DEFAULT' : ('SET DEFAULT ' . $master['default']);
-					$result.= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} $temp;\n";
+					$result[]= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} $temp;\n";
 				}
-				if ($master['null'] != $slave['null']) {
+				if ($master['null'] !== $slave['null']) {
 					$temp = !empty($master['null']) ? 'DROP'  : 'SET';
-					$result.= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} $temp NOT NULL;\n";
+					$result[]= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} $temp NOT NULL;\n";
 				}
 				break;
 			// table

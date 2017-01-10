@@ -17,7 +17,7 @@ class numbers_backend_cache_class_base {
 	public $options;
 
 	/**
-	 * Cache key, used for wildcard systems
+	 * Cache key, used for multi tenant/db systems
 	 *
 	 * @var string
 	 */

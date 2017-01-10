@@ -44,6 +44,9 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			mysqli_set_charset($connection, 'utf8');
 			$result['version'] = mysqli_get_server_version($connection);
 			$result['status'] = 1;
+			// set settings
+			$this->query("SET time_zone = '" . application::get('php.date.timezone') . "';");
+			// success
 			$result['success'] = true;
 		} else {
 			$result['error'][] = mysqli_connect_error();
@@ -162,17 +165,19 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 		// start time
 		$result['time'] = debug::get_microtime();
 
-		// cache id
-		$crypt_object = new crypt();
-		$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . $crypt_object->hash($sql . serialize($key));
-
-		// if we cache this query
-		if (!empty($options['cache'])) {
-			$cache_object = new cache($this->connect_options['cache_link']);
-			$cached_result = $cache_object->get($cache_id);
-			if ($cached_result !== false) {
-				return $cached_result;
+		// if query caching is enabled
+		if (!empty($this->connect_options['cache_link'])) {
+			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . sha1($sql . serialize($key));
+			// if we cache this query
+			if (!empty($options['cache'])) {
+				$cache_object = new cache($this->connect_options['cache_link']);
+				$cached_result = $cache_object->get($cache_id);
+				if ($cached_result !== false) {
+					return $cached_result;
+				}
 			}
+		} else {
+			$options['cache'] = false;
 		}
 
 		// quering regular query first

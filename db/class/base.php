@@ -176,12 +176,15 @@ class numbers_backend_db_class_base {
 	 *
 	 * @param array $value
 	 * @param array $options
+	 *		boolean quotes
 	 * @return array
 	 */
 	public function escape_array($value, $options = []) {
 		$result = [];
 		foreach ($value as $k => $v) {
-			if (is_string($v) && !empty($options['quotes'])) {
+			if (is_array($v)) {
+				$result[$k] = $this->escape_array($v, $options);
+			} else if (is_string($v) && !empty($options['quotes'])) {
 				$result[$k] = "'" . $this->escape($v) . "'";
 			} else if (is_string($v) && empty($options['quotes'])) {
 				$result[$k] = $this->escape($v);
