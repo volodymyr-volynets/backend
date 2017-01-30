@@ -539,7 +539,7 @@ TTT;
 						sm_sequence_prefix,
 						sm_sequence_length,
 						sm_sequence_suffix,
-						sm_sequence_count,
+						sm_sequence_counter,
 						sm_sequence_type
 					) VALUES (
 						'{$data['name']}',

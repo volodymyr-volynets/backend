@@ -13,7 +13,7 @@ CONTAINS SQL
 ',
 			'body' =>
 'BEGIN
-	UPDATE sm_sequences SET sm_sequence_count = last_insert_id(sm_sequence_count + 1) WHERE sm_sequence_name = sequence_name;
+	UPDATE sm_sequences SET sm_sequence_counter = last_insert_id(sm_sequence_counter + 1) WHERE sm_sequence_name = sequence_name;
 	RETURN last_insert_id();
 END',
 			'footer' => ';'

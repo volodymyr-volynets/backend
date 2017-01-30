@@ -3,19 +3,23 @@
 class numbers_backend_db_class_model_sequences extends object_table {
 	public $db_link;
 	public $db_link_flag;
+	public $title = 'S/M Sequences';
+	public $schema;
 	public $name = 'sm_sequences';
 	public $pk = ['sm_sequence_name'];
 	public $orderby;
 	public $limit;
 	public $column_prefix = 'sm_sequence_';
 	public $columns = [
-		'sm_sequence_name' => ['name' => 'Name', 'type' => 'varchar', 'length' => 255],
-		'sm_sequence_description' => ['name' => 'Description', 'type' => 'varchar', 'length' => 255, 'null' => true],
-		'sm_sequence_type' => ['name' => 'Type', 'type' => 'varchar', 'length' => 15],
+		'sm_sequence_name' => ['name' => 'Name', 'domain' => 'code'],
+		'sm_sequence_description' => ['name' => 'Description', 'domain' => 'description', 'null' => true],
+		// common attributes
+		'sm_sequence_type' => ['name' => 'Type', 'domain' => 'type_code', 'options_model' => 'numbers_backend_db_class_model_sequence_types'],
 		'sm_sequence_prefix' => ['name' => 'Prefix', 'type' => 'varchar', 'length' => 15, 'null' => true],
 		'sm_sequence_length' => ['name' => 'Length', 'type' => 'smallint', 'default' => 0],
 		'sm_sequence_suffix' => ['name' => 'Suffix', 'type' => 'varchar', 'length' => 15, 'null' => true],
-		'sm_sequence_count' => ['name' => 'Numeric Count', 'type' => 'bigint']
+		// counter
+		'sm_sequence_counter' => ['name' => 'Counter', 'type' => 'bigint']
 	];
 	public $constraints = [
 		'sm_sequences_pk' => ['type' => 'pk', 'columns' => ['sm_sequence_name']],

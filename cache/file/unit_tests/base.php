@@ -3,32 +3,76 @@
 class numbers_backend_cache_file_unit_tests_base extends PHPUnit_Framework_TestCase {
 
 	/**
-	 * test all
+	 * test all cache operations
 	 */
 	public function test_all() {
-		$cache_dir = '/tmp/unit_tests_' . time() . '_' . rand(1000, 9999);
-		$object = new numbers_backend_cache_file_base('PHPUnit');
+		$time = time();
+		$cache_dir = sys_get_temp_dir() . '/unit_tests_' . $time . '_' . rand(1000, 9999);
+		$object = new numbers_backend_cache_file_base('PHPUnit', [
+			'cache_key' => 'test_key',
+			'storage' => 'json',
+			'expire' => true,
+			'tags' => true,
+		]);
 		$result = $object->connect(['dir' => $cache_dir]);
 		// validate if object returned success
 		$this->assertEquals(true, $result['success']);
 		// validate if we have actual directory
-		$this->assertEquals(true, file_exists($cache_dir));
-		// testing not existing cache
-		$result = $object->get('cache-' . rand(1000, 9999));
-		$this->assertEquals(false, $result);
-		// testing creting new cache and then get it before and after it expires
-		$result = $object->set('cache-1', 'data', ['tags'], time() + 1);
-		$this->assertEquals(true, $result);
-		$result = $object->get('cache-1');
-		$this->assertEquals('data', $result);
-		sleep(2);
-		$result = $object->get('cache-1');
-		$this->assertEquals(false, $result);
-		// test garbage collector
-		$result = $object->set('cache-2', 'data', ['tags2'], time() + 15);
-		$result = $object->gc(1, ['tags2']);
-		$this->assertEquals(true, $result);
-		$this->assertEquals(false, $object->get('cache-2'));
+		$this->assertEquals(true, file_exists($object->options['dir']));
+		// generate 25 caches, test get and set
+		$caches = [];
+		for ($i = 0; $i < 25; $i++) {
+			$cache_id = 'key-' . $i;
+			$data = 'Some test data ' . rand(1000, 9999);
+			$tags = ['+' . $cache_id, $cache_id];
+			$caches[$cache_id] = [
+				'data' => $data,
+				'tags' => $tags
+			];
+			// make sure that cache does not exists
+			$result = $object->get($cache_id);
+			$this->assertEquals(false, $result['success']);
+			// set cache
+			$result = $object->set($cache_id, $data, 25, $tags);
+			$this->assertEquals(true, $result['success']);
+			// see if cache exists
+			$result = $object->get($cache_id);
+			$this->assertEquals(true, $result['success']);
+			$this->assertEquals($data, $result['data']);
+		}
+		// test garbage collector with tags
+		$caches_left = [];
+		foreach ($caches as $cache_id => $v) {
+			if (chance(50)) {
+				$result = $object->gc(3, [$v['tags']]);
+				$this->assertEquals(true, $result['success']);
+				// in this case we must not have a cache
+				$result = $object->get($cache_id);
+				$this->assertEquals(false, $result['success']);
+			} else {
+				$result = $object->gc(3, [[$v['tags'][1]]]);
+				$this->assertEquals(true, $result['success']);
+				// in this case we must have a cache
+				$result = $object->get($cache_id);
+				$this->assertEquals(true, $result['success']);
+				$caches_left[] = $cache_id;
+			}
+		}
+		// test garbage collector with old/all caches
+		if (!empty($caches_left)) {
+			$cache_id = current($caches_left);
+			$result = $object->gc(1);
+			$this->assertEquals(true, $result['success']);
+			// in this case we must have a cache
+			$result = $object->get($cache_id);
+			$this->assertEquals(true, $result['success']);
+			// reset all caches
+			$result = $object->gc(2);
+			$this->assertEquals(true, $result['success']);
+			// in this case we must not have a cache
+			$result = $object->get($cache_id);
+			$this->assertEquals(false, $result['success']);
+		}
 		// close the object
 		$result = $object->close();
 		$this->assertEquals(true, $result['success']);

@@ -123,11 +123,8 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			'rows' => [],
 			'key' => $key,
 			'structure' => [],
-			'time' => null
+			'time' => microtime(true) // todo - move to reply
 		];
-
-		// start time
-		$result['time'] = debug::get_microtime();
 
 		// if query caching is enabled
 		if (!empty($this->connect_options['cache_link'])) {

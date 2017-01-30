@@ -15,7 +15,7 @@ CONTAINS SQL
 'BEGIN
 	DECLARE value bigint;
 	SET value = 0;
-	SELECT sm_sequence_count INTO value FROM sm_sequences WHERE sm_sequence_name = sequence_name;
+	SELECT sm_sequence_counter INTO value FROM sm_sequences WHERE sm_sequence_name = sequence_name;
 	RETURN value;
 END',
 			'footer' => ';'

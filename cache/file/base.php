@@ -1,176 +1,251 @@
 <?php
 
-class numbers_backend_cache_file_base extends numbers_backend_cache_class_base implements numbers_backend_cache_interface_base {
+/**
+ * File based cache
+ */
+class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 
 	/**
-	 * Constructing cache object
+	 * Complete result
+	 */
+	const complete_result = [
+		'success' => false,
+		'error' => [],
+		'errno' => null,
+		/* statistics */
+		'statistics' => [
+			'query_string' => null,
+			'query_start' => null,
+			'response_string' => '',
+			'response_parts' => [],
+			'response_duration' => null,
+		]
+	];
+
+	/**
+	 * Constructor
 	 *
 	 * @param string $cache_link
 	 * @param array $options
 	 */
-	public function __construct($cache_link) {
-		$this->cache_link = $cache_link;
-		$this->cache_key = application::get(['wildcard', 'keys', $cache_link, 'cache_key']);
+	public function __construct(string $cache_link, array $options = []) {
+		parent::__construct($cache_link, $options);
 	}
 
 	/**
 	 * Connect
 	 *
 	 * @param array $options
+	 *		dir
 	 * @return array
 	 */
-	public function connect($options) {
-		$result = [
-			'success' => false,
-			'error' => []
-		];
-		$this->options = $options;
-		// expiration
-		$this->options['expire'] = $this->options['expire'] ?? 7200;
-		// for deployed code the directory is different because we relate it based on code
-		if (!empty($this->options['dir']) && application::is_deployed()) {
-			$temp = $this->options['dir'][0] . $this->options['dir'][1];
-			if ($temp == './') {
-				$this->options['dir'] = './.' . $this->options['dir'];
-			} else {
-				$this->options['dir'] = '../';
-			}
-		}
+	public function connect(array $options) : array {
+		$result = self::complete_result;
+		$result['statistics']['query_start'] = microtime(true);
+		$result['statistics']['query_string'] = 'connect';
 		// check if we have valid directory
-		if (empty($this->options['dir'])) {
+		if (empty($options['dir'])) {
 			$result['error'][] = 'Cache directory does not exists or not provided!';
 		} else {
 			// fixing path
-			$this->options['dir'] = rtrim($this->options['dir'], '/') . '/';
-			// we need to create directory
-			if (!empty($this->cache_key)) {
-				$this->options['dir'].= $this->cache_key . '/';
+			$options['dir'] = rtrim($options['dir'], '/') . '/';
+			// handle cache key
+			if (!empty($this->options['cache_key'])) {
+				$options['dir'].= $this->options['cache_key'] . '/';
 			}
 			// we need to create cache directory
-			if (!is_dir($this->options['dir'])) {
-				if (!helper_file::mkdir($this->options['dir'], 0777)) {
+			if (!is_dir($options['dir'])) {
+				if (!mkdir($options['dir'], 0777, true)) {
 					$result['error'][] = 'Unable to create caching directory!';
-					return $result;
 				}
 			}
+			// add directory to the options
+			$this->options['dir'] = $options['dir'];
+		}
+		if (empty($result['error'])) {
 			$result['success'] = true;
 		}
+		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
 		return $result;
 	}
 
 	/**
 	 * Close
+	 *
+	 * @return array
 	 */
-	public function close() {
-		// 5 percent chance to call garbage collector
-		if (chance(5)) {
-			$this->gc(1);
-		}
-		return ['success' => true, 'error' => []];
+	public function close() : array {
+		$result = self::complete_result;
+		$result['statistics']['query_start'] = microtime(true);
+		$result['statistics']['query_string'] = 'close';
+		$result['statistics']['response_duration'] = 0;
+		$result['success'] = true;
+		return $result;
 	}
 
 	/**
-	 * Get data from cache
+	 * Get
 	 *
 	 * @param string $cache_id
-	 * @return mixed
+	 * @return array
 	 */
-	public function get($cache_id) {
-		// load cookie
-		$cookie_name = $this->options['dir'] . 'cache--cookie--' . $cache_id . '.data';
-		if (!file_exists($cookie_name)) {
-			return false;
-		}
-		$cookie_data = unserialize(helper_file::read($cookie_name));
-		if ($cookie_data['expire'] < time()) {
-			helper_file::delete($cookie_name);
-			helper_file::delete($cookie_data['file']);
-			return false;
-		}
-		// returning unserialized content
-		return unserialize(helper_file::read($cookie_data['file']));
+	public function get(string $cache_id) : array {
+		$result = self::complete_result;
+		$result['statistics']['query_start'] = microtime(true);
+		$result['statistics']['query_string'] = 'get ' . $cache_id;
+		$result['data'] = null;
+		do {
+			// load cookie
+			$cookie_name = $this->options['dir'] . 'cache--cookie--' . $cache_id . '.data';
+			if (!file_exists($cookie_name)) break;
+			$cookie_data = file_get_contents($cookie_name);
+			if ($cookie_data === false) {
+				$result['error'][] = 'File cache: Failed to read cookie file!';
+				$result['errno'] = 'FILECACHE_READ_COOKIE_ERROR';
+				break;
+			}
+			// convert data to array
+			$cookie_data = $this->storage_convert('get', $cookie_data);
+			// remove cookie files if expired
+			if ($cookie_data['expire'] < time()) {
+				unlink($cookie_name);
+				unlink($cookie_data['file']);
+				break;
+			}
+			// load cache file
+			$cache_data = file_get_contents($cookie_data['file']);
+			if ($cache_data === false) {
+				$result['error'][] = 'File cache: Failed to read cache file!';
+				$result['errno'] = 'FILECACHE_READ_CACHE_ERROR';
+				break;
+			}
+			// success if we got here
+			$result['data'] = $this->storage_convert('get', $cache_data);
+			$result['success'] = true;
+		} while(0);
+		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
+		return $result;
 	}
 
 	/**
-	 * Put data into cache
+	 * Set
 	 *
 	 * @param string $cache_id
 	 * @param mixed $data
-	 * @param mixed $tags
 	 * @param int $expire
-	 * @return boolean
+	 * @param array $tags
+	 * @return array
 	 */
-	public function set($cache_id, $data, $tags = [], $expire = null) {
-		// writing data first
-		$data_name = $this->options['dir'] . 'cache--' . $cache_id . '.data';
-		if (helper_file::write($data_name, serialize($data), 0777, LOCK_EX) ===false) {
-			return false;
-		}
-		// writing cookie
-		$time = time();
-		$expire = !empty($expire) ? $expire : ($time + $this->options['expire']);
-		// generating cookie array
-		if (empty($tags)) {
-			$tags = [];
-		}
-		$cookie_data = array(
-			'time' => $time,
-			'expire' => $expire,
-			'tags' => array_fix($tags),
-			'file' => $data_name
-		);
-		$cookie_name = $this->options['dir'] . 'cache--cookie--' . $cache_id . '.data';
-		return helper_file::write($cookie_name, serialize($cookie_data), 0777, LOCK_EX);
+	public function set(string $cache_id, $data, int $expire = null, array $tags = []) : array {
+		$result = self::complete_result;
+		$result['statistics']['query_start'] = microtime(true);
+		$result['statistics']['query_string'] = 'set ' . $cache_id;
+		do {
+			// writing data first
+			$data_name = $this->options['dir'] . 'cache--' . $cache_id . '.data';
+			if (file_put_contents($data_name, $this->storage_convert('set', $data), LOCK_EX) === false) {
+				$result['error'][] = 'File cache: Failed to write cache file!';
+				$result['errno'] = 'FILECACHE_WRITE_CACHE_ERROR';
+				break;
+			}
+			// prepare cookie data
+			$time = time();
+			$cookie_data = [
+				'time' => $time,
+				'expire' => $this->calculate_expire_timestamp($time, $expire),
+				'tags' => $tags,
+				'file' => $data_name
+			];
+			// writing cookie
+			$cookie_name = $this->options['dir'] . 'cache--cookie--' . $cache_id . '.data';
+			if (file_put_contents($cookie_name, $this->storage_convert('set', $cookie_data), LOCK_EX) === false) {
+				$result['error'][] = 'File cache: Failed to write cookie file!';
+				$result['errno'] = 'FILECACHE_WRITE_COOKIE_ERROR';
+				break;
+			}
+			// set file permission
+			@chmod($data_name, 0777);
+			@chmod($cookie_name, 0777);
+			// success if we got here
+			$result['success'] = true;
+		} while(0);
+		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
+		return $result;
 	}
 
 	/**
 	 * Garbage collector
 	 *
-	 * @param int $mode - 1 - old, 2 - all
+	 * @param int $mode
+	 *		1 - old
+	 *		2 - all
+	 *		3 - tag
 	 * @param array $tags
-	 * @return boolean
+	 * @return array
 	 */
-	public function gc($mode = 1, $tags = []) {
+	public function gc(int $mode = 1, array $tags = []) : array {
+		$result = self::complete_result;
+		$result['statistics']['query_start'] = microtime(true);
+		$result['statistics']['query_string'] = 'gc';
+		// get a list of cache cookies
 		if (($cookies = glob($this->options['dir'] . 'cache--cookie--*')) === false) {
-			return false;
-		}
-		$time = time();
-		$tags= array_fix($tags);
-		foreach ($cookies as $file)  {
-			$flag_delete = false;
-			do {
-				if (!is_file($file)) {
-					break;
+			$result['success'] = true;
+		} else {
+			$time = time();
+			foreach ($cookies as $file) {
+				// read cookie
+				$cookie_data = file_get_contents($file);
+				if ($cookie_data === false) {
+					continue;
 				}
-				$cookie = unserialize(helper_file::read($file));
-				// if we delete all caches
+				$cookie_data = $this->storage_convert('get', $cookie_data);
+				$flag_delete = false;
+				// all
 				if ($mode == 2) {
-					$flag_delete = true;
-					break;
+					goto delete;
 				}
-				// processing tags
-				if (!empty($tags) && !empty($cookie['tags'])) {
-					$temp = current($cookie['tags']);
-					if (is_array($temp)) {
-						$cookie['tags'] = $temp;
+				// tags
+				if ($mode == 3 && !empty($tags) && !empty($cookie_data['tags'])) {
+					$cookie_tags_processed = $this->extract_subtags_tags($cookie_data['tags']);
+					foreach ($tags as $v) {
+						$temp_tags_processed = $this->extract_subtags_tags($v);
+						// mandatory tags first
+						$flag_mandatory_check_through = false;
+						if (!empty($cookie_tags_processed['mandatory'])) {
+							if (empty($temp_tags_processed['mandatory'])) continue;
+							// every tag must be present
+							$temp = array_intersect($cookie_tags_processed['mandatory'], $temp_tags_processed['mandatory']);
+							if (!empty($temp) && count($temp) == count($cookie_tags_processed['mandatory'])) {
+								$flag_mandatory_check_through = true;
+							}
+						} else {
+							if (!empty($temp_tags_processed['mandatory'])) continue;
+							$flag_mandatory_check_through = true;
+						}
+						// optional tags
+						if ($flag_mandatory_check_through) {
+							if (array_intersect($cookie_tags_processed['optional'], $temp_tags_processed['optional'])) {
+								goto delete;
+							}
+						}
 					}
-					if (array_intersect($tags, $cookie['tags'])) {
-						$flag_delete = true;
-						break;
-					}
 				}
-				// if file expired
-				if ($time > $cookie['expire']) {
-					$flag_delete = true;
-					break;
+				// old
+				if ($mode == 1 && $time > $cookie_data['expire']) {
+					goto delete;
 				}
-			} while(0);
-			// if we need to delete
-			if ($flag_delete) {
-				unlink($file);
-				unlink($cookie['file']);
+				// if we need to delete
+				if ($flag_delete) {
+delete:
+					$result['statistics']['response_parts'][] = 'removed ' . $cookie_data['file'];
+					unlink($file);
+					unlink($cookie_data['file']);
+				}
 			}
+			// success if we got here
+			$result['success'] = true;
 		}
-		return true;
+		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
+		return $result;
 	}
 }

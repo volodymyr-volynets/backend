@@ -13,7 +13,7 @@ CONTAINS SQL
 ',
 			'body' =>
 'BEGIN
-	UPDATE sm_sequences SET sm_sequence_count = value WHERE sm_sequence_name = sequence_name;
+	UPDATE sm_sequences SET sm_sequence_counter = value WHERE sm_sequence_name = sequence_name;
 	IF(nextval IS NULL OR nextval = 0) THEN
 		RETURN value;
 	ELSE

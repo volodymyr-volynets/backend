@@ -9,6 +9,7 @@ class numbers_backend_db_class_schemas {
 	 * Get settings
 	 *
 	 * @param array $options
+	 *		db_link
 	 * @return array
 	 * @throws Exception
 	 */
@@ -70,6 +71,7 @@ class numbers_backend_db_class_schemas {
 	 * @param array $options
 	 *		db_link
 	 *		db_schema_owner
+	 *		skip_db_object
 	 * @return array
 	 */
 	public static function process_code_models($options = []) {
@@ -128,7 +130,7 @@ run_again:
 			foreach ($dep['data']['model_processed'] as $k => $v) {
 				$k2 = str_replace('.', '_', $k);
 				if ($v == 'object_table') {
-					$model = factory::model($k2, true);
+					$model = factory::model($k2, true, $options);
 					// todo: disable non default db links
 					$temp_result = $ddl->process_table_model($model, $options);
 					if (!$temp_result['success']) {
@@ -204,6 +206,7 @@ run_again:
 	 * Process schema from database
 	 *
 	 * @param array $options
+	 *		db_link
 	 * @return array
 	 */
 	public static function process_db_schema($options = []) {
@@ -238,12 +241,24 @@ run_again:
 	public static function compare_two_set_of_objects($master_objects, $slave_objects, $options = []) {
 		$ddl = new numbers_backend_db_class_ddl();
 		$result = $ddl->compare_schemas($master_objects ?? [], $slave_objects ?? [], $options);
+		// generate legend
+		$result['legend'] = [
+			'up' => [],
+			'down' => []
+		];
 		// generate hints
 		if ($result['success'] && $result['count'] > 0) {
-			foreach ($result['data'] as $k2 => $v2) {
-				$result['hint'][] = '       * ' . $k2 . ': ';
-				foreach ($v2 as $k3 => $v3) {
-					$result['hint'][] = '        * ' . $k3 . ' - ' . $v3['type'];
+			foreach (['up', 'down'] as $k0) {
+				$result['hint'][] = '       * ' . $k0 . ':';
+				foreach ($result[$k0] as $k2 => $v2) {
+					$temp = '         * ' . $k2 . ': ';
+					$result['hint'][] = $temp;
+					$result['legend'][$k0][] = $temp;
+					foreach ($v2 as $k3 => $v3) {
+						$temp = '          * ' . $k3 . ' - ' . $v3['type'];
+						$result['hint'][] = $temp;
+						$result['legend'][$k0][] = $temp;
+					}
 				}
 			}
 		}
@@ -251,76 +266,25 @@ run_again:
 	}
 
 	/**
-	 * Generate SQL from diff
+	 * Generate SQL from difference and execute if required
 	 *
 	 * @param string $db_link
 	 * @param array $diff
 	 * @param array $options
 	 *		mode
+	 *			commit
+	 *			drop
 	 *		execute
+	 *			true
+	 *			false
+	 *		legend
 	 * @return array
 	 */
-	public static function generate_sql_from_diff($db_link, $diff, $options = []) {
-		$result = [
-			'success' => false,
-			'error' => [],
-			'data' => [],
-			'count' => 0
-		];
+	public static function generate_sql_from_diff_and_execute($db_link, $diff, $options = []) {
 		$options['mode'] = $options['mode'] ?? 'commit';
 		$ddl_object = factory::get(['db', $db_link, 'ddl_object']);
-		// process column sql_type for new tables
-		if (!empty($diff['new_tables'])) {
-			foreach ($diff['new_tables'] as $k => $v) {
-				foreach ($v['data']['columns'] as $k2 => $v2) {
-					$diff['new_tables'][$k]['data']['columns'][$k2] = $ddl_object->column_sql_type($v2);
-				}
-			}
-		}
-		// new columns
-		if (!empty($diff['new_columns'])) {
-			foreach ($diff['new_columns'] as $k => $v) {
-				$diff['new_columns'][$k]['data'] = $ddl_object->column_sql_type($v['data']);
-			}
-		}
-		// column changes
-		if (!empty($diff['change_columns'])) {
-			foreach ($diff['change_columns'] as $k => $v) {
-				$diff['change_columns'][$k]['data'] = $ddl_object->column_sql_type($v['data']);
-				$diff['change_columns'][$k]['data_slave'] = $ddl_object->column_sql_type($v['data_slave']);
-			}
-		}
-		// generating sql
-		foreach ($diff as $k => $v) {
-			foreach ($v as $k2 => $v2) {
-				// we need to make fk constraints last to sort MySQL issues
-				if ($k == 'new_constraints' && $v2['type'] == 'constraint_new' && $v2['data']['type'] == 'fk') {
-					$diff[$k . '_fks'][$k2]['sql'] = $ddl_object->render_sql($v2['type'], $v2);
-				} else {
-					$diff[$k][$k2]['sql'] = $ddl_object->render_sql($v2['type'], $v2, ['mode' => $options['mode']]);
-				}
-			}
-		}
-		// if we are dropping we need to disable foregn key checks
-		if ($options['mode'] == 'drop') {
-			$backend = factory::get(['db', $db_link, 'backend']);
-			if ($backend == 'mysqli') {
-				$diff['before_execution']['foreign_key_checks']['sql'] = 'SET foreign_key_checks = 0;';
-				// we also need to unset sequences
-				unset($diff['delete_sequences']);
-			}
-		}
-		// generate plain array
-		foreach ($diff as $k => $v) {
-			foreach ($v as $k2 => $v2) {
-				if (empty($v2['sql'])) continue;
-				if (!is_array($v2['sql'])) $v2['sql'] = [$v2['sql']];
-				foreach ($v2['sql'] as $v3) {
-					$result['data'][] = $v3;
-					$result['count']++;
-				}
-			}
-		}
+		$result = $ddl_object->generate_sql_from_diff_objects($db_link, $diff, ['mode' => $options['mode']]);
+		$result['success'] = false;
 		// if we need to execute
 		if (!empty($options['execute']) && $result['count'] > 0) {
 			$db_object = factory::get(['db', $db_link, 'object']);
@@ -334,15 +298,19 @@ run_again:
 				}
 			}
 			// see if we have a migration table
-			$temp_result = $db_object->query("SELECT count(*) counter FROM (" . $db_object->sql_helper('fetch_tables') . ") a WHERE a.schema_name = '' AND table_name = 'sm_migrations'");
-			if (!empty($temp_result['rows'][0]['counter'])) {
+			$migration_model = new numbers_backend_db_class_model_migrations();
+			if ($migration_model->db_present()) {
 				$ts = format::now('timestamp');
 				$temp_result = numbers_backend_db_class_model_migrations::collection()->merge([
-					'sm_migration_timestamp' => $ts,
+					'sm_migration_db_link' => $db_link,
+					'sm_migration_type' => 'schema',
+					'sm_migration_action' => 'up',
+					'sm_migration_name' => $ts,
+					'sm_migration_developer' => application::get('developer.name') ?? 'Unknown',
 					'sm_migration_inserted' => $ts,
-					'sm_migration_changes' => json_encode([
-						'schema' => $result['data']
-					])
+					'sm_migration_legend' => json_encode($options['legend']),
+					'sm_migration_sql_counter' => count($result['data']),
+					'sm_migration_sql_changes' => json_encode($result['data'])
 				]);
 				if (!$temp_result['success']) {
 					array_merge3($result['error'], $temp_result['error']);

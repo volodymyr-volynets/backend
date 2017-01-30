@@ -10,7 +10,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 	 */
 	public function column_sql_type($column) {
 		// presetting
-		$column = parent::column_sql_type($column);
+		$column = $this->column_sql_type_base($column);
 		// simple switch would do the work
 		switch ($column['type']) {
 			case 'boolean':
@@ -217,40 +217,63 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 							}
 						}
 						break;
+					// extensions
 					case 'extensions':
 						$result['data']['extension'] = [];
 						foreach ($temp['data'] as $k4 => $v4) {
 							foreach ($v4 as $k5 => $v5) {
-								$result['data']['extension'][$k4][$k5] = [
+								if ($v5['schema_name'] == 'public') $v5['schema_name'] = '';
+								$this->object_add([
 									'type' => 'extension',
-									'schema' => $k4,
-									'name' => $k5,
+									'schema' => $v5['schema_name'],
+									'name' => $v5['extension_name'],
 									'backends' => [
 										'plsql'
 									]
-								];
+								], $db_link);
 							}
 						}
 						break;
+					// schemas
 					case 'schemas':
-						if (!empty($temp['data'])) {
-							$result['data']['schema'] = $temp['data'];
+						foreach ($temp['data'] as $k2 => $v2) {
+							$this->object_add([
+								'type' => 'schema',
+								'name' => $v2['name'],
+								'data' => [
+									'owner' => $v2['owner'],
+									'name' => $v2['name']
+								]
+							], $db_link);
 						}
 						break;
+					// sequences
 					case 'sequences':
+						// load sequence attributes
+						$sequence_attributes = [];
+						$sequence_model = factory::model('numbers_backend_db_class_model_sequences', true);
+						if ($sequence_model->db_present()) {
+							$sequence_attributes = $sequence_model->get();
+						}
+						// add sequences
 						foreach ($temp['data'] as $k2 => $v2) {
-							if ($k2 == 'public') {
-								$k2 = '';
-							}
 							foreach ($v2 as $k3 => $v3) {
-								$result['data']['sequence'][$k2][$k3] = [
-									'owner' => $v3['sequence_owner'],
-									'full_sequence_name' => ltrim($k2 . '.' . $v3['sequence_name'], '.'),
-									'type' => $v3['type'],
-									'prefix' => $v3['prefix'],
-									'length' => $v3['length'],
-									'suffix' => $v3['suffix']
-								];
+								if ($v3['schema_name'] == 'public') $v3['schema_name'] = '';
+								$full_sequence_name = ltrim($v3['schema_name'] . '.' . $v3['sequence_name'], '.');
+								$this->object_add([
+									'type' => 'sequence',
+									'schema' => $v3['schema_name'],
+									'name' => $v3['sequence_name'],
+									'data' => [
+										'owner' => $v3['sequence_owner'],
+										'full_sequence_name' => $full_sequence_name,
+										'full_table_name' => $v3['full_table_name'],
+										'type' => $sequence_attributes[$full_sequence_name]['sm_sequence_type'] ?? 'global_simple',
+										'prefix' => $sequence_attributes[$full_sequence_name]['sm_sequence_prefix'] ?? '',
+										'suffix' => $sequence_attributes[$full_sequence_name]['sm_sequence_suffix'] ?? '',
+										'length' => $sequence_attributes[$full_sequence_name]['sm_sequence_length'] ?? 0
+									]
+								], $db_link);
 							}
 						}
 						break;
@@ -318,21 +341,6 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 					ORDER BY name
 TTT;
 				break;
-/*
-			case 'tables':
-				$key = array('schema_name', 'table_name');
-				$sql = <<<TTT
-					SELECT
-							schemaname schema_name,
-							tablename table_name,
-							tableowner table_owner
-					FROM pg_tables a
-					WHERE 1=1
-							AND schemaname NOT IN ('pg_catalog', 'information_schema')
-					ORDER BY schema_name, table_name
-TTT;
-				break;
-*/
 			case 'constraints':
 				$key = array('constraint_type', 'schema_name', 'table_name', 'constraint_name');
 				$sql = <<<TTT
@@ -525,6 +533,20 @@ TTT;
 				$key = array('schema_name', 'sequence_name');
 				$sql = <<<TTT
 					SELECT
+						s2.nspname schema_name,
+						a.relname sequence_name,
+						r.rolname sequence_owner,
+						(CASE WHEN s1.nspname = 'public' THEN '' ELSE s1.nspname END) || '.' || t.relname full_table_name
+					FROM pg_class a
+					INNER JOIN pg_catalog.pg_roles r ON r.oid = a.relowner
+					INNER JOIN pg_namespace s2 ON s2.oid = a.relnamespace
+					LEFT JOIN pg_depend d ON d.objid = a.oid AND d.deptype = 'a'
+					LEFT JOIN pg_class t ON d.objid = a.oid AND d.refobjid = t.oid
+					LEFT JOIN pg_namespace s1 ON s1.oid = t.relnamespace
+					WHERE a.relkind = 'S'
+TTT;
+/**
+					SELECT
 							s.nspname schema_name,
 							c.relname sequence_name,
 							c.rolname sequence_owner,
@@ -554,7 +576,7 @@ TTT;
 							INNER JOIN pg_namespace n ON n.oid = s.relnamespace
 							WHERE s.relkind = 'S'
 						)
-TTT;
+*/
 				break;
 			case 'functions':
 				$key = array('schema_name', 'function_name');
@@ -573,7 +595,6 @@ TTT;
 							AND p.proisagg = 'f'
 TTT;
 				break;
-
 			case 'extensions':
 				$key = array('schema_name', 'extension_name');
 				$sql = <<<TTT
@@ -634,14 +655,14 @@ TTT;
 		$result = '';
 		switch ($type) {
 			// extension
-			case 'extension':
-				$result = "CREATE EXTENSION {$data['data']['name']} SCHEMA {$data['data']['schema']};";
+			case 'extension_new':
+				$result = "CREATE EXTENSION {$data['name']} SCHEMA {$data['schema']};";
 				break;
 			case 'extension_delete':
-				$result = "DROP EXTENSION {$data['data']['name']};";
+				$result = "DROP EXTENSION {$data['name']};";
 				break;
 			// schema
-			case 'schema':
+			case 'schema_new':
 				$result = "CREATE SCHEMA {$data['data']['name']} AUTHORIZATION {$data['data']['owner']};";
 				break;
 			case 'schema_owner':
@@ -690,7 +711,7 @@ TTT;
 				$result = "ALTER TABLE {$data['data']['full_table_name']} OWNER TO {$data['data']['owner']};";
 				break;
 			case 'table_new':
-				$columns = array();
+				$columns = [];
 				foreach ($data['data']['columns'] as $k => $v) {
 					$columns[] = $this->render_sql('column_new', ['table' => '', 'name' => $k, 'data' => $v], ['column_new_no_alter' => true]);
 				}
@@ -743,40 +764,26 @@ TTT;
 				$temp = explode('.', $data['table']);
 				$result = "DROP INDEX {$temp[0]}.{$data['name']};";
 				break;
-			// domains
-			case 'domain_new':
-				$result = "CREATE DOMAIN {$data['name']} AS {$data['definition']['data_type']}" . ($data['definition']['domain_default']!==null ? (' DEFAULT ' . $data['definition']['domain_default']) : '') . (!empty($data['definition']['is_nullable']) ? (' ' . $data['definition']['is_nullable']) : '') . ";\n";
-				// adding constraints
-				if (!empty($data['definition']['constraint_name'])) {
-					foreach ($data['definition']['constraint_name'] as $k=>$v) {
-						$result.= "ALTER DOMAIN {$data['name']} ADD CONSTRAINT {$v} {$data['definition']['constraint_definition'][$k]};\n"; 
-					}
-				}
-				// adding owner name
-				$result.= "ALTER DOMAIN {$data['name']} OWNER TO {$data['owner']};";
-				break;
-			case 'domain_delete':
-				$result = "DROP DOMAIN {$data['name']};";
-				break;
-			case 'domain_owner':
-				$result.= "ALTER DOMAIN {$data['name']} OWNER TO {$data['owner']};";
-				break;
 			// sequences
-			case 'sequences_new':
+			case 'sequence_new':
 				$result = [];
-				$result[]= "CREATE SEQUENCE {$data['name']} START 1;";
-				$result[]= "ALTER SEQUENCE {$data['name']} OWNER TO {$data['owner']};";
+				if (empty($data['data']['full_table_name'])) {
+					$result[]= "CREATE SEQUENCE {$data['data']['full_sequence_name']} START 1;";
+					$result[]= "ALTER SEQUENCE {$data['data']['full_sequence_name']} OWNER TO {$data['data']['owner']};";
+				}
+				// insert entry into sequences table
+				$model = new numbers_backend_db_class_model_sequences();
 				$result[]= <<<TTT
-					INSERT INTO sm_sequences (
+					INSERT INTO {$model->full_table_name} (
 						sm_sequence_name,
 						sm_sequence_description,
 						sm_sequence_prefix,
 						sm_sequence_length,
 						sm_sequence_suffix,
-						sm_sequence_count,
+						sm_sequence_counter,
 						sm_sequence_type
 					) VALUES (
-						'{$data['name']}',
+						'{$data['data']['full_sequence_name']}',
 						null,
 						'{$data['data']['prefix']}',
 						{$data['data']['length']},
@@ -788,9 +795,12 @@ TTT;
 				break;
 			case 'sequence_delete':
 				$result = [];
-				$result[]= "DROP SEQUENCE {$data['name']};";
+				if (empty($data['data']['full_table_name'])) {
+					$result[]= "DROP SEQUENCE {$data['data']['full_sequence_name']};";
+				}
 				if (($options['mode'] ?? '') != 'drop') {
-					$result[]= "DELETE FROM sm_sequences WHERE sm_sequence_name = '{$data['name']}'";
+					$model = new numbers_backend_db_class_model_sequences();
+					$result[]= "DELETE FROM {$model->full_table_name} WHERE sm_sequence_name = '{$data['data']['full_sequence_name']}'";
 				}
 				break;
 			case 'sequence_owner':
