@@ -230,13 +230,37 @@ abstract class numbers_backend_db_class_migration_base {
 			// log migration
 			$migration_model = new numbers_backend_db_class_model_migrations();
 			if ($migration_model->db_present()) {
+				// insert new migration record
 				$temp_result = numbers_backend_db_class_model_migrations::collection()->merge($this->executed_migration_stats);
 				if (!$temp_result['success']) {
 					Throw new Exception(implode("\n", $temp_result['error']));
 				}
+				// mark original up migration as rolled back
+				if ($type == 'down') {
+					$temp = $migration_model->get([
+						'where' => [
+							'sm_migration_db_link' => $this->db_link,
+							'sm_migration_type' => 'migration',
+							'sm_migration_action' => 'up',
+							'sm_migration_name' => $this->executed_migration_stats['sm_migration_name'],
+							'sm_migration_rolled_back' => 0
+						],
+						'columns' => [
+							'sm_migration_id'
+						]
+					]);
+					if (empty($temp)) {
+						Throw new Exception('Could not find original up migration!');
+					}
+					$temp_result = numbers_backend_db_class_model_migrations::collection()->merge([
+						'sm_migration_id' => key($temp),
+						'sm_migration_rolled_back' => 1
+					]);
+					if (!$temp_result['success']) {
+						Throw new Exception(implode("\n", $temp_result['error']));
+					}
+				}
 			}
-			//$this->db_object->rollback();
-			//Throw new Exception('Test');
 			$this->db_object->commit();
 			$result['success'] = true;
 		} catch (Exception $e) {
