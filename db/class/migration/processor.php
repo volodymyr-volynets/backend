@@ -254,6 +254,7 @@ class numbers_backend_db_class_migration_processor {
 		foreach (['up', 'down'] as $k0) {
 			foreach ($data[$k0] as $k => $v) {
 				foreach ($v as $k2 => $v2) {
+					$v2['migration_id']*= 10;
 					$data_variable = var_export_condensed($v2);
 					$temp[$k0][] = "\t\t\$this->process('{$k}', {$v2['migration_id']}, '{$k2}', $data_variable);";
 				}

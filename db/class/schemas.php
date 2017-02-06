@@ -28,7 +28,8 @@ class numbers_backend_db_class_schemas {
 		$default = application::get('db.' . $result['db_link']);
 		$default_schema = application::get('db.' . $result['db_link'] . '_schema');
 		$result['db_settings'] = [
-			'submodule' => $default['submodule']
+			'submodule' => $default['submodule'],
+			'cache_link' => $default['cache_link'] ?? null
 		];
 		$temp = current($default['servers']);
 		if (!empty($default_schema)) {
@@ -86,6 +87,7 @@ class numbers_backend_db_class_schemas {
 				'object_relations' => []
 			],
 			'objects' => [],
+			'permissions' => [],
 			'count' => []
 		];
 		do {
@@ -193,6 +195,24 @@ run_again:
 			// if we have erros
 			if (!empty($result['error'])) {
 				break;
+			}
+			// generate permissions array
+			foreach ($ddl->objects as $k => $v) {
+				foreach ($v as $k2 => $v2) {
+					// skip objects that does not have owner
+					if (in_array($k2, ['constraint', 'index'])) continue;
+					// loop through actual objects
+					foreach ($v2 as $k3 => $v3) {
+						if ($k2 == 'schema') {
+							$result['permissions'][$k][$k2][$k3] = $k3;
+						} else {
+							foreach ($v3 as $k4 => $v4) {
+								$name = ltrim($k3 . '.' . $k4, '.');
+								$result['permissions'][$k][$k2][$name] = $name;
+							}
+						}
+					}
+				}
 			}
 			// if we got here - we are ok
 			$result['success'] = true;
@@ -320,6 +340,114 @@ run_again:
 			$db_object->commit();
 		}
 		$result['success'] = true;
+		return $result;
+	}
+
+	/**
+	 * Set permissions
+	 *
+	 * @param string $db_link
+	 * @param string $db_query_owner
+	 * @param array $objects
+	 * @param array $options
+	 *		database - database name
+	 * @return array
+	 */
+	public static function set_permissions($db_link, $db_query_owner, $objects, $options = []) {
+		$result = [
+			'success' => false,
+			'error' => [],
+			'count' => 0,
+			'legend' => []
+		];
+		// ddl object
+		$ddl_object = factory::get(['db', $db_link, 'ddl_object']);
+		$sqls = [];
+		// step 1: revoke all priviledges on database
+		$temp = $ddl_object->render_sql('permission_revoke_all', [
+			'database' => $options['database'],
+			'owner' => $db_query_owner
+		]);
+		if (!empty($temp)) {
+			$sqls[] = $temp;
+			$result['legend'][] = "         * Revoke all privileges on database {$options['database']} from {$db_query_owner}";
+		}
+		// step 2: schemas
+		if (!empty($objects['schema'])) {
+			foreach ($objects['schema'] as $v) {
+				$temp = $ddl_object->render_sql('permission_grant_schema', [
+					'schema' => $v,
+					'owner' => $db_query_owner
+				]);
+				if (!empty($temp)) {
+					$sqls[] = $temp;
+					$result['legend'][] = "         * Grant usage on schema {$v} to {$db_query_owner}";
+				}
+			}
+		}
+		// step 3: tables
+		if (!empty($objects['table'])) {
+			foreach ($objects['table'] as $v) {
+				$temp = $ddl_object->render_sql('permission_grant_table', [
+					'table' => $v,
+					'owner' => $db_query_owner
+				]);
+				if (!empty($temp)) {
+					$sqls[] = $temp;
+					$result['legend'][] = "         * Grant SELECT, INSERT, UPDATE, DELETE on table {$v} to {$db_query_owner}";
+				}
+			}
+		}
+		// step 4: sequences
+		if (!empty($objects['sequence'])) {
+			foreach ($objects['sequence'] as $v) {
+				$temp = $ddl_object->render_sql('permission_grant_sequence', [
+					'sequence' => $v,
+					'owner' => $db_query_owner
+				]);
+				if (!empty($temp)) {
+					$sqls[] = $temp;
+					$result['legend'][] = "         * Grant USAGE, SELECT, UPDATE on sequence {$v} to {$db_query_owner}";
+				}
+			}
+		}
+		// if we have changes
+		if (!empty($sqls)) {
+			array_unshift($result['legend'], '       * permission:');
+			$db_object = factory::get(['db', $db_link, 'object']);
+			$db_object->begin();
+			foreach ($sqls as $v) {
+				$temp_result = $db_object->query($v);
+				if (!$temp_result['success']) {
+					array_merge3($result['error'], $temp_result['error']);
+					$db_object->rollback();
+					return $result;
+				}
+			}
+			// see if we have a migration table
+			$migration_model = new numbers_backend_db_class_model_migrations();
+			if ($migration_model->db_present()) {
+				$ts = format::now('timestamp');
+				$temp_result = numbers_backend_db_class_model_migrations::collection()->merge([
+					'sm_migration_db_link' => $db_link,
+					'sm_migration_type' => 'permission',
+					'sm_migration_action' => 'update',
+					'sm_migration_name' => $ts,
+					'sm_migration_developer' => application::get('developer.name') ?? 'Unknown',
+					'sm_migration_inserted' => $ts,
+					'sm_migration_legend' => json_encode($result['legend']),
+					'sm_migration_sql_counter' => count($sqls),
+					'sm_migration_sql_changes' => json_encode($sqls)
+				]);
+				if (!$temp_result['success']) {
+					array_merge3($result['error'], $temp_result['error']);
+					return $result;
+				}
+			}
+			$db_object->commit();
+		}
+		$result['success'] = true;
+		$result['count'] = count($sqls);
 		return $result;
 	}
 }

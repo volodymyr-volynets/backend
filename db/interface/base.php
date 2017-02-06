@@ -1,7 +1,7 @@
 <?php
 
 interface numbers_backend_db_interface_base {
-	public function connect($options);
+	public function connect(array $options) : array;
 	public function begin();
 	public function escape($value);
 	public function escape_array($value);

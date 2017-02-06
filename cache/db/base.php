@@ -3,11 +3,40 @@
 class numbers_backend_cache_db_base extends numbers_backend_cache_class_base implements numbers_backend_cache_interface_base {
 
 	/**
+	 * Complete result
+	 */
+	const complete_result = [
+		'success' => false,
+		'error' => [],
+		'errno' => null,
+		/* statistics */
+		'statistics' => [
+			'query_string' => null,
+			'query_start' => null,
+			'response_string' => '',
+			'response_parts' => [],
+			'response_duration' => null,
+		]
+	];
+
+	/**
 	 * Model
 	 *
 	 * @var object
 	 */
 	private $model_cache;
+
+	/**
+	 * Constructor
+	 *
+	 * @param string $cache_link
+	 * @param array $options
+	 */
+	public function __construct(string $cache_link, array $options = []) {
+		parent::__construct($cache_link, $options);
+		// initialize model
+		$this->model_cache = new numbers_backend_cache_db_model_cache();
+	}
 
 	/**
 	 * Constructing cache object
@@ -28,7 +57,7 @@ class numbers_backend_cache_db_base extends numbers_backend_cache_class_base imp
 	 * @param array $options
 	 * @return array
 	 */
-	public function connect($options) {
+	public function connect(array $options) : array {
 		$this->options = $options;
 		// expiration
 		$this->options['expire'] = $this->options['expire'] ?? 7200;

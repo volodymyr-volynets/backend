@@ -22,23 +22,12 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	];
 
 	/**
-	 * Constructing database object
-	 *
-	 * @param string $db_link
-	 */
-	public function __construct($db_link) {
-		$this->db_link = $db_link;
-		// keywords overrides
-		$this->sql_keywords = array_merge_hard($this->sql_keywords, $this->sql_keywords_overrides);
-	}
-
-	/**
 	 * Connect to database
 	 *
 	 * @param array $options
 	 * @return array
 	 */
-	public function connect($options) {
+	public function connect(array $options) : array {
 		$result = [
 			'version' => null,
 			'status' => 0,
@@ -55,7 +44,6 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		$connection = pg_connect($str);
 		if ($connection !== false) {
 			$this->db_resource = $connection;
-			$this->connect_options = $options;
 			$this->commit_status = 0;
 			pg_set_error_verbosity($connection, PGSQL_ERRORS_VERBOSE);
 			pg_set_client_encoding($connection, 'UNICODE');

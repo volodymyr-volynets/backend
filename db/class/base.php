@@ -17,11 +17,11 @@ class numbers_backend_db_class_base {
 	private $db_resource;
 
 	/**
-	 * Connection details
+	 * Options
 	 *
-	 * @var type
+	 * @var array
 	 */
-	public $connect_options;
+	public $options = [];
 
 	/**
 	 * Commit status of the transaction
@@ -38,6 +38,17 @@ class numbers_backend_db_class_base {
 	public $sql_keywords = [
 		'like' => 'LIKE'
 	];
+
+	/**
+	 * Constructor
+	 *
+	 * @param string $db_link
+	 * @param array $options
+	 */
+	public function __construct(string $db_link, array $options = []) {
+		$this->db_link = $db_link;
+		$this->options = $options;
+	}
 
 	/**
 	 * Prepare keys

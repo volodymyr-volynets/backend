@@ -161,6 +161,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 								}
 								foreach ($v3 as $k4 => $v4) {
 									foreach ($v4 as $k5 => $v5) {
+										$constraint_type = 'constraint';
 										if ($k3 == '') {
 											$full_table_name = $v5['table_name'];
 										} else {
@@ -180,10 +181,11 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 											];
 										} else if ($v5['constraint_type'] == 'INDEX') {
 											$temp2 = [
-												'type' => $v5['index_type'],
+												'type' => mixedtolower($v5['index_type']),
 												'columns' => $v5['column_names'],
 												'full_table_name' => $full_table_name
 											];
+											$constraint_type = 'index';
 										} else if ($v5['constraint_type'] == 'FOREIGN_KEY') {
 											$name2 = ($k3 == '') ? $v5['foreign_table_name'] : ($v5['foreign_schema_name'] . '.' . $v5['foreign_table_name']);
 											if ($v5['match_option'] == 'NONE') $v5['match_option'] = 'SIMPLE';
@@ -206,7 +208,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 										}
 										// add constraint
 										$this->object_add([
-											'type' => 'constraint',
+											'type' => $constraint_type,
 											'schema' => $k3,
 											'table' => $v5['table_name'],
 											'name' => $k5,
@@ -666,7 +668,7 @@ TTT;
 				$result = "CREATE SCHEMA {$data['data']['name']} AUTHORIZATION {$data['data']['owner']};";
 				break;
 			case 'schema_owner':
-				$result = "ALTER SCHEMA {$data['data']['name']} OWNER TO {$data['data']['owner']};";
+				$result = "ALTER SCHEMA {$data['schema']} OWNER TO {$data['owner']};";
 				break;
 			case 'schema_delete':
 				$result = "DROP SCHEMA {$data['data']['name']};";
@@ -707,9 +709,6 @@ TTT;
 				}
 				break;
 			// table
-			case 'table_owner':
-				$result = "ALTER TABLE {$data['data']['full_table_name']} OWNER TO {$data['data']['owner']};";
-				break;
 			case 'table_new':
 				$columns = [];
 				foreach ($data['data']['columns'] as $k => $v) {
@@ -720,6 +719,10 @@ TTT;
 				$result2.= "\n);";
 				$result = [$result2];
 				$result[]= "ALTER TABLE {$data['data']['full_table_name']} OWNER TO {$data['data']['owner']};";
+				break;
+			case 'table_owner':
+				$name = ltrim($data['schema'] . '.' . $data['name'], '.');
+				$result = "ALTER TABLE {$name} OWNER TO {$data['owner']};";
 				break;
 			case 'table_delete':
 				$result = "DROP TABLE {$data['data']['full_table_name']} CASCADE;";
@@ -804,7 +807,8 @@ TTT;
 				}
 				break;
 			case 'sequence_owner':
-				$result = "ALTER SEQUENCE {$data['name']} OWNER TO {$data['owner']};";
+				$name = ltrim($data['schema'] . '.' . $data['name'], '.');
+				$result = "ALTER SEQUENCE {$name} OWNER TO {$data['owner']};";
 				break;
 			// functions
 			case 'function_new':
@@ -828,6 +832,18 @@ TTT;
 			case 'trigger_change':
 				$result = "DROP TRIGGER {$data['name']} ON {$data['table']};\n";
 				$result.= trim($data['definition']) . ";";
+				break;
+			case 'permission_revoke_all':
+				$result = "REVOKE ALL PRIVILEGES ON DATABASE {$data['database']} FROM {$data['owner']};";
+				break;
+			case 'permission_grant_schema':
+				$result = "GRANT USAGE ON SCHEMA {$data['schema']} TO {$data['owner']};";
+				break;
+			case 'permission_grant_table':
+				$result = "GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE {$data['table']} TO {$data['owner']};";
+				break;
+			case 'permission_grant_sequence':
+				$result = "GRANT USAGE, SELECT, UPDATE ON SEQUENCE {$data['sequence']} TO {$data['owner']};";
 				break;
 			default:
 				// nothing

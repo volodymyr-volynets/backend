@@ -468,12 +468,21 @@ class numbers_backend_db_class_ddl {
 					$result['down']['delete_schemas'][$k] = $v;
 					// count
 					$result['count']++;
-				} else if ($v['owner'] != $obj_slave['schema'][$k]['owner']) { // owner
+				} else if ($v['data']['owner'] != $obj_slave['schema'][$k]['data']['owner']) { // owner
 					// up
-					$v['type'] = 'schema_owner';
-					$result['up']['new_schema_owners'][$k] = $v;
+					$result['up']['new_schema_owners'][$k] = [
+						'type' => 'schema_owner',
+						'schema' => $k,
+						'name' => null,
+						'owner' => $v['data']['owner']
+					];
 					// down
-					// todo
+					$result['down']['new_schema_owners'][$k] = [
+						'type' => 'schema_owner',
+						'schema' => $k,
+						'name' => null,
+						'owner' => $obj_slave['schema'][$k]['data']['owner']
+					];
 					// count
 					$result['count']++;
 				}
@@ -512,12 +521,22 @@ class numbers_backend_db_class_ddl {
 						$result['down']['delete_tables'][$v2['data']['full_table_name']] = $v2;
 						// count
 						$result['count']++;
-					} else if ($v2['owner'] != $obj_slave['table'][$k][$k2]['owner']) { // owner
+					} else if ($v2['data']['owner'] != $obj_slave['table'][$k][$k2]['data']['owner']) { // owner
 						// up
-						$v2['type'] = 'table_owner';
-						$result['up']['new_table_owners'][$v2['data']['full_table_name']] = $v2;
+						$result['up']['new_table_owners'][$v2['data']['full_table_name']] = [
+							'type' => 'table_owner',
+							'schema' => $k,
+							'name' => $k2,
+							'owner' => $v2['data']['owner']
+						];
 						// down
-						// todo
+						$result['down']['new_table_owners'][$v2['data']['full_table_name']] = [
+							'type' => 'table_owner',
+							'schema' => $k,
+							'name' => $k2,
+							'owner' => $obj_slave['table'][$k][$k2]['data']['owner']
+						];
+						// count
 						$result['count']++;
 					}
 				}
@@ -710,49 +729,42 @@ class numbers_backend_db_class_ddl {
 						} else {
 							// comparing structure
 							$temp_error = false;
-							if ($v3['type'] != $obj_slave['constraint'][$k][$k2][$k3]['type']) {
+							if ($v3['data']['type'] != $obj_slave['constraint'][$k][$k2][$k3]['data']['type']) {
 								$temp_error = true;
 							}
-							if ($v3['full_table_name'] != $obj_slave['constraint'][$k][$k2][$k3]['full_table_name']) {
+							if ($v3['data']['full_table_name'] != $obj_slave['constraint'][$k][$k2][$k3]['data']['full_table_name']) {
 								$temp_error = true;
 							}
-							if (!array_compare_level1($v3['columns'], $obj_slave['constraint'][$k][$k2][$k3]['columns'])) {
+							if (!array_compare_level1($v3['data']['columns'], $obj_slave['constraint'][$k][$k2][$k3]['data']['columns'])) {
 								$temp_error = true;
 							}
 							// additiona verifications for fk constraints
-							if ($v3['type'] == 'fk') {
-								if ($v3['foreign_table'] != $obj_slave['constraint'][$k][$k2][$k3]['foreign_table']) {
+							if ($v3['data']['type'] == 'fk') {
+								if ($v3['data']['foreign_table'] != $obj_slave['constraint'][$k][$k2][$k3]['data']['foreign_table']) {
 									$temp_error = true;
 								}
-								if (!array_compare_level1($v3['foreign_columns'], $obj_slave['constraint'][$k][$k2][$k3]['foreign_columns'])) {
+								if (!array_compare_level1($v3['data']['foreign_columns'], $obj_slave['constraint'][$k][$k2][$k3]['data']['foreign_columns'])) {
 									$temp_error = true;
 								}
 								// compare options
-								if ($v3['options']['match'] !== $obj_slave['constraint'][$k][$k2][$k3]['options']['match']) $temp_error = true;
-								if ($v3['options']['update'] !== $obj_slave['constraint'][$k][$k2][$k3]['options']['update']) $temp_error = true;
-								if ($v3['options']['delete'] !== $obj_slave['constraint'][$k][$k2][$k3]['options']['delete']) $temp_error = true;
+								if ($v3['data']['options']['match'] !== $obj_slave['constraint'][$k][$k2][$k3]['data']['options']['match']) $temp_error = true;
+								if ($v3['data']['options']['update'] !== $obj_slave['constraint'][$k][$k2][$k3]['data']['options']['update']) $temp_error = true;
+								if ($v3['data']['options']['delete'] !== $obj_slave['constraint'][$k][$k2][$k3]['data']['options']['delete']) $temp_error = true;
 							}
 							// if we have an error we rebuild
 							if ($temp_error) {
-								// debug of fk issues
-								/*
-								print_r2($k3);
-								print_r2($obj_slave['constraint'][$k][$k2][$k3]);
-								print_r2($v3);
-								exit;
-								*/
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_slave = $obj_slave['constraint'][$k][$k2][$k3];
 								$v3_slave['migration_id'] = $result['count'] + 1;
 								// up
-								$v3['type'] = 'constraint_delete';
+								$v3_slave['type'] = 'constraint_delete';
 								$result['up']['delete_constraints'][$name] = $v3_slave;
 								$v3['type'] = 'constraint_new';
 								$result['up']['new_constraints'][$name] = $v3;
 								// down
 								$v3['type'] = 'constraint_delete';
 								$result['down']['delete_constraints'][$name] = $v3;
-								$v3['type'] = 'constraint_new';
+								$v3_slave['type'] = 'constraint_new';
 								$result['down']['new_constraints'][$name] = $v3_slave;
 								// count
 								$result['count']++;
@@ -785,44 +797,48 @@ class numbers_backend_db_class_ddl {
 			}
 		}
 
-		// new indexes
-		// todo
+		// new/changed indexes
 		if (!empty($obj_master['index'])) {
 			foreach ($obj_master['index'] as $k => $v) {
 				foreach ($v as $k2 => $v2) {
 					foreach ($v2 as $k3 => $v3) {
+						$name = ltrim($k . '.' . $k2 . '.' . $k3, '.');
 						if (empty($obj_slave['index'][$k][$k2][$k3])) {
-							$result['up']['new_indexes'][$k . '.' . $k2 . '.' . $k3] = [
-								'type' => 'index_new',
-								'name' => $k3,
-								'table' => $v3['full_table_name'],
-								'data' => $v3
-							];
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'index_new';
+							$result['up']['new_indexes'][$name] = $v3;
+							// down
+							$v3['type'] = 'index_delete';
+							$result['down']['delete_indexes'][$name] = $v3;
+							// count
 							$result['count']++;
 						} else {
 							// comparing structure
 							$temp_error = false;
-							if ($v3['type'] != $obj_slave['index'][$k][$k2][$k3]['type']) {
+							if ($v3['data']['type'] != $obj_slave['index'][$k][$k2][$k3]['data']['type']) {
 								$temp_error = true;
 							}
-							if (!array_compare_level1($v3['columns'], $obj_slave['index'][$k][$k2][$k3]['columns'])) {
+							if (!array_compare_level1($v3['data']['columns'], $obj_slave['index'][$k][$k2][$k3]['data']['columns'])) {
 								$temp_error = true;
 							}
 							// if discrepancy
 							if ($temp_error) {
-								$result['up']['delete_indexes'][$k . '.' . $k2 . '.' . $k3] = [
-									'type' => 'index_delete',
-									'name' => $k3,
-									'table' => $v3['full_table_name'],
-									'data' => $obj_slave['index'][$k][$k2][$k3]
-								];
-								$result['up']['new_indexes'][$k . '.' . $k2 . '.' . $k3] = [
-									'type' => 'index_new',
-									'name' => $k3,
-									'table' => $v3['full_table_name'],
-									'data' => $v3
-								];
-								$result['count']+= 1;
+								$v3['migration_id'] = $result['count'] + 1;
+								$v3_slave = $obj_slave['index'][$k][$k2][$k3];
+								$v3_slave['migration_id'] = $result['count'] + 1;
+								// up
+								$v3_slave['type'] = 'index_delete';
+								$result['up']['delete_indexes'][$name] = $v3_slave;
+								$v3['type'] = 'index_new';
+								$result['up']['new_indexes'][$name] = $v3;
+								// down
+								$v3['type'] = 'index_delete';
+								$result['down']['delete_indexes'][$name] = $v3;
+								$v3_slave['type'] = 'index_new';
+								$result['down']['new_indexes'][$name] = $v3_slave;
+								// count
+								$result['count']++;
 							}
 						}
 					}
@@ -836,12 +852,15 @@ class numbers_backend_db_class_ddl {
 				foreach ($v as $k2 => $v2) {
 					foreach ($v2 as $k3 => $v3) {
 						if (empty($obj_master['index'][$k][$k2][$k3])) {
-							$result['up']['delete_indexes'][$k . '.' . $k2 . '.' . $k3] = [
-								'type' => 'index_delete',
-								'name' => $k3,
-								'table' => $v3['full_table_name'],
-								'data' => $v3
-							];
+							$name = ltrim($k . '.' . $k2 . '.' . $k3, '.');
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'index_delete';
+							$result['up']['delete_indexes'][$name] = $v3;
+							// down
+							$v3['type'] = 'index_new';
+							$result['down']['new_indexes'][$name] = $v3;
+							// count
 							$result['count']++;
 						}
 					}
@@ -865,12 +884,21 @@ class numbers_backend_db_class_ddl {
 						$result['down']['delete_sequences'][$name] = $v2;
 						// count
 						$result['count']++;
-					} else if ($v2['owner'] != $obj_slave['sequence'][$k][$k2]['owner']) { // owner
+					} else if ($v2['data']['owner'] != $obj_slave['sequence'][$k][$k2]['data']['owner']) { // owner
 						// up
-						$v2['type'] = 'sequence_owner';
-						$result['up']['new_sequence_owners'][$name] = $v2;
+						$result['up']['new_sequence_owners'][$name] = [
+							'type' => 'sequence_owner',
+							'schema' => $k,
+							'name' => $k2,
+							'owner' => $v2['data']['owner']
+						];
 						// down
-						// todo
+						$result['down']['new_sequence_owners'][$name] = [
+							'type' => 'sequence_owner',
+							'schema' => $k,
+							'name' => $k2,
+							'owner' => $obj_slave['sequence'][$k][$k2]['data']['owner']
+						];
 						// count
 						$result['count']++;
 					}
@@ -953,7 +981,6 @@ class numbers_backend_db_class_ddl {
 		}
 
 		// if we delete tables there's no need to delete constrants and/or indexes
-		/* todo - refactor
 		foreach (['up', 'down'] as $k0) {
 			foreach ($result[$k0]['delete_tables'] as $k => $v) {
 				// unsetting constraints
@@ -970,7 +997,6 @@ class numbers_backend_db_class_ddl {
 				}
 			}
 		}
-		*/
 
 		// final step clean up empty keys
 		foreach (['up', 'down'] as $k0) {
