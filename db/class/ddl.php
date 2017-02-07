@@ -37,6 +37,12 @@ class numbers_backend_db_class_ddl {
 			$this->objects[$db_link][$object['type']][$object['schema']][$object['table']][$object['name']] = $object;
 		} else if (in_array($object['type'], ['column_new', 'column_change'])) {
 			$this->objects[$db_link]['table'][$object['schema']][$object['table']]['data']['columns'][$object['name']] = $object['data'];
+		} else if (in_array($object['type'], ['table_owner', 'sequence_owner'])) {
+			$temp = str_replace('_owner', '', $object['type']);
+			$this->objects[$db_link][$temp][$object['schema']][$object['name']]['data']['owner'] = $object['owner'];
+		} else if ($object['type'] == 'schema_owner') {
+			$temp = str_replace('_owner', '', $object['type']);
+			$this->objects[$db_link][$temp][$object['schema']]['data']['owner'] = $object['owner'];
 		}
 		$this->count[$db_link]['Total']++;
 		$this->count[$db_link][$type]++;
@@ -474,14 +480,16 @@ class numbers_backend_db_class_ddl {
 						'type' => 'schema_owner',
 						'schema' => $k,
 						'name' => null,
-						'owner' => $v['data']['owner']
+						'owner' => $v['data']['owner'],
+						'migration_id' => $result['count'] + 1
 					];
 					// down
 					$result['down']['new_schema_owners'][$k] = [
 						'type' => 'schema_owner',
 						'schema' => $k,
 						'name' => null,
-						'owner' => $obj_slave['schema'][$k]['data']['owner']
+						'owner' => $obj_slave['schema'][$k]['data']['owner'],
+						'migration_id' => $result['count'] + 1
 					];
 					// count
 					$result['count']++;
@@ -527,14 +535,16 @@ class numbers_backend_db_class_ddl {
 							'type' => 'table_owner',
 							'schema' => $k,
 							'name' => $k2,
-							'owner' => $v2['data']['owner']
+							'owner' => $v2['data']['owner'],
+							'migration_id' => $result['count'] + 1
 						];
 						// down
 						$result['down']['new_table_owners'][$v2['data']['full_table_name']] = [
 							'type' => 'table_owner',
 							'schema' => $k,
 							'name' => $k2,
-							'owner' => $obj_slave['table'][$k][$k2]['data']['owner']
+							'owner' => $obj_slave['table'][$k][$k2]['data']['owner'],
+							'migration_id' => $result['count'] + 1
 						];
 						// count
 						$result['count']++;
@@ -890,14 +900,16 @@ class numbers_backend_db_class_ddl {
 							'type' => 'sequence_owner',
 							'schema' => $k,
 							'name' => $k2,
-							'owner' => $v2['data']['owner']
+							'owner' => $v2['data']['owner'],
+							'migration_id' => $result['count'] + 1
 						];
 						// down
 						$result['down']['new_sequence_owners'][$name] = [
 							'type' => 'sequence_owner',
 							'schema' => $k,
 							'name' => $k2,
-							'owner' => $obj_slave['sequence'][$k][$k2]['data']['owner']
+							'owner' => $obj_slave['sequence'][$k][$k2]['data']['owner'],
+							'migration_id' => $result['count'] + 1
 						];
 						// count
 						$result['count']++;

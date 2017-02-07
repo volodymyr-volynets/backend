@@ -151,6 +151,15 @@ class numbers_backend_db_class_migration_processor {
 		$options['db_link'] = $options['db_link'] ?? 'default';
 		// behavior is based on object type
 		switch ($object['type']) {
+			case 'schema_new':
+				$object['type'] = str_replace('_new', '', $object['type']);
+				// see if object already exists
+				if (isset($ddl->objects[$options['db_link']][$object['type']][$object['name']])) {
+					$result['error'][] = "Object already exists {$object['type']} {$object['name']}!";
+					break;
+				}
+				$ddl->object_add($object, $options['db_link']);
+				break;
 			case 'extension_new':
 			case 'table_new':
 			case 'sequence_new':
@@ -200,6 +209,15 @@ class numbers_backend_db_class_migration_processor {
 					$ddl->object_remove($object, $options['db_link']);
 				}
 				break;
+			case 'schema_delete':
+				$object['type'] = str_replace('_delete', '', $object['type']);
+				// see if object does not exists
+				if (!isset($ddl->objects[$options['db_link']][$object['type']][$object['name']])) {
+					$result['error'][] = "Delete object does not exists {$object['type']} {$object['name']}!";
+					break;
+				}
+				$ddl->object_remove($object, $options['db_link']);
+				break;
 			case 'extension_delete':
 			case 'sequence_delete':
 			case 'table_delete':
@@ -220,6 +238,11 @@ class numbers_backend_db_class_migration_processor {
 					break;
 				}
 				$ddl->object_remove($object, $options['db_link']);
+				break;
+			case 'table_owner':
+			case 'sequence_owner':
+			case 'schema_owner':
+				$ddl->object_add($object, $options['db_link']);
 				break;
 			default:
 				Throw new Exception("Migration object type {$object['type']} ?");

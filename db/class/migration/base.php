@@ -77,6 +77,13 @@ abstract class numbers_backend_db_class_migration_base {
 	private $executed_migration_stats = [];
 
 	/**
+	 * New objects
+	 *
+	 * @var array
+	 */
+	private $new_objects = [];
+
+	/**
 	 * Migrate up
 	 */
 	abstract public function up();
@@ -110,6 +117,7 @@ abstract class numbers_backend_db_class_migration_base {
 		$this->data = [];
 		$this->executed_migration_ids = [];
 		$this->prior_executed_migration_ids = $options['prior_executed_migration_ids'] ?? null;
+		$this->new_objects = [];
 		$this->executed_migration_stats = [
 			'sm_migration_db_link' => $this->db_link,
 			'sm_migration_type' => 'migration',
@@ -157,6 +165,15 @@ abstract class numbers_backend_db_class_migration_base {
 		if ($this->mode == 'commit') {
 			// non sql changes
 			if ($operation != 'sql_query') {
+				// extract permissions
+				if ($data['type'] == 'schema_new') {
+					$this->new_objects['schema'][$data['name']] = $data['name'];
+				} else if ($data['type'] == 'table_new' || $data['type'] == 'sequence_new' || $data['type'] == 'extension_new') {
+					$name = ltrim($data['schema'] . '.' . $data['name'], '.');
+					$type = str_replace('_new', '', $data['type']);
+					$this->new_objects[$type][$name] = $name;
+				}
+				// generate sql
 				$diff = [$operation => [$name => $data]];
 				$ddl_result = $this->ddl_object->generate_sql_from_diff_objects($this->db_link, $diff, ['mode' => 'commit']);
 				if ($ddl_result['success'] && $ddl_result['count'] > 0) {
@@ -219,7 +236,8 @@ abstract class numbers_backend_db_class_migration_base {
 	public function execute($type = 'up', $options = []) {
 		$result = [
 			'success' => false,
-			'error' => []
+			'error' => [],
+			'permissions' => []
 		];
 		// wrap everyting into try/catch block because method throw exceptions
 		try {
@@ -263,6 +281,7 @@ abstract class numbers_backend_db_class_migration_base {
 			}
 			$this->db_object->commit();
 			$result['success'] = true;
+			$result['permissions'] = $this->new_objects;
 		} catch (Exception $e) {
 			$result['error'][] = "Migration type: {$type} failed - " . $e->getMessage();
 			// manual rollback for MySQL
