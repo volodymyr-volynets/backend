@@ -190,7 +190,7 @@ class numbers_backend_db_class_ddl {
 					$v['full_table_name'] = $model->full_table_name;
 					// additional processing for fk type constraints
 					if ($v['type'] == 'fk') {
-						$temp_object = factory::model($v['foreign_model'], true);
+						$temp_object = factory::model($v['foreign_model'], true, $options);
 						$v['foreign_table'] = $temp_object->full_table_name;
 						// default options
 						if (empty($v['options'])) $v['options'] = [];

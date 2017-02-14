@@ -180,6 +180,10 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 												'full_table_name' => $full_table_name
 											];
 										} else if ($v5['constraint_type'] == 'INDEX') {
+											// gin
+											if ($v5['index_type'] == 'gin') {
+												$v5['index_type'] = 'fulltext';
+											}
 											$temp2 = [
 												'type' => mixedtolower($v5['index_type']),
 												'columns' => $v5['column_names'],
@@ -761,7 +765,12 @@ TTT;
 				break;
 			// indexes
 			case 'index_new':
-				$result = "CREATE INDEX {$data['name']} ON {$data['data']['full_table_name']} USING {$data['data']['type']} (" . implode(", ", $data['data']['columns']) . ");";
+				// fulltext indexes as gin
+				if ($data['data']['type'] == 'fulltext') {
+					$result = "CREATE INDEX {$data['name']} ON {$data['data']['full_table_name']} USING gin (" . implode(", ", $data['data']['columns']) . ");";
+				} else {
+					$result = "CREATE INDEX {$data['name']} ON {$data['data']['full_table_name']} USING {$data['data']['type']} (" . implode(", ", $data['data']['columns']) . ");";
+				}
 				break;
 			case 'index_delete':
 				$temp = explode('.', $data['table']);

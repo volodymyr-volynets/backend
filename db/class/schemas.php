@@ -187,9 +187,7 @@ run_again:
 					}
 					//$object_documentation[$v][$k2] = $k2;
 				} else if ($v == 'object_import') {
-					$object_import[$k2] = [
-						'model' => $k2
-					];
+					$result['data']['object_import'][$k2] = $k2;
 				}
 			}
 			// if we have erros
@@ -448,6 +446,61 @@ run_again:
 		}
 		$result['success'] = true;
 		$result['count'] = count($sqls);
+		return $result;
+	}
+
+	/**
+	 * Import data
+	 *
+	 * @param string $db_link
+	 * @param array $data
+	 * @param array $options
+	 * @return array
+	 */
+	public static function import_data($db_link, $data, $options = []) {
+		$result = [
+			'success' => false,
+			'error' => [],
+			'count' => 0,
+			'legend' => []
+		];
+		$db_object = factory::get(['db', $db_link, 'object']);
+		$db_object->begin();
+		// process import models one by one
+		foreach ($data as $v) {
+			$model = new $v();
+			$import_result = $model->process();
+			if (!$import_result['success']) {
+				$result['error'] = array_merge($result['error'], $import_result['error']);
+				return $result;
+			}
+			$result['legend'] = array_merge($result['legend'], $import_result['legend']);
+			$result['count']+= $import_result['count'];
+		}
+		// see if we have a migration table
+		if (!empty($result['count'])) {
+			$migration_model = new numbers_backend_db_class_model_migrations();
+			if ($migration_model->db_present()) {
+				$ts = format::now('timestamp');
+				$temp_result = numbers_backend_db_class_model_migrations::collection()->merge([
+					'sm_migration_db_link' => $db_link,
+					'sm_migration_type' => 'import',
+					'sm_migration_action' => 'update',
+					'sm_migration_name' => $ts,
+					'sm_migration_developer' => application::get('developer.name') ?? 'Unknown',
+					'sm_migration_inserted' => $ts,
+					'sm_migration_legend' => json_encode($result['legend']),
+					'sm_migration_sql_counter' => $result['count'],
+					'sm_migration_sql_changes' => null
+				]);
+				if (!$temp_result['success']) {
+					array_merge3($result['error'], $temp_result['error']);
+					return $result;
+				}
+			}
+		}
+		$result['success'] = true;
+		$db_object->commit();
 		return $result;
 	}
 }
