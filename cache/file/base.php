@@ -6,23 +6,6 @@
 class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 
 	/**
-	 * Complete result
-	 */
-	const complete_result = [
-		'success' => false,
-		'error' => [],
-		'errno' => null,
-		/* statistics */
-		'statistics' => [
-			'query_string' => null,
-			'query_start' => null,
-			'response_string' => '',
-			'response_parts' => [],
-			'response_duration' => null,
-		]
-	];
-
-	/**
 	 * Constructor
 	 *
 	 * @param string $cache_link
@@ -40,9 +23,10 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 	 * @return array
 	 */
 	public function connect(array $options) : array {
-		$result = self::complete_result;
-		$result['statistics']['query_start'] = microtime(true);
-		$result['statistics']['query_string'] = 'connect';
+		$result = [
+			'success' => false,
+			'error' => [],
+		];
 		// check if we have valid directory
 		if (empty($options['dir'])) {
 			$result['error'][] = 'Cache directory does not exists or not provided!';
@@ -65,7 +49,6 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 		if (empty($result['error'])) {
 			$result['success'] = true;
 		}
-		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
 		return $result;
 	}
 
@@ -75,12 +58,10 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 	 * @return array
 	 */
 	public function close() : array {
-		$result = self::complete_result;
-		$result['statistics']['query_start'] = microtime(true);
-		$result['statistics']['query_string'] = 'close';
-		$result['statistics']['response_duration'] = 0;
-		$result['success'] = true;
-		return $result;
+		return [
+			'success' => true,
+			'error' => [],
+		];
 	}
 
 	/**
@@ -90,10 +71,11 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 	 * @return array
 	 */
 	public function get(string $cache_id) : array {
-		$result = self::complete_result;
-		$result['statistics']['query_start'] = microtime(true);
-		$result['statistics']['query_string'] = 'get ' . $cache_id;
-		$result['data'] = null;
+		$result = [
+			'success' => false,
+			'error' => [],
+			'data' => null
+		];
 		do {
 			// load cookie
 			$cookie_name = $this->options['dir'] . 'cache--cookie--' . $cache_id . '.data';
@@ -101,7 +83,6 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 			$cookie_data = file_get_contents($cookie_name);
 			if ($cookie_data === false) {
 				$result['error'][] = 'File cache: Failed to read cookie file!';
-				$result['errno'] = 'FILECACHE_READ_COOKIE_ERROR';
 				break;
 			}
 			// convert data to array
@@ -116,14 +97,12 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 			$cache_data = file_get_contents($cookie_data['file']);
 			if ($cache_data === false) {
 				$result['error'][] = 'File cache: Failed to read cache file!';
-				$result['errno'] = 'FILECACHE_READ_CACHE_ERROR';
 				break;
 			}
 			// success if we got here
 			$result['data'] = $this->storage_convert('get', $cache_data);
 			$result['success'] = true;
 		} while(0);
-		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
 		return $result;
 	}
 
@@ -137,15 +116,15 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 	 * @return array
 	 */
 	public function set(string $cache_id, $data, int $expire = null, array $tags = []) : array {
-		$result = self::complete_result;
-		$result['statistics']['query_start'] = microtime(true);
-		$result['statistics']['query_string'] = 'set ' . $cache_id;
+		$result = [
+			'success' => false,
+			'error' => []
+		];
 		do {
 			// writing data first
 			$data_name = $this->options['dir'] . 'cache--' . $cache_id . '.data';
 			if (file_put_contents($data_name, $this->storage_convert('set', $data), LOCK_EX) === false) {
-				$result['error'][] = 'File cache: Failed to write cache file!';
-				$result['errno'] = 'FILECACHE_WRITE_CACHE_ERROR';
+				$result['error'][] = 'Failed to write cache file!';
 				break;
 			}
 			// prepare cookie data
@@ -159,8 +138,7 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 			// writing cookie
 			$cookie_name = $this->options['dir'] . 'cache--cookie--' . $cache_id . '.data';
 			if (file_put_contents($cookie_name, $this->storage_convert('set', $cookie_data), LOCK_EX) === false) {
-				$result['error'][] = 'File cache: Failed to write cookie file!';
-				$result['errno'] = 'FILECACHE_WRITE_COOKIE_ERROR';
+				$result['error'][] = 'Failed to write cookie file!';
 				break;
 			}
 			// set file permission
@@ -169,7 +147,6 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 			// success if we got here
 			$result['success'] = true;
 		} while(0);
-		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
 		return $result;
 	}
 
@@ -184,9 +161,10 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 	 * @return array
 	 */
 	public function gc(int $mode = 1, array $tags = []) : array {
-		$result = self::complete_result;
-		$result['statistics']['query_start'] = microtime(true);
-		$result['statistics']['query_string'] = 'gc';
+		$result = [
+			'success' => false,
+			'error' => []
+		];
 		// get a list of cache cookies
 		if (($cookies = glob($this->options['dir'] . 'cache--cookie--*')) === false) {
 			$result['success'] = true;
@@ -237,7 +215,6 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 				// if we need to delete
 				if ($flag_delete) {
 delete:
-					$result['statistics']['response_parts'][] = 'removed ' . $cookie_data['file'];
 					unlink($file);
 					unlink($cookie_data['file']);
 				}
@@ -245,7 +222,6 @@ delete:
 			// success if we got here
 			$result['success'] = true;
 		}
-		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
 		return $result;
 	}
 }

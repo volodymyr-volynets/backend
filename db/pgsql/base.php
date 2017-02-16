@@ -41,7 +41,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		} else {
 			$str = $options;
 		}
-		$connection = pg_connect($str);
+		$connection = @pg_connect($str);
 		if ($connection !== false) {
 			$this->db_resource = $connection;
 			$this->commit_status = 0;
