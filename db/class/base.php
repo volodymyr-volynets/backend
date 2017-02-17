@@ -69,7 +69,7 @@ class numbers_backend_db_class_base {
 	public function prepare_values($options) {
 		$result = [];
 		foreach ($options as $k => $v) {
-			$temp = explode(',', $k);
+			$temp = explode(';', $k);
 			$key = $temp[0];
 			$operator = !empty($temp[1]) ? $temp[1] : '=';
 			if (is_string($v)) {
@@ -97,7 +97,7 @@ class numbers_backend_db_class_base {
 		if (is_array($options)) {
 			$temp = [];
 			foreach ($options as $v) {
-				$par = explode(',', $v);
+				$par = explode(';', $v);
 				$temp[] = $par[0];
 			}
 			// if we need raw array
@@ -122,13 +122,11 @@ class numbers_backend_db_class_base {
 			$temp = [];
 			$string = '';
 			foreach ($options as $k => $v) {
-				$par = explode(',', $k);
-				// we use [comma] instead of comma in statements
-				$key = str_replace('[comma]', ',', $par[0]);
+				$par = explode(';', $k);
 				// todo: handle type casts (::)
 				$operator = $par[1] ?? '=';
 				$as_is = (isset($par[2]) && $par[2] == '~~') ? true : false;
-				$string = $key;
+				$string = $par[0];
 				// special handling if we got an array
 				if (is_array($v) && $operator == '=') {
 					$operator = 'in';

@@ -17,12 +17,12 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		$this->model_seessions = new numbers_backend_session_db_model_sessions();
 		// setting session handler
 		session_set_save_handler(
-			array($this, 'open'),
-			array($this, 'close'),
-			array($this, 'read'),
-			array($this, 'write'),
-			array($this, 'destroy'),
-			array($this, 'gc')
+			[$this, 'open'],
+			[$this, 'close'],
+			[$this, 'read'],
+			[$this, 'write'],
+			[$this, 'destroy'],
+			[$this, 'gc']
 		);
 	}
 
@@ -52,7 +52,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 * @param string $id
 	 */
 	public function read($id) {
-		$data = $this->model_seessions->get(['columns' => ['sm_session_data'], 'limit' => 1, 'pk' => null, 'where' => ['sm_session_id' => $id, 'sm_session_expires,>=' => format::now('timestamp')]]);
+		$data = $this->model_seessions->get(['columns' => ['sm_session_data'], 'limit' => 1, 'pk' => null, 'where' => ['sm_session_id' => $id, 'sm_session_expires;>=' => format::now('timestamp')]]);
 		if (isset($data[0])) {
 			return $data[0]['sm_session_data'];
 		} else {
@@ -78,9 +78,9 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 			'sm_session_id' => $id,
 			'sm_session_expires' => format::now('timestamp', ['add_seconds' => session::$default_options['gc_maxlifetime']]),
 			'sm_session_last_requested' => format::now('timestamp'),
-			'sm_session_pages_count,=,~~' => 'sm_session_pages_count + ' . $inc,
+			'sm_session_pages_count;=;~~' => 'sm_session_pages_count + ' . $inc,
 			'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
-			'sm_session_user_id' => $_SESSION['numbers']['entity']['em_entity_id'] ?? 0,
+			'sm_session_user_id' => $_SESSION['numbers']['user']['id'] ?? 0,
 			'sm_session_data' => $data
 		];
 		$db = new db($this->model_seessions->db_link);
@@ -89,7 +89,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		if ($result['affected_rows'] == 0) {
 			$save['sm_session_started'] = format::now('timestamp');
 			$save['sm_session_pages_count'] = $inc;
-			unset($save['sm_session_pages_count,=,~~']);
+			unset($save['sm_session_pages_count;=;~~']);
 			// we insert
 			$result = $db->insert($this->model_seessions->name, [$save]);
 		}
@@ -123,36 +123,33 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		// step 1: we need to move expired sessions to logins table
 		$db = new db($this->model_seessions->db_link);
 		$expire = format::now('timestamp');
-
 		// generating sqls
 		$sql_move = <<<TTT
-			INSERT INTO sm_logins (
-				sm_login_id,
-				sm_login_started,
-				sm_login_last_requested,
-				sm_login_pages_count,
-				sm_login_user_ip,
-				sm_login_user_id
+			INSERT INTO sm_session_history (
+				sm_sesshist_id,
+				sm_sesshist_started,
+				sm_sesshist_last_requested,
+				sm_sesshist_pages_count,
+				sm_sesshist_user_ip,
+				sm_sesshist_user_id
 			)
 			SELECT
-				nextval('sm_logins_sm_login_id_seq') sm_login_id,
-				s.sm_session_started sm_login_started,
-				s.sm_session_last_requested sm_login_last_requested,
-				s.sm_session_pages_count sm_login_pages_count,
-				s.sm_session_user_ip sm_login_user_ip,
-				s.sm_session_user_id sm_login_user_id
+				nextval('sm_session_history_sm_sesshist_id_seq') sm_sesshist_id,
+				s.sm_session_started sm_sesshist_started,
+				s.sm_session_last_requested sm_sesshist_last_requested,
+				s.sm_session_pages_count sm_sesshist_pages_count,
+				s.sm_session_user_ip sm_sesshist_user_ip,
+				s.sm_session_user_id sm_sesshist_user_id
 			FROM sm_sessions s
 			WHERE 1=1
 				AND s.sm_session_expires < '{$expire}'
 TTT;
-
 		// session cleaning sql
 		$sql_delete = <<<TTT
 			DELETE FROM sm_sessions
 			WHERE 1=1
 				AND sm_session_expires < '{$expire}'
 TTT;
-
 		// making changes to database
 		$db->begin();
 		$result = $db->query($sql_move);

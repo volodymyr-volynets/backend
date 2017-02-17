@@ -40,7 +40,6 @@ class numbers_backend_ip_ipinfo_base extends numbers_backend_ip_class_base {
 			$temp = explode(',', $data['loc']);
 			$result['data'] = [
 				'ip' => $data['ip'],
-				'timestamp' => format::now('timestamp'),
 				'country' => $data['country'],
 				'province' => $data['region'],
 				'city' => $data['city'],
