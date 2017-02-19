@@ -323,173 +323,6 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	}
 
 	/**
-	 * Insert multiple rows to database
-	 *
-	 * @param string $table
-	 * @param array $rows
-	 * @return array
-	 */
-	public function insert($table, $rows, $keys = null, $options = []) {
-		$temp = current($rows);
-		$headers = $this->prepare_keys(array_keys($temp));
-		$sql = "INSERT INTO $table (" . $this->prepare_expression($headers) . ") VALUES ";
-		$sql_values = [];
-		foreach ($rows as $k => $v) {
-			$sql_values[] = "(" . $this->prepare_values($v) . ")";
-		}
-		$sql.= implode(', ', $sql_values);
-		// if we need to return updated/inserted rows
-		if (!empty($options['returning'])) {
-			if (is_array($options['returning'])) {
-				$sql.= ' RETURNING ' . implode(', ', $options['returning']);
-			} else {
-				$sql.= ' RETURNING *';
-			}
-		}
-		return $this->query($sql, $this->prepare_keys($keys), $options);
-	}
-
-	/**
-	 * Update table
-	 *
-	 * @param string $table
-	 * @param array $data
-	 * @param mixed $keys
-	 * @param array $options
-	 *		where - already assembles array of pk
-	 * @return array
-	 */
-	public function update($table, $data, $keys, $options = []) {
-		// fixing keys
-		$keys = array_fix($keys);
-		// where clause
-		if (!empty($options['where'])) {
-			$where = $options['where'];
-		} else {
-			$where = [];
-			foreach ($keys as $key) {
-				$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
-				unset($data[$key]);
-			}
-		}
-		// assembling query
-		$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND');
-		if (!empty($options['returning'])) {
-			$sql.= ' RETURNING *';
-		}
-		return $this->query($sql, $this->prepare_keys($keys));
-	}
-
-	/**
-	 * Delete rows from table
-	 *
-	 * @param string $table
-	 * @param array $data
-	 * @param mixed $keys
-	 * @param array $options
-	 * @return array
-	 */
-	public function delete($table, $data, $keys, $options = []) {
-		// fixing keys
-		$keys = array_fix($keys);
-		// where clause
-		if (!empty($options['where'])) {
-			$where = $options['where'];
-		} else {
-			$where = [];
-			foreach ($keys as $key) {
-				$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
-				unset($data[$key]);
-			}
-		}
-		// assembling query
-		$sql = "DELETE FROM $table WHERE " . $this->prepare_condition($where, 'AND');
-		if (!empty($options['returning'])) {
-			$sql.= ' RETURNING *';
-		}
-		return $this->query($sql, $this->prepare_keys($keys));
-	}
-
-	/**
-	 * Save row to database
-	 *
-	 * @param string $table
-	 * @param array $data
-	 * @param mixed $keys
-	 * @param array $options
-	 * @return boolean
-	 */
-	public function save($table, $data, $keys, $options = []) {
-		do {
-			// fixing keys
-			$keys = array_fix($keys);
-
-			// where clause
-			$where = [];
-			$empty = true;
-			foreach ($keys as $key) {
-				if (!empty($data[$key])) {
-					$empty = false;
-				}
-				$where[$key] = array_key_exists($key, $data) ? $data[$key] : null;
-			}
-
-			// if keys are empty we must insert
-			$row_found = false;
-			if (!$empty) {
-				$result = $this->query("SELECT * FROM $table WHERE " . $this->prepare_condition($where, 'AND'));
-				if (!$result['success']) {
-					break;
-				} else if ($result['num_rows']) {
-					$row_found = true;
-				}
-			}
-
-			// if we need to return updated/inserted rows
-			$sql_addon = '';
-			if (!empty($options['returning'])) {
-				$sql_addon = ' RETURNING *';
-			}
-
-			// if we are in inser mode we exit
-			if ($row_found && !empty($options['flag_insert_only'])) {
-				$result['success'] = true;
-				break;
-			}
-
-			// if row found we update
-			if ($row_found) {
-				$flag_inserted = false;
-				$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND') . $sql_addon;
-			} else {
-				$flag_inserted = true;
-				// we need to unset key fields
-				if ($empty) {
-					foreach ($keys as $key) {
-						unset($data[$key]);
-					}
-				}
-				// if we have a sequence
-				if (!empty($options['sequences'])) {
-					foreach ($options['sequences'] as $k => $v) {
-						if (empty($data[$k])) {
-							$temp = $this->sequence($v['sequence_name']);
-							$data[$k] = $temp['rows'][0]['counter'];
-						}
-					}
-				}
-				// we insert
-				$sql = "INSERT INTO $table (" . $this->prepare_expression(array_keys($data)) . ') VALUES (' . $this->prepare_values($data) . ')' . $sql_addon;
-			}
-			$result = $this->query($sql, $this->prepare_keys($keys));
-			if ($result['success']) {
-				$result['inserted'] = $flag_inserted;
-			}
-		} while (0);
-		return $result;
-	}
-
-	/**
 	 * @see db::sequence();
 	 */
 	public function sequence($sequence_name, $type = 'nextval') {
@@ -712,12 +545,42 @@ TTT;
 					}
 				}
 				break;
+			case 'delete':
+				$sql.= "DELETE FROM ";
+				// from
+				if (empty($object->data['from'])) {
+					$result['error'][] = 'From?';
+				} else {
+					$temp = [];
+					foreach ($object->data['from'] as $k => $v) {
+						$temp2 = $v;
+						if (!is_numeric($k)) {
+							$temp2.= " AS $k";
+						}
+						$temp[] = $temp2;
+					}
+					$sql.= implode(",", $temp);
+				}
+				// where
+				if (!empty($object->data['where'])) {
+					$sql.= "\nWHERE";
+					$sql.= $object->render_where($object->data['where']);
+				}
+				// limit
+				if (!empty($object->data['limit'])) {
+					$sql.= "\nLIMIT " . $object->data['limit'];
+				}
+				// returning
+				if (!empty($object->data['returning'])) {
+					$sql.= "\nRETURNING *";
+				}
+				break;
 			case 'select':
 			default:
-				$sql.= "SELECT\n";
+				$sql.= "SELECT" . (!empty($object->data['distinct']) ? ' DISTINCT ' : '') . "\n";
 				// columns
 				if (empty($object->data['columns'])) {
-					$sql.= "\t*\n";
+					$sql.= "\t*";
 				} else {
 					$temp = [];
 					foreach ($object->data['columns'] as $k => $v) {
@@ -750,6 +613,14 @@ TTT;
 				if (!empty($object->data['where'])) {
 					$sql.= "\nWHERE";
 					$sql.= $object->render_where($object->data['where']);
+				}
+				// orderby
+				if (!empty($object->data['orderby'])) {
+					$sql.= "\nORDER BY " . array_key_sort_prepare_keys($object->data['orderby'], true);
+				}
+				// offset
+				if (!empty($object->data['offset'])) {
+					$sql.= "\nOFFSET " . $object->data['offset'];
 				}
 				// limit
 				if (!empty($object->data['limit'])) {

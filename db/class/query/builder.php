@@ -90,6 +90,16 @@ class numbers_backend_db_class_query_builder {
 	}
 
 	/**
+	 * Delete
+	 *
+	 * @return \numbers_backend_db_class_query_builder
+	 */
+	public function delete() : numbers_backend_db_class_query_builder {
+		$this->data['operator'] = 'delete';
+		return $this;
+	}
+
+	/**
 	 * Columns
 	 *
 	 * @param mixed $columns
@@ -184,7 +194,7 @@ class numbers_backend_db_class_query_builder {
 				$key[] = '~~';
 			}
 			$key = implode(';', $key);
-			array_push($this->data['where'], [$operator, $exists, $this->db_object->object->prepare_condition([$key => $condition[2] ?? null]), false]);
+			array_push($this->data['where'], [$operator, $exists, $this->db_object->prepare_condition([$key => $condition[2] ?? null]), false]);
 		} else if (is_callable($condition)) {
 			// todo
 		}
@@ -198,11 +208,35 @@ class numbers_backend_db_class_query_builder {
 	 * @return \numbers_backend_db_class_query_builder
 	 */
 	public function values($values) : numbers_backend_db_class_query_builder {
-		$this->data['values'] = $values;
+		if (is_string($values) || is_array($values)) {
+			$this->data['values'] = $values;
+		} else if (is_callable($values)) {
+			$this->data['values'] = $this->subquery($values);
+		}
 		// grab columns from first array
 		if (is_array($values) && empty($this->data['columns'])) {
 			$this->columns(array_keys(current($values)));
 		}
+		return $this;
+	}
+
+	/**
+	 * Distinct
+	 *
+	 * @return \numbers_backend_db_class_query_builder
+	 */
+	public function distinct() : numbers_backend_db_class_query_builder {
+		$this->data['distinct'] = true;
+		return $this;
+	}
+
+	/**
+	 * Returning
+	 *
+	 * @return \numbers_backend_db_class_query_builder
+	 */
+	public function returning() : numbers_backend_db_class_query_builder {
+		$this->data['returning'] = true;
 		return $this;
 	}
 
@@ -214,6 +248,28 @@ class numbers_backend_db_class_query_builder {
 	 */
 	public function limit(int $limit) : numbers_backend_db_class_query_builder {
 		$this->data['limit'] = $limit;
+		return $this;
+	}
+
+	/**
+	 * Offset
+	 *
+	 * @param int $offset
+	 * @return \numbers_backend_db_class_query_builder
+	 */
+	public function offset(int $offset) : numbers_backend_db_class_query_builder {
+		$this->data['offset'] = $offset;
+		return $this;
+	}
+
+	/**
+	 * Orderby
+	 *
+	 * @param array $orderby
+	 * @return \numbers_backend_db_class_query_builder
+	 */
+	public function orderby(array $orderby) : numbers_backend_db_class_query_builder {
+		$this->data['orderby'] = $orderby;
 		return $this;
 	}
 
@@ -257,13 +313,29 @@ class numbers_backend_db_class_query_builder {
 	}
 
 	/**
+	 * Sub-query
+	 *
+	 * @param callable $function
+	 * @return array
+	 */
+	private function subquery($function) {
+		$subquery = new numbers_backend_db_class_query_builder($this->db_link, ['subquery' => true]);
+		$function($subquery);
+		$result = $subquery->render();
+		if (!$result['success']) {
+			Throw new Exception('Subquery: ' . implode(', ', $result['error']));
+		}
+		return $result['sql'];
+	}
+
+	/**
 	 * SQL
 	 *
 	 * @return string
 	 */
-	public function sql() : array {
-		print_r2($this->data);
-		return $this->render();
+	public function sql() : string {
+		$result = $this->render();
+		return $result['sql'];
 	}
 
 	/**
@@ -274,11 +346,11 @@ class numbers_backend_db_class_query_builder {
 	 * @return array
 	 */
 	public function query($pk = null, array $options = []) : array {
-		$sql = $this->render();
-		if ($sql['success']) {
-			return $this->db_object->query($sql['sql'], $pk, $options);
+		$result = $this->render();
+		if ($result['success']) {
+			return $this->db_object->query($result['sql'], $pk, $options);
 		} else {
-			return $sql;
+			Throw new Exception(implode(', ', $result['error']));
 		}
 	}
 }

@@ -129,49 +129,48 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 * @return boolean
 	 */
 	public function gc($life) {
-		// step 1: we need to move expired sessions to logins table
-		$db = new db($this->model_seessions->db_link);
+		$object = new numbers_backend_session_db_model_sessions();
+		$object->db_object->begin();
+		// step 1: we need to move expired sessions to history table
 		$expire = format::now('timestamp');
-		// generating sqls
-		$sql_move = <<<TTT
-			INSERT INTO sm_session_history (
-				sm_sesshist_id,
-				sm_sesshist_started,
-				sm_sesshist_last_requested,
-				sm_sesshist_pages_count,
-				sm_sesshist_user_ip,
-				sm_sesshist_user_id
-			)
-			SELECT
-				nextval('sm_session_history_sm_sesshist_id_seq') sm_sesshist_id,
-				s.sm_session_started sm_sesshist_started,
-				s.sm_session_last_requested sm_sesshist_last_requested,
-				s.sm_session_pages_count sm_sesshist_pages_count,
-				s.sm_session_user_ip sm_sesshist_user_ip,
-				s.sm_session_user_id sm_sesshist_user_id
-			FROM sm_sessions s
-			WHERE 1=1
-				AND s.sm_session_expires < '{$expire}'
-TTT;
-		// session cleaning sql
-		$sql_delete = <<<TTT
-			DELETE FROM sm_sessions
-			WHERE 1=1
-				AND sm_session_expires < '{$expire}'
-TTT;
-		// making changes to database
-		$db->begin();
-		$result = $db->query($sql_move);
+		$result = numbers_backend_session_db_model_session_history::query_builder()
+			->insert()
+			->columns([
+				'sm_sesshist_id',
+				'sm_sesshist_started',
+				'sm_sesshist_last_requested',
+				'sm_sesshist_pages_count',
+				'sm_sesshist_user_ip',
+				'sm_sesshist_user_id'
+			])
+			->values(function(& $subquery) use ($expire) {
+				$subquery = numbers_backend_session_db_model_sessions::query_builder()
+					->select()
+					->columns([
+						'sm_sesshist_id' => "nextval('sm_session_history_sm_sesshist_id_seq')",
+						'sm_sesshist_started' => 'a.sm_session_started',
+						'sm_sesshist_last_requested' => 'a.sm_session_last_requested',
+						'sm_sesshist_pages_count' => 'a.sm_session_pages_count',
+						'sm_sesshist_user_ip' => 'a.sm_session_user_ip',
+						'sm_sesshist_user_id' => 'a.sm_session_user_id'
+					])
+					->where('AND', ['sm_session_expires', '<', $expire]);
+			})
+			->query();
 		if (!$result['success']) {
-			$db->rollback();
+			$object->db_object->rollback();
 			return false;
 		}
-		$result = $db->query($sql_delete);
+		// step 2: remove expired sessions
+		$result = numbers_backend_session_db_model_sessions::query_builder()
+			->delete()
+			->where('AND', ['sm_session_expires', '<', $expire])
+			->query();
 		if (!$result['success']) {
-			$db->rollback();
+			$object->db_object->rollback();
 			return false;
 		}
-		$db->commit();
+		$object->db_object->commit();
 		return true;
 	}
 
