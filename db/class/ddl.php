@@ -65,7 +65,12 @@ class numbers_backend_db_class_ddl {
 		}
 		// if based on object
 		if (in_array($object['type'], ['table', 'sequence', 'function', 'extension'])) {
+			// remove table
 			unset($this->objects[$db_link][$object['type']][$object['schema']][$object['name']]);
+			// remove constraints and indexes for this table
+			foreach (['constraint', 'index'] as $v) {
+				unset($this->objects[$db_link][$v][$object['schema']][$object['name']]);
+			}
 		} else if ($object['type'] == 'schema') {
 			unset($this->objects[$db_link][$object['type']][$object['name']]);
 		} else if ($object['type'] == 'constraint' || $object['type'] == 'index') {

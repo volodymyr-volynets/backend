@@ -168,10 +168,16 @@ abstract class numbers_backend_db_class_migration_base {
 				// extract permissions
 				if ($data['type'] == 'schema_new') {
 					$this->new_objects['schema'][$data['name']] = $data['name'];
+				} else if ($data['type'] == 'schema_delete') {
+					$this->new_objects['schema'][$data['name']] = null;
 				} else if ($data['type'] == 'table_new' || $data['type'] == 'sequence_new' || $data['type'] == 'extension_new') {
 					$name = ltrim($data['schema'] . '.' . $data['name'], '.');
 					$type = str_replace('_new', '', $data['type']);
 					$this->new_objects[$type][$name] = $name;
+				} else if ($data['type'] == 'table_delete' || $data['type'] == 'sequence_delete' || $data['type'] == 'extension_delete') {
+					$name = ltrim($data['schema'] . '.' . $data['name'], '.');
+					$type = str_replace('_delete', '', $data['type']);
+					$this->new_objects[$type][$name] = null;
 				}
 				// generate sql
 				$diff = [$operation => [$name => $data]];

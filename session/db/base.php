@@ -3,18 +3,9 @@
 class numbers_backend_session_db_base implements numbers_backend_session_interface_base {
 
 	/**
-	 * Model sessions
-	 *
-	 * @var string
-	 */
-	public $model_sessions;
-
-	/**
 	 * Initialize session
 	 */
 	public function init() {
-		// creating models
-		$this->model_seessions = new numbers_backend_session_db_model_sessions();
 		// setting session handler
 		session_set_save_handler(
 			[$this, 'open'],
@@ -27,7 +18,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	}
 
 	/**
-	 * Open a session
+	 * Open
 	 *
 	 * @param string $path
 	 * @param string $name
@@ -38,7 +29,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	}
 
 	/**
-	 * Close session
+	 * Close
 	 *
 	 * @return boolean
 	 */
@@ -47,21 +38,23 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	}
 
 	/**
-	 * Read session data
+	 * Read
 	 *
 	 * @param string $id
 	 */
 	public function read($id) {
-		$data = $this->model_seessions->get(['columns' => ['sm_session_data'], 'limit' => 1, 'pk' => null, 'where' => ['sm_session_id' => $id, 'sm_session_expires;>=' => format::now('timestamp')]]);
-		if (isset($data[0])) {
-			return $data[0]['sm_session_data'];
-		} else {
-			return "";
-		}
+		$result = numbers_backend_session_db_model_sessions::query_builder()
+			->select()
+			->columns(['sm_session_data'])
+			->where('AND', ['sm_session_id', '=', $id])
+			->where('AND', ['sm_session_expires', '>=', format::now('timestamp')])
+			->limit(1)
+			->query();
+		return $result['rows'][0]['sm_session_data'] ?? "";
 	}
 
 	/**
-	 * Write session data
+	 * Write
 	 *
 	 * @param string $id
 	 * @param array $data
@@ -74,42 +67,58 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		} else {
 			$inc = 0;
 		}
-		$save = [
-			'sm_session_id' => $id,
-			'sm_session_expires' => format::now('timestamp', ['add_seconds' => session::$default_options['gc_maxlifetime']]),
-			'sm_session_last_requested' => format::now('timestamp'),
-			'sm_session_pages_count;=;~~' => 'sm_session_pages_count + ' . $inc,
-			'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
-			'sm_session_user_id' => $_SESSION['numbers']['user']['id'] ?? 0,
-			'sm_session_data' => $data
-		];
-		$db = new db($this->model_seessions->db_link);
-		// we update first
-		$result = $db->update($this->model_seessions->name, $save, 'sm_session_id');
-		if ($result['affected_rows'] == 0) {
-			$save['sm_session_started'] = format::now('timestamp');
-			$save['sm_session_pages_count'] = $inc;
-			unset($save['sm_session_pages_count;=;~~']);
-			// we insert
-			$result = $db->insert($this->model_seessions->name, [$save]);
+		$result = numbers_backend_session_db_model_sessions::query_builder()
+			->update()
+			->set([
+				'sm_session_expires' => format::now('timestamp', ['add_seconds' => session::$default_options['gc_maxlifetime']]),
+				'sm_session_last_requested' => format::now('timestamp'),
+				'sm_session_pages_count;=;~~' => 'sm_session_pages_count + ' . $inc,
+				'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
+				'sm_session_user_id' => $_SESSION['numbers']['user']['id'] ?? 0,
+				'sm_session_data' => $data
+			])
+			->where('AND', ['sm_session_id', '=', $id])
+			->query();
+		if (empty($result['affected_rows'])) {
+			$result = numbers_backend_session_db_model_sessions::query_builder()
+				->insert()
+				->columns([
+					'sm_session_id',
+					'sm_session_started',
+					'sm_session_expires',
+					'sm_session_last_requested',
+					'sm_session_pages_count',
+					'sm_session_user_ip',
+					'sm_session_user_id',
+					'sm_session_data'
+				])
+				->values([[
+					'sm_session_id' => $id,
+					'sm_session_started' => format::now('timestamp'),
+					'sm_session_expires' => format::now('timestamp', ['add_seconds' => session::$default_options['gc_maxlifetime']]),
+					'sm_session_last_requested' => format::now('timestamp'),
+					'sm_session_pages_count' => $inc,
+					'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
+					'sm_session_user_id' => $_SESSION['numbers']['user']['id'] ?? 0,
+					'sm_session_data' => $data
+				]])
+				->query();
 		}
 		return $result['affected_rows'] ? true : false;
 	}
 
 	/**
-	 * Destroy the session
+	 * Destroy
 	 *
 	 * @param string $id
 	 * @return boolean
 	 */
 	public function destroy($id) {
-		// we set session expired 100 seconds ago, gc will do the rest
-		$save = [
-			'sm_session_id' => $id,
-			'sm_session_expires' => format::now('timestamp', ['add_seconds' => -100]),
-		];
-		$db = new db($this->model_seessions->db_link);
-		$result = $db->update($this->model_seessions->name, $save, 'sm_session_id');
+		$result = numbers_backend_session_db_model_sessions::query_builder()
+			->update()
+			->set(['sm_session_expires' => format::now('timestamp', ['add_seconds' => -100])])
+			->where('AND', ['sm_session_id', '=', $id])
+			->query();
 		return true;
 	}
 

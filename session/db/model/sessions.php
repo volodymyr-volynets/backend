@@ -14,9 +14,9 @@ class numbers_backend_session_db_model_sessions extends object_table {
 		'sm_session_started' => ['name' => 'Datetime Started', 'type' => 'timestamp'],
 		'sm_session_expires' => ['name' => 'Datetime Expires', 'type' => 'timestamp'],
 		'sm_session_last_requested' => ['name' => 'Datetime Last Requested', 'type' => 'timestamp'],
-		'sm_session_pages_count' => ['name' => 'Pages Count', 'type' => 'integer', 'default' => 0],
-		'sm_session_user_ip' => ['name' => 'User IP', 'type' => 'varchar', 'length' => 50],
-		'sm_session_user_id' => ['name' => 'User #', 'type' => 'integer', 'default' => 0],
+		'sm_session_pages_count' => ['name' => 'Pages Count', 'domain' => 'counter'],
+		'sm_session_user_id' => ['name' => 'User #', 'domain' => 'user_id', 'null' => true],
+		'sm_session_user_ip' => ['name' => 'User IP', 'domain' => 'ip'],
 		'sm_session_data' => ['name' => 'Session Data', 'type' => 'text', 'null' => true]
 	];
 	public $constraints = [

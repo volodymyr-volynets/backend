@@ -17,4 +17,5 @@ interface numbers_backend_db_interface_base {
 	public function full_text_search_query($fields, $str, $operator = '&', $options = []);
 	public function create_temp_table($table, $columns, $pk = null, $options = []);
 	public function sql_helper($statement, $options = []);
+	public function query_builder_render(numbers_backend_db_class_query_builder $object) : array;
 }

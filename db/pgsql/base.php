@@ -103,17 +103,18 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	public function query($sql, $key = null, $options = []) {
 		$result = [
 			'success' => false,
-			'sql' => $sql,
 			'error' => [],
 			'errno' => 0,
+			'rows' => [],
 			'num_rows' => 0,
 			'affected_rows' => 0,
-			'rows' => [],
-			'key' => $key,
 			'structure' => [],
-			'time' => microtime(true) // todo - move to reply
+			// debug attributes
+			'cache' => false,
+			'time' => microtime(true),
+			'sql' => $sql,
+			'key' => $key
 		];
-
 		// if query caching is enabled
 		if (!empty($this->connect_options['cache_link'])) {
 			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . sha1($sql . serialize($key));
@@ -128,7 +129,6 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		} else {
 			$options['cache'] = false;
 		}
-
 		// quering
 		$resource = @pg_query($this->db_resource, $sql);
 		$result['status'] = pg_result_status($resource);
@@ -179,20 +179,13 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			pg_free_result($resource);
 			$result['success'] = true;
 		}
-
+		// time before caching
+		$result['time'] = microtime(true) - $result['time'];
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
+			$result['cache'] = true;
 			$cache_object->set($cache_id, $result, ['tags' => $options['cache_tags'] ?? []]);
 		}
-
-		// end time
-		$result['time'] = debug::get_microtime() - $result['time'];
-
-		// if we are debugging
-		if (debug::$debug) {
-			debug::$data['sql'][] = $result;
-		}
-
 		return $result;
 	}
 
@@ -634,5 +627,140 @@ TTT;
 		$columns_sql = implode(', ', $columns_sql);
 		$sql = "CREATE TEMP TABLE {$table} ({$columns_sql})";
 		return $this->query($sql);
+	}
+
+	/**
+	 * Query builder - render
+	 *
+	 * @param numbers_backend_db_class_query_builder $object
+	 * @return array
+	 */
+	public function query_builder_render(numbers_backend_db_class_query_builder $object) : array {
+		$result = [
+			'success' => false,
+			'error' => [],
+			'sql' => ''
+		];
+		$sql = '';
+		switch ($object->data['operator']) {
+			case 'update':
+				$sql.= "UPDATE ";
+				// from
+				if (empty($object->data['from'])) {
+					$result['error'][] = 'From?';
+				} else {
+					$temp = [];
+					foreach ($object->data['from'] as $k => $v) {
+						// todo - $v can be subquery
+						$temp2 = $v;
+						if (!is_numeric($k)) {
+							$temp2.= " AS $k";
+						}
+						$temp[] = $temp2;
+					}
+					$sql.= implode(",\n", $temp);
+				}
+				// set
+				if (empty($object->data['set'])) {
+					$result['error'][] = 'Set?';
+				} else {
+					$sql.= "\nSET ";
+					$sql.= $this->prepare_condition($object->data['set'], ",\n\t");
+				}
+				// where
+				if (!empty($object->data['where'])) {
+					$sql.= "\nWHERE";
+					$sql.= $object->render_where($object->data['where']);
+				}
+				// limit
+				if (!empty($object->data['limit'])) {
+					$sql.= "\nLIMIT " . $object->data['limit'];
+				}
+				break;
+			case 'insert':
+				$sql.= "INSERT INTO ";
+				// from
+				if (empty($object->data['from'])) {
+					$result['error'][] = 'From?';
+				} else {
+					$temp = [];
+					foreach ($object->data['from'] as $k => $v) {
+						$temp[] = $v;
+					}
+					$sql.= implode(",\n", $temp);
+				}
+				// columns
+				if (empty($object->data['columns'])) {
+					$result['error'][] = 'Columns?';
+				} else {
+					$sql.= " (\n\t" . $this->prepare_expression($object->data['columns'], ",\n\t") . "\n)\n";
+				}
+				// values
+				if (empty($object->data['values'])) {
+					$result['error'][] = 'Values?';
+				} else {
+					if (is_array($object->data['values'])) {
+						$sql.= "VALUES";
+						$temp = [];
+						foreach ($object->data['values'] as $v) {
+							$temp[] = "\n\t(" . $this->prepare_values($v) . ")";
+						}
+						$sql.= implode(",", $temp);
+					} else {
+						// regular sql query
+						$sql.= $object->data['values'];
+					}
+				}
+				break;
+			case 'select':
+			default:
+				$sql.= "SELECT\n";
+				// columns
+				if (empty($object->data['columns'])) {
+					$sql.= "\t*\n";
+				} else {
+					$temp = [];
+					foreach ($object->data['columns'] as $k => $v) {
+						// todo - $v can be subquery
+						$temp2 = "\t" . $v;
+						if (!is_numeric($k)) {
+							$temp2.= " AS $k";
+						}
+						$temp[] = $temp2;
+					}
+					$sql.= implode(",\n", $temp);
+				}
+				// from
+				$sql.= "\nFROM ";
+				if (empty($object->data['from'])) {
+					$result['error'][] = 'From?';
+				} else {
+					$temp = [];
+					foreach ($object->data['from'] as $k => $v) {
+						// todo - $v can be subquery
+						$temp2 = $v;
+						if (!is_numeric($k)) {
+							$temp2.= " AS $k";
+						}
+						$temp[] = $temp2;
+					}
+					$sql.= implode(",\n", $temp);
+				}
+				// where
+				if (!empty($object->data['where'])) {
+					$sql.= "\nWHERE";
+					$sql.= $object->render_where($object->data['where']);
+				}
+				// limit
+				if (!empty($object->data['limit'])) {
+					$sql.= "\nLIMIT " . $object->data['limit'];
+				}
+		}
+		// final processing
+		if (empty($result['error'])) {
+			$result['success'] = true;
+			$result['sql'] = $sql;
+		}
+		return $result;
 	}
 }

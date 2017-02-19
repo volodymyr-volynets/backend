@@ -172,7 +172,11 @@ class numbers_backend_db_class_base {
 				}
 				$temp[] = $string;
 			}
-			$delimiter = ' ' . $delimiter . ' ';
+			// fix delimiter
+			$delimiter = strtoupper($delimiter);
+			if (in_array($delimiter, ['AND', 'OR'])) {
+				$delimiter = ' ' . $delimiter . ' ';
+			}
 			$result = implode($delimiter, $temp);
 		} else if (!empty($options)) {
 			$result = $options;

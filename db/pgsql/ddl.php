@@ -696,7 +696,7 @@ TTT;
 			case 'column_change':
 				$result = [];
 				$master = $data['data'];
-				$slave = $data['data_slave'];
+				$slave = $data['data_old'];
 				if ($master['sql_type'] !== $slave['sql_type']) {
 					$result[]= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} SET DATA TYPE {$master['sql_type']};\n";
 				}
