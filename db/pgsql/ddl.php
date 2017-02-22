@@ -257,7 +257,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 					case 'sequences':
 						// load sequence attributes
 						$sequence_attributes = [];
-						$sequence_model = factory::model('numbers_backend_db_class_model_sequences', true);
+						$sequence_model = factory::model('numbers_backend_db_class_model_sequences');
 						if ($sequence_model->db_present()) {
 							$sequence_attributes = $sequence_model->get();
 						}

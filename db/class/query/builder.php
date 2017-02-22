@@ -108,14 +108,17 @@ class numbers_backend_db_class_query_builder {
 	public function columns($columns) : numbers_backend_db_class_query_builder {
 		// create empty array
 		if (!isset($this->data['columns'])) $this->data['columns'] = [];
-		// convert columns to array
-		if (is_string($columns)) $columns = [$columns];
-		// add columns
-		foreach ($columns as $k => $v) {
-			if (is_numeric($k)) {
-				array_push($this->data['columns'], $v);
-			} else {
-				$this->data['columns'][$k] = $v;
+		// process only not null columns
+		if (!is_null($columns)) {
+			// convert columns to array
+			if (is_string($columns)) $columns = [$columns];
+			// add columns
+			foreach ($columns as $k => $v) {
+				if (is_numeric($k)) {
+					array_push($this->data['columns'], $v);
+				} else {
+					$this->data['columns'][$k] = $v;
+				}
 			}
 		}
 		return $this;
@@ -173,7 +176,7 @@ class numbers_backend_db_class_query_builder {
 	 * @param boolean $exists
 	 * @return \numbers_backend_db_class_query_builder
 	 */
-	public function where($operator = 'AND', $condition, $exists = false) : numbers_backend_db_class_query_builder {
+	public function where(string $operator = 'AND', $condition, $exists = false) : numbers_backend_db_class_query_builder {
 		// create empty array
 		if (!isset($this->data['where'])) $this->data['where'] = [];
 		// operator
@@ -197,6 +200,20 @@ class numbers_backend_db_class_query_builder {
 			array_push($this->data['where'], [$operator, $exists, $this->db_object->prepare_condition([$key => $condition[2] ?? null]), false]);
 		} else if (is_callable($condition)) {
 			// todo
+		}
+		return $this;
+	}
+
+	/**
+	 * Where (multiple)
+	 *
+	 * @param type $operator
+	 * @param array $conditions
+	 * @return \numbers_backend_db_class_query_builder
+	 */
+	public function where_multiple(string $operator, array $conditions) : numbers_backend_db_class_query_builder {
+		foreach ($conditions as $k => $v) {
+			$this->where($operator, $this->db_object->prepare_condition([$k => $v]));
 		}
 		return $this;
 	}
@@ -227,6 +244,16 @@ class numbers_backend_db_class_query_builder {
 	 */
 	public function distinct() : numbers_backend_db_class_query_builder {
 		$this->data['distinct'] = true;
+		return $this;
+	}
+
+	/**
+	 * For update
+	 *
+	 * @return \numbers_backend_db_class_query_builder
+	 */
+	public function for_update() : numbers_backend_db_class_query_builder {
+		$this->data['for_update'] = true;
 		return $this;
 	}
 

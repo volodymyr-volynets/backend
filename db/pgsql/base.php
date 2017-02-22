@@ -116,12 +116,12 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			'key' => $key
 		];
 		// if query caching is enabled
-		if (!empty($this->connect_options['cache_link'])) {
+		if (!empty($this->options['cache_link'])) {
 			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . sha1($sql . serialize($key));
 			// if we cache this query
 			if (!empty($options['cache'])) {
-				$cache_object = new cache($this->connect_options['cache_link']);
-				$cached_result = $cache_object->get($cache_id);
+				$cache_object = new cache($this->options['cache_link']);
+				$cached_result = $cache_object->get($cache_id, true);
 				if ($cached_result !== false) {
 					return $cached_result;
 				}
@@ -184,7 +184,11 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
 			$result['cache'] = true;
-			$cache_object->set($cache_id, $result, ['tags' => $options['cache_tags'] ?? []]);
+			$cache_object->set($cache_id, $result, null, $options['cache_tags'] ?? null);
+		}
+		// if we are debugging
+		if (debug::$debug) {
+			debug::$data['sql'][] = $result;
 		}
 		return $result;
 	}
@@ -625,6 +629,10 @@ TTT;
 				// limit
 				if (!empty($object->data['limit'])) {
 					$sql.= "\nLIMIT " . $object->data['limit'];
+				}
+				// for update
+				if (!empty($object->data['for_update'])) {
+					$sql.= "\nFOR UPDATE";
 				}
 		}
 		// final processing
