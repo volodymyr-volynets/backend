@@ -43,6 +43,9 @@ class numbers_backend_db_class_ddl {
 		} else if ($object['type'] == 'schema_owner') {
 			$temp = str_replace('_owner', '', $object['type']);
 			$this->objects[$db_link][$temp][$object['schema']]['data']['owner'] = $object['owner'];
+		} else if ($object['type'] == 'function_owner') {
+			$temp = str_replace('_owner', '', $object['type']);
+			$this->objects[$db_link][$temp][$object['backend']][$object['schema']][$object['name']]['data']['owner'] = $object['owner'];
 		} else if (in_array($object['type'], ['function', 'extension'])) { // backend specific objects
 			$this->objects[$db_link][$object['type']][$object['backend']][$object['schema']][$object['name']] = $object;
 		}

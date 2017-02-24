@@ -160,7 +160,6 @@ class numbers_backend_db_class_migration_processor {
 				}
 				$ddl->object_add($object, $options['db_link']);
 				break;
-			case 'extension_new':
 			case 'table_new':
 			case 'sequence_new':
 				$object['type'] = str_replace('_new', '', $object['type']);
@@ -177,6 +176,16 @@ class numbers_backend_db_class_migration_processor {
 				// see if object already exists
 				if (isset($ddl->objects[$options['db_link']][$object['type']][$object['schema']][$object['table']][$object['name']])) {
 					$result['error'][] = "New object already exists {$object['type']} {$object['schema']}.{$object['table']}.{$object['name']}!";
+					break;
+				}
+				$ddl->object_add($object, $options['db_link']);
+				break;
+			case 'extension_new':
+			case 'function_new':
+				$object['type'] = str_replace('_new', '', $object['type']);
+				// see if object already exists
+				if (isset($ddl->objects[$options['db_link']][$object['type']][$object['backend']][$object['schema']][$object['name']])) {
+					$result['error'][] = "Object already exists {$object['type']} {$object['backend']}.{$object['schema']}.{$object['name']}!";
 					break;
 				}
 				$ddl->object_add($object, $options['db_link']);
@@ -218,7 +227,6 @@ class numbers_backend_db_class_migration_processor {
 				}
 				$ddl->object_remove($object, $options['db_link']);
 				break;
-			case 'extension_delete':
 			case 'sequence_delete':
 			case 'table_delete':
 				$object['type'] = str_replace('_delete', '', $object['type']);
@@ -239,9 +247,20 @@ class numbers_backend_db_class_migration_processor {
 				}
 				$ddl->object_remove($object, $options['db_link']);
 				break;
+			case 'extension_delete':
+			case 'function_delete';
+				$object['type'] = str_replace('_delete', '', $object['type']);
+				// see if object does not exists
+				if (!isset($ddl->objects[$options['db_link']][$object['type']][$object['backend']][$object['schema']][$object['name']])) {
+					$result['error'][] = "Delete object does not exists {$object['type']} {$object['backend']}.{$object['schema']}.{$object['name']}!";
+					break;
+				}
+				$ddl->object_remove($object, $options['db_link']);
+				break;
 			case 'table_owner':
 			case 'sequence_owner':
 			case 'schema_owner':
+			case 'function_owner':
 				$ddl->object_add($object, $options['db_link']);
 				break;
 			default:

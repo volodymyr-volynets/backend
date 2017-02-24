@@ -853,6 +853,9 @@ TTT;
 			case 'permission_grant_sequence':
 				$result = "GRANT USAGE, SELECT, UPDATE ON SEQUENCE {$data['sequence']} TO {$data['owner']};";
 				break;
+			case 'permission_grant_function':
+				$result = "GRANT EXECUTE ON FUNCTION {$data['header']} TO {$data['owner']};";
+				break;
 			default:
 				// nothing
 				Throw new Exception($type . '?');

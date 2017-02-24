@@ -203,6 +203,13 @@ run_again:
 					foreach ($v2 as $k3 => $v3) {
 						if ($k2 == 'schema') {
 							$result['permissions'][$k][$k2][$k3] = $k3;
+						} else if ($k2 == 'function') { // we must pass header for function
+							foreach ($v3 as $k4 => $v4) {
+								foreach ($v4 as $k5 => $v5) {
+									$name = ltrim($k4 . '.' . $k5, '.');
+									$result['permissions'][$k][$k2][$name] = $v5['data']['header'];
+								}
+							}
 						} else {
 							foreach ($v3 as $k4 => $v4) {
 								$name = ltrim($k3 . '.' . $k4, '.');
@@ -379,7 +386,7 @@ run_again:
 				]);
 				if (!empty($temp)) {
 					$sqls[] = $temp;
-					$result['legend'][] = "         * Grant usage on schema {$v} to {$db_query_owner}";
+					$result['legend'][] = "         * Grant USAGE on schema {$v} to {$db_query_owner}";
 				}
 			}
 		}
@@ -406,6 +413,20 @@ run_again:
 				if (!empty($temp)) {
 					$sqls[] = $temp;
 					$result['legend'][] = "         * Grant USAGE, SELECT, UPDATE on sequence {$v} to {$db_query_owner}";
+				}
+			}
+		}
+		// step 5: functions
+		if (!empty($objects['function'])) {
+			foreach ($objects['function'] as $k => $v) {
+				$temp = $ddl_object->render_sql('permission_grant_function', [
+					'function' => $k,
+					'header' => $v,
+					'owner' => $db_query_owner
+				]);
+				if (!empty($temp)) {
+					$sqls[] = $temp;
+					$result['legend'][] = "         * Grant EXECUTE on function {$k} to {$db_query_owner}";
 				}
 			}
 		}
