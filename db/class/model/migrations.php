@@ -3,6 +3,7 @@
 class numbers_backend_db_class_model_migrations extends object_table {
 	public $db_link;
 	public $db_link_flag;
+	public $module_code = 'SM';
 	public $title = 'S/M Migrations';
 	public $schema;
 	public $name = 'sm_migrations';

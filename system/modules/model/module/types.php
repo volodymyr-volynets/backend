@@ -12,7 +12,8 @@ class numbers_backend_system_modules_model_module_types extends object_data {
 	];
 	public $data = [
 		10 => ['sm_mdltype_name' => 'System'],
-		20 => ['sm_mdltype_name' => 'Ledger'],
-		30 => ['sm_mdltype_name' => 'Subledger'],
+		20 => ['sm_mdltype_name' => 'General'],
+		30 => ['sm_mdltype_name' => 'Ledger'],
+		40 => ['sm_mdltype_name' => 'Subledger'],
 	];
 }

@@ -20,7 +20,7 @@ class numbers_backend_system_modules_model_modules extends object_table {
 		'sm_module_transactions' => ['name' => 'Transactions', 'type' => 'boolean'],
 		'sm_module_multiple' => ['name' => 'Multiple', 'type' => 'boolean'],
 		'sm_module_activation_model' => ['name' => 'Activation Model', 'domain' => 'code', 'null' => true],
-		'sm_module_custom_activation' => ['name' => 'Generic Activation', 'type' => 'boolean'],
+		'sm_module_custom_activation' => ['name' => 'Custom Activation', 'type' => 'boolean'],
 		'sm_module_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
 	public $constraints = [

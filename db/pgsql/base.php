@@ -123,6 +123,10 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 				$cache_object = new cache($this->options['cache_link']);
 				$cached_result = $cache_object->get($cache_id, true);
 				if ($cached_result !== false) {
+					// if we are debugging
+					if (debug::$debug) {
+						debug::$data['sql'][] = $cached_result;
+					}
 					return $cached_result;
 				}
 			}

@@ -29,7 +29,7 @@ class numbers_backend_db_class_ddl {
 		$type = ucwords(str_replace('_', ' ', $object['type'])) . '(s)';
 		if (!isset($this->count[$db_link][$type])) $this->count[$db_link][$type] = 0;
 		// if based on object
-		if (in_array($object['type'], ['table', 'sequence', 'function', 'extension'])) {
+		if (in_array($object['type'], ['table', 'sequence'])) {
 			$this->objects[$db_link][$object['type']][$object['schema']][$object['name']] = $object;
 		} else if ($object['type'] == 'schema') {
 			$this->objects[$db_link][$object['type']][$object['name']] = $object;
@@ -43,6 +43,8 @@ class numbers_backend_db_class_ddl {
 		} else if ($object['type'] == 'schema_owner') {
 			$temp = str_replace('_owner', '', $object['type']);
 			$this->objects[$db_link][$temp][$object['schema']]['data']['owner'] = $object['owner'];
+		} else if (in_array($object['type'], ['function', 'extension'])) { // backend specific objects
+			$this->objects[$db_link][$object['type']][$object['backend']][$object['schema']][$object['name']] = $object;
 		}
 		$this->count[$db_link]['Total']++;
 		$this->count[$db_link][$type]++;
@@ -296,31 +298,19 @@ class numbers_backend_db_class_ddl {
 				$result['success'] = true;
 				break;
 			}
-			// owner & backend
-			$db = factory::get(['db', $model->db_link]);
-			$ddl_object = $db['ddl_object'];
-			$ddl_backend = $db['backend'];
-			$owner = $db['object']->connect_options['username'];
-			// if we do not have sql or its natively supported we exit
-			if (empty($model->function_sql[$ddl_backend])) {
-				$result['success'] = true;
-				break;
-			}
-			// we need to unset function definition
-			$sql_full_temp = $model->function_sql[$ddl_backend];
-			unset($sql_full_temp['definition']);
+			// add object
 			$this->object_add([
 				'type' => 'function',
-				'schema' => '',
+				'schema' => $model->schema,
 				'name' => $model->name,
+				'backend' => $model->backend,
 				'data' => [
-					'owner' => $owner,
-					'full_function_name' => $model->name,
-					'sql_full' => implode('', $sql_full_temp),
-					'sql_parts' => $model->function_sql[$ddl_backend]
+					'owner' => $options['db_schema_owner'] ?? null,
+					'full_function_name' => $model->full_function_name,
+					'header' => $model->header,
+					'definition' => $model->definition
 				]
 			], $model->db_link);
-
 			// if we got here - we are ok
 			$result['success'] = true;
 		} while(0);
@@ -348,12 +338,12 @@ class numbers_backend_db_class_ddl {
 				$result['success'] = true;
 				break;
 			}
-			// process extension name and schema
+			// add object
 			$this->object_add([
 				'type' => 'extension',
 				'schema' => $model->schema,
 				'name' => $model->name,
-				'backends' => $model->backends
+				'backend' => $model->backend
 			], $model->db_link);
 			// if we got here - we are ok
 			$result['success'] = true;
@@ -427,20 +417,22 @@ class numbers_backend_db_class_ddl {
 		// add extension
 		if (!empty($obj_master['extension'])) {
 			foreach ($obj_master['extension'] as $k => $v) {
+				// in schema mode we skip not related extensions
+				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
 				foreach ($v as $k2 => $v2) {
-					// in schema mode we skip not related extensions
-					if ($options['type'] == 'schema' && !in_array($options['backend'], $v2['backends'])) continue;
-					$v2['migration_id'] = $result['count'] + 1;
-					// extension must be present
-					if (empty($obj_slave['extension'][$k][$k2])) {
-						// up
-						$v2['type'] = 'extension_new';
-						$result['up']['new_extensions'][$k . '.' . $k2] = $v2;
-						// down
-						$v2['type'] = 'extension_delete';
-						$result['down']['delete_extensions'][$k . '.' . $k2] = $v2;
-						// count
-						$result['count']++;
+					foreach ($v2 as $k3 => $v3) {
+						// extension must be present
+						if (empty($obj_slave['extension'][$k][$k2][$k3])) {
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'extension_new';
+							$result['up']['new_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// down
+							$v3['type'] = 'extension_delete';
+							$result['down']['delete_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// count
+							$result['count']++;
+						}
 					}
 				}
 			}
@@ -449,17 +441,21 @@ class numbers_backend_db_class_ddl {
 		// delete extensions
 		if (!empty($obj_slave['extension'])) {
 			foreach ($obj_slave['extension'] as $k => $v) {
+				// in schema mode we skip not related extensions
+				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
 				foreach ($v as $k2 => $v2) {
-					$v2['migration_id'] = $result['count'] + 1;
-					if (empty($obj_master['extension'][$k][$k2])) {
-						// up
-						$v2['type'] = 'extension_delete';
-						$result['up']['delete_extensions'][$k . '.' . $k2] = $v2;
-						// down
-						$v2['type'] = 'extension_new';
-						$result['down']['new_extensions'][$k . '.' . $k2] = $v2;
-						// count
-						$result['count']++;
+					foreach ($v2 as $k3 => $v3) {
+						if (empty($obj_master['extension'][$k][$k2][$k3])) {
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'extension_delete';
+							$result['up']['delete_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// down
+							$v3['type'] = 'extension_new';
+							$result['down']['new_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// count
+							$result['count']++;
+						}
 					}
 				}
 			}
@@ -943,35 +939,64 @@ class numbers_backend_db_class_ddl {
 			}
 		}
 
-		// functions
-		// todo
+		// new/change function
 		if (!empty($obj_master['function'])) {
 			foreach ($obj_master['function'] as $k => $v) {
+				// in schema mode we skip not related functions
+				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
 				foreach ($v as $k2 => $v2) {
-					if (empty($obj_slave['function'][$k][$k2])) {
-						$result['up']['new_functions'][$k . '.' . $k2] = [
-							'type' => 'function_new',
-							'name' => $v2['full_function_name'],
-							'owner' => $v2['owner'],
-							'data' => $v2
-						];
-						$result['count']++;
-					} else {
-						// todo add here !!!
-						// if function has changed
-						if ($options['backend'] == 'mysqli') {
-							if ($v2['sql_parts']['body'] != $obj_slave['function'][$k][$k2]['sql_parts']['body']) {
-								$result['up']['delete_functions'][$k . '.' . $k2] = array('type' => 'function_delete', 'name' => $v2['full_function_name'], 'data' => $v2);
-								$result['up']['new_functions'][$k . '.' . $k2] = array('type' => 'function_new', 'name' => $v2['full_function_name'], 'owner' => $v2['owner'], 'data' => $v2);
+					foreach ($v2 as $k3 => $v3) {
+						// function must be present
+						if (empty($obj_slave['function'][$k][$k2][$k3])) {
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'function_new';
+							$result['up']['new_functions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// down
+							$v3['type'] = 'function_delete';
+							$result['down']['delete_functions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// count
+							$result['count']++;
+						} else { // function changed
+							// body
+							$v3_old = $obj_slave['function'][$k][$k2][$k3];
+							if (self::sanitize_function($v3['data']['definition']) != self::sanitize_function($v3_old['data']['definition'])) {
+								$v3['migration_id'] = $result['count'] + 1;
+								$v3_old['migration_id'] = $result['count'] + 1;
+								// up
+								$v3_old['type'] = 'function_delete';
+								$result['up']['delete_functions'][$k . '.' . $k2 . '.' . $k3] = $v3_old;
+								$v3['type'] = 'function_new';
+								$result['up']['new_functions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+								// down
+								$v3['type'] = 'function_delete';
+								$result['down']['delete_functions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+								$v3_old['type'] = 'function_new';
+								$result['down']['new_functions'][$k . '.' . $k2 . '.' . $k3] = $v3_old;
+								// count
 								$result['count']++;
-							}
-						} else if ($options['backend'] == 'pgsql') {
-							if (numbers_backend_db_class_ddl::sanitize_function($v2['sql_full']) != numbers_backend_db_class_ddl::sanitize_function($obj_slave['function'][$k][$k2]['sql_full'])) {
-								$result['up']['delete_functions'][$k . '.' . $k2] = array('type' => 'function_delete', 'name' => $v2['full_function_name'], 'data' => $v2);
-								$result['up']['new_functions'][$k . '.' . $k2] = array('type' => 'function_new', 'name' => $v2['full_function_name'], 'owner' => $v2['owner'], 'data' => $v2);
-								$result['count']++;
-							} else if ($v2['owner'] != $obj_slave['function'][$k][$k2]['owner']) { // checking owner
-								$result['up']['new_function_owners'][$k . '.' . $k2] = array('type'=>'function_owner', 'name' => $v2['full_function_name'], 'owner' => $v2['owner'], 'data' => $v2);
+							} else if ($v3['data']['owner'] != $v3_old['data']['owner']) {
+								// up
+								$result['up']['new_function_owners'][$k . '.' . $k2 . '.' . $k3] = [
+									'type' => 'function_owner',
+									'backend' => $k,
+									'schema' => $k2,
+									'name' => $k3,
+									'header' => $v3['data']['header'],
+									'owner' => $v3['data']['owner'],
+									'migration_id' => $result['count'] + 1
+								];
+								// down
+								$result['down']['new_function_owners'][$k . '.' . $k2 . '.' . $k3] = [
+									'type' => 'function_owner',
+									'backend' => $k,
+									'schema' => $k2,
+									'name' => $k3,
+									'header' => $v3_old['data']['header'],
+									'owner' => $v3_old['data']['owner'],
+									'migration_id' => $result['count'] + 1
+								];
+								// count
 								$result['count']++;
 							}
 						}
@@ -981,17 +1006,23 @@ class numbers_backend_db_class_ddl {
 		}
 
 		// delete function
-		// todo
 		if (!empty($obj_slave['function'])) {
 			foreach ($obj_slave['function'] as $k => $v) {
+				// in schema mode we skip not related functions
+				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
 				foreach ($v as $k2 => $v2) {
-					if (empty($obj_master['function'][$k][$k2])) {
-						$result['up']['delete_functions'][$k . '.' . $k2] = [
-							'type' => 'function_delete',
-							'name' => $v2['full_function_name'],
-							'data' => $v2
-						];
-						$result['count']++;
+					foreach ($v2 as $k3 => $v3) {
+						if (empty($obj_master['function'][$k][$k2][$k3])) {
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'function_delete';
+							$result['up']['delete_functions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// down
+							$v3['type'] = 'function_new';
+							$result['down']['new_functions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// count
+							$result['count']++;
+						}
 					}
 				}
 			}
@@ -1036,14 +1067,8 @@ class numbers_backend_db_class_ddl {
 	 * @return string
 	 */
 	public static function sanitize_function($sql) {
-		$sql = trim(str_replace(['$BODY$', '$function$'], '$$$', $sql), " \t\n\r");
-		$temp = explode("\n", $sql);
-		foreach ($temp as $k => $v) {
-			$temp[$k] = trim($v, " \t\n\r");
-		}
-		$temp = implode("\n", $temp);
-		$temp = str_replace('FUNCTION public.', 'FUNCTION ', $temp);
-		return $temp;
+		$result = str_replace(['$BODY$', '$function$'], '$$$$$$', $sql);
+		return trim(str_replace([' ', "\n", "\r", "\t"], '', $result));
 	}
 
 	/**

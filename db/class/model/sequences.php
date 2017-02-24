@@ -3,6 +3,7 @@
 class numbers_backend_db_class_model_sequences extends object_table {
 	public $db_link;
 	public $db_link_flag;
+	public $module_code = 'SM';
 	public $title = 'S/M Sequences';
 	public $schema;
 	public $name = 'sm_sequences';
@@ -35,4 +36,10 @@ class numbers_backend_db_class_model_sequences extends object_table {
 	public $cache = false;
 	public $cache_tags = [];
 	public $cache_memory = false;
+
+	public $data_asset = [
+		'classification' => 'public',
+		'protection' => 0,
+		'scope' => 'global'
+	];
 }

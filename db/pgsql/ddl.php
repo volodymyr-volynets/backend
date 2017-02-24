@@ -233,9 +233,7 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 									'type' => 'extension',
 									'schema' => $v5['schema_name'],
 									'name' => $v5['extension_name'],
-									'backends' => [
-										'plsql'
-									]
+									'backend' => 'pgsql' // a must
 								], $db_link);
 							}
 						}
@@ -289,19 +287,20 @@ class numbers_backend_db_pgsql_ddl extends numbers_backend_db_class_ddl implemen
 								$k2 = '';
 							}
 							foreach ($v2 as $k3 => $v3) {
-								//$k3 = str_replace('public.', '', $k3);
-								$name = ($k2 == '') ? $k3 : ($k2 . '.' . $k3);
-								$result['data']['function'][$k2][$k3] = [
-									'owner' => $v3['function_owner'],
-									'full_function_name' => $name,
-									'sql_full' => $v3['routine_definition'],
-									'sql_parts' => [
-										'definition' => $v3['full_function_name'],
-										'header' => null,
-										'body' => $v3['routine_definition'],
-										'footer' => null
+								$full_function_name = ltrim($v3['schema_name'] . '.' . $v3['function_name'], '.');
+								// add object
+								$this->object_add([
+									'type' => 'function',
+									'schema' => $k2,
+									'name' => $k3,
+									'backend' => 'pgsql',
+									'data' => [
+										'owner' => $v3['function_owner'],
+										'full_function_name' => $full_function_name,
+										'header' => $v3['full_function_name'],
+										'definition' => $v3['routine_definition']
 									]
-								];
+								], $db_link);
 							}
 						}
 						break;
@@ -822,14 +821,14 @@ TTT;
 			// functions
 			case 'function_new':
 				$result = [];
-				$result[]= $data['data']['sql_full'] . ";";
-				$result[]= "ALTER FUNCTION {$data['data']['sql_parts']['definition']} OWNER TO {$data['owner']};";
+				$result[]= $data['data']['definition'] . ";";
+				$result[]= "ALTER FUNCTION {$data['data']['header']} OWNER TO {$data['data']['owner']};";
 				break;
 			case 'function_delete':
-				$result = "DROP FUNCTION {$data['data']['sql_parts']['definition']};";
+				$result = "DROP FUNCTION {$data['data']['header']};";
 				break;
 			case 'function_owner':
-				$result = "ALTER FUNCTION {$data['data']['sql_parts']['definition']} OWNER TO {$data['owner']};";
+				$result = "ALTER FUNCTION {$data['header']} OWNER TO {$data['owner']};";
 				break;
 			// trigger
 			case 'trigger_new':

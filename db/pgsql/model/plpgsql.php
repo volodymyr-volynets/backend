@@ -6,7 +6,5 @@ class numbers_backend_db_pgsql_model_plpgsql extends object_extension {
 	public $title = 'PL/pgSQL - SQL Procedural Language';
 	public $schema = 'pg_catalog';
 	public $name = 'plpgsql';
-	public $backends = [
-		'pgsql'
-	];
+	public $backend = 'pgsql';
 }
