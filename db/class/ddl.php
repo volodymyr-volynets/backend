@@ -128,6 +128,13 @@ class numbers_backend_db_class_ddl {
 				$columns[$k] = $temp;
 				// add sequence
 				if (!empty($temp['sequence'])) {
+					$sequence_type = 'global_simple';
+					if ($model->tenant) {
+						$sequence_type = 'tenant_simple';
+					}
+					if ($model->module) {
+						$sequence_type = 'module_simple';
+					}
 					$this->object_add([
 						'type' => 'sequence',
 						'schema' => $model->schema,
@@ -136,8 +143,7 @@ class numbers_backend_db_class_ddl {
 							'owner' => $options['db_schema_owner'] ?? null,
 							'full_sequence_name' => $model->full_table_name . '_' . $k . '_seq',
 							'full_table_name' => $model->full_table_name, // a must
-							// todo: handle tenant and ledger
-							'type' => 'global_simple',
+							'type' => $sequence_type,
 							'prefix' => null,
 							'suffix' => null,
 							'length' => 0

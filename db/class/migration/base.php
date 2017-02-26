@@ -255,7 +255,7 @@ abstract class numbers_backend_db_class_migration_base {
 			$migration_model = new numbers_backend_db_class_model_migrations();
 			if ($migration_model->db_present()) {
 				// insert new migration record
-				$temp_result = numbers_backend_db_class_model_migrations::collection()->merge($this->executed_migration_stats);
+				$temp_result = numbers_backend_db_class_model_migrations::collection_static()->merge($this->executed_migration_stats);
 				if (!$temp_result['success']) {
 					Throw new Exception(implode("\n", $temp_result['error']));
 				}
@@ -276,7 +276,7 @@ abstract class numbers_backend_db_class_migration_base {
 					if (empty($temp)) {
 						Throw new Exception('Could not find original up migration!');
 					}
-					$temp_result = numbers_backend_db_class_model_migrations::collection()->merge([
+					$temp_result = numbers_backend_db_class_model_migrations::collection_static()->merge([
 						'sm_migration_id' => key($temp),
 						'sm_migration_rolled_back' => 1
 					]);
@@ -305,7 +305,7 @@ abstract class numbers_backend_db_class_migration_base {
 					$migration_model = new numbers_backend_db_class_model_migrations();
 					if ($migration_model->db_present()) {
 						$old_stats['sm_migration_rolled_back'] = 1;
-						$temp_result = numbers_backend_db_class_model_migrations::collection()->merge_multiple([$old_stats, $this->executed_migration_stats]);
+						$temp_result = numbers_backend_db_class_model_migrations::collection_static()->merge_multiple([$old_stats, $this->executed_migration_stats]);
 						if (!$temp_result['success']) {
 							Throw new Exception(implode("\n", $temp_result['error']));
 						}

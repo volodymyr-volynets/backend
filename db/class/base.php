@@ -157,10 +157,10 @@ class numbers_backend_db_class_base {
 				$string = $par[0];
 				// special handling if we got an array
 				if (is_array($v) && $operator == '=') {
-					$operator = 'in';
+					$operator = 'IN';
 				}
 				// processing per operator
-				$operator = strtolower($operator);
+				$operator = strtoupper($operator);
 				switch ($operator) {
 					// todo: add ALL and ANY operators
 					/*
@@ -168,16 +168,16 @@ class numbers_backend_db_class_base {
 						$string = $v . ' = ' . $operator . '(' . $key . ')';
 					}
 					*/
-					case 'in':
+					case 'IN':
 						$string.= ' IN(' . implode(', ', $this->escape_array($v, ['quotes' => true])) . ')';
 						break;
-					case 'like%':
+					case 'LIKE%':
 						$v = '%' . $v . '%';
-					case 'like':
+					case 'LIKE':
 						$v = "'" . $this->escape($v) . "'";
 						$string.= ' ' . $this->sql_keywords['like'] . ' ' . $v;
 						break;
-					case 'fts':
+					case 'FTS':
 						$temp2 = $this->full_text_search_query($v['fields'], $v['str']);
 						if (empty($temp2['where'])) {
 							continue;

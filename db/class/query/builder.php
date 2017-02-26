@@ -52,7 +52,7 @@ class numbers_backend_db_class_query_builder {
 	 *
 	 * @param string $db_link
 	 * @param array $options
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public static function quick(string $db_link, array $options = []) : numbers_backend_db_class_query_builder {
 		$object = new numbers_backend_db_class_query_builder($db_link, $options);
@@ -62,7 +62,7 @@ class numbers_backend_db_class_query_builder {
 	/**
 	 * Select
 	 *
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function select() : numbers_backend_db_class_query_builder {
 		$this->data['operator'] = 'select';
@@ -72,7 +72,7 @@ class numbers_backend_db_class_query_builder {
 	/**
 	 * Update
 	 *
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function update() : numbers_backend_db_class_query_builder {
 		$this->data['operator'] = 'update';
@@ -82,7 +82,7 @@ class numbers_backend_db_class_query_builder {
 	/**
 	 * Insert
 	 *
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function insert() : numbers_backend_db_class_query_builder {
 		$this->data['operator'] = 'insert';
@@ -92,7 +92,7 @@ class numbers_backend_db_class_query_builder {
 	/**
 	 * Delete
 	 *
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function delete() : numbers_backend_db_class_query_builder {
 		$this->data['operator'] = 'delete';
@@ -103,7 +103,7 @@ class numbers_backend_db_class_query_builder {
 	 * Columns
 	 *
 	 * @param mixed $columns
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function columns($columns) : numbers_backend_db_class_query_builder {
 		// create empty array
@@ -128,7 +128,7 @@ class numbers_backend_db_class_query_builder {
 	 * Set
 	 *
 	 * @param mixed $columns
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function set($columns) : numbers_backend_db_class_query_builder {
 		// create empty array
@@ -149,36 +149,93 @@ class numbers_backend_db_class_query_builder {
 	/**
 	 * From
 	 *
-	 * @param mixed $tables
-	 * @return \numbers_backend_db_class_query_builder
+	 * @param mixed $table
+	 * @param string $alias
+	 * @return numbers_backend_db_class_query_builder
 	 */
-	public function from($tables) : numbers_backend_db_class_query_builder {
+	public function from($table, $alias = null) : numbers_backend_db_class_query_builder {
 		// create empty array
 		if (!isset($this->data['from'])) $this->data['from'] = [];
-		// convert tables to array
-		if (is_string($tables)) $tables = [$tables];
-		// add tables
-		foreach ($tables as $k => $v) {
-			if (is_numeric($k)) {
-				array_push($this->data['from'], $v);
-			} else {
-				$this->data['from'][$k] = $v;
-			}
+		// add based on alias
+		if (!empty($alias)) {
+			$this->data['from'][$alias] = $this->single_from_clause($table);
+		} else {
+			array_push($this->data['from'], $this->single_from_clause($table));
 		}
 		return $this;
 	}
 
 	/**
-	 * Where
+	 * Join
+	 *
+	 * @param string $type
+	 * @param mixed $table
+	 * @param mixed $alias
+	 * @param string $on
+	 * @param mixed $conditions
+	 * @return numbers_backend_db_class_query_builder
+	 */
+	public function join(string $type, $table, $alias, string $on = 'ON', $conditions) : numbers_backend_db_class_query_builder {
+		$join = [
+			'type' => $type,
+			'table' => null,
+			'alias' => $alias,
+			'on' => $on,
+			'conditions' => []
+		];
+		// create empty array
+		if (!isset($this->data['join'])) $this->data['join'] = [];
+		// add based on table type
+		$join['table'] = $this->single_from_clause($table);
+		// condition
+		if (!empty($conditions)) {
+			if (is_scalar($conditions)) {
+				$join['conditions'] = $conditions;
+			} else if (is_array($conditions)) { // array
+				foreach ($conditions as $k => $v) {
+					// notation: ['AND', ['a.sm_module_code', '=', 'b.tm_module_module_code'], false]
+					array_push($join['conditions'], $this->single_condition_clause($v[0], $v[1], $v[2] ?? false));
+				}
+			}
+		}
+		// add
+		if (!empty($alias)) {
+			$this->data['join'][$alias] = $join;
+		} else {
+			array_push($this->data['join'], $join);
+		}
+		return $this;
+	}
+
+	/**
+	 * Single from clause
+	 *
+	 * @param mixed $table
+	 * @return string
+	 */
+	private function single_from_clause($table) : string {
+		// add based on table type
+		if (is_string($table)) {
+			return $table;
+		} else if (is_object($table) && is_a($table, 'numbers_backend_db_class_query_builder')) { // query builder object
+			return "(\n" . $this->wrap_sql_into_tabs($table->sql()) . "\n)";
+		} else if (is_object($table) && is_a($table, 'object_table')) { // table object
+			return $table->full_table_name;
+		} else if (is_callable($table)) {
+			return "(\n" . $this->wrap_sql_into_tabs($this->subquery($table)) . "\n)";
+		}
+	}
+
+	/**
+	 * Single condition clause
 	 *
 	 * @param string $operator
 	 * @param mixed $condition
 	 * @param boolean $exists
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return array
 	 */
-	public function where(string $operator = 'AND', $condition, $exists = false) : numbers_backend_db_class_query_builder {
-		// create empty array
-		if (!isset($this->data['where'])) $this->data['where'] = [];
+	private function single_condition_clause(string $operator = 'AND', $condition, bool $exists = false) {
+		$result = null;
 		// operator
 		$operator = strtoupper($operator);
 		// exists
@@ -189,7 +246,7 @@ class numbers_backend_db_class_query_builder {
 		}
 		// process conditions
 		if (is_string($condition)) {
-			array_push($this->data['where'], [$operator, $exists, $condition, false]);
+			return [$operator, $exists, $condition, false];
 		} else if (is_array($condition)) {
 			// todo: normilize
 			$key = [$condition[0], $condition[1]];
@@ -197,23 +254,46 @@ class numbers_backend_db_class_query_builder {
 				$key[] = '~~';
 			}
 			$key = implode(';', $key);
-			array_push($this->data['where'], [$operator, $exists, $this->db_object->prepare_condition([$key => $condition[2] ?? null]), false]);
+			return [$operator, $exists, $this->db_object->prepare_condition([$key => $condition[2] ?? null]), false];
 		} else if (is_callable($condition)) {
-			// todo
+			return [$operator, $exists, $this->where_inner($condition), false];
 		}
+	}
+
+	/**
+	 * Where
+	 *
+	 * @param string $operator
+	 * @param mixed $condition
+	 * @param boolean $exists
+	 * @return numbers_backend_db_class_query_builder
+	 */
+	public function where(string $operator = 'AND', $condition, bool $exists = false) : numbers_backend_db_class_query_builder {
+		// create empty array
+		if (!isset($this->data['where'])) $this->data['where'] = [];
+		// add condition
+		array_push($this->data['where'], $this->single_condition_clause($operator, $condition, $exists));
 		return $this;
 	}
 
 	/**
 	 * Where (multiple)
 	 *
+	 *	Notation: 'field;=;~~' => 'value'
+	 *	Notation: ['field', '=', 'value', true]
+	 *
 	 * @param type $operator
 	 * @param array $conditions
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function where_multiple(string $operator, array $conditions) : numbers_backend_db_class_query_builder {
 		foreach ($conditions as $k => $v) {
-			$this->where($operator, $this->db_object->prepare_condition([$k => $v]));
+			// notation field;=;~~ => [value]
+			if (is_string($k)) {
+				$this->where($operator, $this->db_object->prepare_condition([$k => $v]));
+			} else { // notation: ['field', '=', 'value', true]
+				$this->where($operator, $v);
+			}
 		}
 		return $this;
 	}
@@ -222,7 +302,7 @@ class numbers_backend_db_class_query_builder {
 	 * Values
 	 *
 	 * @param mixed $values
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function values($values) : numbers_backend_db_class_query_builder {
 		if (is_string($values) || is_array($values)) {
@@ -240,7 +320,7 @@ class numbers_backend_db_class_query_builder {
 	/**
 	 * Distinct
 	 *
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function distinct() : numbers_backend_db_class_query_builder {
 		$this->data['distinct'] = true;
@@ -250,7 +330,7 @@ class numbers_backend_db_class_query_builder {
 	/**
 	 * For update
 	 *
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function for_update() : numbers_backend_db_class_query_builder {
 		$this->data['for_update'] = true;
@@ -260,7 +340,7 @@ class numbers_backend_db_class_query_builder {
 	/**
 	 * Returning
 	 *
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function returning() : numbers_backend_db_class_query_builder {
 		$this->data['returning'] = true;
@@ -271,7 +351,7 @@ class numbers_backend_db_class_query_builder {
 	 * Limit
 	 *
 	 * @param int $limit
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function limit(int $limit) : numbers_backend_db_class_query_builder {
 		$this->data['limit'] = $limit;
@@ -282,7 +362,7 @@ class numbers_backend_db_class_query_builder {
 	 * Offset
 	 *
 	 * @param int $offset
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function offset(int $offset) : numbers_backend_db_class_query_builder {
 		$this->data['offset'] = $offset;
@@ -290,13 +370,31 @@ class numbers_backend_db_class_query_builder {
 	}
 
 	/**
-	 * Orderby
+	 * Order by
 	 *
 	 * @param array $orderby
-	 * @return \numbers_backend_db_class_query_builder
+	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function orderby(array $orderby) : numbers_backend_db_class_query_builder {
 		$this->data['orderby'] = $orderby;
+		return $this;
+	}
+
+	/**
+	 * Group by
+	 *
+	 * @param array $orderby
+	 * @return numbers_backend_db_class_query_builder
+	 */
+	public function groupby(array $groupby) : numbers_backend_db_class_query_builder {
+		// create empty array
+		if (!isset($this->data['groupby'])) $this->data['groupby'] = [];
+		// convert to array
+		if (is_string($groupby)) $groupby = [$groupby];
+		// add groupby
+		foreach ($groupby as $k => $v) {
+			array_push($this->data['groupby'], $v);
+		}
 		return $this;
 	}
 
@@ -340,6 +438,18 @@ class numbers_backend_db_class_query_builder {
 	}
 
 	/**
+	 * Inner where clauses
+	 *
+	 * @param callable $function
+	 * @return string
+	 */
+	private function where_inner($function) {
+		$subquery = new numbers_backend_db_class_query_builder($this->db_link, ['subquery' => true]);
+		$function($subquery);
+		return "( " . trim($this->wrap_sql_into_tabs($subquery->render_where($subquery->data['where']) . "\n)"));
+	}
+
+	/**
 	 * Sub-query
 	 *
 	 * @param callable $function
@@ -379,5 +489,19 @@ class numbers_backend_db_class_query_builder {
 		} else {
 			Throw new Exception(implode(', ', $result['error']));
 		}
+	}
+
+	/**
+	 * Wrap SQL into tabs
+	 *
+	 * @param string $sql
+	 * @return string
+	 */
+	private function wrap_sql_into_tabs($sql) {
+		$temp = explode("\n", $sql);
+		foreach ($temp as $k => $v) {
+			$temp[$k] = "\t" . $v;
+		}
+		return implode("\n", $temp);
 	}
 }

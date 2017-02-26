@@ -326,7 +326,7 @@ run_again:
 			$migration_model = new numbers_backend_db_class_model_migrations();
 			if ($migration_model->db_present()) {
 				$ts = format::now('timestamp');
-				$temp_result = numbers_backend_db_class_model_migrations::collection()->merge([
+				$temp_result = numbers_backend_db_class_model_migrations::collection_static()->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'schema',
 					'sm_migration_action' => 'up',
@@ -447,7 +447,7 @@ run_again:
 			$migration_model = new numbers_backend_db_class_model_migrations();
 			if ($migration_model->db_present()) {
 				$ts = format::now('timestamp');
-				$temp_result = numbers_backend_db_class_model_migrations::collection()->merge([
+				$temp_result = numbers_backend_db_class_model_migrations::collection_static()->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'permission',
 					'sm_migration_action' => 'update',
@@ -503,7 +503,7 @@ run_again:
 			$migration_model = new numbers_backend_db_class_model_migrations();
 			if ($migration_model->db_present()) {
 				$ts = format::now('timestamp');
-				$temp_result = numbers_backend_db_class_model_migrations::collection()->merge([
+				$temp_result = numbers_backend_db_class_model_migrations::collection_static()->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'import',
 					'sm_migration_action' => 'update',

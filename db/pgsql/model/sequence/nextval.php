@@ -15,32 +15,32 @@ AS $function$
 DECLARE
 	result bigint;
 BEGIN
-	SELECT sm_seqextend_counter INTO result FROM sm_sequence_extended WHERE sm_seqextend_name = sequence_name AND sm_seqextend_tenant_id = tenant_id AND sm_seqextend_module_id = module_id;
+	SELECT sm_sequence_counter INTO result FROM sm_sequence_extended WHERE sm_sequence_name = sequence_name AND sm_sequence_tenant_id = tenant_id AND sm_sequence_module_id = module_id;
 	IF FOUND THEN
 		result:= result + 1;
-		UPDATE sm_sequence_extended SET sm_seqextend_counter = result WHERE sm_seqextend_name = sequence_name AND sm_seqextend_tenant_id = tenant_id AND sm_seqextend_module_id = module_id;
+		UPDATE sm_sequence_extended SET sm_sequence_counter = result WHERE sm_sequence_name = sequence_name AND sm_sequence_tenant_id = tenant_id AND sm_sequence_module_id = module_id;
 	ELSE
 		INSERT INTO sm_sequence_extended (
-			sm_seqextend_name,
-			sm_seqextend_tenant_id,
-			sm_seqextend_module_id,
-			sm_seqextend_description,
-			sm_seqextend_type,
-			sm_seqextend_prefix,
-			sm_seqextend_length,
-			sm_seqextend_suffix,
-			sm_seqextend_counter
+			sm_sequence_name,
+			sm_sequence_tenant_id,
+			sm_sequence_module_id,
+			sm_sequence_description,
+			sm_sequence_type,
+			sm_sequence_prefix,
+			sm_sequence_length,
+			sm_sequence_suffix,
+			sm_sequence_counter
 		)
 		SELECT
-			sm_sequence_name sm_seqextend_name,
-			tenant_id sm_seqextend_tenant_id,
-			module_id sm_seqextend_module_id,
-			sm_sequence_description sm_seqextend_description,
-			sm_sequence_type sm_seqextend_type,
-			sm_sequence_prefix sm_seqextend_prefix,
-			sm_sequence_length sm_seqextend_length,
-			sm_sequence_suffix sm_seqextend_suffix,
-			1 sm_seqextend_counter
+			sm_sequence_name sm_sequence_name,
+			tenant_id sm_sequence_tenant_id,
+			module_id sm_sequence_module_id,
+			sm_sequence_description sm_sequence_description,
+			sm_sequence_type sm_sequence_type,
+			sm_sequence_prefix sm_sequence_prefix,
+			sm_sequence_length sm_sequence_length,
+			sm_sequence_suffix sm_sequence_suffix,
+			1 sm_sequence_counter
 		FROM sm_sequences
 		WHERE sm_sequence_name = sequence_name;
 		result:= 1;

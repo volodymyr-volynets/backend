@@ -43,7 +43,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 * @param string $id
 	 */
 	public function read($id) {
-		$result = numbers_backend_session_db_model_sessions::query_builder()
+		$result = numbers_backend_session_db_model_sessions::query_builder_static()
 			->select()
 			->columns(['sm_session_data'])
 			->where('AND', ['sm_session_id', '=', $id])
@@ -67,7 +67,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		} else {
 			$inc = 0;
 		}
-		$result = numbers_backend_session_db_model_sessions::query_builder()
+		$result = numbers_backend_session_db_model_sessions::query_builder_static()
 			->update()
 			->set([
 				'sm_session_expires' => format::now('timestamp', ['add_seconds' => session::$default_options['gc_maxlifetime']]),
@@ -80,7 +80,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 			->where('AND', ['sm_session_id', '=', $id])
 			->query();
 		if (empty($result['affected_rows'])) {
-			$result = numbers_backend_session_db_model_sessions::query_builder()
+			$result = numbers_backend_session_db_model_sessions::query_builder_static()
 				->insert()
 				->columns([
 					'sm_session_id',
@@ -114,7 +114,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 * @return boolean
 	 */
 	public function destroy($id) {
-		$result = numbers_backend_session_db_model_sessions::query_builder()
+		$result = numbers_backend_session_db_model_sessions::query_builder_static()
 			->update()
 			->set(['sm_session_expires' => format::now('timestamp', ['add_seconds' => -100])])
 			->where('AND', ['sm_session_id', '=', $id])
@@ -133,7 +133,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		$object->db_object->begin();
 		// step 1: we need to move expired sessions to history table
 		$expire = format::now('timestamp');
-		$result = numbers_backend_session_db_model_session_history::query_builder()
+		$result = numbers_backend_session_db_model_session_history::query_builder_static()
 			->insert()
 			->columns([
 				'sm_sesshist_id',
@@ -144,7 +144,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 				'sm_sesshist_user_id'
 			])
 			->values(function(& $subquery) use ($expire) {
-				$subquery = numbers_backend_session_db_model_sessions::query_builder()
+				$subquery = numbers_backend_session_db_model_sessions::query_builder_static()
 					->select()
 					->columns([
 						'sm_sesshist_id' => "nextval('sm_session_history_sm_sesshist_id_seq')",
@@ -162,7 +162,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 			return false;
 		}
 		// step 2: remove expired sessions
-		$result = numbers_backend_session_db_model_sessions::query_builder()
+		$result = numbers_backend_session_db_model_sessions::query_builder_static()
 			->delete()
 			->where('AND', ['sm_session_expires', '<', $expire])
 			->query();

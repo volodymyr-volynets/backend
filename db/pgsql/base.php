@@ -333,19 +333,21 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	/**
 	 * @see db::sequence();
 	 */
-	public function sequence($sequence_name, $type = 'nextval') {
-		$sequence_model = new numbers_backend_db_class_model_sequences();
-		$sql = <<<TTT
-			SELECT
-				a.counter,
-				b.*,
-				'{$sequence_name}' sm_sequence_name
-			FROM (
-				SELECT {$type}('{$sequence_name}') counter
-			) a
-			LEFT JOIN sm_sequences b ON sm_sequence_name = '{$sequence_name}';
-TTT;
-		return $this->query($sql);
+	public function sequence($sequence_name, $type = 'nextval', $tenant = null, $module = null) {
+		$query = new object_query_builder($this->db_link);
+		// extended sequence
+		if (isset($tenant) || isset($module)) {
+			$tenant = (int) $tenant;
+			$module = (int) $module;
+			$query->columns([
+				'counter' => "{$type}_extended('{$sequence_name}'::character varying, {$tenant}, {$module})"
+			]);
+		} else { // regular sequence
+			$query->columns([
+				'counter' => "{$type}('{$sequence_name}')"
+			]);
+		}
+		return $query->query();
 	}
 
 	/**
@@ -602,10 +604,8 @@ TTT;
 					$sql.= implode(",\n", $temp);
 				}
 				// from
-				$sql.= "\nFROM ";
-				if (empty($object->data['from'])) {
-					$result['error'][] = 'From?';
-				} else {
+				if (!empty($object->data['from'])) {
+					$sql.= "\nFROM ";
 					$temp = [];
 					foreach ($object->data['from'] as $k => $v) {
 						// todo - $v can be subquery
@@ -617,10 +617,28 @@ TTT;
 					}
 					$sql.= implode(",\n", $temp);
 				}
+				// join
+				if (!empty($object->data['join'])) {
+					foreach ($object->data['join'] as $k => $v) {
+						$type = $v['type'];
+						if (!empty($type)) $type.= ' ';
+						$alias = $v['alias'];
+						if (!empty($alias)) $alias = ' ' . $alias . ' ';
+						$where = '';
+						if (!empty($v['conditions'])) {
+							$where = $object->render_where($v['conditions']);
+						}
+						$sql.= "\n{$type}JOIN {$v['table']}{$alias}{$v['on']}{$where}";
+					}
+				}
 				// where
 				if (!empty($object->data['where'])) {
 					$sql.= "\nWHERE";
 					$sql.= $object->render_where($object->data['where']);
+				}
+				// group by
+				if (!empty($object->data['groupby'])) {
+					$sql.= "\nGROUP BY " . implode(",\n\t", $object->data['groupby']);
 				}
 				// orderby
 				if (!empty($object->data['orderby'])) {
