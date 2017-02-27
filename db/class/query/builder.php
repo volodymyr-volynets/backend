@@ -186,12 +186,17 @@ class numbers_backend_db_class_query_builder {
 		// create empty array
 		if (!isset($this->data['join'])) $this->data['join'] = [];
 		// add based on table type
-		$join['table'] = $this->single_from_clause($table);
+		$table_extra_conditions = [];
+		$join['table'] = $this->single_from_clause($table, $alias, $table_extra_conditions);
 		// condition
 		if (!empty($conditions)) {
 			if (is_scalar($conditions)) {
 				$join['conditions'] = $conditions;
 			} else if (is_array($conditions)) { // array
+				// append extra conditions
+				if (!empty($table_extra_conditions)) {
+					$conditions = array_merge($table_extra_conditions, $conditions);
+				}
 				foreach ($conditions as $k => $v) {
 					// notation: ['AND', ['a.sm_module_code', '=', 'b.tm_module_module_code'], false]
 					array_push($join['conditions'], $this->single_condition_clause($v[0], $v[1], $v[2] ?? false));
@@ -211,15 +216,21 @@ class numbers_backend_db_class_query_builder {
 	 * Single from clause
 	 *
 	 * @param mixed $table
+	 * @param string $alias
+	 * @param array $conditions
 	 * @return string
 	 */
-	private function single_from_clause($table) : string {
+	private function single_from_clause($table, $alias = null, & $conditions = []) : string {
 		// add based on table type
 		if (is_string($table)) {
 			return $table;
 		} else if (is_object($table) && is_a($table, 'numbers_backend_db_class_query_builder')) { // query builder object
 			return "(\n" . $this->wrap_sql_into_tabs($table->sql()) . "\n)";
 		} else if (is_object($table) && is_a($table, 'object_table')) { // table object
+			// injecting tenant
+			if ($table->tenant) {
+				$conditions[] = ['AND', [ltrim($alias . '.' . $table->tenant_column), '=', tenant::tenant_id(), false], false];
+			}
 			return $table->full_table_name;
 		} else if (is_callable($table)) {
 			return "(\n" . $this->wrap_sql_into_tabs($this->subquery($table)) . "\n)";

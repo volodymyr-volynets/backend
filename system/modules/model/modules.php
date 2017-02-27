@@ -15,7 +15,6 @@ class numbers_backend_system_modules_model_modules extends object_table {
 		'sm_module_code' => ['name' => 'Module Code', 'domain' => 'module_code'],
 		'sm_module_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => 'numbers_backend_system_modules_model_module_types'],
 		'sm_module_name' => ['name' => 'Name', 'domain' => 'name'],
-		'sm_module_short' => ['name' => 'Short Name', 'domain' => 'name'],
 		'sm_module_parent_module_code' => ['name' => 'Parent Module Code', 'domain' => 'module_code', 'null' => true],
 		'sm_module_transactions' => ['name' => 'Transactions', 'type' => 'boolean'],
 		'sm_module_multiple' => ['name' => 'Multiple', 'type' => 'boolean'],
