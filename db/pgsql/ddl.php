@@ -772,8 +772,7 @@ TTT;
 				}
 				break;
 			case 'index_delete':
-				$temp = explode('.', $data['table']);
-				$result = "DROP INDEX {$temp[0]}.{$data['name']};";
+				$result = "DROP INDEX {$data['name']};";
 				break;
 			// sequences
 			case 'sequence_new':

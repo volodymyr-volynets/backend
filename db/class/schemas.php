@@ -81,9 +81,7 @@ class numbers_backend_db_class_schemas {
 			'error' => [],
 			'data' => [
 				'object_attributes' => [],
-				'object_documentation' => [],
 				'object_import' => [],
-				'object_forms' => [],
 				'object_relations' => []
 			],
 			'objects' => [],
@@ -138,34 +136,27 @@ run_again:
 					if (!$temp_result['success']) {
 						array_merge3($result['error'], $temp_result['error']);
 					}
-					//$object_documentation[$v][$k2] = $k2;
 					// relation
+					if (!empty($model->relation)) {
+						$domain = $model->columns[$model->relation['field']]['domain'] ?? null;
+						if (!empty($domain)) $domain = str_replace('_sequence', '', $domain);
+						$result['data']['object_relations'][$k2] = [
+							'sm_relation_model' => $k2,
+							'sm_relation_name' => $model->title,
+							'sm_relation_column' => $model->relation['field'],
+							'sm_relation_domain' => $domain,
+							'sm_relation_type' => $model->columns[$model->relation['field']]['type'],
+							'sm_relation_inactive' => 0
+						];
+					}
+					//$object_documentation[$v][$k2] = $k2;
 					/*
-					if ($flag_relation) {
-						if (!empty($model->relation)) {
-							$domain = $model->columns[$model->relation['field']]['domain'] ?? null;
-							if (!empty($domain)) {
-								$domain = str_replace('_sequence', '', $domain);
-								$type = $domains[$domain]['type'];
-							} else {
-								$type = $model->columns[$model->relation['field']]['type'];
-							}
-							$object_relations[$k2] = [
-								'rn_relattr_code' => $model->relation['field'],
-								'rn_relattr_name' => $model->title,
-								'rn_relattr_model' => $k2,
-								'rn_relattr_domain' => $domain,
-								'rn_relattr_type' => $type,
-								'rn_relattr_inactive' => !empty($model->relation['inactive']) ? 1 : 0
-							];
-						}
-						if (!empty($model->attributes)) {
-							$object_attributes[$k2] = [
-								'rn_attrmdl_code' => $k2,
-								'rn_attrmdl_name' => $model->title,
-								'rn_attrmdl_inactive' => 0
-							];
-						}
+					if (!empty($model->attributes)) {
+						$object_attributes[$k2] = [
+							'rn_attrmdl_code' => $k2,
+							'rn_attrmdl_name' => $model->title,
+							'rn_attrmdl_inactive' => 0
+						];
 					}
 					*/
 				} else if ($v == 'object_sequence') {
@@ -488,22 +479,40 @@ run_again:
 		$db_object = factory::get(['db', $db_link, 'object']);
 		$db_object->begin();
 		// process import models one by one
-		foreach ($data as $v) {
-			$model = new $v();
-			$import_result = $model->process();
-			if (!$import_result['success']) {
-				$result['error'] = array_merge($result['error'], $import_result['error']);
-				return $result;
+		foreach ($data as $k => $v) {
+			switch ($k) {
+				case 'object_relations':
+					$import_model = new numbers_backend_db_class_model_relations();
+					if ($import_model->db_present()) {
+						$import_result = $import_model->collection(['pk' => ['sm_relation_model']])->merge_multiple($v);
+						if (!$import_result['success']) {
+							$result['error'] = array_merge($result['error'], $import_result['error']);
+							return $result;
+						}
+						$result['count']+= $import_result['count'];
+						$result['legend'][] = '         * Process relations changes ' . $import_result['count'];
+					}
+					break;
+				case 'object_import':
+					foreach ($v as $k2 => $v2) {
+						$model = new $v2();
+						$import_result = $model->process();
+						if (!$import_result['success']) {
+							$result['error'] = array_merge($result['error'], $import_result['error']);
+							return $result;
+						}
+						$result['legend'] = array_merge($result['legend'], $import_result['legend']);
+						$result['count']+= $import_result['count'];
+					}
+					break;
 			}
-			$result['legend'] = array_merge($result['legend'], $import_result['legend']);
-			$result['count']+= $import_result['count'];
 		}
 		// see if we have a migration table
 		if (!empty($result['count'])) {
 			$migration_model = new numbers_backend_db_class_model_migrations();
 			if ($migration_model->db_present()) {
 				$ts = format::now('timestamp');
-				$temp_result = numbers_backend_db_class_model_migrations::collection_static()->merge([
+				$temp_result = $migration_model->collection()->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'import',
 					'sm_migration_action' => 'update',
