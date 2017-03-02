@@ -16,6 +16,7 @@ class numbers_backend_system_modules_model_resources extends object_table {
 		'sm_resource_code' => ['name' => 'Code', 'domain' => 'code'],
 		'sm_resource_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => 'numbers_backend_system_modules_model_resource_types'],
 		'sm_resource_name' => ['name' => 'Name', 'domain' => 'name'],
+		'sm_resource_description' => ['name' => 'Description', 'domain' => 'description', 'null' => true],
 		'sm_resource_icon' => ['name' => 'Icon', 'domain' => 'icon', 'null' => true],
 		'sm_resource_module_code' => ['name' => 'Module Code', 'domain' => 'module_code'],
 		'sm_resource_group1_name' => ['name' => 'Group 1', 'domain' => 'name', 'null' => true],
@@ -30,8 +31,12 @@ class numbers_backend_system_modules_model_resources extends object_table {
 		'sm_resource_acl_public' => ['name' => 'Acl Public', 'type' => 'boolean'],
 		'sm_resource_acl_authorized' => ['name' => 'Acl Authorized', 'type' => 'boolean'],
 		'sm_resource_acl_permission' => ['name' => 'Acl Permission', 'type' => 'boolean'],
-		'sm_resource_acl_resource_id' => ['name' => 'Acl Resource #', 'domain' => 'resource_id', 'null' => true], // used by menu resources
-		'sm_resource_acl_action_id' => ['name' => 'Acl Action #', 'domain' => 'action_id', 'null' => true], // used by menu resources
+		// menu specific items
+		'sm_resource_menu_acl_resource_id' => ['name' => 'Acl Resource #', 'domain' => 'resource_id', 'null' => true], // used by menu resources
+		'sm_resource_menu_acl_action_id' => ['name' => 'Acl Action #', 'domain' => 'action_id', 'null' => true], // used by menu resources
+		'sm_resource_menu_url' => ['name' => 'URL', 'type' => 'text', 'null' => true],
+		'sm_resource_menu_options_generator' => ['name' => 'Options Generator', 'type' => 'text', 'null' => true],
+		// other
 		'sm_resource_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
 	public $constraints = [
@@ -43,15 +48,15 @@ class numbers_backend_system_modules_model_resources extends object_table {
 			'foreign_model' => 'numbers_backend_system_modules_model_modules',
 			'foreign_columns' => ['sm_module_code']
 		],
-		'sm_resource_acl_resource_id_fk' => [
+		'sm_resource_menu_acl_resource_id_fk' => [
 			'type' => 'fk',
-			'columns' => ['sm_resource_acl_resource_id'],
+			'columns' => ['sm_resource_menu_acl_resource_id'],
 			'foreign_model' => 'numbers_backend_system_modules_model_resources',
 			'foreign_columns' => ['sm_resource_id']
 		],
-		'sm_resource_acl_action_id_fk' => [
+		'sm_resource_menu_acl_action_id_fk' => [
 			'type' => 'fk',
-			'columns' => ['sm_resource_acl_action_id'],
+			'columns' => ['sm_resource_menu_acl_action_id'],
 			'foreign_model' => 'numbers_backend_system_modules_model_resource_actions',
 			'foreign_columns' => ['sm_action_id']
 		]

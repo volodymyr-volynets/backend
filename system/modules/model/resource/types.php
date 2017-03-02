@@ -13,10 +13,9 @@ class numbers_backend_system_modules_model_resource_types extends object_data {
 	public $data = [
 		100 => ['sm_rsrctype_name' => 'Controllers'],
 		// menu
-		200 => ['sm_rsrctype_name' => 'Main Menu'],
-		210 => ['sm_rsrctype_name' => 'Top Links'],
-		220 => ['sm_rsrctype_name' => 'Footer Links'],
-		// data activation
-		300 => ['sm_rsrctype_name' => 'Data Activation'],
+		200 => ['sm_rsrctype_name' => 'Main Menu - Left Side'],
+		210 => ['sm_rsrctype_name' => 'Main Menu - Right Side'],
+		220 => ['sm_rsrctype_name' => 'Top Links'],
+		230 => ['sm_rsrctype_name' => 'Footer Links'],
 	];
 }

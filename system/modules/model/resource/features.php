@@ -14,7 +14,7 @@ class numbers_backend_system_modules_model_resource_features extends object_tabl
 	public $columns = [
 		'sm_rsrcftr_resource_id' => ['name' => 'Resource #', 'domain' => 'resource_id'],
 		'sm_rsrcftr_feature_code' => ['name' => 'Feature Code', 'domain' => 'feature_code'],
-		'sm_rsrcftr_mandatory' => ['name' => 'Mandatory', 'type' => 'boolean'],
+		//'sm_rsrcftr_mandatory' => ['name' => 'Mandatory', 'type' => 'boolean'],
 		'sm_rsrcftr_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
 	];
 	public $constraints = [

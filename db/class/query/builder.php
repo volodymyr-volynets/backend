@@ -36,6 +36,13 @@ class numbers_backend_db_class_query_builder {
 	];
 
 	/**
+	 * Cache tags
+	 *
+	 * @var array
+	 */
+	public $cache_tags = [];
+
+	/**
 	 * Constructor
 	 *
 	 * @param string $db_link
@@ -223,14 +230,21 @@ class numbers_backend_db_class_query_builder {
 	private function single_from_clause($table, $alias = null, & $conditions = []) : string {
 		// add based on table type
 		if (is_string($table)) {
+			// if table name does not contains space
+			if (strpos($table, ' ') === false) {
+				$this->cache_tags[] = $table;
+			}
 			return $table;
 		} else if (is_object($table) && is_a($table, 'numbers_backend_db_class_query_builder')) { // query builder object
+			$this->cache_tags = array_merge($this->cache_tags, $table->cache_tags);
 			return "(\n" . $this->wrap_sql_into_tabs($table->sql()) . "\n)";
 		} else if (is_object($table) && is_a($table, 'object_table')) { // table object
 			// injecting tenant
 			if ($table->tenant) {
 				$conditions[] = ['AND', [ltrim($alias . '.' . $table->tenant_column), '=', tenant::tenant_id(), false], false];
 			}
+			// grab tags
+			$this->cache_tags = array_merge($this->cache_tags, $table->cache_tags);
 			return $table->full_table_name;
 		} else if (is_callable($table)) {
 			return "(\n" . $this->wrap_sql_into_tabs($this->subquery($table)) . "\n)";
@@ -473,6 +487,8 @@ class numbers_backend_db_class_query_builder {
 		if (!$result['success']) {
 			Throw new Exception('Subquery: ' . implode(', ', $result['error']));
 		}
+		// grab tags
+		$this->cache_tags = array_merge($this->cache_tags, $subquery->cache_tags);
 		return $result['sql'];
 	}
 
