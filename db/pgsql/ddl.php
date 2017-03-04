@@ -354,31 +354,46 @@ TTT;
 					FROM (
 							-- indexes
 							SELECT
-									'INDEX' constraint_type,
+								'INDEX' constraint_type,
+								v.schema_name,
+								v.table_name,
+								v.constraint_name,
+								MAX(v.index_type) index_type,
+								array_agg(v.column_name) column_names,
+								'' foreign_schema_name,
+								'' foreign_table_name,
+								'{}'::text[] foreign_column_names,
+								null match_option,
+								null update_rule,
+								null delete_rule
+							FROM (
+								SELECT
 									n.nspname schema_name,
-									t.relname table_name,
-									i.relname constraint_name,
-									max(f.amname) index_type,
-									array_agg(a.attname) column_names,
-									'' foreign_schema_name,
-									'' foreign_table_name,
-									'{}'::text[] foreign_column_names,
-									null match_option,
-									null update_rule,
-									null delete_rule
-							FROM pg_class t, pg_class i, pg_index ix, pg_attribute a, pg_namespace n, pg_am f
-							WHERE 1=1
-								AND t.oid = ix.indrelid
-								AND i.oid = ix.indexrelid
-								AND a.attrelid = t.oid
-								AND a.attnum = ANY(ix.indkey)
-								AND t.relkind = 'r'
-								AND n.oid = t.relnamespace
-								AND n.nspname NOT IN ('pg_catalog', 'information_schema')
-								AND ix.indisprimary != 't'
-								AND ix.indisunique != 't'
-								AND f.oid = i.relam
-							GROUP BY n.nspname, t.relname, i.relname
+									c.relname table_name,
+									a.relname constraint_name,
+									f.amname index_type,
+									d.attname column_name,
+									(
+										SELECT
+											temp.i + 1
+										FROM (
+											SELECT generate_series(array_lower(b.indkey,1),array_upper(b.indkey,1)) i
+										) temp
+										WHERE b.indkey[i] = d.attnum
+									) column_position
+								FROM pg_class a
+								INNER JOIN pg_index b ON a.oid = b.indexrelid
+								INNER JOIN pg_class c ON b.indrelid = c.oid
+								INNER JOIN pg_attribute d ON c.oid = d.attrelid AND d.attnum = any(b.indkey)
+								INNER JOIN pg_namespace n ON n.oid = c.relnamespace
+								INNER JOIN pg_class i ON i.oid = b.indexrelid
+								INNER JOIN pg_am f ON f.oid = i.relam
+								WHERE b.indisprimary != true
+									AND b.indisunique != true
+									AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+								ORDER BY table_name, constraint_name, column_position
+							) v
+							GROUP BY v.schema_name, v.table_name, v.constraint_name
 
 							UNION ALL
 
