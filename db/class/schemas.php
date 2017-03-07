@@ -103,7 +103,6 @@ class numbers_backend_db_class_schemas {
 			}
 			$ddl = new numbers_backend_db_class_ddl();
 			// run 1 to deterine virtual tables
-/*
 			$first = true;
 			$virtual_models = $dep['data']['model_processed'];
 run_again:
@@ -124,13 +123,11 @@ run_again:
 				goto run_again; // some widgets have attributes
 			}
 			$dep['data']['model_processed'] = array_merge_hard($dep['data']['model_processed'], $virtual_models);
-*/
-			//$domains = object_data_domains::get_static();
 			// run 2
 			foreach ($dep['data']['model_processed'] as $k => $v) {
 				$k2 = str_replace('.', '_', $k);
 				if ($v == 'object_table') {
-					$model = factory::model($k2, true, $options);
+					$model = factory::model($k2, true, [$options]);
 					// todo: disable non default db links
 					$temp_result = $ddl->process_table_model($model, $options);
 					if (!$temp_result['success']) {
