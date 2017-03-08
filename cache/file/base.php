@@ -89,8 +89,8 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 			$cookie_data = $this->storage_convert('get', $cookie_data);
 			// remove cookie files if expired
 			if ($cookie_data['expire'] < time()) {
-				unlink($cookie_name);
-				unlink($cookie_data['file']);
+				@unlink($cookie_name);
+				@unlink($cookie_data['file']);
 				break;
 			}
 			// load cache file

@@ -33,6 +33,7 @@ class numbers_backend_system_modules_model_resources extends object_table {
 		'sm_resource_acl_permission' => ['name' => 'Acl Permission', 'type' => 'boolean'],
 		// menu specific items
 		'sm_resource_menu_acl_resource_id' => ['name' => 'Acl Resource #', 'domain' => 'resource_id', 'null' => true], // used by menu resources
+		'sm_resource_menu_acl_method_code' => ['name' => 'Acl Action Code', 'domain' => 'code', 'null' => true], // used by menu resources
 		'sm_resource_menu_acl_action_id' => ['name' => 'Acl Action #', 'domain' => 'action_id', 'null' => true], // used by menu resources
 		'sm_resource_menu_url' => ['name' => 'URL', 'type' => 'text', 'null' => true],
 		'sm_resource_menu_options_generator' => ['name' => 'Options Generator', 'type' => 'text', 'null' => true],
@@ -59,7 +60,7 @@ class numbers_backend_system_modules_model_resources extends object_table {
 			'columns' => ['sm_resource_menu_acl_action_id'],
 			'foreign_model' => 'numbers_backend_system_modules_model_resource_actions',
 			'foreign_columns' => ['sm_action_id']
-		]
+		],
 	];
 	public $history = false;
 	public $audit = false;
