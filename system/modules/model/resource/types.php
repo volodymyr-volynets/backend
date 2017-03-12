@@ -17,5 +17,6 @@ class numbers_backend_system_modules_model_resource_types extends object_data {
 		210 => ['sm_rsrctype_name' => 'Main Menu - Right Side'],
 		220 => ['sm_rsrctype_name' => 'Top Links'],
 		230 => ['sm_rsrctype_name' => 'Footer Links'],
+		299 => ['sm_rsrctype_name' => 'Submenu Icons']
 	];
 }
