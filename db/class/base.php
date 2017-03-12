@@ -31,13 +31,20 @@ class numbers_backend_db_class_base {
 	public $commit_status = 0;
 
 	/**
-	 * SQL keyword
+	 * SQL keywords
 	 *
-	 * @var string 
+	 * @var array
 	 */
 	public $sql_keywords = [
 		'like' => 'LIKE'
 	];
+
+	/**
+	 * SQL keywords overrides
+	 *
+	 * @var array
+	 */
+	public $sql_keywords_overrides = [];
 
 	/**
 	 * Constructor
@@ -48,6 +55,10 @@ class numbers_backend_db_class_base {
 	public function __construct(string $db_link, array $options = []) {
 		$this->db_link = $db_link;
 		$this->options = $options;
+		// override keyworkds
+		foreach ($this->sql_keywords_overrides as $k => $v) {
+			$this->sql_keywords[$k] = $v;
+		}
 	}
 
 	/**

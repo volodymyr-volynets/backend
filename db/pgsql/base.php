@@ -623,7 +623,11 @@ TTT;
 						$type = $v['type'];
 						if (!empty($type)) $type.= ' ';
 						$alias = $v['alias'];
-						if (!empty($alias)) $alias = ' ' . $alias . ' ';
+						if (!empty($alias)) {
+							$alias = ' ' . $alias . ' ';
+						} else {
+							$alias = ' ';
+						}
 						$where = '';
 						if (!empty($v['conditions'])) {
 							$where = $object->render_where($v['conditions']);

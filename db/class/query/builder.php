@@ -32,7 +32,14 @@ class numbers_backend_db_class_query_builder {
 	 * @var array
 	 */
 	public $data = [
-		'operator' => 'select'
+		'operator' => 'select',
+		'columns' => [],
+		'from' => [],
+		'join' => [],
+		'set' => [],
+		'where' => [],
+		'orderby' => [],
+		'groupby' => []
 	];
 
 	/**
@@ -110,11 +117,12 @@ class numbers_backend_db_class_query_builder {
 	 * Columns
 	 *
 	 * @param mixed $columns
+	 * @param array $options
 	 * @return numbers_backend_db_class_query_builder
 	 */
-	public function columns($columns) : numbers_backend_db_class_query_builder {
-		// create empty array
-		if (!isset($this->data['columns'])) $this->data['columns'] = [];
+	public function columns($columns, array $options = []) : numbers_backend_db_class_query_builder {
+		// empty existing columns
+		if (!empty($options['empty_existing'])) $this->data['columns'] = [];
 		// process only not null columns
 		if (!is_null($columns)) {
 			// convert columns to array
@@ -138,8 +146,6 @@ class numbers_backend_db_class_query_builder {
 	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function set($columns) : numbers_backend_db_class_query_builder {
-		// create empty array
-		if (!isset($this->data['set'])) $this->data['set'] = [];
 		// convert columns to array
 		if (is_string($columns)) $columns = [$columns];
 		// add columns
@@ -161,8 +167,6 @@ class numbers_backend_db_class_query_builder {
 	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function from($table, $alias = null) : numbers_backend_db_class_query_builder {
-		// create empty array
-		if (!isset($this->data['from'])) $this->data['from'] = [];
 		// add based on alias
 		if (!empty($alias)) {
 			$this->data['from'][$alias] = $this->single_from_clause($table);
@@ -190,8 +194,6 @@ class numbers_backend_db_class_query_builder {
 			'on' => $on,
 			'conditions' => []
 		];
-		// create empty array
-		if (!isset($this->data['join'])) $this->data['join'] = [];
 		// add based on table type
 		$table_extra_conditions = [];
 		$join['table'] = $this->single_from_clause($table, $alias, $table_extra_conditions);
@@ -294,8 +296,6 @@ class numbers_backend_db_class_query_builder {
 	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function where(string $operator = 'AND', $condition, bool $exists = false) : numbers_backend_db_class_query_builder {
-		// create empty array
-		if (!isset($this->data['where'])) $this->data['where'] = [];
 		// add condition
 		array_push($this->data['where'], $this->single_condition_clause($operator, $condition, $exists));
 		return $this;
@@ -401,7 +401,12 @@ class numbers_backend_db_class_query_builder {
 	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function orderby(array $orderby) : numbers_backend_db_class_query_builder {
-		$this->data['orderby'] = $orderby;
+		// convert to array
+		if (is_string($orderby)) {
+			$this->data['orderby'][$orderby] = null;
+		} else {
+			$this->data['orderby'] = array_merge_hard($this->data['orderby'], $orderby);
+		}
 		return $this;
 	}
 
@@ -412,8 +417,6 @@ class numbers_backend_db_class_query_builder {
 	 * @return numbers_backend_db_class_query_builder
 	 */
 	public function groupby(array $groupby) : numbers_backend_db_class_query_builder {
-		// create empty array
-		if (!isset($this->data['groupby'])) $this->data['groupby'] = [];
 		// convert to array
 		if (is_string($groupby)) $groupby = [$groupby];
 		// add groupby
