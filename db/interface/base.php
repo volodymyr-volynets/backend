@@ -5,7 +5,7 @@ interface numbers_backend_db_interface_base {
 	public function begin();
 	public function escape($value);
 	public function escape_array($value);
-	public function query($sql, $key = null, $options = []);
+	public function query(string $sql, $key = null, array $options = []) : array;
 	public function commit();
 	public function rollback();
 	public function sequence($sequence_name, $type);

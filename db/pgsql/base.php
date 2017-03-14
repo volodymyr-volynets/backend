@@ -100,7 +100,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 	 * @param array $options
 	 * @return array
 	 */
-	public function query($sql, $key = null, $options = []) {
+	public function query(string $sql, $key = null, array $options = []) : array {
 		$result = [
 			'success' => false,
 			'error' => [],
@@ -188,6 +188,13 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
 			$result['cache'] = true;
+			// prepend backtrace in debug mode to know where it was cached
+			if (debug::$debug) {
+				ob_start();
+				@debug_print_backtrace();
+				$result['backtrace']  = ob_get_contents();
+				ob_end_clean();
+			}
 			$cache_object->set($cache_id, $result, null, $options['cache_tags'] ?? null);
 		}
 		// if we are debugging

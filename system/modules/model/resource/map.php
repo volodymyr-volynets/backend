@@ -13,7 +13,7 @@ class numbers_backend_system_modules_model_resource_map extends object_table {
 	public $column_prefix = 'sm_rsrcmp_';
 	public $columns = [
 		'sm_rsrcmp_resource_id' => ['name' => 'Resource #', 'domain' => 'resource_id'],
-		'sm_rsrcmp_method_code' => ['name' => 'Action Code', 'domain' => 'code'], // controlls access to controller's action in the code
+		'sm_rsrcmp_method_code' => ['name' => 'Method Code', 'domain' => 'code'], // controlls access to controller's action in the code
 		'sm_rsrcmp_action_id' => ['name' => 'Action #', 'domain' => 'action_id'],
 		'sm_rsrcmp_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
 	];

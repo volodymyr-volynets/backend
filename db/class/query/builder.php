@@ -275,6 +275,11 @@ class numbers_backend_db_class_query_builder {
 		if (is_string($condition)) {
 			return [$operator, $exists, $condition, false];
 		} else if (is_array($condition)) {
+			// see if we have an object
+			if (is_object($condition[2]) && is_a($condition[2], 'numbers_backend_db_class_query_builder')) {
+				$condition[2] = '(' . trim($this->wrap_sql_into_tabs($condition[2]->sql())) . ')';
+				$condition[3] = true;
+			}
 			// todo: normilize
 			$key = [$condition[0], $condition[1]];
 			if (!empty($condition[3])) {
