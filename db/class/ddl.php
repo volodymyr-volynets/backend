@@ -595,7 +595,7 @@ class numbers_backend_db_class_ddl {
 						if ($options['type'] == 'schema') {
 							$master_compare = $ddl_object->column_sql_type($v3);
 							$compare_columns = ['sql_type', 'null', 'default'];
-							$slave_compare = $obj_slave['table'][$k][$k2]['data']['columns'][$k3];
+							$slave_compare = $obj_slave['table'][$k][$k2]['data']['columns'][$k3] ?? [];
 						} else { // migration comparison
 							$master_compare = $this->column_sql_type_base($v3);
 							$compare_columns = ['type', 'null', 'default', 'length', 'precision', 'scale', 'sequence'];
