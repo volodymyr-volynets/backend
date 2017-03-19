@@ -15,6 +15,7 @@ class numbers_backend_system_modules_model_resource_actions extends object_table
 		'sm_action_id' => ['name' => 'Action #', 'domain' => 'action_id'],
 		'sm_action_code' => ['name' => 'Code', 'domain' => 'code'],
 		'sm_action_name' => ['name' => 'Name', 'domain' => 'name'],
+		'sm_action_icon' => ['name' => 'Icon', 'domain' => 'icon'],
 		'sm_action_parent_action_id' => ['name' => 'Parent #', 'domain' => 'action_id', 'null' => true],
 		'sm_action_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
 	];

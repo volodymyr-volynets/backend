@@ -113,7 +113,8 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			'cache' => false,
 			'time' => microtime(true),
 			'sql' => $sql,
-			'key' => $key
+			'key' => $key,
+			'backtrace' => null
 		];
 		// if query caching is enabled
 		if (!empty($this->options['cache_link'])) {
@@ -185,16 +186,13 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		}
 		// time before caching
 		$result['time'] = microtime(true) - $result['time'];
+		// prepend backtrace in debug mode to know where it was cached
+		if (debug::$debug) {
+			$result['backtrace']  = implode("\n", error_base::debug_backtrace_string());
+		}
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
 			$result['cache'] = true;
-			// prepend backtrace in debug mode to know where it was cached
-			if (debug::$debug) {
-				ob_start();
-				@debug_print_backtrace();
-				$result['backtrace']  = ob_get_contents();
-				ob_end_clean();
-			}
 			$cache_object->set($cache_id, $result, null, $options['cache_tags'] ?? null);
 		}
 		// if we are debugging

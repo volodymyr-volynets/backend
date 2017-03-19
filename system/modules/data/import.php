@@ -32,6 +32,7 @@ class numbers_backend_system_modules_data_import extends object_import {
 					'sm_action_id' => 1000,
 					'sm_action_code' => 'list_view',
 					'sm_action_name' => 'View List',
+					'sm_action_icon' => 'list',
 					'sm_action_parent_action_id' => null,
 					'sm_action_inactive' => 0
 				],
@@ -39,6 +40,7 @@ class numbers_backend_system_modules_data_import extends object_import {
 					'sm_action_id' => 1010,
 					'sm_action_code' => 'list_export',
 					'sm_action_name' => 'Export/Print List',
+					'sm_action_icon' => 'print',
 					'sm_action_parent_action_id' => 1000,
 					'sm_action_inactive' => 0
 				],
@@ -47,6 +49,7 @@ class numbers_backend_system_modules_data_import extends object_import {
 					'sm_action_id' => 2000,
 					'sm_action_code' => 'record_view',
 					'sm_action_name' => 'View Record',
+					'sm_action_icon' => 'eye',
 					'sm_action_parent_action_id' => null,
 					'sm_action_inactive' => 0
 				],
@@ -54,6 +57,7 @@ class numbers_backend_system_modules_data_import extends object_import {
 					'sm_action_id' => 2010,
 					'sm_action_code' => 'record_new',
 					'sm_action_name' => 'New Record',
+					'sm_action_icon' => 'file-o',
 					'sm_action_parent_action_id' => 2000,
 					'sm_action_inactive' => 0
 				],
@@ -61,6 +65,7 @@ class numbers_backend_system_modules_data_import extends object_import {
 					'sm_action_id' => 2020,
 					'sm_action_code' => 'record_edit',
 					'sm_action_name' => 'Edit Record',
+					'sm_action_icon' => 'pencil-square-o',
 					'sm_action_parent_action_id' => 2000,
 					'sm_action_inactive' => 0
 				],
@@ -68,6 +73,7 @@ class numbers_backend_system_modules_data_import extends object_import {
 					'sm_action_id' => 2030,
 					'sm_action_code' => 'record_inactivate',
 					'sm_action_name' => 'Inactivate Record',
+					'sm_action_icon' => 'info',
 					'sm_action_parent_action_id' => 2020,
 					'sm_action_inactive' => 0
 				],
@@ -75,6 +81,7 @@ class numbers_backend_system_modules_data_import extends object_import {
 					'sm_action_id' => 2040,
 					'sm_action_code' => 'record_delete',
 					'sm_action_name' => 'Delete Record',
+					'sm_action_icon' => 'trash-o',
 					'sm_action_parent_action_id' => 2020,
 					'sm_action_inactive' => 0
 				],
@@ -82,8 +89,26 @@ class numbers_backend_system_modules_data_import extends object_import {
 					'sm_action_id' => 2050,
 					'sm_action_code' => 'record_post',
 					'sm_action_name' => 'Post Record',
+					'sm_action_icon' => 'book',
 					'sm_action_parent_action_id' => 2020,
 					'sm_action_inactive' => 0
+				]
+			]
+		],
+		'resource_methods' => [
+			'options' => [
+				'pk' => ['sm_method_code'],
+				'model' => 'numbers_backend_system_modules_model_resource_methods',
+				'method' => 'save'
+			],
+			'data' => [
+				[
+					'sm_method_code' => 'index',
+					'sm_method_name' => 'Index / List'
+				],
+				[
+					'sm_method_code' => 'edit',
+					'sm_method_name' => 'Edit / Form'
 				]
 			]
 		],

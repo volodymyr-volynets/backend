@@ -30,6 +30,12 @@ class numbers_backend_system_modules_model_resource_map extends object_table {
 			'columns' => ['sm_rsrcmp_action_id'],
 			'foreign_model' => 'numbers_backend_system_modules_model_resource_actions',
 			'foreign_columns' => ['sm_action_id']
+		],
+		'sm_rsrcmp_method_code_fk' => [
+			'type' => 'fk',
+			'columns' => ['sm_rsrcmp_method_code'],
+			'foreign_model' => 'numbers_backend_system_modules_model_resource_methods',
+			'foreign_columns' => ['sm_method_code']
 		]
 	];
 	public $history = false;
