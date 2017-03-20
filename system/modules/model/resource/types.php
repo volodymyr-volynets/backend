@@ -11,12 +11,13 @@ class numbers_backend_system_modules_model_resource_types extends object_data {
 		'sm_rsrctype_name' => ['name' => 'Name', 'type' => 'text']
 	];
 	public $data = [
+		// controllers
 		100 => ['sm_rsrctype_name' => 'Controllers'],
 		// menu
 		200 => ['sm_rsrctype_name' => 'Main Menu - Left Side'],
 		210 => ['sm_rsrctype_name' => 'Main Menu - Right Side'],
 		220 => ['sm_rsrctype_name' => 'Top Links'],
 		230 => ['sm_rsrctype_name' => 'Footer Links'],
-		299 => ['sm_rsrctype_name' => 'Submenu Icons']
+		299 => ['sm_rsrctype_name' => 'Submenu Icons'],
 	];
 }
