@@ -17,6 +17,7 @@ class numbers_backend_system_modules_model_module_features extends object_table 
 		'sm_feature_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => 'numbers_backend_system_modules_model_module_feature_types'],
 		'sm_feature_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_feature_activation_model' => ['name' => 'Activation Model', 'domain' => 'code', 'null' => true],
+		'sm_feature_activated_by_default' => ['name' => 'Activated By Default', 'type' => 'boolean'],
 		'sm_feature_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
 	public $constraints = [
