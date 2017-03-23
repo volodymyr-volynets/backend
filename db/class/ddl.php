@@ -103,7 +103,7 @@ class numbers_backend_db_class_ddl {
 		];
 		do {
 			// model
-			$model = is_object($model_class) ? $model_class : factory::model($model_class, true, $options);
+			$model = is_object($model_class) ? $model_class : Factory::model($model_class, true, $options);
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
@@ -115,8 +115,8 @@ class numbers_backend_db_class_ddl {
 				break;
 			}
 			// columns
-			$processed_columns = object_data_common::process_domains_and_types($model->columns);
-			$attributes = array_merge(object_data_common::$attributes['global'], object_data_common::$attributes['schema']);
+			$processed_columns = \Object\Data\Common::process_domains_and_types($model->columns);
+			$attributes = array_merge(\Object\Data\Common::$attributes['global'], \Object\Data\Common::$attributes['schema']);
 			$columns = [];
 			foreach ($processed_columns as $k => $v) {
 				$temp = [];
@@ -206,7 +206,7 @@ class numbers_backend_db_class_ddl {
 					$v['full_table_name'] = $model->full_table_name;
 					// additional processing for fk type constraints
 					if ($v['type'] == 'fk') {
-						$temp_object = factory::model($v['foreign_model'], true, [$options]);
+						$temp_object = Factory::model($v['foreign_model'], true, [$options]);
 						$v['foreign_table'] = $temp_object->full_table_name;
 						// default options
 						if (empty($v['options'])) $v['options'] = [];
@@ -259,7 +259,7 @@ class numbers_backend_db_class_ddl {
 		];
 		do {
 			// model
-			$model = factory::model($model_class, true);
+			$model = Factory::model($model_class, true);
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
@@ -301,7 +301,7 @@ class numbers_backend_db_class_ddl {
 		];
 		do {
 			// model
-			$model = factory::model($model_class, true);
+			$model = Factory::model($model_class, true);
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
@@ -341,7 +341,7 @@ class numbers_backend_db_class_ddl {
 		];
 		do {
 			// model
-			$model = factory::model($model_class, true);
+			$model = Factory::model($model_class, true);
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
@@ -384,8 +384,8 @@ class numbers_backend_db_class_ddl {
 		// mode and backend and db_link
 		$options['type'] = $options['type'] ?? null;
 		if (!empty($options['db_link'])) {
-			$ddl_object = factory::get(['db', $options['db_link'], 'ddl_object']);
-			$options['backend'] = factory::get(['db', $options['db_link'], 'backend']);
+			$ddl_object = Factory::get(['db', $options['db_link'], 'ddl_object']);
+			$options['backend'] = Factory::get(['db', $options['db_link'], 'backend']);
 		}
 		// before execution
 		$result['up']['before_execution'] = [];
@@ -1150,7 +1150,7 @@ class numbers_backend_db_class_ddl {
 		}
 		// if we are dropping we need to disable foregn key checks
 		if ($options['mode'] == 'drop') {
-			$backend = factory::get(['db', $db_link, 'backend']);
+			$backend = Factory::get(['db', $db_link, 'backend']);
 			if ($backend == 'mysqli') {
 				$diff['before_execution']['foreign_key_checks']['sql'] = 'SET foreign_key_checks = 0;';
 				// we also need to unset sequences

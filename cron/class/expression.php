@@ -30,7 +30,7 @@ class numbers_backend_cron_class_expression {
 	 * @return boolean
 	 */
 	public function is_time($datetime = null) {
-		$parts = format::datetime_parts($datetime);
+		$parts = Format::datetime_parts($datetime);
 		foreach ($this->parsed_expression as $k => $v) {
 			if (in_array('*', $v)) {
 				continue;
@@ -52,11 +52,11 @@ class numbers_backend_cron_class_expression {
 	public function next_run_date($datetime = null) {
 		$result = null;
 		if (empty($datetime)) {
-			$datetime = format::now('unix');
+			$datetime = Format::now('unix');
 		} else if (!is_numeric($datetime)) {
 			$datetime = strtotime($datetime);
 		}
-		$parts = format::datetime_parts($datetime);
+		$parts = Format::datetime_parts($datetime);
 		for ($year = $parts['year']; $year <= self::$slot_stats[6]['max']; $year++) {
 			// check if we are in range
 			if (!(in_array('*', $this->parsed_expression['year']) || in_array($year, $this->parsed_expression['year']))) {
@@ -94,7 +94,7 @@ class numbers_backend_cron_class_expression {
 									continue;
 								}
 								// check the rest
-								$result = format::datetime($date);
+								$result = Format::datetime($date);
 								goto exit1;
 							}
 						}

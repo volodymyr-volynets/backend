@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_crypt_openssl_base extends numbers_backend_crypt_class_base implements numbers_backend_crypt_interface_base {
+namespace Numbers\Backend\Crypt\OpenSSL;
+class Base extends \Numbers\Backend\Crypt\Common\Base implements \Numbers\Backend\Crypt\Common\Interface2 {
 
 	/**
 	 * Constructing
@@ -24,7 +25,7 @@ class numbers_backend_crypt_openssl_base extends numbers_backend_crypt_class_bas
 	}
 
 	/**
-	 * see crypt::encrypt();
+	 * see Crypt::encrypt();
 	 */
 	public function encrypt($data) {
 		$encrypted = openssl_encrypt($data, $this->cipher, $this->key);
@@ -36,7 +37,7 @@ class numbers_backend_crypt_openssl_base extends numbers_backend_crypt_class_bas
 	}
 
 	/**
-	 * see crypt::decrypt();
+	 * see Crypt::decrypt();
 	 */
 	public function decrypt($data) {
 		if ($this->base64) {

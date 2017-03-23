@@ -25,8 +25,8 @@ class numbers_backend_db_class_schemas {
 			'app_structure' => []
 		];
 		// gather credentials to primary master database server
-		$default = application::get('db.' . $result['db_link']);
-		$default_schema = application::get('db.' . $result['db_link'] . '_schema');
+		$default = Application::get('db.' . $result['db_link']);
+		$default_schema = Application::get('db.' . $result['db_link'] . '_schema');
 		$result['db_settings'] = [
 			'submodule' => $default['submodule'],
 			'cache_link' => $default['cache_link'] ?? null
@@ -40,7 +40,7 @@ class numbers_backend_db_class_schemas {
 		$result['db_query_owner'] = $temp['username'];
 		$result['db_schema_owner'] = $result['db_settings']['username'];
 		// if its a multi database we need to get a list of databases
-		$result['app_structure'] = application::get('application.structure');
+		$result['app_structure'] = Application::get('application.structure');
 		if (!empty($result['app_structure']['db_multiple'])) {
 			// connect to db to get a list of databases
 			$db_object = new db($result['db_link'] . '_temp', $result['db_settings']['submodule']);
@@ -109,7 +109,7 @@ run_again:
 			foreach ($virtual_models as $k => $v) {
 				$k2 = str_replace('.', '_', $k);
 				if ($v == 'object_table') {
-					$model = factory::model($k2, true);
+					$model = Factory::model($k2, true);
 					foreach (object_widgets::widget_models as $v0) {
 						if (!empty($model->{$v0})) {
 							$v01 = $v0 . '_model';
@@ -127,7 +127,7 @@ run_again:
 			foreach ($dep['data']['model_processed'] as $k => $v) {
 				$k2 = str_replace('.', '_', $k);
 				if ($v == 'object_table') {
-					$model = factory::model($k2, true, [$options]);
+					$model = Factory::model($k2, true, [$options]);
 					// todo: disable non default db links
 					$temp_result = $ddl->process_table_model($model, $options);
 					if (!$temp_result['success']) {
@@ -224,7 +224,7 @@ run_again:
 	 */
 	public static function process_db_schema($options = []) {
 		$options['db_link'] = $options['db_link'] ?? 'default';
-		$ddl_object = factory::get(['db', $options['db_link'], 'ddl_object']);
+		$ddl_object = Factory::get(['db', $options['db_link'], 'ddl_object']);
 		$temp_result = $ddl_object->load_schema($options['db_link']);
 		if (!$temp_result['success']) {
 			return $temp_result;
@@ -295,12 +295,12 @@ run_again:
 	 */
 	public static function generate_sql_from_diff_and_execute($db_link, $diff, $options = []) {
 		$options['mode'] = $options['mode'] ?? 'commit';
-		$ddl_object = factory::get(['db', $db_link, 'ddl_object']);
+		$ddl_object = Factory::get(['db', $db_link, 'ddl_object']);
 		$result = $ddl_object->generate_sql_from_diff_objects($db_link, $diff, ['mode' => $options['mode']]);
 		$result['success'] = false;
 		// if we need to execute
 		if (!empty($options['execute']) && $result['count'] > 0) {
-			$db_object = factory::get(['db', $db_link, 'object']);
+			$db_object = Factory::get(['db', $db_link, 'object']);
 			$db_object->begin();
 			foreach ($result['data'] as $v) {
 				$temp_result = $db_object->query($v);
@@ -313,13 +313,13 @@ run_again:
 			// see if we have a migration table
 			$migration_model = new numbers_backend_db_class_model_migrations();
 			if ($migration_model->db_present()) {
-				$ts = format::now('timestamp');
+				$ts = Format::now('timestamp');
 				$temp_result = numbers_backend_db_class_model_migrations::collection_static()->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'schema',
 					'sm_migration_action' => 'up',
 					'sm_migration_name' => $ts,
-					'sm_migration_developer' => application::get('developer.name') ?? 'Unknown',
+					'sm_migration_developer' => Application::get('developer.name') ?? 'Unknown',
 					'sm_migration_inserted' => $ts,
 					'sm_migration_legend' => json_encode($options['legend']),
 					'sm_migration_sql_counter' => count($result['data']),
@@ -354,7 +354,7 @@ run_again:
 			'legend' => []
 		];
 		// ddl object
-		$ddl_object = factory::get(['db', $db_link, 'ddl_object']);
+		$ddl_object = Factory::get(['db', $db_link, 'ddl_object']);
 		$sqls = [];
 		// step 1: revoke all priviledges on database
 		$temp = $ddl_object->render_sql('permission_revoke_all', [
@@ -421,7 +421,7 @@ run_again:
 		// if we have changes
 		if (!empty($sqls)) {
 			array_unshift($result['legend'], '       * permission:');
-			$db_object = factory::get(['db', $db_link, 'object']);
+			$db_object = Factory::get(['db', $db_link, 'object']);
 			$db_object->begin();
 			foreach ($sqls as $v) {
 				$temp_result = $db_object->query($v);
@@ -434,13 +434,13 @@ run_again:
 			// see if we have a migration table
 			$migration_model = new numbers_backend_db_class_model_migrations();
 			if ($migration_model->db_present()) {
-				$ts = format::now('timestamp');
+				$ts = Format::now('timestamp');
 				$temp_result = numbers_backend_db_class_model_migrations::collection_static()->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'permission',
 					'sm_migration_action' => 'update',
 					'sm_migration_name' => $ts,
-					'sm_migration_developer' => application::get('developer.name') ?? 'Unknown',
+					'sm_migration_developer' => Application::get('developer.name') ?? 'Unknown',
 					'sm_migration_inserted' => $ts,
 					'sm_migration_legend' => json_encode($result['legend']),
 					'sm_migration_sql_counter' => count($sqls),
@@ -473,7 +473,7 @@ run_again:
 			'count' => 0,
 			'legend' => []
 		];
-		$db_object = factory::get(['db', $db_link, 'object']);
+		$db_object = Factory::get(['db', $db_link, 'object']);
 		$db_object->begin();
 		// process import models one by one
 		foreach ($data as $k => $v) {
@@ -508,13 +508,13 @@ run_again:
 		if (!empty($result['count'])) {
 			$migration_model = new numbers_backend_db_class_model_migrations();
 			if ($migration_model->db_present()) {
-				$ts = format::now('timestamp');
+				$ts = Format::now('timestamp');
 				$temp_result = $migration_model->collection()->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'import',
 					'sm_migration_action' => 'update',
 					'sm_migration_name' => $ts,
-					'sm_migration_developer' => application::get('developer.name') ?? 'Unknown',
+					'sm_migration_developer' => Application::get('developer.name') ?? 'Unknown',
 					'sm_migration_inserted' => $ts,
 					'sm_migration_legend' => json_encode($result['legend']),
 					'sm_migration_sql_counter' => $result['count'],

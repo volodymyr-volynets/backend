@@ -50,7 +50,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 			$result['version'] = pg_version($connection);
 			$result['status'] = pg_connection_status($connection) === PGSQL_CONNECTION_OK ? 1 : 0;
 			// set settings
-			$this->query("SET TIME ZONE '" . application::get('php.date.timezone') . "';");
+			$this->query("SET TIME ZONE '" . Application::get('php.date.timezone') . "';");
 			// success
 			$result['success'] = true;
 		} else {
@@ -188,7 +188,7 @@ class numbers_backend_db_pgsql_base extends numbers_backend_db_class_base implem
 		$result['time'] = microtime(true) - $result['time'];
 		// prepend backtrace in debug mode to know where it was cached
 		if (debug::$debug) {
-			$result['backtrace']  = implode("\n", error_base::debug_backtrace_string());
+			$result['backtrace']  = implode("\n", \Object\Error\Base::debug_backtrace_string());
 		}
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
@@ -452,7 +452,7 @@ TTT;
 	 * @return array
 	 */
 	public function create_temp_table($table, $columns, $pk = null, $options = []) {
-		$ddl_object = factory::model(str_replace('_base_123', '_ddl', get_called_class() . '_123'));
+		$ddl_object = Factory::model(str_replace('_base_123', '_ddl', get_called_class() . '_123'));
 		$columns_sql = [];
 		foreach ($columns as $k => $v) {
 			$temp = $ddl_object->is_column_type_supported($v, $table);

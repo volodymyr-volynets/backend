@@ -124,7 +124,7 @@ abstract class numbers_backend_db_class_migration_base {
 			'sm_migration_action' => $this->action,
 			'sm_migration_name' => str_replace('numbers_backend_db_class_migration_template_', '', get_called_class()),
 			'sm_migration_developer' => $this->developer ?? 'Unknown',
-			'sm_migration_inserted' => format::now('timestamp'),
+			'sm_migration_inserted' => Format::now('timestamp'),
 			'sm_migration_rolled_back' => 0,
 			'sm_migration_legend' => [],
 			'sm_migration_sql_counter' => 0,
@@ -132,7 +132,7 @@ abstract class numbers_backend_db_class_migration_base {
 		];
 		if ($this->mode == 'commit') {
 			$this->db_object = new db($this->db_link);
-			$this->ddl_object = factory::get(['db', $this->db_link, 'ddl_object']);
+			$this->ddl_object = Factory::get(['db', $this->db_link, 'ddl_object']);
 		}
 	}
 

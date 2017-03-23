@@ -26,7 +26,7 @@ class numbers_backend_mail_class_base {
 			if (isset($options['from'])) {
 				$from = $options['from'];
 			} else {
-				$from = application::get('flag.global.mail.from');
+				$from = Application::get('flag.global.mail.from');
 			}
 			if (empty($from['email'])) {
 				$result['error'][] = 'You need to specify from email address!';

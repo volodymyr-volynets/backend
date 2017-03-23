@@ -6,23 +6,6 @@
 class numbers_backend_cache_memcached_connection {
 
 	/**
-	 * Complete result
-	 */
-	const complete_result = [
-		'success' => false,
-		'error' => [],
-		'errno' => null,
-		/* statistics */
-		'statistics' => [
-			'query_string' => null,
-			'query_start' => null,
-			'response_string' => '',
-			'response_parts' => [],
-			'response_duration' => null,
-		]
-	];
-
-	/**
 	 * Socket connection
 	 *
 	 * @var resource
@@ -32,7 +15,8 @@ class numbers_backend_cache_memcached_connection {
 	/**
 	 * Flags
 	 */
-	const flag_tags = 0b0010000000000000; // 8192
+	const flag_tags =				0b0010000000000000; // 8192
+	const flag_reset_using_tags =	0b0010000000000001; // 8193
 
 	/**
 	 * Tags separator
@@ -58,9 +42,12 @@ class numbers_backend_cache_memcached_connection {
 	 * @return array
 	 */
 	public function connect(array $options = []) : array {
-		$result = self::complete_result;
-		$result['statistics']['query_start'] = microtime(true);
-		$result['statistics']['query_string'] = 'connect';
+		$result = [
+			'success' => false,
+			'error' => []
+		];
+		echo self::flag_reset_using_tags;
+		exit;
 		// open socket connection
 		$this->socket_connection = stream_socket_client($options['host'] . ':' . $options['port'], $errno, $error);
 		if (!$this->socket_connection) {
@@ -68,7 +55,6 @@ class numbers_backend_cache_memcached_connection {
 		} else {
 			$result['success'] = true;
 		}
-		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
 		return $result;
 	}
 
@@ -78,9 +64,10 @@ class numbers_backend_cache_memcached_connection {
 	 * @return array
 	 */
 	public function close() : array {
-		$result = self::complete_result;
-		$result['statistics']['query_start'] = microtime(true);
-		$result['statistics']['query_string'] = 'close';
+		$result = [
+			'success' => false,
+			'error' => []
+		];
 		if (!empty($this->socket_connection)) {
 			if (!fclose($this->socket_connection)) {
 				$result['error'][] = 'Memcached: Could not close the connection!';
@@ -89,7 +76,6 @@ class numbers_backend_cache_memcached_connection {
 		if (empty($result['error'])) {
 			$result['success'] = true;
 		}
-		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
 		return $result;
 	}
 
@@ -103,7 +89,7 @@ class numbers_backend_cache_memcached_connection {
 	 * @return array
 	 */
 	private function query(array $query, array $options = []) : array {
-		$query_start = microtime(true);
+		print_r2($query);
 		// send query to the server
 		if (fwrite($this->socket_connection, implode("\r\n", $query) . "\r\n") !== false) {
 			$result = $this->fgets($options);
@@ -112,13 +98,8 @@ class numbers_backend_cache_memcached_connection {
 				'success' => false,
 				'error' => ['Memcached: Failed to send query!'],
 				'errno' => 'MEMCACHED_FWRITE_ERROR',
-				'statistics' => []
 			];
 		}
-		// populate statistics
-		$result['statistics']['query_string'] = $query[0];
-		$result['statistics']['query_start'] = $query_start;
-		$result['statistics']['response_duration'] = microtime(true) - $query_start;
 		return $result;
 	}
 
@@ -163,7 +144,7 @@ class numbers_backend_cache_memcached_connection {
 				$result['success'] = false;
 			}
 		}
-		$result['statistics']['response_duration'] = microtime(true) - $result['statistics']['query_start'];
+		//unset($result['statistics']);
 		return $result;
 	}
 
@@ -178,14 +159,17 @@ class numbers_backend_cache_memcached_connection {
 	 */
 	public function set(string $key, string $data, int $expire = 0, int $flags = 0, array $tags = []) : array {
 		// prepend tags to data if present so its in a first chunck
-		if ($flags & self::flag_tags) {
+		if (($flags & self::flag_tags) || ($flags & self::flag_reset_using_tags)) {
 			if (!empty($tags)) {
 				$data = self::flag_tag_separator . implode(' ', $tags) . self::flag_tag_separator . $data;
 			} else {
 				$flags = $flags & (~self::flag_tags);
+				$flags = $flags & (~self::flag_reset_using_tags);
 			}
 		}
-		return $this->query(["set $key $flags $expire " . strlen($data), $data], ['success' => ['STORED'], 'error' => ['NOT_STORED', 'EXISTS', 'NOT_FOUND']]);
+		$result = $this->query(["set $key $flags $expire " . strlen($data), $data], ['success' => ['STORED'], 'error' => ['NOT_STORED', 'EXISTS', 'NOT_FOUND']]);
+		//unset($result['statistics']);
+		return $result;
 	}
 
 	/**
@@ -207,7 +191,19 @@ class numbers_backend_cache_memcached_connection {
 	 * @return array
 	 */
 	private function fgets(array $options = []) : array {
-		$result = self::complete_result;
+		$result = [
+			'success' => false,
+			'error' => [],
+			'errno' => null,
+			/* statistics */
+			'statistics' => [
+				'query_string' => null,
+				'query_start' => null,
+				'response_string' => '',
+				'response_parts' => [],
+				'response_duration' => null,
+			]
+		];
 		$raw = fgets($this->socket_connection);
 		if ($raw === false) {
 			$result['error'][] = 'Memcached: Failed to read from resource!';

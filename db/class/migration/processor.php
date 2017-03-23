@@ -303,9 +303,9 @@ class numbers_backend_db_class_migration_processor {
 			}
 		}
 		// generate timestamp with server timezone
-		$ts = format::now('timestamp', ['format' => 'Ymd_His_u', 'skip_i18n' => true, 'skip_user_timezone' => true]);
+		$ts = Format::now('timestamp', ['format' => 'Ymd_His_u', 'skip_i18n' => true, 'skip_user_timezone' => true]);
 		// developers name
-		$developer = trim(application::get('developer.name') ?? 'Unknown');
+		$developer = trim(Application::get('developer.name') ?? 'Unknown');
 		$developer = preg_replace('/\s+/', ' ', $developer);
 		$developer_class = str_replace(' ', '_', $developer);
 		// up & down changes

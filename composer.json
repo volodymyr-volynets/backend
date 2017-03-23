@@ -11,5 +11,10 @@
 	"require": {
 		"php": ">=7.0.0"
 	},
-	"license": "Apache License 2.0"
+	"license": "Apache License 2.0",
+	"autoload": {
+        "psr-4": {
+            "Numbers\\Backend\\": ""
+        }
+    }
 }

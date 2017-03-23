@@ -82,7 +82,7 @@ class numbers_backend_cache_db_base extends numbers_backend_cache_class_base imp
 	 * @return mixed
 	 */
 	public function get($cache_id) {
-		$data = $this->model_cache->get(['columns' => ['sm_cache_data'], 'limit' => 1, 'pk' => null, 'where' => ['sm_cache_id' => $cache_id, 'sm_cache_expire,>=' => format::now('timestamp')]]);
+		$data = $this->model_cache->get(['columns' => ['sm_cache_data'], 'limit' => 1, 'pk' => null, 'where' => ['sm_cache_id' => $cache_id, 'sm_cache_expire,>=' => Format::now('timestamp')]]);
 		if (isset($data[0])) {
 			return json_decode($data[0]['sm_cache_data'], true);
 		} else {
@@ -107,14 +107,14 @@ class numbers_backend_cache_db_base extends numbers_backend_cache_class_base imp
 		}
 		// processing expire
 		if (empty($expire)) {
-			$expire = format::now('timestamp', ['add_seconds' => $this->options['expire']]);
+			$expire = Format::now('timestamp', ['add_seconds' => $this->options['expire']]);
 		} else {
-			$expire = format::read_date($expire, 'datetime');
+			$expire = Format::read_date($expire, 'datetime');
 		}
 		// generating array for saving
 		$save = [
 			'sm_cache_id' => $cache_id . '',
-			'sm_cache_time' => format::now('timestamp'),
+			'sm_cache_time' => Format::now('timestamp'),
 			'sm_cache_expire' => $expire,
 			'sm_cache_data' => json_encode($data),
 			'sm_cache_tags' => $tags
@@ -134,7 +134,7 @@ class numbers_backend_cache_db_base extends numbers_backend_cache_class_base imp
 		if ($mode == 2) {
 			$sql = 'DELETE FROM ' . $this->model_cache->name;
 		} else if ($mode == 1) {
-			$sql = 'DELETE FROM ' . $this->model_cache->name . ' WHERE sm_cache_expire < \'' . format::now('timestamp') . '\'';
+			$sql = 'DELETE FROM ' . $this->model_cache->name . ' WHERE sm_cache_expire < \'' . Format::now('timestamp') . '\'';
 			if (!empty($tags)) {
 				$tags2 = array_fix($tags);
 				$temp = [];

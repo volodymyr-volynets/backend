@@ -4,10 +4,10 @@ class numbers_backend_cron_base_controller_execute {
 
 	public function action_index() {
 		// clear buffer
-		helper_ob::clean_all();
+		Helper_Ob::clean_all();
 		// validating
 		do {
-			$options = application::get('flag.numbers.backend.cron.base');
+			$options = Application::get('flag.numbers.backend.cron.base');
 			// token
 			if (!empty($options['token']) && request::input('token') != $options['token']) {
 				break;
@@ -17,7 +17,7 @@ class numbers_backend_cron_base_controller_execute {
 				break;
 			}
 			// get date parts
-			$date_parts = format::now('parts');
+			$date_parts = Format::now('parts');
 			print_r($date_parts);
 			echo "GOOD\n";
 		} while(0);

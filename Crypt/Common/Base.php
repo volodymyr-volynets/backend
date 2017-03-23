@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_crypt_class_base {
+namespace Numbers\Backend\Crypt\Common;
+class Base {
 
 	/**
 	 * Crypt link
@@ -102,7 +103,7 @@ class numbers_backend_crypt_class_base {
 	}
 
 	/**
-	 * see crypt::hash();
+	 * see Crypt::hash();
 	 */
 	public function hash($data) {
 		// serilializing array or object
@@ -118,9 +119,9 @@ class numbers_backend_crypt_class_base {
 	}
 
 	/**
-	 * see crypt::hash_file();
+	 * see Crypt::hashFile();
 	 */
-	public function hash_file($path) {
+	public function hashFile($path) {
 		if ($this->hash == 'md5' || $this->hash == 'sha1') {
 			$method = $this->hash . '_file';
 			return $method($path);
@@ -130,11 +131,11 @@ class numbers_backend_crypt_class_base {
 	}
 
 	/**
-	 * see crypt::token_create();
+	 * see Crypt::tokenCreate();
 	 *
 	 * By default we provide AuthTkt implementation
 	 */
-	public function token_create($id, $token = null, $data = null, $options = []) {
+	public function tokenCreate($id, $token = null, $data = null, $options = []) {
 		$time = $options['time'] ?? time();
 		$ip = $options['ip'] ?? request::ip();
 		if (empty($this->check_ip)) {
@@ -158,9 +159,9 @@ class numbers_backend_crypt_class_base {
 	}
 
 	/**
-	 * see crypt::token_validate();
+	 * see Crypt::tokenValidate();
 	 */
-	public function token_validate($token, $options = []) {
+	public function tokenValidate($token, $options = []) {
 		$result = [
 			'id' => null,
 			'data' => null,
@@ -197,7 +198,7 @@ class numbers_backend_crypt_class_base {
 	 * @param string $password
 	 * @return string
 	 */
-	public function password_hash($password) {
+	public function passwordHash($password) {
 		return password_hash($password, $this->password);
 	}
 
@@ -208,7 +209,7 @@ class numbers_backend_crypt_class_base {
 	 * @param string $hash
 	 * @return boolean
 	 */
-	public function password_verify($password, $hash) {
+	public function passwordVerify($password, $hash) {
 		return password_verify($password, $hash);
 	}
 }

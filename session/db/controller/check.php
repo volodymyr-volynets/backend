@@ -25,7 +25,7 @@ class numbers_backend_session_db_controller_check extends object_controller {
 				$model = new numbers_backend_session_db_model_sessions();
 				$db = $model->db_object();
 				$session_id = $db->escape($input[session_name()]);
-				$expire = format::now('timestamp');
+				$expire = Format::now('timestamp');
 				$sql = <<<TTT
 					SELECT
 						sm_session_expires,
@@ -41,7 +41,7 @@ TTT;
 				$result['loggedin'] = !empty($temp['rows'][0]['sm_session_user_id']);
 				// calculate when session is about to expire
 				if (!empty($temp['rows'])) {
-					$now = format::now('unix');
+					$now = Format::now('unix');
 					$expires = strtotime($temp['rows'][0]['sm_session_expires']);
 					$result['expires_in'] = $expires - $now;
 				}
@@ -49,7 +49,7 @@ TTT;
 			}
 		}
 		// rendering
-		layout::render_as($result, 'application/json');
+		Layout::render_as($result, 'application/json');
 	}
 
 	/**
@@ -68,6 +68,6 @@ TTT;
 				$result['success'] = true;
 			}
 		}
-		layout::render_as($result, 'application/json');
+		Layout::render_as($result, 'application/json');
 	}
 }

@@ -8,7 +8,7 @@ class numbers_backend_documents_storages_folder_base extends numbers_backend_doc
 	 * @param array $options
 	 */
 	public function __construct() {
-		$this->cache_key = application::get(['wildcard', 'keys', 'default', 'cache_key']);
+		$this->cache_key = Application::get(['wildcard', 'keys', 'default', 'cache_key']);
 	}
 
 	/**
@@ -24,7 +24,7 @@ class numbers_backend_documents_storages_folder_base extends numbers_backend_doc
 		];
 		$this->options = $options;
 		// for deployed code the directory is different because we relate it based on code
-		if (!empty($this->options['dir']) && application::is_deployed()) {
+		if (!empty($this->options['dir']) && Application::is_deployed()) {
 			$temp = $this->options['dir'][0] . $this->options['dir'][1];
 			if ($temp == './') {
 				$this->options['dir'] = './.' . $this->options['dir'];

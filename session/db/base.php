@@ -47,7 +47,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 			->select()
 			->columns(['sm_session_data'])
 			->where('AND', ['sm_session_id', '=', $id])
-			->where('AND', ['sm_session_expires', '>=', format::now('timestamp')])
+			->where('AND', ['sm_session_expires', '>=', Format::now('timestamp')])
 			->limit(1)
 			->query();
 		return $result['rows'][0]['sm_session_data'] ?? "";
@@ -62,7 +62,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	 */
 	public function write($id, $data) {
 		// we only count for presentational content types
-		if (object_content_types::exists_static(['where' => ['no_virtual_controller_code' => application::get('flag.global.__content_type'), 'no_content_type_presentation' => 1]])) {
+		if (object_content_types::exists_static(['where' => ['no_virtual_controller_code' => Application::get('flag.global.__content_type'), 'no_content_type_presentation' => 1]])) {
 			$inc = 1;
 		} else {
 			$inc = 0;
@@ -70,8 +70,8 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		$result = numbers_backend_session_db_model_sessions::query_builder_static()
 			->update()
 			->set([
-				'sm_session_expires' => format::now('timestamp', ['add_seconds' => session::$default_options['gc_maxlifetime']]),
-				'sm_session_last_requested' => format::now('timestamp'),
+				'sm_session_expires' => Format::now('timestamp', ['add_seconds' => Session::$default_options['gc_maxlifetime']]),
+				'sm_session_last_requested' => Format::now('timestamp'),
 				'sm_session_pages_count;=;~~' => 'sm_session_pages_count + ' . $inc,
 				'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
 				'sm_session_user_id' => $_SESSION['numbers']['user']['id'] ?? 0,
@@ -94,9 +94,9 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 				])
 				->values([[
 					'sm_session_id' => $id,
-					'sm_session_started' => format::now('timestamp'),
-					'sm_session_expires' => format::now('timestamp', ['add_seconds' => session::$default_options['gc_maxlifetime']]),
-					'sm_session_last_requested' => format::now('timestamp'),
+					'sm_session_started' => Format::now('timestamp'),
+					'sm_session_expires' => Format::now('timestamp', ['add_seconds' => Session::$default_options['gc_maxlifetime']]),
+					'sm_session_last_requested' => Format::now('timestamp'),
 					'sm_session_pages_count' => $inc,
 					'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
 					'sm_session_user_id' => $_SESSION['numbers']['user']['id'] ?? 0,
@@ -116,7 +116,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 	public function destroy($id) {
 		$result = numbers_backend_session_db_model_sessions::query_builder_static()
 			->update()
-			->set(['sm_session_expires' => format::now('timestamp', ['add_seconds' => -100])])
+			->set(['sm_session_expires' => Format::now('timestamp', ['add_seconds' => -100])])
 			->where('AND', ['sm_session_id', '=', $id])
 			->query();
 		return true;
@@ -132,7 +132,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 		$object = new numbers_backend_session_db_model_sessions();
 		$object->db_object->begin();
 		// step 1: we need to move expired sessions to history table
-		$expire = format::now('timestamp');
+		$expire = Format::now('timestamp');
 		$result = numbers_backend_session_db_model_session_history::query_builder_static()
 			->insert()
 			->columns([
@@ -188,9 +188,9 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 			]
 		]);
 		$buttons = '';
-		$buttons.= html::button2(['id' => 'modal_session_expiry_renew_button', 'type' => 'primary', 'value' => i18n(null, 'Renew'), 'onclick' => 'modal_session_expiry_renew_session();']) . ' ';
-		$url = application::get('flag.global.authorization.logout.controller');
-		$buttons.= html::button2(['id' => 'modal_session_expiry_close_button', 'type' => 'danger', 'value' => i18n(null, 'Close'), 'onclick' => "window.location.href = '{$url}'"]);
+		$buttons.= Html::button2(['id' => 'modal_session_expiry_renew_button', 'type' => 'primary', 'value' => i18n(null, 'Renew'), 'onclick' => 'modal_session_expiry_renew_session();']) . ' ';
+		$url = Application::get('flag.global.authorization.logout.controller');
+		$buttons.= Html::button2(['id' => 'modal_session_expiry_close_button', 'type' => 'danger', 'value' => i18n(null, 'Close'), 'onclick' => "window.location.href = '{$url}'"]);
 		$options = [
 			'id' => 'modal_session_expiry',
 			'title' => i18n(null, 'Session'),
@@ -283,7 +283,7 @@ class numbers_backend_session_db_base implements numbers_backend_session_interfa
 			// initialize the engine
 			modal_session_expiry_init();
 TTT;
-		layout::onload($js);
-		return html::modal($options);
+		Layout::onload($js);
+		return Html::modal($options);
 	}
 }

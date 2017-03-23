@@ -105,13 +105,13 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 				'row_class' => $row_class
 			];
 			$data['options'][$row_number]['catalog_code']['catalog_code'] = [
-				'label' => html::label(['value' => i18n(null, 'Catalog') . ':', 'class' => 'control-label']),
+				'label' => Html::label(['value' => i18n(null, 'Catalog') . ':', 'class' => 'control-label']),
 				'value' => $form->render_element_value([
 					'type' => 'field',
 					'options' => [
 						'id' => 'catalog_code_' . $row_number,
 						'name' => $name . '[catalog_code]',
-						'method' => 'html::select',
+						'method' => 'Html::select',
 						'options' => $catalogs_options,
 						'onchange' => 'this.form.submit();'
 					]
@@ -121,14 +121,14 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 				]
 			];
 			$data['options'][$row_number]['file']['file'] = [
-				'label' => html::label(['value' => i18n(null, 'Upload') . ':', 'class' => 'control-label']),
-				'value' => html::file(['class' => 'file_upload_file', 'skip_form_control' => true, 'multiple' => !empty($current_catalog['dc_catalog_multiple'])]),
+				'label' => Html::label(['value' => i18n(null, 'Upload') . ':', 'class' => 'control-label']),
+				'value' => Html::file(['class' => 'file_upload_file', 'skip_form_control' => true, 'multiple' => !empty($current_catalog['dc_catalog_multiple'])]),
 				'options' => [
 					'percent' => 25
 				]
 			];
 			$data['options'][$row_number]['files']['files'] = [
-				'label' => html::label(['value' => i18n(null, 'File(s)') . ':', 'class' => 'control-label']),
+				'label' => Html::label(['value' => i18n(null, 'File(s)') . ':', 'class' => 'control-label']),
 				'value' => '<div>123</div>',
 				'options' => [
 					//'percent' => 25
@@ -138,7 +138,7 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 			if (!empty($current_catalog) && empty($current_catalog['dc_catalog_multiple'])) {
 				$temp_name = i18n(null, 'ID');
 				if ($current_catalog['dc_catalog_id_required']) {
-					$temp_name = html::mandatory(['type' => 'mandatory', 'value' => $temp_name]);
+					$temp_name = Html::mandatory(['type' => 'mandatory', 'value' => $temp_name]);
 				}
 				$temp_name.= ':';
 				$data['options'][$row_number . '_2nd']['row_number']['row_number'] = [
@@ -151,14 +151,14 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 					'row_class' => $row_class
 				];
 				$data['options'][$row_number . '_2nd']['id_required']['id_required'] = [
-					'label' => html::label(['value' => $temp_name, 'class' => 'control-label']),
+					'label' => Html::label(['value' => $temp_name, 'class' => 'control-label']),
 					'error' => $form->get_field_errors(['options' => ['name' => $name . '[id_required]']]),
 					'value' => $form->render_element_value([
 						'type' => 'field',
 						'options' => [
 							'id' => 'id_required_' . $row_number,
 							'name' => $name . '[id_required]',
-							'method' => 'html::input',
+							'method' => 'Html::input',
 						]
 					], $input['upload'][$row_number]['id_required'] ?? null),
 					'options' => [
@@ -168,18 +168,18 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 				];
 				$temp_name = i18n(null, 'Date');
 				if ($current_catalog['dc_catalog_date_required']) {
-					$temp_name = html::mandatory(['type' => 'mandatory', 'value' => $temp_name]);
+					$temp_name = Html::mandatory(['type' => 'mandatory', 'value' => $temp_name]);
 				}
 				$temp_name.= ':';
 				$data['options'][$row_number . '_2nd']['date_required']['date_required'] = [
-					'label' => html::label(['value' => $temp_name, 'class' => 'control-label']),
+					'label' => Html::label(['value' => $temp_name, 'class' => 'control-label']),
 					'error' => $form->get_field_errors(['options' => ['name' => $name . '[date_required]']]),
 					'value' => $form->render_element_value([
 						'type' => 'field',
 						'options' => [
 							'id' => 'date_required_' . $row_number,
 							'name' => $name . '[date_required]',
-							'method' => 'html::calendar',
+							'method' => 'Html::calendar',
 							'calendar_icon' => 'right'
 						]
 					], $input['upload'][$row_number]['date_required'] ?? null),
@@ -190,18 +190,18 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 				];
 				$temp_name = i18n(null, 'Comment');
 				if ($current_catalog['dc_catalog_comment_required']) {
-					$temp_name = html::mandatory(['type' => 'mandatory', 'value' => $temp_name]);
+					$temp_name = Html::mandatory(['type' => 'mandatory', 'value' => $temp_name]);
 				}
 				$temp_name.= ':';
 				$data['options'][$row_number . '_2nd']['comment_required']['comment_required'] = [
-					'label' => html::label(['value' => $temp_name, 'class' => 'control-label']),
+					'label' => Html::label(['value' => $temp_name, 'class' => 'control-label']),
 					'error' => $form->get_field_errors(['options' => ['name' => $name . '[comment_required]']]),
 					'value' => $form->render_element_value([
 						'type' => 'field',
 						'options' => [
 							'id' => 'comment_required_' . $row_number,
 							'name' => $name . '[comment_required]',
-							'method' => 'html::textarea',
+							'method' => 'Html::textarea',
 							'rows' => 3
 						]
 					], $input['upload'][$row_number]['comment_required'] ?? null),
@@ -213,9 +213,9 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 			}
 		}
 		// add js file and initialize uploads
-		layout::add_js('/numbers/media_submodules/numbers_backend_documents_basic_base.js');
-		layout::onload('numbers.backend_documents.init();');
-		$result['data']['html'] = html::grid($data);
+		Layout::add_js('/numbers/media_submodules/numbers_backend_documents_basic_base.js');
+		Layout::onload('numbers.backend_documents.init();');
+		$result['data']['html'] = Html::grid($data);
 		$result['success'] = true;
 		return $result;
 	}

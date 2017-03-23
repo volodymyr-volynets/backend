@@ -45,7 +45,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			$result['version'] = mysqli_get_server_version($connection);
 			$result['status'] = 1;
 			// set settings
-			$this->query("SET time_zone = '" . application::get('php.date.timezone') . "';");
+			$this->query("SET time_zone = '" . Application::get('php.date.timezone') . "';");
 			// success
 			$result['success'] = true;
 		} else {
@@ -574,7 +574,7 @@ TTT;
 	 * @return array
 	 */
 	public function create_temp_table($table, $columns, $pk = null, $options = []) {
-		$ddl_object = factory::model(str_replace('_base_123', '_ddl', get_called_class() . '_123'));
+		$ddl_object = Factory::model(str_replace('_base_123', '_ddl', get_called_class() . '_123'));
 		$columns_sql = [];
 		foreach ($columns as $k => $v) {
 			$temp = $ddl_object->is_column_type_supported($v, $table);

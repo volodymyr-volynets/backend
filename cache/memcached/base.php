@@ -78,6 +78,7 @@ class numbers_backend_cache_memcached_base extends numbers_backend_cache_class_b
 	 * @param int $mode
 	 *		1 - old
 	 *		2 - all
+	 *		3 - tags
 	 * @param array $tags
 	 * @return array
 	 */
@@ -85,6 +86,13 @@ class numbers_backend_cache_memcached_base extends numbers_backend_cache_class_b
 		// remove all caches
 		if ($mode == 2) {
 			return $this->connection_object->flush_all();
+		}
+		// tags
+		if ($mode == 3 && !empty($tags) && !empty($this->options['tags'])) {
+			foreach ($tags as $v) {
+				$temp = $this->connection_object->set($this->connection_object::flag_tag_separator, '', $expire ?? $this->options['expire'], $this->connection_object::flag_reset_using_tags, $v);
+				print_r2($temp);
+			}
 		}
 		// todo
 		return [
