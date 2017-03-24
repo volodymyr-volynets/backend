@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_documents_basic_controller_catalogs extends object_controller {
+class numbers_backend_documents_basic_controller_catalogs extends \Object\Controller {
 	public function action_index() {
 		$list = new numbers_backend_documents_basic_model_list_catalogs([
 			'input' => request::input()

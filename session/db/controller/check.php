@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_session_db_controller_check extends object_controller {
+class numbers_backend_session_db_controller_check extends \Object\Controller {
 
 	public $title = 'Session Check';
 	public $acl = [
