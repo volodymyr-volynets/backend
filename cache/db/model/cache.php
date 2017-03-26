@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_cache_db_model_cache extends object_table {
+class numbers_backend_cache_db_model_cache extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $name = 'sm_cache';

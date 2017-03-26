@@ -1,7 +1,7 @@
 <?php
 
 namespace Numbers\Backend\Crypt\Common;
-class Base {
+abstract class Base {
 
 	/**
 	 * Crypt link
@@ -86,24 +86,20 @@ class Base {
 	 * @param string $crypt_link
 	 * @param array $options
 	 */
-	public function __construct(string $crypt_link, array $options = []) {
-		$this->crypt_link = $crypt_link;
-		$this->encryption_key = $options['encryption_key'] ?? sha1('key');
-		$this->token_key = $options['token_key'] ?? $this->encryption_key;
-		$this->salt = $options['salt'] ?? 'salt';
-		$this->hash = $options['hash'] ?? 'sha1';
-		$this->cipher = constant($options['cipher'] ?? 'MCRYPT_RIJNDAEL_256');
-		$this->mode = constant($options['mode'] ?? 'MCRYPT_MODE_CBC');
-		$this->base64 = !empty($options['base64']);
-		$this->token_check_ip = !empty($options['token_check_ip']);
-		$this->token_valid_hours = $options['token_valid_hours'] ?? 2;
-		if (!empty($options['password'])) {
-			$this->password = constant($options['password']);
-		}
-	}
+	abstract public function __construct(string $crypt_link, array $options = []);
 
 	/**
-	 * see Crypt::hash();
+	 * @see Crypt::encrypt();
+	 */
+	abstract public function encrypt($data);
+
+	/**
+	 * @see Crypt::decrypt();
+	 */
+	abstract public function decrypt($data);
+
+	/**
+	 * @see Crypt::hash();
 	 */
 	public function hash($data) {
 		// serilializing array or object
@@ -119,7 +115,7 @@ class Base {
 	}
 
 	/**
-	 * see Crypt::hashFile();
+	 * @see Crypt::hashFile();
 	 */
 	public function hashFile($path) {
 		if ($this->hash == 'md5' || $this->hash == 'sha1') {
@@ -131,7 +127,7 @@ class Base {
 	}
 
 	/**
-	 * see Crypt::tokenCreate();
+	 * @see Crypt::tokenCreate();
 	 *
 	 * By default we provide AuthTkt implementation
 	 */
@@ -159,14 +155,14 @@ class Base {
 	}
 
 	/**
-	 * see Crypt::tokenValidate();
+	 * @see Crypt::tokenValidate();
 	 */
 	public function tokenValidate($token, $options = []) {
 		$result = [
 			'id' => null,
 			'data' => null,
 			'time' => null,
-			'ip' => request::ip()
+			'ip' => \Request::ip()
 		];
 		if ($this->base64) {
 			$token2 = base64_decode($token);
@@ -183,7 +179,7 @@ class Base {
 		} else {
 			$result['data'] = null;
 		}
-		$rebuilt = self::token_create($result['id'], $result['token'], $result['data'], ['time' => $result['time'], 'ip' => $result['ip']]);
+		$rebuilt = self::tokenCreate($result['id'], $result['token'], $result['data'], ['time' => $result['time'], 'ip' => $result['ip']]);
 		if (urldecode($rebuilt) != $token) {
 			return false;
 		} else {

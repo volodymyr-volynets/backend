@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_session_db_model_sessions extends object_table {
+class numbers_backend_session_db_model_sessions extends \Object\Table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.session.db.default_db_link';
 	public $schema;

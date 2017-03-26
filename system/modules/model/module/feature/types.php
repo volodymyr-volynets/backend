@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_system_modules_model_module_feature_types extends object_data {
+class numbers_backend_system_modules_model_module_feature_types extends \Object\Data {
 	public $module_code = 'SM';
 	public $title = 'S/M Module Feature Types';
 	public $column_key = 'sm_ftrtype_id';

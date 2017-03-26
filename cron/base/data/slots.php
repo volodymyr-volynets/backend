@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_cron_base_data_slots extends object_import {
+class numbers_backend_cron_base_data_slots extends \Object\Import {
 	public $import_data = [
 		'slots' => [
 			'options' => [

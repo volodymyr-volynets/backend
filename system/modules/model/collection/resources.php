@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_system_modules_model_collection_resources extends object_collection {
+class numbers_backend_system_modules_model_collection_resources extends \Object\Collection {
 	public $data = [
 		'model' => 'numbers_backend_system_modules_model_resources',
 		'pk' => ['sm_resource_id'],

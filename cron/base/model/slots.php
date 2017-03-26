@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_cron_base_model_slots extends object_table {
+class numbers_backend_cron_base_model_slots extends \Object\Table {
 	public $db_link;
 	public $db_link_flag = 'flag.numbers.backend.cron.base.default_db_link';
 	public $name = 'sc_slots';

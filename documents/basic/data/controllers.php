@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_documents_basic_data_controllers extends object_import {
+class numbers_backend_documents_basic_data_controllers extends \Object\Import {
 	public $import_data = [
 		'groups' => [
 			'options' => [

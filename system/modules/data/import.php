@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_system_modules_data_import extends object_import {
+class numbers_backend_system_modules_data_import extends \Object\Import {
 	public $data = [
 		'modules' => [
 			'options' => [

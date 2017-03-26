@@ -27,17 +27,17 @@ class numbers_backend_documents_basic_model_form_catalogs extends numbers_fronte
 		'default' => [
 			'dc_catalog_code' => [
 				'dc_catalog_code' => ['order' => 1, 'label_name' => 'Catalog Code', 'domain' => 'type_code', 'percent' => 50, 'required' => true],
-				'dc_catalog_inactive' => ['order' => 3, 'label_name' => 'Inactive', 'type' => 'boolean', 'percent' => 25, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => 'object_data_model_inactive'],
-				'dc_catalog_multiple' => ['order' => 2, 'label_name' => 'Multiple', 'type' => 'boolean', 'percent' => 25, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => 'object_data_model_inactive']
+				'dc_catalog_inactive' => ['order' => 3, 'label_name' => 'Inactive', 'type' => 'boolean', 'percent' => 25, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => '\Object\Data\Model\Inactive'],
+				'dc_catalog_multiple' => ['order' => 2, 'label_name' => 'Multiple', 'type' => 'boolean', 'percent' => 25, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => '\Object\Data\Model\Inactive']
 			],
 			'dc_catalog_name' => [
 				'dc_catalog_name' => ['order' => 1, 'label_name' => 'Name', 'domain' => 'name', 'percent' => 50, 'required' => true],
 				'dc_catalog_storage_id' => ['order' => 2, 'label_name' => 'Storage', 'domain' => 'type_id', 'percent' => 50, 'required' => true, 'method' => 'select', 'options_model' => 'numbers_backend_documents_basic_model_storages']
 			],
 			'dc_catalog_id_required' => [
-				'dc_catalog_id_required' => ['order' => 1, 'label_name' => 'ID Required', 'type' => 'boolean', 'percent' => 33, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => 'object_data_model_inactive'],
-				'dc_catalog_date_required' => ['order' => 2, 'label_name' => 'Date Required', 'type' => 'boolean', 'percent' => 33, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => 'object_data_model_inactive'],
-				'dc_catalog_comment_required' => ['order' => 3, 'label_name' => 'Comment Required', 'type' => 'boolean', 'percent' => 33, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => 'object_data_model_inactive']
+				'dc_catalog_id_required' => ['order' => 1, 'label_name' => 'ID Required', 'type' => 'boolean', 'percent' => 33, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => '\Object\Data\Model\Inactive'],
+				'dc_catalog_date_required' => ['order' => 2, 'label_name' => 'Date Required', 'type' => 'boolean', 'percent' => 33, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => '\Object\Data\Model\Inactive'],
+				'dc_catalog_comment_required' => ['order' => 3, 'label_name' => 'Comment Required', 'type' => 'boolean', 'percent' => 33, 'required' => false, 'method' => 'select', 'no_choose' => true, 'options_model' => '\Object\Data\Model\Inactive']
 			],
 			'dc_catalog_valid_extensions' => [
 				'dc_catalog_valid_extensions' => ['order' => 1, 'label_name' => 'Valid Extensions', 'description' => 'Comma separated list of extensions.', 'type' => 'text', 'null' => true, 'percent' => 100, 'required' => false]

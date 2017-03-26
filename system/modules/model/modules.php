@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_system_modules_model_modules extends object_table {
+class numbers_backend_system_modules_model_modules extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $module_code = 'SM';

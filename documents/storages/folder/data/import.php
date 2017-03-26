@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_documents_storages_folder_data_import extends object_import {
+class numbers_backend_documents_storages_folder_data_import extends \Object\Import {
 	public $import_data = [
 		'languages' => [
 			'options' => [

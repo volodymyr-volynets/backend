@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_system_modules_model_collection_modules extends object_collection {
+class numbers_backend_system_modules_model_collection_modules extends \Object\Collection {
 	public $data = [
 		'model' => 'numbers_backend_system_modules_model_modules',
 		'pk' => ['sm_module_code'],
