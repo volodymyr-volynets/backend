@@ -97,7 +97,7 @@ class Base {
 	 * @return array
 	 */
 	public function prepareKeys($keys) {
-		return $this->prepare_expression($keys, ', ', ['return_raw_array' => true]);
+		return $this->prepareExpression($keys, ', ', ['return_raw_array' => true]);
 	}
 
 	/**
@@ -181,7 +181,7 @@ class Base {
 					}
 					*/
 					case 'IN':
-						$string.= ' IN(' . implode(', ', $this->escape_array($v, ['quotes' => true])) . ')';
+						$string.= ' IN(' . implode(', ', $this->escapeArray($v, ['quotes' => true])) . ')';
 						break;
 					case 'LIKE%':
 						$v = '%' . $v . '%';
@@ -190,7 +190,7 @@ class Base {
 						$string.= ' ' . $this->sql_keywords['like'] . ' ' . $v;
 						break;
 					case 'FTS':
-						$temp2 = $this->full_text_search_query($v['fields'], $v['str']);
+						$temp2 = $this->fullTextSearchQuery($v['fields'], $v['str']);
 						if (empty($temp2['where'])) {
 							continue;
 						}
@@ -272,13 +272,13 @@ class Base {
 		$query = \Numbers\Backend\Db\Common\Query\Builder::quick($this->db_link)
 			->delete()
 			->from($table)
-			->where('AND', $this->prepare_condition($where, 'AND'));
+			->where('AND', $this->prepareCondition($where, 'AND'));
 		/*
 		if (!empty($options['returning'])) {
 			$query->returning();
 		}
 		*/
-		return $query->query($this->prepare_keys($keys), $options);
+		return $query->query($this->prepareKeys($keys), $options);
 	}
 
 	/**
@@ -304,13 +304,13 @@ class Base {
 			->update()
 			->from($table)
 			->set($data)
-			->where('AND', $this->prepare_condition($where, 'AND'));
+			->where('AND', $this->prepareCondition($where, 'AND'));
 		/*
 		if (!empty($options['returning'])) {
 			$query->returning();
 		}
 		*/
-		return $query->query($this->prepare_keys($keys), $options);
+		return $query->query($this->prepareKeys($keys), $options);
 	}
 
 	/**
@@ -333,7 +333,7 @@ class Base {
 			$query->returning();
 		}
 		*/
-		return $query->query($this->prepare_keys($keys), $options);
+		return $query->query($this->prepareKeys($keys), $options);
 	}
 
 	/**
@@ -366,7 +366,7 @@ class Base {
 			$result = \Numbers\Backend\Db\Common\Query\Builder::quick($this->db_link)
 				->select()
 				->from($table)
-				->where('AND', $this->prepare_condition($where, 'AND'))
+				->where('AND', $this->prepareCondition($where, 'AND'))
 				->query();
 			if (!$result['success']) {
 				$this->rollback();

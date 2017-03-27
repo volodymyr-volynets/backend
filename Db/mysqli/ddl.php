@@ -423,7 +423,7 @@ TTT;
 	 * @return string
 	 * @throws Exception
 	 */
-	public function render_sql($type, $data, $options = array()) {
+	public function renderSql($type, $data, $options = array()) {
 		$result = '';
 		switch ($type) {
 			// columns
@@ -479,7 +479,7 @@ TTT;
 			case 'table_new':
 				$columns = array();
 				foreach ($data['data']['columns'] as $k => $v) {
-					$columns[] = $this->render_sql('column_new', ['table' => $data['data']['full_table_name'], 'name' => $k, 'data' => $v], ['column_new_no_alter' => true]);
+					$columns[] = $this->renderSql('column_new', ['table' => $data['data']['full_table_name'], 'name' => $k, 'data' => $v], ['column_new_no_alter' => true]);
 				}
 				$result = "CREATE TABLE {$data['data']['full_table_name']} (\n\t";
 					$result.= implode(",\n\t", $columns);

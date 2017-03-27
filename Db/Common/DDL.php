@@ -594,13 +594,13 @@ class DDL {
 						$name = ltrim($k . '.' . $k2 . '.' . $k3, '.');
 						// schema comparison
 						if ($options['type'] == 'schema') {
-							$master_compare = $ddl_object->column_sql_type($v3);
+							$master_compare = $ddl_object->columnSqlType($v3);
 							$compare_columns = ['sql_type', 'null', 'default'];
 							$slave_compare = $obj_slave['table'][$k][$k2]['data']['columns'][$k3] ?? [];
 						} else { // migration comparison
-							$master_compare = $this->column_sql_type_base($v3);
+							$master_compare = $this->columnSqlType_base($v3);
 							$compare_columns = ['type', 'null', 'default', 'length', 'precision', 'scale', 'sequence'];
-							$slave_compare = $this->column_sql_type_base($obj_slave['table'][$k][$k2]['data']['columns'][$k3]);
+							$slave_compare = $this->columnSqlType_base($obj_slave['table'][$k][$k2]['data']['columns'][$k3]);
 						}
 						// new columns
 						if (empty($obj_slave['table'][$k][$k2]['data']['columns'][$k3])) {
@@ -673,7 +673,7 @@ class DDL {
 					foreach ($obj_slave['table'][$k][$k2]['data']['columns'] as $k3 => $v3) {
 						if (empty($obj_master['table'][$k][$k2]['data']['columns'][$k3])) {
 							$name = ltrim($k . '.' . $k2 . '.' . $k3, '.');
-							$slave_compare = $this->column_sql_type_base($v3);
+							$slave_compare = $this->columnSqlType_base($v3);
 							$slave_compare['sql_type'] = null;
 							// up
 							$result['up']['delete_columns'][$name] = [
@@ -970,7 +970,7 @@ class DDL {
 						} else { // function changed
 							// body
 							$v3_old = $obj_slave['function'][$k][$k2][$k3];
-							if (self::sanitize_function($v3['data']['definition']) != self::sanitize_function($v3_old['data']['definition'])) {
+							if (self::sanitizeFunction($v3['data']['definition']) != self::sanitizeFunction($v3_old['data']['definition'])) {
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_old['migration_id'] = $result['count'] + 1;
 								// up
@@ -1121,21 +1121,21 @@ class DDL {
 		if (!empty($diff['new_tables'])) {
 			foreach ($diff['new_tables'] as $k => $v) {
 				foreach ($v['data']['columns'] as $k2 => $v2) {
-					$diff['new_tables'][$k]['data']['columns'][$k2] = $this->column_sql_type($v2);
+					$diff['new_tables'][$k]['data']['columns'][$k2] = $this->columnSqlType($v2);
 				}
 			}
 		}
 		// new columns
 		if (!empty($diff['new_columns'])) {
 			foreach ($diff['new_columns'] as $k => $v) {
-				$diff['new_columns'][$k]['data'] = $this->column_sql_type($v['data']);
+				$diff['new_columns'][$k]['data'] = $this->columnSqlType($v['data']);
 			}
 		}
 		// column changes
 		if (!empty($diff['change_columns'])) {
 			foreach ($diff['change_columns'] as $k => $v) {
-				$diff['change_columns'][$k]['data'] = $this->column_sql_type($v['data']);
-				$diff['change_columns'][$k]['data_old'] = $this->column_sql_type($v['data_old']);
+				$diff['change_columns'][$k]['data'] = $this->columnSqlType($v['data']);
+				$diff['change_columns'][$k]['data_old'] = $this->columnSqlType($v['data_old']);
 			}
 		}
 		// generating sql
@@ -1143,9 +1143,9 @@ class DDL {
 			foreach ($v as $k2 => $v2) {
 				// we need to make fk constraints last to sort MySQL issues
 				if ($k == 'new_constraints' && $v2['type'] == 'constraint_new' && $v2['data']['type'] == 'fk') {
-					$diff[$k . '_fks'][$k2]['sql'] = $this->render_sql($v2['type'], $v2);
+					$diff[$k . '_fks'][$k2]['sql'] = $this->renderSql($v2['type'], $v2);
 				} else {
-					$diff[$k][$k2]['sql'] = $this->render_sql($v2['type'], $v2, ['mode' => $options['mode']]);
+					$diff[$k][$k2]['sql'] = $this->renderSql($v2['type'], $v2, ['mode' => $options['mode']]);
 				}
 			}
 		}

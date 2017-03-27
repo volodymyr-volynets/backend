@@ -6,7 +6,7 @@ class Nextval extends \Object\Function2 {
 	public $db_link_flag;
 	public $schema;
 	public $name = 'nextval_extended';
-	public $backend = 'pgsql';
+	public $backend = 'PostgreSQL';
 	public $header = 'nextval_extended(sequence_name character varying, tenant_id integer, module_id integer)';
 	public $definition = 'CREATE OR REPLACE FUNCTION public.nextval_extended(sequence_name character varying, tenant_id integer, module_id integer)
  RETURNS bigint

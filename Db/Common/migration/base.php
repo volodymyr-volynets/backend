@@ -253,7 +253,7 @@ abstract class numbers_backend_db_class_migration_base {
 			$this->{$type}();
 			// log migration
 			$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
-			if ($migration_model->db_present()) {
+			if ($migration_model->dbPresent()) {
 				// insert new migration record
 				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collection_static()->merge($this->executed_migration_stats);
 				if (!$temp_result['success']) {
@@ -303,7 +303,7 @@ abstract class numbers_backend_db_class_migration_base {
 					$this->down();
 					// log migration
 					$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
-					if ($migration_model->db_present()) {
+					if ($migration_model->dbPresent()) {
 						$old_stats['sm_migration_rolled_back'] = 1;
 						$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collection_static()->merge_multiple([$old_stats, $this->executed_migration_stats]);
 						if (!$temp_result['success']) {

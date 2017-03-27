@@ -284,7 +284,7 @@ class Builder {
 				$key[] = '~~';
 			}
 			$key = implode(';', $key);
-			return [$operator, $exists, $this->db_object->prepare_condition([$key => $condition[2] ?? null]), false];
+			return [$operator, $exists, $this->db_object->prepareCondition([$key => $condition[2] ?? null]), false];
 		} else if (is_callable($condition)) {
 			return [$operator, $exists, $this->where_inner($condition), false];
 		}
@@ -318,7 +318,7 @@ class Builder {
 		foreach ($conditions as $k => $v) {
 			// notation field;=;~~ => [value]
 			if (is_string($k)) {
-				$this->where($operator, $this->db_object->prepare_condition([$k => $v]));
+				$this->where($operator, $this->db_object->prepareCondition([$k => $v]));
 			} else { // notation: ['field', '=', 'value', true]
 				$this->where($operator, $v);
 			}
@@ -435,7 +435,7 @@ class Builder {
 	 * @return array
 	 */
 	private function render() : array {
-		return $this->db_object->object->query_builder_render($this);
+		return $this->db_object->object->queryBuilderRender($this);
 	}
 
 	/**

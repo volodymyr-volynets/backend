@@ -23,6 +23,13 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	];
 
 	/**
+	 * Backend
+	 *
+	 * @var string
+	 */
+	public $backend = 'PostgreSQL';
+
+	/**
 	 * Connect to database
 	 *
 	 * @param array $options
@@ -122,12 +129,12 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . sha1($sql . serialize($key));
 			// if we cache this query
 			if (!empty($options['cache'])) {
-				$cache_object = new cache($this->options['cache_link']);
+				$cache_object = new \Cache($this->options['cache_link']);
 				$cached_result = $cache_object->get($cache_id, true);
 				if ($cached_result !== false) {
 					// if we are debugging
-					if (debug::$debug) {
-						debug::$data['sql'][] = $cached_result;
+					if (\Debug::$debug) {
+						\Debug::$data['sql'][] = $cached_result;
 					}
 					return $cached_result;
 				}
@@ -136,7 +143,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			$options['cache'] = false;
 		}
 		// quering
-		$resource = @pg_query($this->db_resource, $sql);
+		$resource = pg_query($this->db_resource, $sql);
 		$result['status'] = pg_result_status($resource);
 		if (!$resource || $result['status'] > 4) {
 			$last_error = pg_last_error($this->db_resource);
@@ -148,7 +155,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 				$errno = !empty($matches[1]) ? $matches[1] : 1;
 				$error = $last_error;
 			}
-			$this->error_overrides($result, $errno, $error);
+			$this->errorOverrides($result, $errno, $error);
 		} else {
 			$result['affected_rows'] = pg_affected_rows($resource);
 			$result['num_rows'] = pg_num_rows($resource);
@@ -158,7 +165,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 					// transforming pg arrays to php arrays and casting types
 					foreach ($rows as $k => $v) {
 						if ($result['structure'][$k]['type'][0] == '_') {
-							$rows[$k] = $this->pg_parse_array($v);
+							$rows[$k] = $this->pgParseArray($v);
 						} else if (in_array($result['structure'][$k]['type'], ['int2', 'int4', 'int8'])) {
 							if (!is_null($v)) {
 								$rows[$k] = (int) $v;
@@ -189,7 +196,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		$result['time'] = microtime(true) - $result['time'];
 		// prepend backtrace in debug mode to know where it was cached
 		if (\Debug::$debug) {
-			$result['backtrace']  = implode("\n", \Object\Error\Base::debug_backtrace_string());
+			$result['backtrace']  = implode("\n", \Object\Error\Base::debugBacktraceString());
 		}
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
@@ -291,7 +298,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		while ($i < $length) {
 			switch ($arraystring[$i]) {
 				case '{':
-					$sub = $this->pg_parse_array($arraystring, false);
+					$sub = $this->pgParseArray($arraystring, false);
 					if (!empty($sub)) {
 						$work[$indexer++] = $sub;
 					}
@@ -542,7 +549,7 @@ TTT;
 				if (empty($object->data['columns'])) {
 					$result['error'][] = 'Columns?';
 				} else {
-					$sql.= " (\n\t" . $this->prepare_expression($object->data['columns'], ",\n\t") . "\n)\n";
+					$sql.= " (\n\t" . $this->prepareExpression($object->data['columns'], ",\n\t") . "\n)\n";
 				}
 				// values
 				if (empty($object->data['values'])) {
@@ -552,7 +559,7 @@ TTT;
 						$sql.= "VALUES";
 						$temp = [];
 						foreach ($object->data['values'] as $v) {
-							$temp[] = "\n\t(" . $this->prepare_values($v) . ")";
+							$temp[] = "\n\t(" . $this->prepareValues($v) . ")";
 						}
 						$sql.= implode(",", $temp);
 					} else {

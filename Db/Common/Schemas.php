@@ -298,12 +298,12 @@ run_again:
 	 */
 	public static function generateSqlFromDiffAndExecute($db_link, $diff, $options = []) {
 		$options['mode'] = $options['mode'] ?? 'commit';
-		$ddl_object = Factory::get(['db', $db_link, 'ddl_object']);
-		$result = $ddl_object->generate_sql_from_diff_objects($db_link, $diff, ['mode' => $options['mode']]);
+		$ddl_object = \Factory::get(['db', $db_link, 'ddl_object']);
+		$result = $ddl_object->generateSqlFromDiffObjects($db_link, $diff, ['mode' => $options['mode']]);
 		$result['success'] = false;
 		// if we need to execute
 		if (!empty($options['execute']) && $result['count'] > 0) {
-			$db_object = Factory::get(['db', $db_link, 'object']);
+			$db_object = new \Db($db_link);
 			$db_object->begin();
 			foreach ($result['data'] as $v) {
 				$temp_result = $db_object->query($v);
@@ -315,9 +315,9 @@ run_again:
 			}
 			// see if we have a migration table
 			$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
-			if ($migration_model->db_present()) {
-				$ts = Format::now('timestamp');
-				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collection_static()->merge([
+			if ($migration_model->dbPresent()) {
+				$ts = \Format::now('timestamp');
+				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'schema',
 					'sm_migration_action' => 'up',
@@ -357,10 +357,10 @@ run_again:
 			'legend' => []
 		];
 		// ddl object
-		$ddl_object = Factory::get(['db', $db_link, 'ddl_object']);
+		$ddl_object = \Factory::get(['db', $db_link, 'ddl_object']);
 		$sqls = [];
 		// step 1: revoke all priviledges on database
-		$temp = $ddl_object->render_sql('permission_revoke_all', [
+		$temp = $ddl_object->renderSql('permission_revoke_all', [
 			'database' => $options['database'],
 			'owner' => $db_query_owner
 		]);
@@ -371,7 +371,7 @@ run_again:
 		// step 2: schemas
 		if (!empty($objects['schema'])) {
 			foreach ($objects['schema'] as $v) {
-				$temp = $ddl_object->render_sql('permission_grant_schema', [
+				$temp = $ddl_object->renderSql('permission_grant_schema', [
 					'schema' => $v,
 					'owner' => $db_query_owner
 				]);
@@ -384,7 +384,7 @@ run_again:
 		// step 3: tables
 		if (!empty($objects['table'])) {
 			foreach ($objects['table'] as $v) {
-				$temp = $ddl_object->render_sql('permission_grant_table', [
+				$temp = $ddl_object->renderSql('permission_grant_table', [
 					'table' => $v,
 					'owner' => $db_query_owner
 				]);
@@ -397,7 +397,7 @@ run_again:
 		// step 4: sequences
 		if (!empty($objects['sequence'])) {
 			foreach ($objects['sequence'] as $v) {
-				$temp = $ddl_object->render_sql('permission_grant_sequence', [
+				$temp = $ddl_object->renderSql('permission_grant_sequence', [
 					'sequence' => $v,
 					'owner' => $db_query_owner
 				]);
@@ -410,7 +410,7 @@ run_again:
 		// step 5: functions
 		if (!empty($objects['function'])) {
 			foreach ($objects['function'] as $k => $v) {
-				$temp = $ddl_object->render_sql('permission_grant_function', [
+				$temp = $ddl_object->renderSql('permission_grant_function', [
 					'function' => $k,
 					'header' => $v,
 					'owner' => $db_query_owner
@@ -424,7 +424,7 @@ run_again:
 		// if we have changes
 		if (!empty($sqls)) {
 			array_unshift($result['legend'], '       * permission:');
-			$db_object = Factory::get(['db', $db_link, 'object']);
+			$db_object = new \Db($db_link);
 			$db_object->begin();
 			foreach ($sqls as $v) {
 				$temp_result = $db_object->query($v);
@@ -436,9 +436,9 @@ run_again:
 			}
 			// see if we have a migration table
 			$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
-			if ($migration_model->db_present()) {
-				$ts = Format::now('timestamp');
-				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collection_static()->merge([
+			if ($migration_model->dbPresent()) {
+				$ts = \Format::now('timestamp');
+				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'permission',
 					'sm_migration_action' => 'update',
@@ -476,14 +476,14 @@ run_again:
 			'count' => 0,
 			'legend' => []
 		];
-		$db_object = Factory::get(['db', $db_link, 'object']);
+		$db_object = \Factory::get(['db', $db_link, 'object']);
 		$db_object->begin();
 		// process import models one by one
 		foreach ($data as $k => $v) {
 			switch ($k) {
 				case 'object_relations':
 					$import_model = new \Numbers\Backend\Db\Common\Model\Relations();
-					if ($import_model->db_present()) {
+					if ($import_model->dbPresent()) {
 						$import_result = $import_model->collection(['pk' => ['sm_relation_model']])->merge_multiple($v);
 						if (!$import_result['success']) {
 							$result['error'] = array_merge($result['error'], $import_result['error']);
@@ -510,8 +510,8 @@ run_again:
 		// see if we have a migration table
 		if (!empty($result['count'])) {
 			$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
-			if ($migration_model->db_present()) {
-				$ts = Format::now('timestamp');
+			if ($migration_model->dbPresent()) {
+				$ts = \Format::now('timestamp');
 				$temp_result = $migration_model->collection()->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'import',

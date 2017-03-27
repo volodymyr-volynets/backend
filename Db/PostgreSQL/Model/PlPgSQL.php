@@ -7,5 +7,5 @@ class PlPgSQL extends \Object\Extension {
 	public $title = 'PL/pgSQL - SQL Procedural Language';
 	public $schema = 'pg_catalog';
 	public $name = 'plpgsql';
-	public $backend = 'pgsql';
+	public $backend = 'PostgreSQL';
 }

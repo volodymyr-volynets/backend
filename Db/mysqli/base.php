@@ -344,10 +344,10 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 	public function insert($table, $rows, $keys = null, $options = []) {
 		$temp = current($rows);
 		$headers = $this->prepare_keys(array_keys($temp));
-		$sql = "INSERT INTO $table (" . $this->prepare_expression($headers) . ") VALUES ";
+		$sql = "INSERT INTO $table (" . $this->prepareExpression($headers) . ") VALUES ";
 		$sql_values = [];
 		foreach ($rows as $k => $v) {
-			$sql_values[] = "(" . $this->prepare_values($v) . ")";
+			$sql_values[] = "(" . $this->prepareValues($v) . ")";
 		}
 		$sql.= implode(', ', $sql_values);
 		return $this->query($sql, $this->prepare_keys($keys));
@@ -470,7 +470,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 					}
 				}
 				// we insert
-				$sql = "INSERT INTO $table (" . $this->prepare_expression(array_keys($data)) . ') VALUES (' . $this->prepare_values($data) . ')';
+				$sql = "INSERT INTO $table (" . $this->prepareExpression(array_keys($data)) . ') VALUES (' . $this->prepareValues($data) . ')';
 			}
 			$result = $this->query($sql, $this->prepare_keys($keys));
 			if ($result['success']) {

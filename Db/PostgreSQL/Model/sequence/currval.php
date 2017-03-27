@@ -6,7 +6,7 @@ class Currval extends \Object\Function2 {
 	public $db_link_flag;
 	public $schema;
 	public $name = 'currval_extended';
-	public $backend = 'pgsql';
+	public $backend = 'PostgreSQL';
 	public $header = 'currval_extended(sequence_name character varying, tenant_id integer, module_id integer)';
 	public $definition = 'CREATE OR REPLACE FUNCTION public.currval_extended(sequence_name character varying, tenant_id integer, module_id integer)
  RETURNS bigint

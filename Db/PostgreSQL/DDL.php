@@ -11,7 +11,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 	 */
 	public function columnSqlType($column) {
 		// presetting
-		$column = $this->column_sql_type_base($column);
+		$column = $this->columnSqlTypeBase($column);
 		// simple switch would do the work
 		switch ($column['type']) {
 			case 'boolean':
@@ -234,7 +234,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 									'type' => 'extension',
 									'schema' => $v5['schema_name'],
 									'name' => $v5['extension_name'],
-									'backend' => 'pgsql' // a must
+									'backend' => 'PostgreSQL' // a must
 								], $db_link);
 							}
 						}
@@ -294,7 +294,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 									'type' => 'function',
 									'schema' => $k2,
 									'name' => $k3,
-									'backend' => 'pgsql',
+									'backend' => 'PostgreSQL',
 									'data' => [
 										'owner' => $v3['function_owner'],
 										'full_function_name' => $full_function_name,
@@ -731,7 +731,7 @@ TTT;
 			case 'table_new':
 				$columns = [];
 				foreach ($data['data']['columns'] as $k => $v) {
-					$columns[] = $this->render_sql('column_new', ['table' => '', 'name' => $k, 'data' => $v], ['column_new_no_alter' => true]);
+					$columns[] = $this->renderSql('column_new', ['table' => '', 'name' => $k, 'data' => $v], ['column_new_no_alter' => true]);
 				}
 				$result2 = "CREATE TABLE {$data['data']['full_table_name']} (\n\t";
 					$result2.= implode(",\n\t", $columns);
