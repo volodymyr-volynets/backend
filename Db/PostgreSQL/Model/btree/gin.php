@@ -7,5 +7,5 @@ class GIN extends \Object\Extension {
 	public $title = 'btree_gin';
 	public $schema = 'pg_catalog';
 	public $name = 'btree_gin';
-	public $backend = 'pgsql';
+	public $backend = 'PostgreSQL';
 }

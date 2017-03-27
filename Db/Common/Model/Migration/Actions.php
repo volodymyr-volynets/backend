@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_db_class_model_migration_actions extends \Object\Data {
+namespace Numbers\Backend\Db\Common\Migration;
+class Actions extends \Object\Data {
 	public $column_key = 'sm_migraction_code';
 	public $column_prefix = 'sm_migraction_';
 	public $columns = [

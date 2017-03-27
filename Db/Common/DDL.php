@@ -598,9 +598,9 @@ class DDL {
 							$compare_columns = ['sql_type', 'null', 'default'];
 							$slave_compare = $obj_slave['table'][$k][$k2]['data']['columns'][$k3] ?? [];
 						} else { // migration comparison
-							$master_compare = $this->columnSqlType_base($v3);
+							$master_compare = $this->columnSqlTypeBase($v3);
 							$compare_columns = ['type', 'null', 'default', 'length', 'precision', 'scale', 'sequence'];
-							$slave_compare = $this->columnSqlType_base($obj_slave['table'][$k][$k2]['data']['columns'][$k3]);
+							$slave_compare = $this->columnSqlTypeBase($obj_slave['table'][$k][$k2]['data']['columns'][$k3]);
 						}
 						// new columns
 						if (empty($obj_slave['table'][$k][$k2]['data']['columns'][$k3])) {

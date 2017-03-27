@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_db_class_migration_template extends numbers_backend_db_class_migration_base {
+class Numbers_Backend_Db_Common_Migration_Template extends \Numbers\Backend\Db\Common\Migration\Base {
 
 	/**
 	 * Db link

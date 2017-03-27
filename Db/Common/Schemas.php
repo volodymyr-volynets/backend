@@ -110,7 +110,7 @@ run_again:
 			foreach ($virtual_models as $k => $v) {
 				$k2 = str_replace('.', '_', $k);
 				if ($v == '\Object\Table') {
-					$model = \Factory::model($k2, true);
+					$model = \Factory::model($k2, true, [['skip_db_object' => $options['skip_db_object'] ?? false]]);
 					foreach (\Object\Widgets::WIDGET_MODELS as $v0) {
 						if (!empty($model->{$v0})) {
 							$v01 = $v0 . '_model';

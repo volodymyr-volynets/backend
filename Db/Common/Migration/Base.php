@@ -1,6 +1,7 @@
 <?php
 
-abstract class numbers_backend_db_class_migration_base {
+namespace Numbers\Backend\Db\Common\Migration;
+abstract class Base {
 
 	/**
 	 * Db link
@@ -122,17 +123,17 @@ abstract class numbers_backend_db_class_migration_base {
 			'sm_migration_db_link' => $this->db_link,
 			'sm_migration_type' => 'migration',
 			'sm_migration_action' => $this->action,
-			'sm_migration_name' => str_replace('numbers_backend_db_class_migration_template_', '', get_called_class()),
+			'sm_migration_name' => str_replace('Numbers_Backend_Db_Common_Migration_Template_', '', get_called_class()),
 			'sm_migration_developer' => $this->developer ?? 'Unknown',
-			'sm_migration_inserted' => Format::now('timestamp'),
+			'sm_migration_inserted' => \Format::now('timestamp'),
 			'sm_migration_rolled_back' => 0,
 			'sm_migration_legend' => [],
 			'sm_migration_sql_counter' => 0,
 			'sm_migration_sql_changes' => []
 		];
 		if ($this->mode == 'commit') {
-			$this->db_object = new db($this->db_link);
-			$this->ddl_object = Factory::get(['db', $this->db_link, 'ddl_object']);
+			$this->db_object = new \Db($this->db_link);
+			$this->ddl_object = \Factory::get(['db', $this->db_link, 'ddl_object']);
 		}
 	}
 
@@ -181,7 +182,7 @@ abstract class numbers_backend_db_class_migration_base {
 				}
 				// generate sql
 				$diff = [$operation => [$name => $data]];
-				$ddl_result = $this->ddl_object->generate_sql_from_diff_objects($this->db_link, $diff, ['mode' => 'commit']);
+				$ddl_result = $this->ddl_object->generateSqlFromDiffObjects($this->db_link, $diff, ['mode' => 'commit']);
 				if ($ddl_result['success'] && $ddl_result['count'] > 0) {
 					$sql_queries = $ddl_result['data'];
 				} else {
@@ -255,7 +256,7 @@ abstract class numbers_backend_db_class_migration_base {
 			$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
 			if ($migration_model->dbPresent()) {
 				// insert new migration record
-				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collection_static()->merge($this->executed_migration_stats);
+				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge($this->executed_migration_stats);
 				if (!$temp_result['success']) {
 					Throw new Exception(implode("\n", $temp_result['error']));
 				}
@@ -276,7 +277,7 @@ abstract class numbers_backend_db_class_migration_base {
 					if (empty($temp)) {
 						Throw new Exception('Could not find original up migration!');
 					}
-					$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collection_static()->merge([
+					$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge([
 						'sm_migration_id' => key($temp),
 						'sm_migration_rolled_back' => 1
 					]);
@@ -305,7 +306,7 @@ abstract class numbers_backend_db_class_migration_base {
 					$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
 					if ($migration_model->dbPresent()) {
 						$old_stats['sm_migration_rolled_back'] = 1;
-						$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collection_static()->merge_multiple([$old_stats, $this->executed_migration_stats]);
+						$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge_multiple([$old_stats, $this->executed_migration_stats]);
 						if (!$temp_result['success']) {
 							Throw new Exception(implode("\n", $temp_result['error']));
 						}

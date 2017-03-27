@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_db_class_model_migration_types extends \Object\Data {
+namespace Numbers\Backend\Db\Common\Migration;
+class Types extends \Object\Data {
 	public $column_key = 'sm_migrtype_code';
 	public $column_prefix = 'sm_migrtype_';
 	public $columns = [
