@@ -521,7 +521,7 @@ TTT;
 					$result['error'][] = 'Set?';
 				} else {
 					$sql.= "\nSET ";
-					$sql.= $this->prepare_condition($object->data['set'], ",\n\t");
+					$sql.= $this->prepareCondition($object->data['set'], ",\n\t");
 				}
 				// where
 				if (!empty($object->data['where'])) {

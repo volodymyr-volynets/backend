@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_mail_default_base extends numbers_backend_mail_class_base implements numbers_backend_mail_interface_base {
+namespace Numbers\Backend\Mail\Simple;
+class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend\Mail\Common\Interface2\Base {
 
 	/**
 	 * Send an email
@@ -8,7 +9,7 @@ class numbers_backend_mail_default_base extends numbers_backend_mail_class_base 
 	 * @param array $options
 	 * @return array
 	 */
-	public function send($options) {
+	public function send(array $options) : array {
 		$result = [
 			'success' => false,
 			'error' => [],
@@ -38,9 +39,7 @@ class numbers_backend_mail_default_base extends numbers_backend_mail_class_base 
 			$recepients[$r] = implode(',', $recepients[$r]);
 		}
 		// crypt object
-		$crypt = new crypt();
-		// todo: use unique id for tracking
-		$result['unique_id'] = $crypt->hash([$recepients, $options['subject'], microtime()]);
+		$result['unique_id'] = sha1(serialize([$recepients, $options['subject'], microtime()]));
 		// generating header
 		if (isset($options['header'])) {
 			$header = $options['header'];
@@ -72,7 +71,7 @@ class numbers_backend_mail_default_base extends numbers_backend_mail_class_base 
 		} else {
 			// has attachments or multiple messages
 			$body_text = "";
-			$unique_hash = $crypt->hash(mt_rand());
+			$unique_hash = sha1(mt_rand());
 			$body_boundary = "boundary." . $unique_hash;
 			$body_header = "";
 			$body_header.= "Content-Type: multipart/alternative; boundary=\"{$body_boundary}\"\n";
@@ -83,7 +82,7 @@ class numbers_backend_mail_default_base extends numbers_backend_mail_class_base 
 				$body_text.= "--{$body_boundary}\n";
 				$body_text.= "Content-Type: {$part['type']}; charset=\"{$part['charset']}\"\n";
 				$body_text.= "Content-Transfer-Encoding: {$part['encoding']}\n\n";
-				$body_text.= $this->encode_part($part) . "\n\n";
+				$body_text.= $this->encodePart($part) . "\n\n";
 			}
 			$body_text.= "\n--{$body_boundary}--\n";
 			// if we have attachments
@@ -100,7 +99,7 @@ class numbers_backend_mail_default_base extends numbers_backend_mail_class_base 
 					$text_part.= "Content-Type: {$v['type']}; name=\"{$v['name']}\"\n";
 					$text_part.= "Content-Transfer-Encoding: base64\n";
 					$text_part.= "Content-Disposition: attachment; filename=\"{$v['name']}\"\n\n";
-					$text_part.= $this->encode_part(['data' => $v['data'], 'encoding' => 'base64']);
+					$text_part.= $this->encodePart(['data' => $v['data'], 'encoding' => 'base64']);
 				}
 				$text_part .= "\n--{$attachment_boundary}--\n";
 			} else {
@@ -125,7 +124,7 @@ class numbers_backend_mail_default_base extends numbers_backend_mail_class_base 
 	 * @return string
 	 * @throws Exception
 	 */
-	private function encode_part($data) {
+	private function encodePart($data) {
 		switch ($data['encoding']) {
 			case 'base64':
 				$data['data'] = chunk_split(base64_encode($data['data']), 76, "\n");

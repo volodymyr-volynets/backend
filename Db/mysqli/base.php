@@ -163,7 +163,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 		];
 
 		// start time
-		$result['time'] = debug::get_microtime();
+		$result['time'] = \Debug::get_microtime();
 
 		// if query caching is enabled
 		if (!empty($this->connect_options['cache_link'])) {
@@ -266,11 +266,11 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 		}
 
 		// end time
-		$result['time'] = debug::get_microtime() - $result['time'];
+		$result['time'] = \Debug::get_microtime() - $result['time'];
 
 		// if we are debugging
-		if (debug::$debug) {
-			debug::$data['sql'][] = $result;
+		if (\Debug::$debug) {
+			\Debug::$data['sql'][] = $result;
 		}
 
 		return $result;
@@ -376,7 +376,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			}
 		}
 		// assembling query
-		$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND');
+		$sql = "UPDATE $table SET " . $this->prepareCondition($data, ', ') . ' WHERE ' . $this->prepareCondition($where, 'AND');
 		return $this->query($sql, $this->prepare_keys($keys));
 	}
 
@@ -403,7 +403,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			}
 		}
 		// assembling query
-		$sql = "DELETE FROM $table WHERE " . $this->prepare_condition($where, 'AND');
+		$sql = "DELETE FROM $table WHERE " . $this->prepareCondition($where, 'AND');
 		return $this->query($sql, $this->prepare_keys($keys));
 	}
 
@@ -434,7 +434,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			// if keys are empty we must insert
 			$row_found = false;
 			if (!$empty) {
-				$result = $this->query("SELECT * FROM $table WHERE " . $this->prepare_condition($where, 'AND'));
+				$result = $this->query("SELECT * FROM $table WHERE " . $this->prepareCondition($where, 'AND'));
 				if (!$result['success']) {
 					break;
 				} else if ($result['num_rows']) {
@@ -451,7 +451,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 			// if row found we update
 			if ($row_found) {
 				$flag_inserted = false;
-				$sql = "UPDATE $table SET " . $this->prepare_condition($data, ', ') . ' WHERE ' . $this->prepare_condition($where, 'AND');
+				$sql = "UPDATE $table SET " . $this->prepareCondition($data, ', ') . ' WHERE ' . $this->prepareCondition($where, 'AND');
 			} else {
 				$flag_inserted = true;
 				// we need to unset key fields
@@ -477,7 +477,7 @@ class numbers_backend_db_mysqli_base extends numbers_backend_db_class_base imple
 				$result['inserted'] = $flag_inserted;
 			}
 			// processing returning clause last
-			$temp = $this->query("SELECT * FROM $table WHERE " . $this->prepare_condition($where, 'AND'));
+			$temp = $this->query("SELECT * FROM $table WHERE " . $this->prepareCondition($where, 'AND'));
 			if ($temp['success']) {
 				$result['rows'] = $temp['rows'];
 				$result['num_rows'] = $temp['num_rows'];

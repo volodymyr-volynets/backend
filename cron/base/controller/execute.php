@@ -4,16 +4,16 @@ class numbers_backend_cron_base_controller_execute {
 
 	public function action_index() {
 		// clear buffer
-		Helper_Ob::clean_all();
+		\Helper\Ob::cleanAll();
 		// validating
 		do {
 			$options = Application::get('flag.numbers.backend.cron.base');
 			// token
-			if (!empty($options['token']) && request::input('token') != $options['token']) {
+			if (!empty($options['token']) && \Request::input('token') != $options['token']) {
 				break;
 			}
 			// ip
-			if (!empty($options['ip']) && !in_array(request::ip(), $options['ip'])) {
+			if (!empty($options['ip']) && !in_array(\Request::ip(), $options['ip'])) {
 				break;
 			}
 			// get date parts
@@ -22,7 +22,7 @@ class numbers_backend_cron_base_controller_execute {
 			echo "GOOD\n";
 		} while(0);
 		// we need to validate token
-		//$token = request::input('token');
+		//$token = \Request::input('token');
 		echo "OK\n";
 		// exit
 		exit;

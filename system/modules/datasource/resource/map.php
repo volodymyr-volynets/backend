@@ -65,7 +65,7 @@ class numbers_backend_system_modules_datasource_resource_map extends \Object\Dat
 					if (!empty($v3['sm_action_parent_action_id'])) {
 						$parent = \Object\Table_options::options_json_format_key(['action_id' => $v3['sm_action_parent_action_id'], 'method_code' => $k2]);
 					}
-					$result[$key] = ['name' => $v3['sm_action_name'], 'icon_class' => Html::icon(['type' => $v3['sm_action_icon'], 'class_only' => true]), '__selected_name' => i18n(null, $v3['sm_method_name']) . ': ' . i18n(null, $v3['sm_action_name']), 'parent' => $parent];
+					$result[$key] = ['name' => $v3['sm_action_name'], 'icon_class' => \HTML::icon(['type' => $v3['sm_action_icon'], 'class_only' => true]), '__selected_name' => i18n(null, $v3['sm_method_name']) . ': ' . i18n(null, $v3['sm_action_name']), 'parent' => $parent];
 				}
 			}
 		}

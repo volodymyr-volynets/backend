@@ -402,7 +402,7 @@ TTT;
 		}
 		// options
 		if (!empty($options['where'])) {
-			$sql = "SELECT * FROM (" . $sql . ") a WHERE 1=1 AND " . $db_object->prepare_condition($options['where'], 'AND');
+			$sql = "SELECT * FROM (" . $sql . ") a WHERE 1=1 AND " . $db_object->prepareCondition($options['where'], 'AND');
 		}
 		$result2 = $db_object->query($sql, $key);
 		if ($result2['error']) {

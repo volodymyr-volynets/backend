@@ -9,7 +9,7 @@ class numbers_backend_session_db_controller_check extends \Object\Controller {
 	];
 
 	public function action_index() {
-		$input = request::input(null, true, true);
+		$input = \Request::input(null, true, true);
 		$result = [
 			'success' => false,
 			'error' => [],
@@ -56,7 +56,7 @@ TTT;
 	 * Renew session
 	 */
 	public function action_renew() {
-		$input = request::input(null, true, true);
+		$input = \Request::input(null, true, true);
 		$result = [
 			'success' => false,
 			'error' => []

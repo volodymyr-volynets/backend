@@ -1,8 +1,9 @@
 <?php
 
-class numbers_backend_session_db_model_sessions extends \Object\Table {
+namespace Numbers\Backend\Session\Db\Model;
+class Sessions extends \Object\Table {
 	public $db_link;
-	public $db_link_flag = 'flag.numbers.backend.session.db.default_db_link';
+	public $db_link_flag;
 	public $schema;
 	public $name = 'sm_sessions';
 	public $pk = ['sm_session_id'];

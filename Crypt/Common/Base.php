@@ -91,12 +91,12 @@ abstract class Base {
 	/**
 	 * @see Crypt::encrypt();
 	 */
-	abstract public function encrypt($data);
+	abstract public function encrypt(string $data) : string;
 
 	/**
 	 * @see Crypt::decrypt();
 	 */
-	abstract public function decrypt($data);
+	abstract public function decrypt(string $data) : string;
 
 	/**
 	 * @see Crypt::hash();
@@ -133,7 +133,7 @@ abstract class Base {
 	 */
 	public function tokenCreate($id, $token = null, $data = null, $options = []) {
 		$time = $options['time'] ?? time();
-		$ip = $options['ip'] ?? request::ip();
+		$ip = $options['ip'] ?? \Request::ip();
 		if (empty($this->check_ip)) {
 			$packed = pack('NN', 0, $time);
 		} else {

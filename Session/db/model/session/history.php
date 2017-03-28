@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_session_db_model_session_history extends \Object\Table {
+namespace Numbers\Backend\Session\Db\Model\Session;
+class History extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $schema;

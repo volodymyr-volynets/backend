@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_mail_class_base {
+namespace Numbers\Backend\Mail\Common;
+class Base {
 
 	/**
 	 * Validate
@@ -26,7 +27,7 @@ class numbers_backend_mail_class_base {
 			if (isset($options['from'])) {
 				$from = $options['from'];
 			} else {
-				$from = Application::get('flag.global.mail.from');
+				$from = \Application::get('flag.global.mail.from');
 			}
 			if (empty($from['email'])) {
 				$result['error'][] = 'You need to specify from email address!';
@@ -91,7 +92,7 @@ class numbers_backend_mail_class_base {
 					continue;
 				}
 				// validating
-				$temp = $this->validate_recepient($options[$r]);
+				$temp = $this->validateRecipient($options[$r]);
 				if (!$temp['success']) {
 					array_merge3($result['error'], $temp['error']);
 				} else {
@@ -152,12 +153,12 @@ class numbers_backend_mail_class_base {
 	}
 
 	/**
-	 * Validate recepient
+	 * Validate recipient
 	 *
 	 * @param mixed $to
 	 * @return array
 	 */
-	public function validate_recepient($to) {
+	public function validateRecipient($to) {
 		$result = [
 			'success' => false,
 			'error' => [],
