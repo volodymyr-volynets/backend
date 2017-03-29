@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_system_modules_model_module_types extends \Object\Data {
+namespace Numbers\Backend\System\Modules\Model\Module;
+class Types extends \Object\Data {
 	public $module_code = 'SM';
 	public $title = 'S/M Module Types';
 	public $column_key = 'sm_mdltype_id';

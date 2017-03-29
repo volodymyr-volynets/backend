@@ -1,11 +1,12 @@
 <?php
 
-class numbers_backend_system_modules_data_import extends \Object\Import {
+namespace Numbers\Backend\System\Modules\Data;
+class Import extends \Object\Import {
 	public $data = [
 		'modules' => [
 			'options' => [
 				'pk' => ['sm_module_code'],
-				'model' => 'numbers_backend_system_modules_model_collection_modules',
+				'model' => '\Numbers\Backend\System\Modules\Model\Collection\Modules',
 				'method' => 'save'
 			],
 			'data' => [
@@ -24,14 +25,14 @@ class numbers_backend_system_modules_data_import extends \Object\Import {
 		'resource_actions' => [
 			'options' => [
 				'pk' => ['sm_action_id'],
-				'model' => 'numbers_backend_system_modules_model_resource_actions',
+				'model' => '\Numbers\Backend\System\Modules\Model\Resource\Actions',
 				'method' => 'save'
 			],
 			'data' => [
 				// list related items
 				[
 					'sm_action_id' => 1000,
-					'sm_action_code' => 'list_view',
+					'sm_action_code' => 'List_View',
 					'sm_action_name' => 'View List',
 					'sm_action_icon' => 'list',
 					'sm_action_parent_action_id' => null,
@@ -39,7 +40,7 @@ class numbers_backend_system_modules_data_import extends \Object\Import {
 				],
 				[
 					'sm_action_id' => 1010,
-					'sm_action_code' => 'list_export',
+					'sm_action_code' => 'List_Export',
 					'sm_action_name' => 'Export/Print List',
 					'sm_action_icon' => 'print',
 					'sm_action_parent_action_id' => 1000,
@@ -48,7 +49,7 @@ class numbers_backend_system_modules_data_import extends \Object\Import {
 				// record related items
 				[
 					'sm_action_id' => 2000,
-					'sm_action_code' => 'record_view',
+					'sm_action_code' => 'Record_View',
 					'sm_action_name' => 'View Record',
 					'sm_action_icon' => 'eye',
 					'sm_action_parent_action_id' => null,
@@ -56,7 +57,7 @@ class numbers_backend_system_modules_data_import extends \Object\Import {
 				],
 				[
 					'sm_action_id' => 2010,
-					'sm_action_code' => 'record_new',
+					'sm_action_code' => 'Record_New',
 					'sm_action_name' => 'New Record',
 					'sm_action_icon' => 'file-o',
 					'sm_action_parent_action_id' => 2000,
@@ -64,7 +65,7 @@ class numbers_backend_system_modules_data_import extends \Object\Import {
 				],
 				[
 					'sm_action_id' => 2020,
-					'sm_action_code' => 'record_edit',
+					'sm_action_code' => 'Record_Edit',
 					'sm_action_name' => 'Edit Record',
 					'sm_action_icon' => 'pencil-square-o',
 					'sm_action_parent_action_id' => 2000,
@@ -72,7 +73,7 @@ class numbers_backend_system_modules_data_import extends \Object\Import {
 				],
 				[
 					'sm_action_id' => 2030,
-					'sm_action_code' => 'record_inactivate',
+					'sm_action_code' => 'Record_Inactivate',
 					'sm_action_name' => 'Inactivate Record',
 					'sm_action_icon' => 'info',
 					'sm_action_parent_action_id' => 2020,
@@ -80,7 +81,7 @@ class numbers_backend_system_modules_data_import extends \Object\Import {
 				],
 				[
 					'sm_action_id' => 2040,
-					'sm_action_code' => 'record_delete',
+					'sm_action_code' => 'Record_Delete',
 					'sm_action_name' => 'Delete Record',
 					'sm_action_icon' => 'trash-o',
 					'sm_action_parent_action_id' => 2020,
@@ -88,10 +89,19 @@ class numbers_backend_system_modules_data_import extends \Object\Import {
 				],
 				[
 					'sm_action_id' => 2050,
-					'sm_action_code' => 'record_post',
+					'sm_action_code' => 'Record_Post',
 					'sm_action_name' => 'Post Record',
 					'sm_action_icon' => 'book',
 					'sm_action_parent_action_id' => 2020,
+					'sm_action_inactive' => 0
+				],
+				// import related items
+				[
+					'sm_action_id' => 3000,
+					'sm_action_code' => 'Import_Records',
+					'sm_action_name' => 'Import Records',
+					'sm_action_icon' => 'upload',
+					'sm_action_parent_action_id' => null,
 					'sm_action_inactive' => 0
 				]
 			]
@@ -99,17 +109,21 @@ class numbers_backend_system_modules_data_import extends \Object\Import {
 		'resource_methods' => [
 			'options' => [
 				'pk' => ['sm_method_code'],
-				'model' => 'numbers_backend_system_modules_model_resource_methods',
+				'model' => '\Numbers\Backend\System\Modules\Model\Resource\Methods',
 				'method' => 'save'
 			],
 			'data' => [
 				[
-					'sm_method_code' => 'index',
+					'sm_method_code' => 'Index',
 					'sm_method_name' => 'Index / List'
 				],
 				[
-					'sm_method_code' => 'edit',
+					'sm_method_code' => 'Edit',
 					'sm_method_name' => 'Edit / Form'
+				],
+				[
+					'sm_method_code' => 'Import',
+					'sm_method_name' => 'Import / Form'
 				]
 			]
 		],

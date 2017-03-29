@@ -673,7 +673,7 @@ class DDL {
 					foreach ($obj_slave['table'][$k][$k2]['data']['columns'] as $k3 => $v3) {
 						if (empty($obj_master['table'][$k][$k2]['data']['columns'][$k3])) {
 							$name = ltrim($k . '.' . $k2 . '.' . $k3, '.');
-							$slave_compare = $this->columnSqlType_base($v3);
+							$slave_compare = $this->columnSqlTypeBase($v3);
 							$slave_compare['sql_type'] = null;
 							// up
 							$result['up']['delete_columns'][$name] = [

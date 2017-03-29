@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_system_modules_model_module_features extends \Object\Table {
+namespace Numbers\Backend\System\Modules\Model\Module;
+class Features extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $module_code = 'SM';
@@ -14,7 +15,7 @@ class numbers_backend_system_modules_model_module_features extends \Object\Table
 	public $columns = [
 		'sm_feature_module_code' => ['name' => 'Module Code', 'domain' => 'module_code'],
 		'sm_feature_code' => ['name' => 'Feature Code', 'domain' => 'feature_code'],
-		'sm_feature_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => 'numbers_backend_system_modules_model_module_feature_types'],
+		'sm_feature_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => '\Numbers\Backend\System\Modules\Model\Module\Feature\Types'],
 		'sm_feature_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_feature_icon' => ['name' => 'Name', 'domain' => 'icon', 'null' => true],
 		'sm_feature_activation_model' => ['name' => 'Activation Model', 'domain' => 'code', 'null' => true],
@@ -27,7 +28,7 @@ class numbers_backend_system_modules_model_module_features extends \Object\Table
 		'sm_feature_module_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_feature_module_code'],
-			'foreign_model' => 'numbers_backend_system_modules_model_modules',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Modules',
 			'foreign_columns' => ['sm_module_code']
 		]
 	];

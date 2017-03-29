@@ -21,14 +21,14 @@ class Base extends \Numbers\Backend\IP\Common\Base {
 		$model = new \Numbers\Backend\IP\Simple\Model\IPv4();
 		$data = $model->get([
 			'where' => [
-				'ip_ver4_start;>=' => $ip_long,
-				'ip_ver4_end;<=' => $ip_long
+				'sm_ipver4_start;>=' => $ip_long,
+				'sm_ipver4_end;<=' => $ip_long
 			],
 			'single_row' => 1
 		]);
 		if (!empty($data)) {
 			foreach (['country_code', 'province', 'city', 'latitude', 'longitude'] as $v) {
-				$result['data'][$v] = $data['ip_ver4_' . $v];
+				$result['data'][$v] = $data['sm_ipver4_' . $v];
 			}
 			$result['success'] = true;
 		}

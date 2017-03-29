@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_system_modules_model_resource_map extends \Object\Table {
+namespace Numbers\Backend\System\Modules\Model\Resource;
+class Map extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $module_code = 'SM';
@@ -22,19 +23,19 @@ class numbers_backend_system_modules_model_resource_map extends \Object\Table {
 		'sm_rsrcmp_resource_id_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_rsrcmp_resource_id'],
-			'foreign_model' => 'numbers_backend_system_modules_model_resources',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Resources',
 			'foreign_columns' => ['sm_resource_id']
 		],
 		'sm_rsrcmp_action_id_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_rsrcmp_action_id'],
-			'foreign_model' => 'numbers_backend_system_modules_model_resource_actions',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Resource\Actions',
 			'foreign_columns' => ['sm_action_id']
 		],
 		'sm_rsrcmp_method_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_rsrcmp_method_code'],
-			'foreign_model' => 'numbers_backend_system_modules_model_resource_methods',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Resource\Methods',
 			'foreign_columns' => ['sm_method_code']
 		]
 	];

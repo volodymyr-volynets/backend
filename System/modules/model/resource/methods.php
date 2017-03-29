@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_system_modules_model_resource_methods extends \Object\Table {
+namespace Numbers\Backend\System\Modules\Model\Resource;
+class Methods extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $module_code = 'SM';

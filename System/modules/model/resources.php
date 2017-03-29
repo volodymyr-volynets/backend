@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_system_modules_model_resources extends \Object\Table {
+namespace Numbers\Backend\System\Modules\Model;
+class Resources extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $module_code = 'SM';
@@ -14,7 +15,7 @@ class numbers_backend_system_modules_model_resources extends \Object\Table {
 	public $columns = [
 		'sm_resource_id' => ['name' => 'Resource #', 'domain' => 'resource_id_sequence'],
 		'sm_resource_code' => ['name' => 'Code', 'domain' => 'code'],
-		'sm_resource_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => 'numbers_backend_system_modules_model_resource_types'],
+		'sm_resource_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => '\Numbers\Backend\System\Modules\Model\Resource\Types'],
 		'sm_resource_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_resource_description' => ['name' => 'Description', 'domain' => 'description', 'null' => true],
 		'sm_resource_icon' => ['name' => 'Icon', 'domain' => 'icon', 'null' => true],
@@ -46,19 +47,19 @@ class numbers_backend_system_modules_model_resources extends \Object\Table {
 		'sm_resource_module_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_resource_module_code'],
-			'foreign_model' => 'numbers_backend_system_modules_model_modules',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Modules',
 			'foreign_columns' => ['sm_module_code']
 		],
 		'sm_resource_menu_acl_resource_id_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_resource_menu_acl_resource_id'],
-			'foreign_model' => 'numbers_backend_system_modules_model_resources',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Resources',
 			'foreign_columns' => ['sm_resource_id']
 		],
 		'sm_resource_menu_acl_action_id_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_resource_menu_acl_action_id'],
-			'foreign_model' => 'numbers_backend_system_modules_model_resource_actions',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Resource\Actions',
 			'foreign_columns' => ['sm_action_id']
 		],
 	];

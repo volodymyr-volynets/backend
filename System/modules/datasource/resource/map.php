@@ -16,7 +16,7 @@ class numbers_backend_system_modules_datasource_resource_map extends \Object\Dat
 	public $cache_tags = [];
 	public $cache_memory = false;
 
-	public $primary_model = 'numbers_backend_system_modules_model_resource_map';
+	public $primary_model = '\Numbers\Backend\System\Modules\Model\Resource\Map';
 	public $parameters = [
 		'sm_rsrcmp_resource_id' => ['name' => 'Resource #', 'domain' => 'resource_id', 'required' => true],
 	];
@@ -33,10 +33,10 @@ class numbers_backend_system_modules_datasource_resource_map extends \Object\Dat
 			'sm_method_name' => 'c.sm_method_name'
 		]);
 		// joins
-		$this->query->join('INNER', new numbers_backend_system_modules_model_resource_actions(), 'b', 'ON', [
+		$this->query->join('INNER', new \Numbers\Backend\System\Modules\Model\Resource\Actions(), 'b', 'ON', [
 			['AND', ['a.sm_rsrcmp_action_id', '=', 'b.sm_action_id', true], false]
 		]);
-		$this->query->join('INNER', new numbers_backend_system_modules_model_resource_methods(), 'c', 'ON', [
+		$this->query->join('INNER', new \Numbers\Backend\System\Modules\Model\Resource\Methods(), 'c', 'ON', [
 			['AND', ['a.sm_rsrcmp_method_code', '=', 'c.sm_method_code', true], false]
 		]);
 		// where

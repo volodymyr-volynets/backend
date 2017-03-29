@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_system_modules_model_resource_features extends \Object\Table {
+namespace Numbers\Backend\System\Modules\Model\Resource;
+class Features extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $module_code = 'SM';
@@ -22,7 +23,7 @@ class numbers_backend_system_modules_model_resource_features extends \Object\Tab
 		'sm_rsrcftr_resource_id_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_rsrcftr_resource_id'],
-			'foreign_model' => 'numbers_backend_system_modules_model_resources',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Resources',
 			'foreign_columns' => ['sm_resource_id']
 		]
 	];

@@ -241,7 +241,7 @@ class Builder {
 		} else if (is_object($table) && is_a($table, '\Object\Table')) { // table object
 			// injecting tenant
 			if ($table->tenant) {
-				$conditions[] = ['AND', [ltrim($alias . '.' . $table->tenant_column), '=', tenant::tenant_id(), false], false];
+				$conditions[] = ['AND', [ltrim($alias . '.' . $table->tenant_column), '=', Tenant::id(), false], false];
 			}
 			// grab tags
 			$this->cache_tags = array_merge($this->cache_tags, $table->cache_tags);

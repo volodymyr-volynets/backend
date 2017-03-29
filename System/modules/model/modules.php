@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_system_modules_model_modules extends \Object\Table {
+namespace Numbers\Backend\System\Modules\Model;
+class Modules extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $module_code = 'SM';
@@ -13,7 +14,7 @@ class numbers_backend_system_modules_model_modules extends \Object\Table {
 	public $column_prefix = 'sm_module_';
 	public $columns = [
 		'sm_module_code' => ['name' => 'Module Code', 'domain' => 'module_code'],
-		'sm_module_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => 'numbers_backend_system_modules_model_module_types'],
+		'sm_module_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => '\Numbers\Backend\System\Modules\Model\Module\Types'],
 		'sm_module_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_module_icon' => ['name' => 'Name', 'domain' => 'icon', 'null' => true],
 		'sm_module_parent_module_code' => ['name' => 'Parent Module Code', 'domain' => 'module_code', 'null' => true],
@@ -28,7 +29,7 @@ class numbers_backend_system_modules_model_modules extends \Object\Table {
 		'sm_module_parent_module_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_module_parent_module_code'],
-			'foreign_model' => 'numbers_backend_system_modules_model_modules',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Modules',
 			'foreign_columns' => ['sm_module_code']
 		]
 	];

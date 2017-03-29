@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_system_modules_model_resource_types extends \Object\Data {
+namespace Numbers\Backend\System\Modules\Model\Resource;
+class Types extends \Object\Data {
 	public $module_code = 'SM';
 	public $title = 'S/M Resource Types';
 	public $column_key = 'sm_rsrctype_id';

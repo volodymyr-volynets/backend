@@ -306,7 +306,7 @@ abstract class Base {
 					$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
 					if ($migration_model->dbPresent()) {
 						$old_stats['sm_migration_rolled_back'] = 1;
-						$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge_multiple([$old_stats, $this->executed_migration_stats]);
+						$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->mergeMultiple([$old_stats, $this->executed_migration_stats]);
 						if (!$temp_result['success']) {
 							Throw new Exception(implode("\n", $temp_result['error']));
 						}

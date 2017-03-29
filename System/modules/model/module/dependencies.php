@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_system_modules_model_module_dependencies extends \Object\Table {
+namespace Numbers\Backend\System\Modules\Model\Module;
+class Dependencies extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $module_code = 'SM';
@@ -22,25 +23,25 @@ class numbers_backend_system_modules_model_module_dependencies extends \Object\T
 		'sm_mdldep_parent_module_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_mdldep_parent_module_code'],
-			'foreign_model' => 'numbers_backend_system_modules_model_modules',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Modules',
 			'foreign_columns' => ['sm_module_code']
 		],
 		'sm_mdldep_parent_feature_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_mdldep_parent_module_code', 'sm_mdldep_parent_feature_code'],
-			'foreign_model' => 'numbers_backend_system_modules_model_module_features',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Module\Features',
 			'foreign_columns' => ['sm_feature_module_code', 'sm_feature_code']
 		],
 		'sm_mdldep_child_module_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_mdldep_child_module_code'],
-			'foreign_model' => 'numbers_backend_system_modules_model_modules',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Modules',
 			'foreign_columns' => ['sm_module_code']
 		],
 		'sm_mdldep_child_feature_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_mdldep_child_module_code', 'sm_mdldep_child_feature_code'],
-			'foreign_model' => 'numbers_backend_system_modules_model_module_features',
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Module\Features',
 			'foreign_columns' => ['sm_feature_module_code', 'sm_feature_code']
 		],
 	];

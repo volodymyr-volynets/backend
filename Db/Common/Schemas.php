@@ -83,7 +83,7 @@ class Schemas {
 			'data' => [
 				'object_attributes' => [],
 				'\Object\Import' => [],
-				'object_relations' => []
+				'\Object\Relations' => []
 			],
 			'objects' => [],
 			'permissions' => [],
@@ -138,7 +138,7 @@ run_again:
 					if (!empty($model->relation)) {
 						$domain = $model->columns[$model->relation['field']]['domain'] ?? null;
 						if (!empty($domain)) $domain = str_replace('_sequence', '', $domain);
-						$result['data']['object_relations'][$k2] = [
+						$result['data']['\Object\Relations'][$k2] = [
 							'sm_relation_model' => $k2,
 							'sm_relation_name' => $model->title,
 							'sm_relation_column' => $model->relation['field'],
@@ -480,11 +480,12 @@ run_again:
 		$db_object->begin();
 		// process import models one by one
 		foreach ($data as $k => $v) {
+			if (empty($v)) continue;
 			switch ($k) {
-				case 'object_relations':
+				case '\Object\Relations':
 					$import_model = new \Numbers\Backend\Db\Common\Model\Relations();
 					if ($import_model->dbPresent()) {
-						$import_result = $import_model->collection(['pk' => ['sm_relation_model']])->merge_multiple($v);
+						$import_result = $import_model->collection(['pk' => ['sm_relation_model']])->mergeMultiple($v);
 						if (!$import_result['success']) {
 							$result['error'] = array_merge($result['error'], $import_result['error']);
 							return $result;
