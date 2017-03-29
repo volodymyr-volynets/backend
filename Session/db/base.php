@@ -9,12 +9,12 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 	public function init() {
 		// setting session handler
 		session_set_save_handler(
-			[$this, 'open'],
-			[$this, 'close'],
-			[$this, 'read'],
-			[$this, 'write'],
-			[$this, 'destroy'],
-			[$this, 'gc']
+			[& $this, 'open'],
+			[& $this, 'close'],
+			[& $this, 'read'],
+			[& $this, 'write'],
+			[& $this, 'destroy'],
+			[& $this, 'gc']
 		);
 	}
 
@@ -51,7 +51,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 			->where('AND', ['sm_session_expires', '>=', \Format::now('timestamp')])
 			->limit(1)
 			->query();
-		return $result['rows'][0]['sm_session_data'] ?? "";
+		return $result['rows'][0]['sm_session_data'] ?? '';
 	}
 
 	/**
@@ -63,7 +63,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 	 */
 	public function write($id, $data) {
 		// we only count for presentational content types
-		if (\Object\Content\Types::existsStatic(['where' => ['no_virtual_controller_code' => Application::get('flag.global.__content_type'), 'no_content_type_presentation' => 1]])) {
+		if (\Object\Content\Types::existsStatic(['where' => ['no_virtual_controller_code' => \Application::get('flag.global.__content_type'), 'no_content_type_presentation' => 1]])) {
 			$inc = 1;
 		} else {
 			$inc = 0;
@@ -71,7 +71,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic()
 			->update()
 			->set([
-				'sm_session_expires' => \Format::now('timestamp', ['add_seconds' => Session::$default_options['gc_maxlifetime']]),
+				'sm_session_expires' => \Format::now('timestamp', ['add_seconds' => \Session::$default_options['gc_maxlifetime']]),
 				'sm_session_last_requested' => \Format::now('timestamp'),
 				'sm_session_pages_count;=;~~' => 'sm_session_pages_count + ' . $inc,
 				'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
@@ -96,7 +96,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				->values([[
 					'sm_session_id' => $id,
 					'sm_session_started' => \Format::now('timestamp'),
-					'sm_session_expires' => \Format::now('timestamp', ['add_seconds' => Session::$default_options['gc_maxlifetime']]),
+					'sm_session_expires' => \Format::now('timestamp', ['add_seconds' => \Session::$default_options['gc_maxlifetime']]),
 					'sm_session_last_requested' => \Format::now('timestamp'),
 					'sm_session_pages_count' => $inc,
 					'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
@@ -190,7 +190,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 		]);
 		$buttons = '';
 		$buttons.= \HTML::button2(['id' => 'modal_session_expiry_renew_button', 'type' => 'primary', 'value' => i18n(null, 'Renew'), 'onclick' => 'modal_session_expiry_renew_session();']) . ' ';
-		$url = Application::get('flag.global.authorization.logout.controller');
+		$url = \Application::get('flag.global.authorization.logout.controller');
 		$buttons.= \HTML::button2(['id' => 'modal_session_expiry_close_button', 'type' => 'danger', 'value' => i18n(null, 'Close'), 'onclick' => "window.location.href = '{$url}'"]);
 		$options = [
 			'id' => 'modal_session_expiry',
