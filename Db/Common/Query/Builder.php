@@ -314,7 +314,7 @@ class Builder {
 	 * @param array $conditions
 	 * @return \Numbers\Backend\Db\Common\Query\Builder
 	 */
-	public function where_multiple(string $operator, array $conditions) : \Numbers\Backend\Db\Common\Query\Builder {
+	public function whereMultiple(string $operator, array $conditions) : \Numbers\Backend\Db\Common\Query\Builder {
 		foreach ($conditions as $k => $v) {
 			// notation field;=;~~ => [value]
 			if (is_string($k)) {
