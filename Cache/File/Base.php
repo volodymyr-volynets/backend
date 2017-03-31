@@ -3,7 +3,8 @@
 /**
  * File based cache
  */
-class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
+namespace Numbers\Backend\Cache\File;
+class Base extends \Numbers\Backend\Cache\Common\Base {
 
 	/**
 	 * Constructor
@@ -86,7 +87,7 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 				break;
 			}
 			// convert data to array
-			$cookie_data = $this->storage_convert('get', $cookie_data);
+			$cookie_data = $this->storageConvert('get', $cookie_data);
 			// remove cookie files if expired
 			if ($cookie_data['expire'] < time()) {
 				@unlink($cookie_name);
@@ -100,7 +101,7 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 				break;
 			}
 			// success if we got here
-			$result['data'] = $this->storage_convert('get', $cache_data);
+			$result['data'] = $this->storageConvert('get', $cache_data);
 			$result['success'] = true;
 		} while(0);
 		return $result;
@@ -123,7 +124,7 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 		do {
 			// writing data first
 			$data_name = $this->options['dir'] . 'cache--' . $cache_id . '.data';
-			if (file_put_contents($data_name, $this->storage_convert('set', $data), LOCK_EX) === false) {
+			if (file_put_contents($data_name, $this->storageConvert('set', $data), LOCK_EX) === false) {
 				$result['error'][] = 'Failed to write cache file!';
 				break;
 			}
@@ -131,13 +132,13 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 			$time = time();
 			$cookie_data = [
 				'time' => $time,
-				'expire' => $this->calculate_expire_timestamp($time, $expire),
+				'expire' => $this->calculateExpireTimestamp($time, $expire),
 				'tags' => $tags,
 				'file' => $data_name
 			];
 			// writing cookie
 			$cookie_name = $this->options['dir'] . 'cache--cookie--' . $cache_id . '.data';
-			if (file_put_contents($cookie_name, $this->storage_convert('set', $cookie_data), LOCK_EX) === false) {
+			if (file_put_contents($cookie_name, $this->storageConvert('set', $cookie_data), LOCK_EX) === false) {
 				$result['error'][] = 'Failed to write cookie file!';
 				break;
 			}
@@ -170,13 +171,13 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 			$result['success'] = true;
 		} else {
 			$time = time();
-			foreach ($cookies as $file) {
+			foreach ($cookies as $cookie) {
 				// read cookie
-				$cookie_data = file_get_contents($file);
+				$cookie_data = file_get_contents($cookie);
 				if ($cookie_data === false) {
 					continue;
 				}
-				$cookie_data = $this->storage_convert('get', $cookie_data);
+				$cookie_data = $this->storageConvert('get', $cookie_data);
 				$flag_delete = false;
 				// all
 				if ($mode == 2) {
@@ -184,9 +185,9 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 				}
 				// tags
 				if ($mode == 3 && !empty($tags) && !empty($cookie_data['tags'])) {
-					$cookie_tags_processed = $this->extract_subtags_tags($cookie_data['tags']);
+					$cookie_tags_processed = $this->extractSubtagsTags($cookie_data['tags']);
 					foreach ($tags as $v) {
-						$temp_tags_processed = $this->extract_subtags_tags($v);
+						$temp_tags_processed = $this->extractSubtagsTags($v);
 						// mandatory tags first
 						$flag_mandatory_check_through = false;
 						if (!empty($cookie_tags_processed['mandatory'])) {
@@ -215,7 +216,7 @@ class numbers_backend_cache_file_base extends numbers_backend_cache_class_base {
 				// if we need to delete
 				if ($flag_delete) {
 delete:
-					unlink($file);
+					unlink($cookie);
 					unlink($cookie_data['file']);
 				}
 			}

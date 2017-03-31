@@ -1,6 +1,7 @@
 <?php
 
-class \Numbers\Backend\System\Modules\Model\Collection\Module\Features extends \Object\Collection {
+namespace Numbers\Backend\System\Modules\Model\Collection\Module;
+class Features extends \Object\Collection {
 	public $data = [
 		'model' => '\Numbers\Backend\System\Modules\Model\Module\Features',
 		'pk' => ['sm_feature_module_code', 'sm_feature_code'],

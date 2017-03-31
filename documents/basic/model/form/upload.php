@@ -12,8 +12,8 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 	public $rows = [];
 	public $elements = [
 		'buttons' => [
-			self::buttons => [
-				self::button_submit => self::button_submit_data
+			self::BUTTONS => [
+				self::BUTTON_SUBMIT => self::BUTTON_SUBMIT_DATA
 			]
 		]
 	];
@@ -213,7 +213,7 @@ class numbers_backend_documents_basic_model_form_upload extends numbers_frontend
 			}
 		}
 		// add js file and initialize uploads
-		Layout::add_js('/numbers/media_submodules/numbers_backend_documents_basic_base.js');
+		\Layout::addJs('/numbers/media_submodules/numbers_backend_documents_basic_base.js');
 		Layout::onload('numbers.backend_documents.init();');
 		$result['data']['html'] = \HTML::grid($data);
 		$result['success'] = true;

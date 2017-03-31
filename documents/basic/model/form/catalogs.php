@@ -45,7 +45,7 @@ class numbers_backend_documents_basic_model_form_catalogs extends numbers_fronte
 			'dc_catalog_thumbnail_settings' => [
 				'dc_catalog_thumbnail_settings' => ['order' => 1, 'label_name' => 'Thumbnail Settings', 'description' => 'Example: width=120,height=90', 'type' => 'text', 'null' => true, 'percent' => 100, 'required' => false]
 			],
-			self::buttons => self::buttons_data_group
+			self::BUTTONS => self::BUTTONS_DATA_GROUP
 		]
 	];
 	public $collection = [

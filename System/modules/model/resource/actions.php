@@ -57,8 +57,8 @@ class Actions extends \Object\Table {
 	 */
 	public function get_all_parents_options($options) {
 		$result = [];
-		$data = helper_tree::convert_by_parent($this->get(), 'sm_action_parent_id');
-		helper_tree::convert_tree_to_options_multi($data, 0, [
+		$data = \Helper\Tree::convertByParent($this->get(), 'sm_action_parent_id');
+		\Helper\Tree::convertTreeToOptionsMulti($data, 0, [
 			'name_field' => 'sm_action_name',
 			'i18n' => true
 		], $result);

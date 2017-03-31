@@ -70,9 +70,9 @@ class numbers_backend_system_modules_datasource_resource_map extends \Object\Dat
 			}
 		}
 		if (!empty($result)) {
-			$converted = helper_tree::convert_by_parent($result, 'parent');
+			$converted = \Helper\Tree::convertByParent($result, 'parent');
 			$result = [];
-			helper_tree::convert_tree_to_options_multi($converted, 0, ['name_field' => 'name'], $result);
+			\Helper\Tree::convertTreeToOptionsMulti($converted, 0, ['name_field' => 'name'], $result);
 		}
 		return $result;
 	}

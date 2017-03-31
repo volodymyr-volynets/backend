@@ -2,7 +2,7 @@
 
 class numbers_backend_cron_base_controller_execute {
 
-	public function action_index() {
+	public function actionIndex() {
 		// clear buffer
 		\Helper\Ob::cleanAll();
 		// validating

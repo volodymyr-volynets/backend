@@ -8,7 +8,7 @@ class numbers_backend_session_db_controller_check extends \Object\Controller {
 		'authorized' => 1
 	];
 
-	public function action_index() {
+	public function actionIndex() {
 		$input = \Request::input(null, true, true);
 		$result = [
 			'success' => false,

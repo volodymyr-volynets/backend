@@ -1,6 +1,7 @@
 <?php
 
-abstract class numbers_backend_cache_class_base {
+namespace Numbers\Backend\Cache\Common;
+abstract class Base {
 
 	/**
 	 * Cache link
@@ -91,7 +92,7 @@ abstract class numbers_backend_cache_class_base {
 	 * @return mixed
 	 * @throws Exception
 	 */
-	protected function storage_convert(string $method, $data) {
+	protected function storageConvert(string $method, $data) {
 		switch ($this->options['storage'] . '_' . $method) {
 			// json
 			case 'json_get': return json_decode($data, true);
@@ -99,7 +100,6 @@ abstract class numbers_backend_cache_class_base {
 			// serialize
 			case 'serialize_get': return unserialize($data);
 			case 'serialize_set': return serialize($data);
-			// todo add serialize
 			default:
 				Throw new Exception("Cache: Unsupported storage {$this->options['storage']}!");
 		}
@@ -115,7 +115,7 @@ abstract class numbers_backend_cache_class_base {
 	 *		timestamp
 	 * @return int
 	 */
-	protected function calculate_expire_timestamp($time = null, $expire = null) : int {
+	protected function calculateExpireTimestamp($time = null, $expire = null) : int {
 		if (empty($time)) $time = time();
 		if (empty($expire)) {
 			return $time + $this->options['expire'];
@@ -132,7 +132,7 @@ abstract class numbers_backend_cache_class_base {
 	 * @param array $tags
 	 * @return array
 	 */
-	protected function extract_subtags_tags($tags) : array {
+	protected function extractSubtagsTags($tags) : array {
 		$result = ['mandatory' => [], 'optional' => []];
 		foreach ($tags as $v) {
 			if ($v[0] == '+') {
