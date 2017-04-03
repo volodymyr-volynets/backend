@@ -38,6 +38,13 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 			}
 			$recepients[$r] = implode(',', $recepients[$r]);
 		}
+		// overrides for non production environments
+		$environment = \Application::get('environment');
+		if ($environment != 'production') {
+			unset($recepients);
+			$recepients['to'] = \Application::get('debug.email');
+			$options['subject'] = '[' . $environment . '] ' . $options['subject'];
+		}
 		// crypt object
 		$result['unique_id'] = sha1(serialize([$recepients, $options['subject'], microtime()]));
 		// generating header
