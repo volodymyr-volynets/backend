@@ -355,7 +355,6 @@ class Base {
 			$temp = $data;
 			$where = pk($keys, $temp, true);
 		}
-		print_r2($where);
 		// start transaction
 		$this->begin();
 		// if we have full primary key
