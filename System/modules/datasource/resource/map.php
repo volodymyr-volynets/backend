@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_system_modules_datasource_resource_map extends \Object\Datasource {
+namespace Numbers\Backend\System\Modules\DataSource\Resource;
+class Map extends \Object\Datasource {
 	public $db_link;
 	public $db_link_flag;
 	public $pk = ['sm_rsrcmp_resource_id', 'sm_rsrcmp_method_code', 'sm_rsrcmp_action_id'];
@@ -19,6 +20,7 @@ class numbers_backend_system_modules_datasource_resource_map extends \Object\Dat
 	public $primary_model = '\Numbers\Backend\System\Modules\Model\Resource\Map';
 	public $parameters = [
 		'sm_rsrcmp_resource_id' => ['name' => 'Resource #', 'domain' => 'resource_id', 'required' => true],
+		'existing_values' => ['name' => 'Existing Values', 'type' => 'mixed'],
 	];
 
 	public function query($parameters, $options = []) {
@@ -30,7 +32,8 @@ class numbers_backend_system_modules_datasource_resource_map extends \Object\Dat
 			'sm_action_name' => 'b.sm_action_name',
 			'sm_action_icon' => 'b.sm_action_icon',
 			'sm_rsrcmp_method_code' => 'a.sm_rsrcmp_method_code',
-			'sm_method_name' => 'c.sm_method_name'
+			'sm_method_name' => 'c.sm_method_name',
+			'inactive' => 'a.sm_rsrcmp_inactive + b.sm_action_inactive'
 		]);
 		// joins
 		$this->query->join('INNER', new \Numbers\Backend\System\Modules\Model\Resource\Actions(), 'b', 'ON', [
@@ -41,6 +44,12 @@ class numbers_backend_system_modules_datasource_resource_map extends \Object\Dat
 		]);
 		// where
 		$this->query->where('AND', ['a.sm_rsrcmp_resource_id', '=', $parameters['sm_rsrcmp_resource_id']]);
+		$this->query->where('AND', function(& $query) use ($parameters) {
+			$query->where('OR', ['a.sm_rsrcmp_inactive + b.sm_action_inactive', '=', 0, true], false);
+			if (!empty($parameters['existing_values'])) {
+				$query->where('OR', ["concat_ws('::', a.sm_rsrcmp_method_code, a.sm_rsrcmp_action_id)", '=', \Object\Table\Options::optionJsonExtractKey($parameters['existing_values'], ['method_code', 'action_id'], '::')]);
+			}
+		});
 		// order by
 		$this->query->orderby(['sm_action_parent_action_id' => SORT_ASC, 'sm_rsrcmp_action_id' => SORT_ASC]);
 	}
@@ -48,7 +57,7 @@ class numbers_backend_system_modules_datasource_resource_map extends \Object\Dat
 	/**
 	 * @see $this->options()
 	 */
-	public function options_json($options = []) {
+	public function optionsJson($options = []) {
 		$data = $this->get($options);
 		$result = [];
 		foreach ($data as $k => $v) {
@@ -65,7 +74,13 @@ class numbers_backend_system_modules_datasource_resource_map extends \Object\Dat
 					if (!empty($v3['sm_action_parent_action_id'])) {
 						$parent = \Object\Table\Options::optionJsonFormatKey(['action_id' => $v3['sm_action_parent_action_id'], 'method_code' => $k2]);
 					}
-					$result[$key] = ['name' => $v3['sm_action_name'], 'icon_class' => \HTML::icon(['type' => $v3['sm_action_icon'], 'class_only' => true]), '__selected_name' => i18n(null, $v3['sm_method_name']) . ': ' . i18n(null, $v3['sm_action_name']), 'parent' => $parent];
+					$result[$key] = [
+						'name' => $v3['sm_action_name'],
+						'icon_class' => \HTML::icon(['type' => $v3['sm_action_icon'], 'class_only' => true]),
+						'__selected_name' => i18n(null, $v3['sm_method_name']) . ': ' . i18n(null, $v3['sm_action_name']),
+						'parent' => $parent,
+						'inactive' => $v3['inactive']
+					];
 				}
 			}
 		}

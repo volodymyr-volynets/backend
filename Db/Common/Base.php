@@ -167,9 +167,13 @@ class Base {
 				$operator = $par[1] ?? '=';
 				$as_is = (isset($par[2]) && $par[2] == '~~') ? true : false;
 				$string = $par[0];
-				// special handling if we got an array
-				if (is_array($v) && $operator == '=') {
-					$operator = 'IN';
+				// special handling for array and nulls
+				if ($operator == '=') {
+					if (is_array($v)) {
+						$operator = 'IN';
+					} else if (is_null($v)) {
+						$operator = 'IS';
+					}
 				}
 				// processing per operator
 				$operator = strtoupper($operator);

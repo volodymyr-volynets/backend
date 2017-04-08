@@ -21,6 +21,6 @@ class Sender {
 		$subject = i18n($feature_code . '::subject', $data['sm_notification_subject'], ['replace' => $options['replace']['subject'] ?? null]);
 		$body = i18n($feature_code . '::body', $data['sm_notification_body'], ['replace' => $options['replace']['body'] ?? null]);
 		// todo log notifications
-		return \Mail::sendSimple($options['email'], $subject, $body);
+		return \Mail::sendSimple($options['email'], $subject, nl2br($body, true));
 	}
 }
