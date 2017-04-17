@@ -286,7 +286,11 @@ class Builder {
 			$key = implode(';', $key);
 			return [$operator, $exists, $this->db_object->prepareCondition([$key => $condition[2] ?? null]), false];
 		} else if (is_callable($condition)) {
-			return [$operator, $exists, $this->where_inner($condition), false];
+			if (!empty($exists)) {
+				return [$operator, $exists, '(' . trim($this->wrapSqlIntoTabs($this->subquery($condition), 2)) . ')', false];
+			} else {
+				return [$operator, $exists, $this->whereInner($condition), false];
+			}
 		}
 	}
 
@@ -360,7 +364,7 @@ class Builder {
 	 *
 	 * @return \Numbers\Backend\Db\Common\Query\Builder
 	 */
-	public function for_update() : \Numbers\Backend\Db\Common\Query\Builder {
+	public function forUpdate() : \Numbers\Backend\Db\Common\Query\Builder {
 		$this->data['for_update'] = true;
 		return $this;
 	}
@@ -444,14 +448,12 @@ class Builder {
 	 * @param array $where
 	 * @return string
 	 */
-	public function render_where(array $where) : string {
+	public function renderWhere(array $where) : string {
 		$result = '';
 		if (!empty($where)) {
 			$first = true;
 			foreach ($where as $v) {
-				
 				// todo $v[3] indicates that it is multiple
-				
 				// first condition goes without operator
 				if ($first) {
 					$result.= $v[1] . ' ' . $v[2];
@@ -474,10 +476,11 @@ class Builder {
 	 * @param callable $function
 	 * @return string
 	 */
-	private function where_inner($function) {
+	private function whereInner($function) {
 		$subquery = new \Numbers\Backend\Db\Common\Query\Builder($this->db_link, ['subquery' => true]);
 		$function($subquery);
-		return "( " . trim($this->wrapSqlIntoTabs($subquery->render_where($subquery->data['where']) . "\n)"));
+		$this->cache_tags = array_merge($this->cache_tags, $subquery->cache_tags);
+		return "( " . trim($this->wrapSqlIntoTabs($subquery->renderWhere($subquery->data['where']) . "\n)"));
 	}
 
 	/**
@@ -528,12 +531,15 @@ class Builder {
 	 * Wrap SQL into tabs
 	 *
 	 * @param string $sql
+	 * @param int $tab_number
 	 * @return string
 	 */
-	private function wrapSqlIntoTabs($sql) {
+	private function wrapSqlIntoTabs($sql, $tab_number = 1) {
 		$temp = explode("\n", $sql);
+		$tab = '';
+		for ($i = 0; $i < $tab_number; $i++) $tab.= "\t";
 		foreach ($temp as $k => $v) {
-			$temp[$k] = "\t" . $v;
+			$temp[$k] = $tab . $v;
 		}
 		return implode("\n", $temp);
 	}

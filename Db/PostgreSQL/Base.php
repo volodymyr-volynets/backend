@@ -119,6 +119,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			'structure' => [],
 			// debug attributes
 			'cache' => false,
+			'cache_tags' => [],
 			'time' => microtime(true),
 			'sql' => $sql,
 			'key' => $key,
@@ -126,7 +127,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		];
 		// if query caching is enabled
 		if (!empty($this->options['cache_link'])) {
-			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'db_query_' . sha1($sql . serialize($key));
+			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'Db_Query_' . sha1($sql . serialize($key));
 			// if we cache this query
 			if (!empty($options['cache'])) {
 				$cache_object = new \Cache($this->options['cache_link']);
@@ -197,6 +198,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		// prepend backtrace in debug mode to know where it was cached
 		if (\Debug::$debug) {
 			$result['backtrace']  = implode("\n", \Object\Error\Base::debugBacktraceString());
+			$result['cache_tags'] = $options['cache_tags'] ?? null;
 		}
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
@@ -526,7 +528,7 @@ TTT;
 				// where
 				if (!empty($object->data['where'])) {
 					$sql.= "\nWHERE";
-					$sql.= $object->render_where($object->data['where']);
+					$sql.= $object->renderWhere($object->data['where']);
 				}
 				// limit
 				if (!empty($object->data['limit'])) {
@@ -587,7 +589,7 @@ TTT;
 				// where
 				if (!empty($object->data['where'])) {
 					$sql.= "\nWHERE";
-					$sql.= $object->render_where($object->data['where']);
+					$sql.= $object->renderWhere($object->data['where']);
 				}
 				// limit
 				if (!empty($object->data['limit'])) {
@@ -643,7 +645,7 @@ TTT;
 						}
 						$where = '';
 						if (!empty($v['conditions'])) {
-							$where = $object->render_where($v['conditions']);
+							$where = $object->renderWhere($v['conditions']);
 						}
 						$sql.= "\n{$type}JOIN {$v['table']}{$alias}{$v['on']}{$where}";
 					}
@@ -651,7 +653,7 @@ TTT;
 				// where
 				if (!empty($object->data['where'])) {
 					$sql.= "\nWHERE";
-					$sql.= $object->render_where($object->data['where']);
+					$sql.= $object->renderWhere($object->data['where']);
 				}
 				// group by
 				if (!empty($object->data['groupby'])) {
