@@ -44,7 +44,7 @@ class Schemas {
 		$result['app_structure'] = \Application::get('application.structure');
 		if (!empty($result['app_structure']['db_multiple'])) {
 			// connect to db to get a list of databases
-			$db_object = new db($result['db_link'] . '_temp', $result['db_settings']['submodule']);
+			$db_object = new \Db($result['db_link'] . '_temp', $result['db_settings']['submodule']);
 			$db_status = $db_object->connect($result['db_settings']);
 			if (!($db_status['success'] && $db_status['status'])) {
 				$result['error'][] = 'Unable to open database connection!';

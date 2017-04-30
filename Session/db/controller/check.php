@@ -18,7 +18,7 @@ class numbers_backend_session_db_controller_check extends \Object\Controller {
 			'expires_in' => 0
 		];
 		if (!empty($input['token']) && !empty($input[session_name()])) {
-			$crypt = new crypt();
+			$crypt = new \Crypt();
 			$token_data = $crypt->token_validate($input['token'], ['skip_time_validation' => true]);
 			if (!($token_data === false || $token_data['id'] !== 'general')) {
 				// quering database
@@ -62,7 +62,7 @@ TTT;
 			'error' => []
 		];
 		if (!empty($input['token'])) {
-			$crypt = new crypt();
+			$crypt = new \Crypt();
 			$token_data = $crypt->token_validate($input['token'], ['skip_time_validation' => true]);
 			if (!($token_data === false || $token_data['id'] !== 'general')) {
 				$result['success'] = true;

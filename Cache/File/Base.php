@@ -33,16 +33,17 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 			$result['error'][] = 'Cache directory does not exists or not provided!';
 		} else {
 			// fixing path
-			$options['dir'] = rtrim($options['dir'], '/') . '/';
+			$options['dir'] = rtrim($options['dir'], '/') . DIRECTORY_SEPARATOR . $this->cache_link . DIRECTORY_SEPARATOR;
 			// handle cache key
 			if (!empty($this->options['cache_key'])) {
-				$options['dir'].= $this->options['cache_key'] . '/';
+				$options['dir'].= $this->options['cache_key'] . DIRECTORY_SEPARATOR;
 			}
 			// we need to create cache directory
 			if (!is_dir($options['dir'])) {
-				if (!mkdir($options['dir'], 0777, true)) {
+				if (!\Helper\File::mkdir($options['dir'], 0777)) {
 					$result['error'][] = 'Unable to create caching directory!';
 				}
+				\Helper\File::chmod($options['dir'], 0777);
 			}
 			// add directory to the options
 			$this->options['dir'] = $options['dir'];
@@ -180,9 +181,7 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 				$cookie_data = $this->storageConvert('get', $cookie_data);
 				$flag_delete = false;
 				// all
-				if ($mode == 2) {
-					goto delete;
-				}
+				if ($mode == 2) goto delete;
 				// tags
 				if ($mode == 3 && !empty($tags) && !empty($cookie_data['tags'])) {
 					$cookie_tags_processed = $this->extractSubtagsTags($cookie_data['tags']);

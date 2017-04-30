@@ -124,7 +124,7 @@ class Builder {
 		// process only not null columns
 		if (!is_null($columns)) {
 			// convert columns to array
-			if (is_string($columns)) $columns = [$columns];
+			if (is_scalar($columns)) $columns = [$columns];
 			// add columns
 			foreach ($columns as $k => $v) {
 				if (is_numeric($k)) {

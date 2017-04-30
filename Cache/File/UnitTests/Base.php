@@ -1,14 +1,15 @@
 <?php
 
-class numbers_backend_cache_file_unit_tests_base extends PHPUnit_Framework_TestCase {
+namespace Numbers\Backend\Cache\File\UnitTests;
+class Base extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * test all cache operations
 	 */
-	public function test_all() {
+	public function testAll() {
 		$time = time();
-		$cache_dir = sys_get_temp_dir() . '/unit_tests_' . $time . '_' . rand(1000, 9999);
-		$object = new numbers_backend_cache_file_base('PHPUnit', [
+		$cache_dir = sys_get_temp_dir() . '/Unit_Tests_' . $time . '_' . rand(1000, 9999);
+		$object = new \Numbers\Backend\Cache\File\Base('PHPUnit', [
 			'cache_key' => 'test_key',
 			'storage' => 'json',
 			'expire' => true,
