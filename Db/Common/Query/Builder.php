@@ -37,7 +37,8 @@ class Builder {
 		'set' => [],
 		'where' => [],
 		'orderby' => [],
-		'groupby' => []
+		'groupby' => [],
+		'union' => []
 	];
 
 	/**
@@ -249,6 +250,23 @@ class Builder {
 		} else if (is_callable($table)) {
 			return "(\n" . $this->wrapSqlIntoTabs($this->subquery($table)) . "\n)";
 		}
+	}
+
+	/**
+	 * Union
+	 *
+	 * @param string $type
+	 * @param mixed $select
+	 */
+	public function union(string $type, $select) : \Numbers\Backend\Db\Common\Query\Builder {
+		if (is_callable($select)) {
+			$select = $this->subquery($select);
+		}
+		array_push($this->data['union'], [
+			'type' => $type,
+			'select' => $select
+		]);
+		return $this;
 	}
 
 	/**

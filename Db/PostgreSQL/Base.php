@@ -462,21 +462,22 @@ TTT;
 	 * @return array
 	 */
 	public function createTempTable($table, $columns, $pk = null, $options = []) {
-		$ddl_object = Factory::model(str_replace('_base_123', '_ddl', get_called_class() . '_123'));
+		$ddl_object = new \Numbers\Backend\Db\PostgreSQL\DDL();
 		$columns_sql = [];
+		$columns = $temp = \Object\Data\Common::processDomainsAndTypes($columns);
 		foreach ($columns as $k => $v) {
-			$temp = $ddl_object->is_column_type_supported($v, $table);
+			$temp = $ddl_object->columnSqlType($v);
 			// default
-			$default = $temp['column']['default'] ?? null;
+			$default = $temp['default'] ?? null;
 			if (is_string($default) && $default != 'now()') {
 				$default = "'" . $default . "'";
 			}
 			// we need to cancel serial types
-			if (!empty($options['skip_serials']) && strpos($temp['column']['type'], 'serial') !== false) {
-				$temp['column']['type'] = str_replace('serial', 'int', $temp['column']['type']);
+			if (!empty($options['skip_serials']) && strpos($temp['sql_type'], 'serial') !== false) {
+				$temp['sql_type'] = str_replace('serial', 'int', $temp['sql_type']);
 				$default = 0;
 			}
-			$columns_sql[] = $k . ' ' . $temp['column']['type'] . ($default !== null ? (' DEFAULT ' . $default) : '') . (!($temp['column']['null'] ?? false) ? ' NOT NULL' : '');
+			$columns_sql[] = $k . ' ' . $temp['sql_type'] . ($default !== null ? (' DEFAULT ' . $default) : '') . (!($temp['null'] ?? false) ? ' NOT NULL' : '');
 		}
 		// pk
 		if ($pk) {
@@ -674,6 +675,15 @@ TTT;
 				// for update
 				if (!empty($object->data['for_update'])) {
 					$sql.= "\nFOR UPDATE";
+				}
+				// union
+				if (!empty($object->data['union'])) {
+					foreach ($object->data['union'] as $k => $v) {
+						$sql.= "\n\n";
+						$sql.= $v['type'];
+						$sql.= "\n\n";
+						$sql.= $v['select'];
+					}
 				}
 		}
 		// final processing

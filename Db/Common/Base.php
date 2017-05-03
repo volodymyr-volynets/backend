@@ -150,7 +150,7 @@ class Base {
 	}
 
 	/**
-	 * Convert an array into sql string
+	 * Convert an array into SQL string
 	 *
 	 * @param  array $options
 	 * @param  string $delimiter
@@ -171,7 +171,7 @@ class Base {
 				if ($operator == '=') {
 					if (is_array($v)) {
 						$operator = 'IN';
-					} else if (is_null($v)) {
+					} else if (is_null($v) && strpos($delimiter, ',') === false) {
 						$operator = 'IS';
 					}
 				}
