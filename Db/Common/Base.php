@@ -240,7 +240,7 @@ class Base {
 		$result = [];
 		foreach ($value as $k => $v) {
 			if (is_array($v)) {
-				$result[$k] = $this->escape_array($v, $options);
+				$result[$k] = $this->escapeArray($v, $options);
 			} else if (is_string($v) && !empty($options['quotes'])) {
 				$result[$k] = "'" . $this->escape($v) . "'";
 			} else if (is_string($v) && empty($options['quotes'])) {

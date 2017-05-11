@@ -4,6 +4,8 @@ namespace Numbers\Backend\Session\Db\Model;
 class Sessions extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
+	public $module_code = 'SM';
+	public $title = 'S/M Sessions';
 	public $schema;
 	public $name = 'sm_sessions';
 	public $pk = ['sm_session_id'];
@@ -38,4 +40,10 @@ class Sessions extends \Object\Table {
 	public $cache = false;
 	public $cache_tags = [];
 	public $cache_memory = false;
+
+	public $data_asset = [
+		'classification' => 'client_confidential',
+		'protection' => 2,
+		'scope' => 'global'
+	];
 }

@@ -4,6 +4,8 @@ namespace Numbers\Backend\Session\Db\Model\Session;
 class History extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
+	public $module_code = 'SM';
+	public $title = 'S/M Session History';
 	public $schema;
 	public $name = 'sm_session_history';
 	public $pk = ['sm_sesshist_id'];
@@ -35,4 +37,10 @@ class History extends \Object\Table {
 	public $cache = false;
 	public $cache_tags = [];
 	public $cache_memory = false;
+
+	public $data_asset = [
+		'classification' => 'client_confidential',
+		'protection' => 2,
+		'scope' => 'global'
+	];
 }

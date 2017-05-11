@@ -4,6 +4,8 @@ namespace Numbers\Backend\IP\Simple\Model;
 class IPv4 extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
+	public $module_code = 'SM';
+	public $title = 'S/M IP Version 4';
 	public $schema;
 	public $name = 'sm_ips_version4';
 	public $pk;

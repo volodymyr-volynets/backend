@@ -83,7 +83,7 @@ class Schemas {
 			'data' => [
 				'object_attributes' => [],
 				'\Object\Import' => [],
-				'\Object\Relations' => []
+				'\Object\Models' => []
 			],
 			'objects' => [],
 			'permissions' => [],
@@ -106,15 +106,15 @@ class Schemas {
 			// run 1 to deterine virtual tables
 			$first = true;
 			$virtual_models = $dep['data']['model_processed'];
+			$widgets = \Object\ACL\Resources::getStatic('widgets');
 run_again:
 			foreach ($virtual_models as $k => $v) {
 				$k2 = str_replace('.', '_', $k);
 				if ($v == '\Object\Table') {
 					$model = \Factory::model($k2, true, [['skip_db_object' => $options['skip_db_object'] ?? false]]);
-					foreach (\Object\Widgets::WIDGET_MODELS as $v0) {
+					foreach ($widgets as $v0 => $v02) {
 						if (!empty($model->{$v0})) {
-							$v01 = $v0 . '_model';
-							$virtual_models[str_replace('_', '.', $model->{$v01})] = '\Object\Table';
+							$virtual_models[str_replace('_', '.', $model->{$v0 . '_model'})] = '\Object\Table';
 						}
 					}
 				}
@@ -135,28 +135,34 @@ run_again:
 						array_merge3($result['error'], $temp_result['error']);
 					}
 					// relation
+					$relation_domain = null;
+					$relation_type = null;
 					if (!empty($model->relation)) {
-						$domain = $model->columns[$model->relation['field']]['domain'] ?? null;
-						if (!empty($domain)) $domain = str_replace('_sequence', '', $domain);
-						$result['data']['\Object\Relations'][$k2] = [
-							'sm_relation_model' => $k2,
-							'sm_relation_name' => $model->title,
-							'sm_relation_column' => $model->relation['field'],
-							'sm_relation_domain' => $domain,
-							'sm_relation_type' => $model->columns[$model->relation['field']]['type'],
-							'sm_relation_inactive' => 0
-						];
+						$relation_domain = $model->columns[$model->relation['field']]['domain'] ?? null;
+						if (!empty($relation_domain)) $relation_domain = str_replace('_sequence', '', $relation_domain);
+						$relation_type = $model->columns[$model->relation['field']]['type'];
 					}
+					$result['data']['\Object\Models'][$k2] = [
+						'sm_model_code' => $k2,
+						'sm_model_name' => $model->title,
+						'sm_model_module_code' => $model->module_code,
+						'sm_model_tenant' => $model->tenant ?? 0,
+						// widgets
+						'sm_model_widget_attributes' => !empty($model->attributes) ? 1 : 0,
+						'sm_model_widget_audit' => !empty($model->audit) ? 1 : 0,
+						'sm_model_widget_addressees' => !empty($model->addresses) ? 1 : 0,
+						// relation
+						'sm_model_relation_enabled' => !empty($model->relation) ? 1 : 0,
+						'sm_model_relation_column' => $model->relation['field'] ?? null,
+						'sm_model_relation_domain' => $relation_domain,
+						'sm_model_relation_type' => $relation_type,
+						// data asset
+						'sm_model_da_classification' => $model->data_asset['classification'],
+						'sm_model_da_protection' => $model->data_asset['protection'],
+						'sm_model_da_scope' => $model->data_asset['scope'],
+						'sm_model_inactive' => 0
+					];
 					//$object_documentation[$v][$k2] = $k2;
-					/*
-					if (!empty($model->attributes)) {
-						$object_attributes[$k2] = [
-							'rn_attrmdl_code' => $k2,
-							'rn_attrmdl_name' => $model->title,
-							'rn_attrmdl_inactive' => 0
-						];
-					}
-					*/
 				} else if ($v == '\Object\Sequence') {
 					$temp_result = $ddl->processSequenceModel($k2, $options);
 					if (!$temp_result['success']) {
@@ -482,16 +488,16 @@ run_again:
 		foreach ($data as $k => $v) {
 			if (empty($v)) continue;
 			switch ($k) {
-				case '\Object\Relations':
-					$import_model = new \Numbers\Backend\Db\Common\Model\Relations();
+				case '\Object\Models':
+					$import_model = new \Numbers\Backend\Db\Common\Model\Models();
 					if ($import_model->dbPresent()) {
-						$import_result = $import_model->collection(['pk' => ['sm_relation_model']])->mergeMultiple($v);
+						$import_result = $import_model->collection(['pk' => ['sm_model_code']])->mergeMultiple($v);
 						if (!$import_result['success']) {
 							$result['error'] = array_merge($result['error'], $import_result['error']);
 							return $result;
 						}
 						$result['count']+= $import_result['count'];
-						$result['legend'][] = '         * Process relations changes ' . $import_result['count'];
+						$result['legend'][] = '         * Process model changes ' . $import_result['count'];
 					}
 					break;
 				case '\Object\Import':
