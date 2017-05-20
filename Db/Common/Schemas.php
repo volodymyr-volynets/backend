@@ -81,7 +81,6 @@ class Schemas {
 			'success' => false,
 			'error' => [],
 			'data' => [
-				'object_attributes' => [],
 				'\Object\Import' => [],
 				'\Object\Models' => []
 			],
@@ -160,6 +159,8 @@ run_again:
 						'sm_model_da_classification' => $model->data_asset['classification'],
 						'sm_model_da_protection' => $model->data_asset['protection'],
 						'sm_model_da_scope' => $model->data_asset['scope'],
+						// other
+						'sm_model_optimistic_lock' => !empty($model->optimistic_lock) ? 1 : 0,
 						'sm_model_inactive' => 0
 					];
 					//$object_documentation[$v][$k2] = $k2;

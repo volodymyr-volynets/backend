@@ -33,6 +33,8 @@ class Models extends \Object\Table {
 		'sm_model_da_classification' => ['name' => 'Data Asset Classification', 'type' => 'text'],
 		'sm_model_da_protection' => ['name' => 'Data Asset Protection', 'type' => 'smallint', 'default' => 0],
 		'sm_model_da_scope' => ['name' => 'Data Asset Scope', 'type' => 'text'],
+		// other
+		'sm_model_optimistic_lock' => ['name' => 'Optimistic Lock', 'type' => 'boolean'],
 		'sm_model_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
 	public $constraints = [

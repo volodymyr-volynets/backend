@@ -633,7 +633,12 @@ class DDL {
 							// comparing
 							$temp_error = false;
 							foreach ($compare_columns as $v88) {
-								if ($master_compare[$v88] !== $slave_compare[$v88]) {
+								if ($v88 == 'default' && $master_compare['type'] == 'bcnumeric') {
+									if (\Math::compare($master_compare[$v88], $slave_compare[$v88], 25) != 0) {
+										$temp_error = true;
+										break;
+									}
+								} else if ($master_compare[$v88] !== $slave_compare[$v88]) {
 									$temp_error = true;
 									break;
 								}
