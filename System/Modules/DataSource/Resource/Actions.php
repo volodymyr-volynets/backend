@@ -1,7 +1,7 @@
 <?php
 
 namespace Numbers\Backend\System\Modules\DataSource\Resource;
-class Actions extends \Object\Datasource {
+class Actions extends \Object\DataSource {
 	public $db_link;
 	public $db_link_flag;
 	public $pk = ['code'];

@@ -1,7 +1,7 @@
 <?php
 
 namespace Numbers\Backend\System\Modules\DataSource\Resource;
-class Map extends \Object\Datasource {
+class Map extends \Object\DataSource {
 	public $db_link;
 	public $db_link_flag;
 	public $pk = ['sm_rsrcmp_resource_id', 'sm_rsrcmp_method_code', 'sm_rsrcmp_action_id'];

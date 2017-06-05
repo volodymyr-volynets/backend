@@ -17,7 +17,6 @@ class Modules extends \Object\Table {
 		'sm_module_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => '\Numbers\Backend\System\Modules\Model\Module\Types'],
 		'sm_module_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_module_icon' => ['name' => 'Name', 'domain' => 'icon', 'null' => true],
-		'sm_module_parent_module_code' => ['name' => 'Parent Module Code', 'domain' => 'module_code', 'null' => true],
 		'sm_module_transactions' => ['name' => 'Transactions', 'type' => 'boolean'],
 		'sm_module_multiple' => ['name' => 'Multiple', 'type' => 'boolean'],
 		'sm_module_activation_model' => ['name' => 'Activation Model', 'domain' => 'code', 'null' => true],
@@ -25,13 +24,7 @@ class Modules extends \Object\Table {
 		'sm_module_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
 	public $constraints = [
-		'sm_modules_pk' => ['type' => 'pk', 'columns' => ['sm_module_code']],
-		'sm_module_parent_module_code_fk' => [
-			'type' => 'fk',
-			'columns' => ['sm_module_parent_module_code'],
-			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Modules',
-			'foreign_columns' => ['sm_module_code']
-		]
+		'sm_modules_pk' => ['type' => 'pk', 'columns' => ['sm_module_code']]
 	];
 	public $indexes = [];
 	public $history = false;

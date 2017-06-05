@@ -779,6 +779,9 @@ class DDL {
 							}
 							// if we have an error we rebuild
 							if ($temp_error) {
+								// debuging
+								//print_r2($v3['data']);
+								//print_r2($obj_slave['constraint'][$k][$k2][$k3]['data']);
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_slave = $obj_slave['constraint'][$k][$k2][$k3];
 								$v3_slave['migration_id'] = $result['count'] + 1;

@@ -438,10 +438,10 @@ TTT;
 									min(delete_rule::text) delete_rule
 							FROM information_schema.referential_constraints c
 							JOIN (
-								SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position DESC --position_in_unique_constraint
+								SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position ASC --position_in_unique_constraint
 							) x ON x.constraint_name = c.constraint_name
 							JOIN (
-								SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position DESC
+								SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position ASC
 							) y ON y.ordinal_position = x.position_in_unique_constraint AND y.constraint_name = c.unique_constraint_name
 							GROUP BY x.table_schema, x.table_name, c.constraint_name, y.table_schema, y.table_name
 
