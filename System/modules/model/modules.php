@@ -16,6 +16,7 @@ class Modules extends \Object\Table {
 		'sm_module_code' => ['name' => 'Module Code', 'domain' => 'module_code'],
 		'sm_module_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => '\Numbers\Backend\System\Modules\Model\Module\Types'],
 		'sm_module_name' => ['name' => 'Name', 'domain' => 'name'],
+		'sm_module_abbreviation' => ['name' => 'Abbreviation', 'domain' => 'name'],
 		'sm_module_icon' => ['name' => 'Name', 'domain' => 'icon', 'null' => true],
 		'sm_module_transactions' => ['name' => 'Transactions', 'type' => 'boolean'],
 		'sm_module_multiple' => ['name' => 'Multiple', 'type' => 'boolean'],

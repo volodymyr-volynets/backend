@@ -14,6 +14,7 @@ class Import extends \Object\Import {
 					'sm_module_code' => 'SM',
 					'sm_module_type' => 10,
 					'sm_module_name' => 'S/M System',
+					'sm_module_abbreviation' => 'S/M',
 					'sm_module_icon' => 'wrench',
 					'sm_module_transactions' => 0,
 					'sm_module_multiple' => 0,
@@ -28,6 +29,15 @@ class Import extends \Object\Import {
 				'method' => 'save'
 			],
 			'data' => [
+				// all items
+				[
+					'sm_action_id' => -1,
+					'sm_action_code' => 'All_Actions',
+					'sm_action_name' => 'All Actions',
+					'sm_action_icon' => 'cubes',
+					'sm_action_parent_action_id' => null,
+					'sm_action_inactive' => 0
+				],
 				// list related items
 				[
 					'sm_action_id' => 1000,
@@ -123,6 +133,10 @@ class Import extends \Object\Import {
 				[
 					'sm_method_code' => 'Import',
 					'sm_method_name' => 'Import / Form'
+				],
+				[
+					'sm_method_code' => 'AllActions',
+					'sm_method_name' => 'All Actions'
 				]
 			]
 		],

@@ -63,24 +63,35 @@ class Map extends \Object\DataSource {
 		foreach ($data as $k => $v) {
 			foreach ($v as $k2 => $v2) {
 				foreach ($v2 as $k3 => $v3) {
-					$parent = \Object\Table\Options::optionJsonFormatKey(['method_code' => $k2]);
-					// add method
-					if (!isset($result[$parent])) {
-						$result[$parent] = ['name' => $v3['sm_method_name'], 'parent' => null, 'disabled' => true];
+					if ($k3 == -1) {
+						$key = \Object\Table\Options::optionJsonFormatKey(['action_id' => $k3, 'method_code' => $k2]);
+						$result[$key] = [
+							'name' => $v3['sm_action_name'],
+							'icon_class' => \HTML::icon(['type' => $v3['sm_action_icon'], 'class_only' => true]),
+							//'__selected_name' => i18n(null, $v3['sm_method_name']) . ': ' . i18n(null, $v3['sm_action_name']),
+							'parent' => null,
+							'inactive' => $v3['inactive']
+						];
+					} else {
+						$parent = \Object\Table\Options::optionJsonFormatKey(['method_code' => $k2]);
+						// add method
+						if (!isset($result[$parent])) {
+							$result[$parent] = ['name' => $v3['sm_method_name'], 'parent' => null, 'disabled' => true];
+						}
+						// add item
+						$key = \Object\Table\Options::optionJsonFormatKey(['action_id' => $k3, 'method_code' => $k2]);
+						// if we have a parent
+						if (!empty($v3['sm_action_parent_action_id'])) {
+							$parent = \Object\Table\Options::optionJsonFormatKey(['action_id' => $v3['sm_action_parent_action_id'], 'method_code' => $k2]);
+						}
+						$result[$key] = [
+							'name' => $v3['sm_action_name'],
+							'icon_class' => \HTML::icon(['type' => $v3['sm_action_icon'], 'class_only' => true]),
+							'__selected_name' => i18n(null, $v3['sm_method_name']) . ': ' . i18n(null, $v3['sm_action_name']),
+							'parent' => $parent,
+							'inactive' => $v3['inactive']
+						];
 					}
-					// add item
-					$key = \Object\Table\Options::optionJsonFormatKey(['action_id' => $k3, 'method_code' => $k2]);
-					// if we have a parent
-					if (!empty($v3['sm_action_parent_action_id'])) {
-						$parent = \Object\Table\Options::optionJsonFormatKey(['action_id' => $v3['sm_action_parent_action_id'], 'method_code' => $k2]);
-					}
-					$result[$key] = [
-						'name' => $v3['sm_action_name'],
-						'icon_class' => \HTML::icon(['type' => $v3['sm_action_icon'], 'class_only' => true]),
-						'__selected_name' => i18n(null, $v3['sm_method_name']) . ': ' . i18n(null, $v3['sm_action_name']),
-						'parent' => $parent,
-						'inactive' => $v3['inactive']
-					];
 				}
 			}
 		}
