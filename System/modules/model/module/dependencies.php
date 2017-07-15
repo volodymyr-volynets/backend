@@ -32,6 +32,8 @@ class Dependencies extends \Object\Table {
 			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Module\Features',
 			'foreign_columns' => ['sm_feature_module_code', 'sm_feature_code']
 		],
+		/**
+		 * Important not to use these fks
 		'sm_mdldep_child_module_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_mdldep_child_module_code'],
@@ -44,6 +46,7 @@ class Dependencies extends \Object\Table {
 			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Module\Features',
 			'foreign_columns' => ['sm_feature_module_code', 'sm_feature_code']
 		],
+		*/
 	];
 	public $indexes = [];
 	public $history = false;

@@ -11,16 +11,26 @@ class Imports {
 	 * @return array
 	 */
 	public function import(string $format, string $filename) : array {
+		$formats = \Object\Content\ImportFormats::getStatic();
+		return self::read($filename, $formats[$format]['delimiter'] ?? ',', $formats[$format]['enclosure'] ?? '"');
+	}
+
+	/**
+	 * Read
+	 *
+	 * @param string $filename
+	 * @param string $delimiter
+	 * @param string $enclosure
+	 * @return array
+	 */
+	public static function read(string $filename, string $delimiter = ',', string $enclosure = '"') : array {
 		$result = [
 			'success' => false,
 			'error' => [],
 			'data' => null
 		];
-		$formats = \Object\Content\ImportFormats::getStatic();
-		$delimiter = $formats[$format]['delimiter'];
-		$enclosure = $formats[$format]['enclosure'];
 		// open file for reading
-		$temp = false;
+		$temp = [];
 		if (($handle = fopen($filename, 'r')) !== false) {
 			while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== false) {
 				$temp[] = $data;
