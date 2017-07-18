@@ -29,15 +29,19 @@ class Resources extends \Object\Table {
 		'sm_resource_group7_name' => ['name' => 'Group 7', 'domain' => 'name', 'null' => true],
 		'sm_resource_group8_name' => ['name' => 'Group 8', 'domain' => 'name', 'null' => true],
 		'sm_resource_group9_name' => ['name' => 'Group 9', 'domain' => 'name', 'null' => true],
+		// acl
 		'sm_resource_acl_public' => ['name' => 'Acl Public', 'type' => 'boolean'],
 		'sm_resource_acl_authorized' => ['name' => 'Acl Authorized', 'type' => 'boolean'],
 		'sm_resource_acl_permission' => ['name' => 'Acl Permission', 'type' => 'boolean'],
-		// menu specific items
+		// menu
 		'sm_resource_menu_acl_resource_id' => ['name' => 'Acl Resource #', 'domain' => 'resource_id', 'null' => true], // used by menu resources
 		'sm_resource_menu_acl_method_code' => ['name' => 'Acl Action Code', 'domain' => 'code', 'null' => true], // used by menu resources
 		'sm_resource_menu_acl_action_id' => ['name' => 'Acl Action #', 'domain' => 'action_id', 'null' => true], // used by menu resources
 		'sm_resource_menu_url' => ['name' => 'URL', 'type' => 'text', 'null' => true],
 		'sm_resource_menu_options_generator' => ['name' => 'Options Generator', 'type' => 'text', 'null' => true],
+		'sm_resource_menu_child_ordered' => ['name' => 'Child Ordered', 'type' => 'boolean'],
+		'sm_resource_menu_order' => ['name' => 'Order', 'type' => 'integer', 'default' => 0],
+		'sm_resource_menu_separator' => ['name' => 'Separator', 'type' => 'boolean'],
 		// other
 		'sm_resource_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];

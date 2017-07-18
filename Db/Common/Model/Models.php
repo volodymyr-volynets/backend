@@ -15,7 +15,7 @@ class Models extends \Object\Table {
 	public $limit;
 	public $column_prefix = 'sm_model_';
 	public $columns = [
-		'sm_model_id' => ['name' => 'Relation #', 'domain' => 'group_id_sequence'],
+		'sm_model_id' => ['name' => 'Model #', 'domain' => 'group_id_sequence'],
 		'sm_model_code' => ['name' => 'Model', 'domain' => 'code'],
 		'sm_model_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_model_module_code' => ['name' => 'Module Code', 'domain' => 'module_code'],
