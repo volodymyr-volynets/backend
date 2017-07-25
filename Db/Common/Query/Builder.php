@@ -552,7 +552,7 @@ class Builder {
 	 * @param int $tab_number
 	 * @return string
 	 */
-	private function wrapSqlIntoTabs($sql, $tab_number = 1) {
+	public function wrapSqlIntoTabs($sql, $tab_number = 1) {
 		$temp = explode("\n", $sql);
 		$tab = '';
 		for ($i = 0; $i < $tab_number; $i++) $tab.= "\t";
