@@ -27,7 +27,6 @@ abstract class Base {
 	 *			json
 	 *			serialize
 	 *		cache_key - used for multi tenant/db systems
-	 *		tags - whether tags are supported
 	 */
 	public function __construct(string $cache_link, array $options = []) {
 		$this->cache_link = $cache_link;
@@ -35,7 +34,6 @@ abstract class Base {
 		$this->options['cache_key'] = $this->options['cache_key'] ?? null;
 		$this->options['storage'] = $this->options['storage'] ?? 'json';
 		$this->options['expire'] = (int) ($this->options['expire'] ?? 7200);
-		$this->options['tags'] = !empty($this->options['tags']);
 	}
 
 	/**
@@ -142,5 +140,39 @@ abstract class Base {
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * Determine whether cache should be deleted
+	 *
+	 * @param array $tags
+	 * @param array $cookie_tags
+	 * @return bool
+	 */
+	protected function shouldDeleteACacheBasedOnTags(array $tags, array $cookie_tags) : bool {
+		$cookie_tags_processed = $this->extractSubtagsTags($cookie_tags);
+		foreach ($tags as $v) {
+			$temp_tags_processed = $this->extractSubtagsTags($v);
+			// mandatory tags first
+			$flag_mandatory_check_through = false;
+			if (!empty($cookie_tags_processed['mandatory'])) {
+				if (empty($temp_tags_processed['mandatory'])) continue;
+				// every tag must be present
+				$temp = array_intersect($cookie_tags_processed['mandatory'], $temp_tags_processed['mandatory']);
+				if (!empty($temp) && count($temp) == count($cookie_tags_processed['mandatory'])) {
+					$flag_mandatory_check_through = true;
+				}
+			} else {
+				if (!empty($temp_tags_processed['mandatory'])) continue;
+				$flag_mandatory_check_through = true;
+			}
+			// optional tags
+			if ($flag_mandatory_check_through) {
+				if (array_intersect($cookie_tags_processed['optional'], $temp_tags_processed['optional'])) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

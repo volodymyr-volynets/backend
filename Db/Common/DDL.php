@@ -782,6 +782,7 @@ class DDL {
 								// debuging
 								//print_r2($v3['data']);
 								//print_r2($obj_slave['constraint'][$k][$k2][$k3]['data']);
+								//exit;
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_slave = $obj_slave['constraint'][$k][$k2][$k3];
 								$v3_slave['migration_id'] = $result['count'] + 1;

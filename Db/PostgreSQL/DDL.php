@@ -400,50 +400,77 @@ TTT;
 
 							-- unique and primary key
 							SELECT
-									min(tc.constraint_type) constraint_type,
-									tc.table_schema schema_name,
-									tc.table_name table_name,
-									tc.constraint_name constraint_name,
-									null index_type,
-									array_agg(kc.column_name::text) column_names,
-									'' foreign_schema_name,
-									'' foreign_table_name,
-									'{}'::text[] foreign_column_names,
-									null match_option,
-									null update_rule,
-									null delete_rule
-							FROM information_schema.table_constraints tc, information_schema.key_column_usage kc  
-							WHERE 1=1
-									AND kc.table_name = tc.table_name
-									AND kc.table_schema = tc.table_schema
-									AND kc.constraint_name = tc.constraint_name
-									AND tc.constraint_type IN ('PRIMARY KEY', 'UNIQUE')
-							GROUP BY tc.table_schema, tc.table_name, tc.constraint_name
+								MIN(a.constraint_type) constraint_type,
+								a.schema_name,
+								a.table_name,
+								a.constraint_name,
+								null index_type,
+								array_agg(a.column_name::text) column_names,
+								'' foreign_schema_name,
+								'' foreign_table_name,
+								'{}'::text[] foreign_column_names,
+								null match_option,
+								null update_rule,
+								null delete_rule
+							FROM (
+								SELECT
+										tc.constraint_type,
+										tc.table_schema schema_name,
+										tc.table_name table_name,
+										tc.constraint_name constraint_name,
+										null index_type,
+										kc.column_name
+								FROM information_schema.table_constraints tc, (
+									SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position ASC
+								) kc
+								WHERE 1=1
+										AND kc.table_name = tc.table_name
+										AND kc.table_schema = tc.table_schema
+										AND kc.constraint_name = tc.constraint_name
+										AND tc.constraint_type IN ('PRIMARY KEY', 'UNIQUE')
+								ORDER BY kc.ordinal_position ASC
+							) a
+							GROUP BY schema_name, table_name, constraint_name
 
 							UNION ALL
 
 							-- foreign key
 							SELECT
-									'FOREIGN_KEY' constraint_type,
+								'FOREIGN_KEY' constraint_type,
+								schema_name,
+								table_name,
+								constraint_name,
+								null index_type,
+								array_agg(column_names::text) column_names,
+								foreign_schema_name,
+								foreign_table_name,
+								array_agg(foreign_column_name::text) foreign_column_name,
+								min(match_option) match_option,
+								min(update_rule) update_rule,
+								min(delete_rule) delete_rule
+							FROM (
+								SELECT
 									x.table_schema schema_name,
 									x.table_name table_name,
 									c.constraint_name constraint_name,
 									null index_type,
-									array_agg(x.column_name::text) column_names,
+									x.column_name column_names,
 									y.table_schema foreign_schema_name,
 									y.table_name foreign_table_name,
-									array_agg(y.column_name::text) foreign_column_name,
-									min(match_option::text) match_option,
-									min(update_rule::text) update_rule,
-									min(delete_rule::text) delete_rule
-							FROM information_schema.referential_constraints c
-							JOIN (
-								SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position ASC --position_in_unique_constraint
-							) x ON x.constraint_name = c.constraint_name
-							JOIN (
-								SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position ASC
-							) y ON y.ordinal_position = x.position_in_unique_constraint AND y.constraint_name = c.unique_constraint_name
-							GROUP BY x.table_schema, x.table_name, c.constraint_name, y.table_schema, y.table_name
+									y.column_name foreign_column_name,
+									match_option::text match_option,
+									update_rule::text update_rule,
+									delete_rule::text delete_rule
+								FROM information_schema.referential_constraints c
+								JOIN (
+									SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position ASC
+								) x ON x.constraint_name = c.constraint_name
+								JOIN (
+									SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position ASC
+								) y ON y.ordinal_position = x.position_in_unique_constraint AND y.constraint_name = c.unique_constraint_name
+								ORDER BY x.ordinal_position ASC
+							) a
+							GROUP BY schema_name, table_name, constraint_name, foreign_schema_name, foreign_table_name
 
 							UNION ALL
 

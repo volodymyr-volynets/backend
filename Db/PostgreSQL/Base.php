@@ -399,6 +399,17 @@ TTT;
 	}
 
 	/**
+	 * Cast
+	 *
+	 * @param string $column
+	 * @param string $type
+	 * @return string
+	 */
+	public function cast(string $column, string $type) : string {
+		return $column . '::' . $type;
+	}
+
+	/**
 	 * Full text filtering
 	 *
 	 * @param mixed $fields

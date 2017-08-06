@@ -185,7 +185,12 @@ class Base {
 					}
 					*/
 					case 'IN':
-						$string.= ' IN(' . implode(', ', $this->escapeArray($v, ['quotes' => true])) . ')';
+						// we can pass SQL queries into IN
+						if (is_string($v)) {
+							$string.= ' IN(' . $v . ')';
+						} else {
+							$string.= ' IN(' . implode(', ', $this->escapeArray($v, ['quotes' => true])) . ')';
+						}
 						break;
 					case 'LIKE%':
 						$v = '%' . $v . '%';

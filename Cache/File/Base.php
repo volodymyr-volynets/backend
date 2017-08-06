@@ -33,11 +33,13 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 			$result['error'][] = 'Cache directory does not exists or not provided!';
 		} else {
 			// fixing path
-			$options['dir'] = rtrim($options['dir'], '/') . DIRECTORY_SEPARATOR . $this->cache_link . DIRECTORY_SEPARATOR;
+			$options['dir'] = rtrim($options['dir'], '/') . DIRECTORY_SEPARATOR;
 			// handle cache key
 			if (!empty($this->options['cache_key'])) {
 				$options['dir'].= $this->options['cache_key'] . DIRECTORY_SEPARATOR;
 			}
+			// add cache link
+			$options['dir'].= $this->cache_link . DIRECTORY_SEPARATOR;
 			// we need to create cache directory
 			if (!is_dir($options['dir'])) {
 				if (!\Helper\File::mkdir($options['dir'], 0777)) {
@@ -184,28 +186,8 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 				if ($mode == 2) goto delete;
 				// tags
 				if ($mode == 3 && !empty($tags) && !empty($cookie_data['tags'])) {
-					$cookie_tags_processed = $this->extractSubtagsTags($cookie_data['tags']);
-					foreach ($tags as $v) {
-						$temp_tags_processed = $this->extractSubtagsTags($v);
-						// mandatory tags first
-						$flag_mandatory_check_through = false;
-						if (!empty($cookie_tags_processed['mandatory'])) {
-							if (empty($temp_tags_processed['mandatory'])) continue;
-							// every tag must be present
-							$temp = array_intersect($cookie_tags_processed['mandatory'], $temp_tags_processed['mandatory']);
-							if (!empty($temp) && count($temp) == count($cookie_tags_processed['mandatory'])) {
-								$flag_mandatory_check_through = true;
-							}
-						} else {
-							if (!empty($temp_tags_processed['mandatory'])) continue;
-							$flag_mandatory_check_through = true;
-						}
-						// optional tags
-						if ($flag_mandatory_check_through) {
-							if (array_intersect($cookie_tags_processed['optional'], $temp_tags_processed['optional'])) {
-								goto delete;
-							}
-						}
+					if ($this->shouldDeleteACacheBasedOnTags($tags, $cookie_data['tags'])) {
+						goto delete;
 					}
 				}
 				// old
