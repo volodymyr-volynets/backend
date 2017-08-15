@@ -13,7 +13,7 @@ class Notifications extends \Object\Table {
 	public $limit;
 	public $column_prefix = 'sm_notification_';
 	public $columns = [
-		'sm_notification_code' => ['name' => 'Code', 'domain' => 'code'],
+		'sm_notification_code' => ['name' => 'Code', 'domain' => 'feature_code'],
 		'sm_notification_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_notification_subject' => ['name' => 'Subject', 'type' => 'text'],
 		'sm_notification_body' => ['name' => 'Body', 'type' => 'text'],

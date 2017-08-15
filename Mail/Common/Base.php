@@ -201,7 +201,7 @@ class Base {
 				}
 			} else {
 				foreach ($to as $k => $v) {
-					$temp = $this->validate_recepient($v);
+					$temp = $this->validateRecipient($v);
 					if ($temp['success']) {
 						$result['data'] = array_merge($result['data'], $temp['data']);
 						if (!empty($temp['requires_fetching'])) {

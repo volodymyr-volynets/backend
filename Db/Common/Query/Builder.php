@@ -57,6 +57,9 @@ class Builder {
 	public function __construct(string $db_link, array $options = []) {
 		$this->db_link = $db_link;
 		$this->options = $options;
+		if (!empty($options['cache_tags'])) {
+			$this->cache_tags = array_merge($this->cache_tags, $options['cache_tags']);
+		}
 		$this->db_object = new \Db($db_link);
 	}
 

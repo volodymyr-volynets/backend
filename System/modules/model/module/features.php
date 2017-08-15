@@ -20,6 +20,7 @@ class Features extends \Object\Table {
 		'sm_feature_icon' => ['name' => 'Name', 'domain' => 'icon', 'null' => true],
 		'sm_feature_activation_model' => ['name' => 'Activation Model', 'domain' => 'code', 'null' => true],
 		'sm_feature_activated_by_default' => ['name' => 'Activated By Default', 'type' => 'boolean'],
+		'sm_feature_common_notification_feature_code' => ['name' => 'Common Notification Code', 'domain' => 'feature_code', 'null' => true],
 		'sm_feature_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
 	public $constraints = [
@@ -30,6 +31,12 @@ class Features extends \Object\Table {
 			'columns' => ['sm_feature_module_code'],
 			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Modules',
 			'foreign_columns' => ['sm_module_code']
+		],
+		'sm_feature_common_notification_feature_code_fk' => [
+			'type' => 'fk',
+			'columns' => ['sm_feature_common_notification_feature_code'],
+			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Module\Features',
+			'foreign_columns' => ['sm_feature_code']
 		]
 	];
 	public $indexes = [];

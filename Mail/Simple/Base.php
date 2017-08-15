@@ -53,6 +53,9 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 		} else {
 			$header = '';
 		}
+		// fetch mail settings
+		$options = array_merge_hard(\Application::get('flag.global.mail') ?? [], $options);
+		// process from
 		if (isset($options['from']['name'])) {
 			$header.= "From: {$options['from']['name']} <{$options['from']['email']}>\n";
 			$header.= "Organization: {$options['from']['name']}\n";

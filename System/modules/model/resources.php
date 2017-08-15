@@ -39,6 +39,7 @@ class Resources extends \Object\Table {
 		'sm_resource_menu_acl_action_id' => ['name' => 'Acl Action #', 'domain' => 'action_id', 'null' => true], // used by menu resources
 		'sm_resource_menu_url' => ['name' => 'URL', 'type' => 'text', 'null' => true],
 		'sm_resource_menu_options_generator' => ['name' => 'Options Generator', 'type' => 'text', 'null' => true],
+		'sm_resource_menu_name_generator' => ['name' => 'Name Generator', 'type' => 'text', 'null' => true],
 		'sm_resource_menu_child_ordered' => ['name' => 'Child Ordered', 'type' => 'boolean'],
 		'sm_resource_menu_order' => ['name' => 'Order', 'type' => 'integer', 'default' => 0],
 		'sm_resource_menu_separator' => ['name' => 'Separator', 'type' => 'boolean'],
