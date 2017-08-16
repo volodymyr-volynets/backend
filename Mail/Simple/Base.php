@@ -72,6 +72,12 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 		$header.= "Errors-To: {$options['from']['email']}\n";
 		$header.= "MIME-Version: 1.0\n";
 		$header.= "X-Mailer: PHP/" . phpversion() . "\n";
+		// important
+		if (!empty($options['important'])) {
+			$header.= "X-Priority: 1 (Highest)\n";
+			$header.= "X-MSMail-Priority: High\n";
+			$header.= "Importance: High\n";
+		}
 		// generating body for no attachment and a single message
 		if (empty($options['attachments']) && count($options['message']) == 1) {
 			$part = reset($options['message']);

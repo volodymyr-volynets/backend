@@ -17,6 +17,7 @@ class Notifications extends \Object\Table {
 		'sm_notification_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_notification_subject' => ['name' => 'Subject', 'type' => 'text'],
 		'sm_notification_body' => ['name' => 'Body', 'type' => 'text'],
+		'sm_notification_important' => ['name' => 'Important', 'type' => 'boolean'],
 		'sm_notification_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
 	public $constraints = [
