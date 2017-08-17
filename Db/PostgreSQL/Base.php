@@ -203,7 +203,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
 			$result['cache'] = true;
-			$cache_object->set($cache_id, $result, null, $options['cache_tags'] ?? null);
+			$cache_object->set($cache_id, $result, null, $options['cache_tags'] ?? []);
 		}
 		// if we are debugging
 		if (\Debug::$debug) {

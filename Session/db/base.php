@@ -63,7 +63,8 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 	 */
 	public function write($id, $data) {
 		// we only count for presentational content types
-		if (\Object\Content\Types::existsStatic(['where' => ['no_virtual_controller_code' => \Application::get('flag.global.__content_type'), 'no_content_type_presentation' => 1]])) {
+		$__ajax = \Request::input('__ajax');
+		if (!$__ajax && \Object\Content\Types::existsStatic(['where' => ['no_virtual_controller_code' => \Application::get('flag.global.__content_type'), 'no_content_type_presentation' => 1]])) {
 			$inc = 1;
 		} else {
 			$inc = 0;

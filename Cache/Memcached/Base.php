@@ -142,6 +142,7 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 		$values = [];
 		foreach ($this->set_tags as $k => $v) {
 			foreach ($v as $k2 => $v2) {
+				$v2 = array_unique($v2);
 				foreach ($v2 as $k3 => $v3) {
 					$values[] = [
 						'sm_memcached_cache_link' => $k,
