@@ -44,7 +44,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 	 * @param string $id
 	 */
 	public function read($id) {
-		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic()
+		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
 			->select()
 			->columns(['sm_session_data'])
 			->where('AND', ['sm_session_id', '=', $id])
@@ -69,20 +69,21 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 		} else {
 			$inc = 0;
 		}
-		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic()
+		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
 			->update()
 			->set([
 				'sm_session_expires' => \Format::now('timestamp', ['add_seconds' => \Session::$default_options['gc_maxlifetime']]),
 				'sm_session_last_requested' => \Format::now('timestamp'),
 				'sm_session_pages_count;=;~~' => 'sm_session_pages_count + ' . $inc,
 				'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
-				'sm_session_user_id' => $_SESSION['numbers']['user']['id'] ?? 0,
+				'sm_session_user_id' => \User::id() ?? 0,
+				'sm_session_tenant_id' => \Tenant::id(),
 				'sm_session_data' => $data
 			])
 			->where('AND', ['sm_session_id', '=', $id])
 			->query();
 		if (empty($result['affected_rows'])) {
-			$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic()
+			$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
 				->insert()
 				->columns([
 					'sm_session_id',
@@ -92,6 +93,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 					'sm_session_pages_count',
 					'sm_session_user_ip',
 					'sm_session_user_id',
+					'sm_session_tenant_id',
 					'sm_session_data'
 				])
 				->values([[
@@ -101,7 +103,8 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 					'sm_session_last_requested' => \Format::now('timestamp'),
 					'sm_session_pages_count' => $inc,
 					'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
-					'sm_session_user_id' => $_SESSION['numbers']['user']['id'] ?? 0,
+					'sm_session_user_id' => \User::id() ?? 0,
+					'sm_session_tenant_id' => \Tenant::id(),
 					'sm_session_data' => $data
 				]])
 				->query();
@@ -116,7 +119,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 	 * @return boolean
 	 */
 	public function destroy($id) {
-		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic()
+		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
 			->update()
 			->set(['sm_session_expires' => \Format::now('timestamp', ['add_seconds' => -100])])
 			->where('AND', ['sm_session_id', '=', $id])
@@ -135,7 +138,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 		$object->db_object->begin();
 		// step 1: we need to move expired sessions to history table
 		$expire = \Format::now('timestamp');
-		$result = \Numbers\Backend\Session\Db\Model\Session\History::queryBuilderStatic()
+		$result = \Numbers\Backend\Session\Db\Model\Session\History::queryBuilderStatic(['skip_tenant' => true])
 			->insert()
 			->columns([
 				'sm_sesshist_id',
@@ -143,10 +146,11 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				'sm_sesshist_last_requested',
 				'sm_sesshist_pages_count',
 				'sm_sesshist_user_ip',
-				'sm_sesshist_user_id'
+				'sm_sesshist_user_id',
+				'sm_sesshist_tenant_id'
 			])
 			->values(function(& $subquery) use ($expire) {
-				$subquery = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic()
+				$subquery = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
 					->select()
 					->columns([
 						'sm_sesshist_id' => "nextval('sm_session_history_sm_sesshist_id_seq')",
@@ -154,7 +158,8 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 						'sm_sesshist_last_requested' => 'a.sm_session_last_requested',
 						'sm_sesshist_pages_count' => 'a.sm_session_pages_count',
 						'sm_sesshist_user_ip' => 'a.sm_session_user_ip',
-						'sm_sesshist_user_id' => 'a.sm_session_user_id'
+						'sm_sesshist_user_id' => 'a.sm_session_user_id',
+						'sm_sesshist_tenant_id' => 'a.sm_session_tenant_id'
 					])
 					->where('AND', ['sm_session_expires', '<', $expire]);
 			})
@@ -164,7 +169,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 			return false;
 		}
 		// step 2: remove expired sessions
-		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic()
+		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
 			->delete()
 			->where('AND', ['sm_session_expires', '<', $expire])
 			->query();

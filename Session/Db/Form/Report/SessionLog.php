@@ -73,7 +73,7 @@ class SessionLog extends \Object\Form\Wrapper\Report {
 			'pages_count' => ['label_name' => '# of Pages', 'percent' => 15, 'data_align' => 'right'],
 		]);
 		$report->addHeader(DEF, 'row2', [
-			'balnk' => ['label_name' => ' ', 'percent' => 10],
+			'blank' => ['label_name' => ' ', 'percent' => 10],
 			'user_ip' => ['label_name' => 'User IP', 'percent' => 40],
 			'start_datetime' => ['label_name' => 'First Timestamp', 'percent' => 25],
 			'end_datetime' => ['label_name' => 'Last Timestamp', 'percent' => 25]

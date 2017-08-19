@@ -16,6 +16,7 @@ class Resources extends \Object\Table {
 		'sm_resource_id' => ['name' => 'Resource #', 'domain' => 'resource_id_sequence'],
 		'sm_resource_code' => ['name' => 'Code', 'domain' => 'code'],
 		'sm_resource_type' => ['name' => 'Type', 'domain' => 'type_id', 'options_model' => '\Numbers\Backend\System\Modules\Model\Resource\Types'],
+		'sm_resource_classification' => ['name' => 'Classification', 'domain' => 'name', 'null' => true],
 		'sm_resource_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_resource_description' => ['name' => 'Description', 'domain' => 'description', 'null' => true],
 		'sm_resource_icon' => ['name' => 'Icon', 'domain' => 'icon', 'null' => true],

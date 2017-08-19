@@ -9,10 +9,12 @@ class Sessions extends \Object\Table {
 	public $schema;
 	public $name = 'sm_sessions';
 	public $pk = ['sm_session_id'];
+	public $tenant = true;
 	public $orderby;
 	public $limit;
 	public $column_prefix = 'sm_session_';
 	public $columns = [
+		'sm_session_tenant_id' => ['name' => 'Tenant #', 'domain' => 'tenant_id', 'null' => true],
 		'sm_session_id' => ['name' => 'Session #', 'type' => 'varchar', 'length' => 40],
 		'sm_session_started' => ['name' => 'Datetime Started', 'type' => 'timestamp'],
 		'sm_session_expires' => ['name' => 'Datetime Expires', 'type' => 'timestamp'],

@@ -14,6 +14,7 @@ class System extends \Object\Import {
 					'sm_resource_id' => '::id::\Numbers\Backend\Db\Common\Controller\Report\DataClassification',
 					'sm_resource_code' => '\Numbers\Backend\Db\Common\Controller\Report\DataClassification',
 					'sm_resource_type' => 100,
+					'sm_resource_classification' => 'Reports',
 					'sm_resource_name' => 'S/M Data Classification',
 					'sm_resource_description' => null,
 					'sm_resource_icon' => 'database',
@@ -40,7 +41,7 @@ class System extends \Object\Import {
 					'\Numbers\Backend\System\Modules\Model\Resource\Map' => [
 						[
 							'sm_rsrcmp_method_code' => 'Index',
-							'sm_rsrcmp_action_id' => '::id::List_View',
+							'sm_rsrcmp_action_id' => '::id::Report_View',
 							'sm_rsrcmp_inactive' => 0
 						]
 					]
@@ -76,7 +77,7 @@ class System extends \Object\Import {
 					'sm_resource_acl_permission' => 1,
 					'sm_resource_menu_acl_resource_id' => '::id::\Numbers\Backend\Db\Common\Controller\Report\DataClassification',
 					'sm_resource_menu_acl_method_code' => 'index',
-					'sm_resource_menu_acl_action_id' => '::id::List_View',
+					'sm_resource_menu_acl_action_id' => '::id::Report_View',
 					'sm_resource_menu_url' => '/Numbers/Backend/Db/Common/Controller/Report/DataClassification',
 					'sm_resource_menu_options_generator' => null,
 					'sm_resource_inactive' => 0

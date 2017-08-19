@@ -9,10 +9,12 @@ class History extends \Object\Table {
 	public $schema;
 	public $name = 'sm_session_history';
 	public $pk = ['sm_sesshist_id'];
+	public $tenant = true;
 	public $orderby;
 	public $limit;
 	public $column_prefix = 'sm_sesshist_';
 	public $columns = [
+		'sm_sesshist_tenant_id' => ['name' => 'Tenant #', 'domain' => 'tenant_id', 'null' => true],
 		'sm_sesshist_id' => ['name' => 'Login #', 'type' => 'bigserial'],
 		'sm_sesshist_started' => ['name' => 'Datetime Started', 'type' => 'timestamp'],
 		'sm_sesshist_last_requested' => ['name' => 'Datetime Last Requested', 'type' => 'timestamp'],

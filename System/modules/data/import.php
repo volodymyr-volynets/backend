@@ -12,7 +12,7 @@ class Import extends \Object\Import {
 			'data' => [
 				[
 					'sm_module_code' => 'SM',
-					'sm_module_type' => 10,
+					'sm_module_type' => 20,
 					'sm_module_name' => 'S/M System',
 					'sm_module_abbreviation' => 'S/M',
 					'sm_module_icon' => 'wrench',
@@ -110,6 +110,15 @@ class Import extends \Object\Import {
 					'sm_action_code' => 'Import_Records',
 					'sm_action_name' => 'Import Records',
 					'sm_action_icon' => 'upload',
+					'sm_action_parent_action_id' => null,
+					'sm_action_inactive' => 0
+				],
+				// report related items
+				[
+					'sm_action_id' => 4000,
+					'sm_action_code' => 'Report_View',
+					'sm_action_name' => 'View Report',
+					'sm_action_icon' => 'table',
 					'sm_action_parent_action_id' => null,
 					'sm_action_inactive' => 0
 				]
