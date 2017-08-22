@@ -187,6 +187,10 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 	 * @return string
 	 */
 	public function expiryDialog() {
+		// quick logout url
+		$url = \Object\ACL\Resources::getStatic('authorization', 'logout', 'url');
+		if (empty($url)) return;
+		// assemble body
 		$body = i18n(null, 'Your session is about to expire, would you like to renew your session?');
 		$body.= '<br/><br/>';
 		$body.= i18n(null, 'This dialog would close in [seconds] seconds.', [
@@ -196,7 +200,6 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 		]);
 		$buttons = '';
 		$buttons.= \HTML::button2(['id' => 'modal_session_expiry_renew_button', 'type' => 'primary', 'value' => i18n(null, 'Renew'), 'onclick' => 'modal_session_expiry_renew_session();']) . ' ';
-		$url = \Application::get('flag.global.authorization.logout.controller');
 		$buttons.= \HTML::button2(['id' => 'modal_session_expiry_close_button', 'type' => 'danger', 'value' => i18n(null, 'Close'), 'onclick' => "window.location.href = '{$url}'"]);
 		$options = [
 			'id' => 'modal_session_expiry',
@@ -214,7 +217,8 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 			function modal_session_expiry_init() {
 				modal_session_expiry_counter_value = 60;
 				$('#modal_session_expiry_seconds').html(modal_session_expiry_counter_value);
-				modal_session_expiry_waiting_interval = setInterval(function(){ modal_session_expiry_check(); }, 2 * 60 * 1000);
+				// check every two minutes
+				modal_session_expiry_waiting_interval = setInterval(function(){ modal_session_expiry_check(); }, 120 * 1000);
 			}
 			function modal_session_expiry_check() {
 				if (flag_modal_session_expiry_waiting) {
@@ -222,10 +226,10 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				}
 				// we make a call to the server to see session status
 				var request = $.ajax({
-					url: '/numbers/backend/session/db/controller/check/_index',
+					url: '/Numbers/Backend/Session/Db/Controller/Check/_Index',
 					method: "POST",
 					data: {
-						token: numbers.token,
+						token: Numbers.token,
 						__skip_session: true
 					},
 					dataType: "json"
@@ -239,12 +243,29 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 						}
 						// we check if session expires in 5 minutes, if yes we show dialog
 						if (data.expires_in <= 300) {
-							numbers.modal.show('modal_session_expiry');
+							Numbers.Modal.show('modal_session_expiry');
 							flag_modal_session_expiry_waiting = true;
 							modal_session_expiry_counter_interval = setInterval(function(){
 								modal_session_expiry_counter_value--;
 								$('#modal_session_expiry_seconds').html(modal_session_expiry_counter_value);
-								if (modal_session_expiry_counter_value == 0) {
+								// need to check 5 secs before if session has been renewed
+								if (modal_session_expiry_counter_value == 5) {
+									$.ajax({
+										url: '/Numbers/Backend/Session/Db/Controller/Check/_Index',
+										method: "POST",
+										data: {
+											token: Numbers.token,
+											__skip_session: true
+										},
+										dataType: "json"
+									}).done(function(data) {
+										if (data.success && data.expires_in > 300) {
+											Numbers.Modal.hide('modal_session_expiry');
+											clearInterval(modal_session_expiry_waiting_interval);
+											clearInterval(modal_session_expiry_counter_interval);
+										}
+									});
+								} else if (modal_session_expiry_counter_value == 0) {
 									window.location.href = '{$url}';
 								}
 							}, 1000);
@@ -263,15 +284,15 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				});
 			}
 			window.modal_session_expiry_renew_session = function() {
-				numbers.modal.hide('modal_session_expiry');
+				Numbers.Modal.hide('modal_session_expiry');
 				clearInterval(modal_session_expiry_waiting_interval);
 				clearInterval(modal_session_expiry_counter_interval);
 				// we make a call to the server to renew session
 				var request = $.ajax({
-					url: '/numbers/backend/session/db/controller/check/_renew',
+					url: '/Numbers/Backend/Session/Db/Controller/Check/_Renew',
 					method: "POST",
 					data: {
-						token: numbers.token
+						token: Numbers.token
 					},
 					dataType: "json"
 				});
