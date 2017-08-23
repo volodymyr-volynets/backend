@@ -242,6 +242,8 @@ class Builder {
 		} else if (is_object($table) && is_a($table, 'Numbers\Backend\Db\Common\Query\Builder')) { // query builder object
 			$this->cache_tags = array_merge($this->cache_tags, $table->cache_tags);
 			return "(\n" . $this->wrapSqlIntoTabs($table->sql()) . "\n)";
+		} else if (is_object($table) && is_a($table, 'Object\DataSource')) { // datasource object
+			return $table->sql([], $this->cache_tags);
 		} else if (is_object($table) && is_a($table, '\Object\Table')) { // table object
 			// injecting tenant
 			if ($table->tenant) {
