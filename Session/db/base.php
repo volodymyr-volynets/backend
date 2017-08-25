@@ -230,7 +230,8 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 					method: "POST",
 					data: {
 						token: Numbers.token,
-						__skip_session: true
+						__skip_session: true,
+						__ajax: true
 					},
 					dataType: "json"
 				});
@@ -292,7 +293,8 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 					url: '/Numbers/Backend/Session/Db/Controller/Check/_Renew',
 					method: "POST",
 					data: {
-						token: Numbers.token
+						token: Numbers.token,
+						__ajax: true
 					},
 					dataType: "json"
 				});
