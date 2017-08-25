@@ -140,10 +140,13 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 		$delete_query->query();
 		// insert new tags
 		$values = [];
+		$hash = [];
 		foreach ($this->set_tags as $k => $v) {
 			foreach ($v as $k2 => $v2) {
 				$v2 = array_unique($v2);
 				foreach ($v2 as $k3 => $v3) {
+					if (!empty($hash[$k . '::' . $k2 . '::' . $v3])) continue;
+					$hash[$k . '::' . $k2 . '::' . $v3] = 1;
 					$values[] = [
 						'sm_memcached_cache_link' => $k,
 						'sm_memcached_cache_id' => $k2,
