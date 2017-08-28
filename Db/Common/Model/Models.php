@@ -10,7 +10,7 @@ class Models extends \Object\Table {
 	public $name = 'sm_models';
 	public $pk = ['sm_model_id'];
 	public $orderby = [
-		'sm_model_name' => SORT_DESC
+		'sm_model_name' => SORT_ASC
 	];
 	public $limit;
 	public $column_prefix = 'sm_model_';

@@ -119,7 +119,7 @@ class Base {
 			} else if (is_null($v)) {
 				$result[] = 'NULL';
 			} else {
-				Throw new Exception("Unknown data type: {$k}");
+				Throw new \Exception("Unknown data type: {$k}");
 			}
 		}
 		return implode(', ', $result);
@@ -215,7 +215,7 @@ class Base {
 						} else if (is_null($v)) {
 							$v = 'NULL';
 						} else {
-							Throw new Exception('Unknown data type');
+							Throw new \Exception('Unknown data type');
 						}
 						$string.= ' ' . $operator . ' ' . $v;
 				}

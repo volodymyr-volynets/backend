@@ -133,7 +133,7 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 		$delete_query = $model->queryBuilder()->delete();
 		foreach ($this->set_tags as $k => $v) {
 			$delete_query->where('OR', function (& $query) use ($k, $v) {
-				$query->where('AND', ['a.sm_memcached_cache_link', '=', $k, false]);
+				$query->where('AND', ['a.sm_memcached_cache_link', '=', $k]);
 				$query->where('AND', ['a.sm_memcached_cache_id', 'IN', array_keys($v)]);
 			});
 		}
@@ -144,7 +144,7 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 		foreach ($this->set_tags as $k => $v) {
 			foreach ($v as $k2 => $v2) {
 				$v2 = array_unique($v2);
-				foreach ($v2 as $k3 => $v3) {
+				foreach ($v2 as $v3) {
 					if (!empty($hash[$k . '::' . $k2 . '::' . $v3])) continue;
 					$hash[$k . '::' . $k2 . '::' . $v3] = 1;
 					$values[] = [
