@@ -246,7 +246,7 @@ class Builder {
 			return $table->sql([], $this->cache_tags);
 		} else if (is_object($table) && is_a($table, '\Object\Table')) { // table object
 			// injecting tenant
-			if ($table->tenant) {
+			if ($table->tenant && empty($table->options['skip_tenant'])) {
 				$conditions[] = ['AND', [ltrim($alias . '.' . $table->tenant_column), '=', \Tenant::id(), false], false];
 			}
 			// grab tags
