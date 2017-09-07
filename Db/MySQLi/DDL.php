@@ -1,6 +1,7 @@
 <?php
 
-class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl implements numbers_backend_db_interface_ddl {
+namespace Numbers\Backend\Db\MySQLi;
+class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\Common\Interface2\DDL {
 
 	/**
 	 * Extra queries
@@ -10,85 +11,58 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 	public static $extra = [];
 
 	/**
-	 * Column type checker and converter
+	 * Column SQL type
 	 *
 	 * @param array $column
-	 * @param object $table
 	 * @return array
 	 */
-	public function is_column_type_supported($column, $table) {
-		$result = [
-			'success' => true,
-			'error' => [],
-			'column' => []
-		];
-
+	public function columnSqlType($column) {
 		// presetting
-		$column['type'] = $column['type'] ?? 'unsupported';
-		$column['null'] = $column['null'] ?? false;
-		$column['default'] = $column['default'] ?? null;
-		$column['length'] = $column['length'] ?? 0;
-		$column['precision'] = $column['precision'] ?? 0;
-		$column['scale'] = $column['scale'] ?? 0;
-
+		$column = $this->columnSqlTypeBase($column);
 		// simple switch would do the work
 		switch ($column['type']) {
 			case 'boolean':
-				$result['column'] = ['type' => 'tinyint', 'null' => false, 'default' => 0];
-				break;
-			case 'smallint':
-			case 'bigint':
-				$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'integer':
-				$result['column'] = ['type' => 'int', 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'bcnumeric':
-			case 'numeric':
-				if ($column['precision'] > 0) {
-					$result['column'] = ['type' => 'decimal(' . $column['precision'] . ',' . $column['scale'] . ')', 'null' => $column['null'], 'default' => $column['default']];
-				} else {
-					$result['column'] = ['type' => 'decimal(30,10)', 'null' => $column['null'], 'default' => $column['default']];
-				}
+				$column['sql_type'] = 'tinyint';
 				break;
 			case 'smallserial':
 			case 'serial':
 			case 'bigserial':
-				$temp = str_replace('serial', 'int', $column['type']);
-				$sequence = $table . '_' . $column['column_name'] . '_seq';
-				$result['column'] = ['type' => $temp, 'type_original' => $column['type'], 'sequence' => $sequence];
+				$column['sql_type'] = str_replace('serial', 'int', $column['type']);
 				// 'auto_increment' => 1, there are issues with auto increment in MySQL, it does not work as a sequence
 				break;
+			case 'integer':
+				$column['sql_type'] = 'int';
+				break;
+			case 'bcnumeric':
+			case 'numeric':
+				if ($column['precision'] > 0) {
+					$column['sql_type'] = 'decimal(' . $column['precision'] . ',' . $column['scale'] . ')';
+				} else {
+					$column['sql_type'] = 'decimal(30,10)';
+				}
+				break;
 			case 'char':
-				$temp = 'char(' . $column['length'] . ')';
-				$result['column'] = ['type' => $temp, 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = 'char(' . $column['length'] . ')';
 				break;
 			case 'varchar':
-				$temp = 'varchar(' . $column['length'] . ')';
-				$result['column'] = ['type' => $temp, 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = 'varchar(' . $column['length'] . ')';
 				break;
 			case 'json':
-				$result['column'] = ['type' => 'json', 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = 'json';
 				break;
-			case 'date':
 			case 'time':
+				$column['sql_type'] = 'time';
+				break;
 			case 'datetime':
-				$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = 'datetime';
 				break;
 			case 'timestamp':
-				$result['column'] = ['type' => 'datetime(6)', 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'text':
-				$result['column'] = ['type' => 'text', 'null' => $column['null'], 'default' => $column['default']];
-				break;
-			case 'unsupported':
-				Throw new Exception($table . ': unsupported type for column: ' . $column['name']);
+				$column['sql_type'] = 'datetime(6)';
 				break;
 			default:
-				// if we got here, means we do not replace data type and send it to db as is !!!
-				$result['column'] = ['type' => $column['type'], 'null' => $column['null'], 'default' => $column['default']];
+				$column['sql_type'] = $column['type'];
 		}
-		return $result;
+		return $column;
 	}
 
 	/**
@@ -97,33 +71,61 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 	 * @param string $db_link
 	 * @return array
 	 */
-	public function load_schema($db_link) {
+	public function loadSchema($db_link) {
 		$result = [
 			'success' => false,
 			'error' => [],
-			'data' => []
+			'data' => [],
+			'count' => []
 		];
+		$sequence_model = \Factory::model('\Numbers\Backend\Db\Common\Model\Sequences');
 		// getting information
-		foreach (array('columns', 'constraints', 'sequences', 'functions') as $v) {
+		foreach (array('sequences', 'columns', 'constraints', 'functions') as $v) {
 			// we only load sequences if we have a sequence table
-			if ($v == 'sequences' && empty($result['data']['table'][null]['sm_sequences'])) {
-				continue;
+			if ($v == 'sequences') {
+				if (!$sequence_model->dbPresent()) {
+					continue;
+				}
 			}
-			$temp = $this->load_schema_details($v, $db_link);
+			$temp = $this->loadSchemaDetails($v, $db_link);
 			if (!$temp['success']) {
 				$result['error'] = array_merge($result['error'], $temp['error']);
 			} else {
 				switch ($v) {
 					case 'columns':
+						$tables = [];
 						// small conversion for columns
 						foreach ($temp['data'] as $k2 => $v2) {
 							foreach ($v2 as $k3 => $v3) {
 								foreach ($v3 as $k4 => $v4) {
+									// full table name
+									if ($k2 == '') {
+										$full_table_name = $v4['table_name'];
+									} else {
+										$full_table_name = $v4['schema_name'] . '.' . $v4['table_name'];
+									}
+									// preset empty table
+									if (!isset($tables[$full_table_name])) {
+										$tables[$full_table_name] = [
+											'type' => 'table',
+											'schema' => $k2,
+											'name' => $v4['table_name'],
+											'data' => [
+												'columns' => [],
+												'owner' => $v4['table_owner'],
+												'engine' => [],
+												'full_table_name' => $full_table_name
+											]
+										];
+									}
 									// processing type
 									if (in_array($v4['type'], ['tinyint', 'smallint', 'int', 'bigint'])) {
-										$type = $v4['type'];
+										$sql_type = $type = $v4['type'];
+									} else if ($v4['type'] == 'decimal') {
+										$type = 'numeric';
+										$sql_type = $v4['full_type'];
 									} else {
-										$type = $v4['full_type'];
+										$sql_type = $type = $v4['full_type'];
 									}
 									// processing default
 									$default = $v4['default'];
@@ -134,26 +136,30 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 											$default = (float) $default;
 										} else if (is_string($default) && strpos($default, 'CURRENT_TIMESTAMP') !== false) {
 											$default = 'now()';
-										} else {
-											// as is
 										}
 									}
-									$temp2 = [
-										'type' => $type,
-										'null' => ($v4['null'] ? true : false),
-										'default' => $default,
-										'auto_increment' => $v4['auto_increment']
-									];
+									// see if column is a sequence
+									$sequence = false;
+									if (!empty($this->objects[$db_link]['sequence'][''][$full_table_name . '_' . $k4 . '_seq'])) {
+										$sequence = true;
+									}
 									// putting column back into array
-									$result['data']['table'][$k2][$k3]['columns'][$k4] = $temp2;
-									if (!isset($result['data']['table'][$k2][$k3]['owner'])) {
-										$result['data']['table'][$k2][$k3]['owner'] = $v4['table_owner'];
-									}
-									if (!isset($result['data']['table'][$k2][$k3]['full_table_name'])) {
-										$result['data']['table'][$k2][$k3]['full_table_name'] = $v4['table_name'];
-									}
+									$tables[$full_table_name]['data']['columns'][$k4] = [
+										'type' => $type,
+										'null' => !empty($v4['null']) ? true : false,
+										'default' => $default,
+										'length' => (int) $v4['length'],
+										'precision' => (int) $v4['precision'],
+										'scale' => (int) $v4['scale'],
+										'sequence' => $sequence,
+										'sql_type' => $sql_type
+									];
 								}
 							}
+						}
+						// add tables
+						foreach ($tables as $v2) {
+							$this->objectAdd($v2, $db_link);
 						}
 						break;
 					case 'constraints':
@@ -161,27 +167,29 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 							foreach ($v2 as $k3 => $v3) {
 								foreach ($v3 as $k4 => $v4) {
 									foreach ($v4 as $k5 => $v5) {
+										$constraint_type = 'constraint';
 										if ($v5['constraint_type'] == 'PRIMARY KEY') {
+											if ($k5 == 'PRIMARY') {
+												$k5 = $v5['table_name'] . '_pk';
+											}
 											$temp2 = [
 												'type' => 'pk',
 												'columns' => explode(',', $v5['column_names']),
 												'full_table_name' => $v5['table_name']
 											];
-											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else if ($v5['constraint_type'] == 'UNIQUE') {
 											$temp2 = [
 												'type' => 'unique',
 												'columns' => explode(',', $v5['column_names']),
 												'full_table_name' => $v5['table_name']
 											];
-											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else if ($v5['constraint_type'] == 'INDEX') {
 											$temp2 = [
 												'type' => strtolower($v5['index_type']),
 												'columns' => explode(',', $v5['column_names']),
 												'full_table_name' => $v5['table_name']
 											];
-											$result['data']['index'][$k3][$k4][$k5] = $temp2;
+											$constraint_type = 'index';
 										} else if ($v5['constraint_type'] == 'FOREIGN KEY') {
 											$temp2 = [
 												'type' => 'fk',
@@ -189,50 +197,71 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 												'foreign_table' => $v5['foreign_table_name'],
 												'foreign_columns' => explode(',', $v5['foreign_column_names']),
 												'options' => [
-													'match' => 'SIMPLE',
-													'update' => 'NO ACTION',
-													'delete' => 'NO ACTION'
+													'match' => 'simple',
+													'update' => 'cascade',
+													'delete' => 'restrict'
 												],
 												'name' => $v5['constraint_name'],
 												'full_table_name' => $v5['table_name']
 											];
-											$result['data']['constraint'][$k3][$k4][$k5] = $temp2;
 										} else {
 											print_r($v5);
 											exit;
 										}
+										// add constraint
+										$this->objectAdd([
+											'type' => $constraint_type,
+											'schema' => $k3,
+											'table' => $v5['table_name'],
+											'name' => $k5,
+											'data' => $temp2
+										], $db_link);
 									}
 								}
 							}
 						}
 						break;
 					case 'sequences':
+						// load sequence attributes
+						$sequence_attributes = $sequence_model->get();
+						// add sequences
 						foreach ($temp['data'] as $k2 => $v2) {
 							foreach ($v2 as $k3 => $v3) {
-								$result['data']['sequence'][$k2][$k3] = [
-									'owner' => $v3['sequence_owner'],
-									'full_sequence_name' => $v3['sequence_name'],
-									'type' => $v3['type'],
-									'prefix' => $v3['prefix'],
-									'length' => $v3['length'],
-									'suffix' => $v3['suffix']
-								];
+								$full_sequence_name = ltrim($v3['schema_name'] . '.' . $v3['sequence_name'], '.');
+								$this->objectAdd([
+									'type' => 'sequence',
+									'schema' => $v3['schema_name'],
+									'name' => $v3['sequence_name'],
+									'data' => [
+										'owner' => $v3['sequence_owner'],
+										'full_sequence_name' => $full_sequence_name,
+										'full_table_name' => $v3['full_table_name'],
+										'type' => $sequence_attributes[$full_sequence_name]['sm_sequence_type'] ?? 'global_simple',
+										'prefix' => $sequence_attributes[$full_sequence_name]['sm_sequence_prefix'] ?? '',
+										'suffix' => $sequence_attributes[$full_sequence_name]['sm_sequence_suffix'] ?? '',
+										'length' => $sequence_attributes[$full_sequence_name]['sm_sequence_length'] ?? 0
+									]
+								], $db_link);
 							}
 						}
 						break;
 					case 'functions':
 						foreach ($temp['data'] as $k2 => $v2) {
 							foreach ($v2 as $k3 => $v3) {
-								$result['data']['function'][$k2][$k3] = [
-									'owner' => $v3['function_owner'],
-									'full_function_name' => $v3['function_name'],
-									'sql_full' => '',
-									'sql_parts' => [
+								$full_function_name = ltrim($v3['schema_name'] . '.' . $v3['function_name'], '.');
+								// add object
+								$this->objectAdd([
+									'type' => 'function',
+									'schema' => $k2,
+									'name' => $k3,
+									'backend' => 'MySQLi',
+									'data' => [
+										'owner' => $v3['function_owner'],
+										'full_function_name' => $full_function_name,
 										'header' => null,
-										'body' => $v3['routine_definition'],
-										'footer' => null
+										'definition' => $v3['routine_definition']
 									]
-								];
+								], $db_link);
 							}
 						}
 						break;
@@ -244,6 +273,8 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 		if (empty($result['error'])) {
 			$result['success'] = true;
 		}
+		$result['data'] = $this->objects;
+		$result['count'] = $this->count;
 		return $result;
 	}
 
@@ -256,18 +287,16 @@ class numbers_backend_db_mysqli_ddl extends numbers_backend_db_class_ddl impleme
 	 * @return array
 	 * @throws Exception
 	 */
-	public function load_schema_details($type, $db_link, $options = array()) {
+	public function loadSchemaDetails($type, $db_link, $options = array()) {
 		$result = array(
 			'success' => false,
 			'error' => array(),
 			'data' => array()
 		);
-
 		// we need to get database name
-		$db_object = new db($db_link);
+		$db_object = new \Db($db_link);
 		$database_name = $db_object->object->connect_options['dbname'];
 		$owner = $db_object->object->connect_options['username'];
-
 		// getting proper query
 		switch($type) {
 			case 'constraints':
@@ -373,7 +402,7 @@ TTT;
 				$key = array('schema_name', 'sequence_name');
 				$sql = <<<TTT
 					SELECT
-						null schema_name,
+						'' schema_name,
 						sm_sequence_name sequence_name,
 						'{$owner}' sequence_owner,
 						sm_sequence_type "type",
@@ -387,7 +416,7 @@ TTT;
 				$key = array('schema_name', 'function_name');
 				$sql = <<<TTT
 					SELECT
-						null schema_name,
+						'' schema_name,
 						routine_name function_name,
 						'{$owner}' function_owner,
 						routine_definition
@@ -398,7 +427,7 @@ TTT;
 TTT;
 				break;
 			default:
-				Throw new Exception('type?');
+				Throw new \Exception('type?');
 		}
 		// options
 		if (!empty($options['where'])) {
@@ -431,76 +460,74 @@ TTT;
 				$result = "ALTER TABLE {$data['table']} DROP COLUMN {$data['name']};";
 				break;
 			case 'column_new':
-				$type = $data['data']['type'];
 				$default = $data['data']['default'] ?? null;
-				if (is_string($default) && $default !== 'now()' && strpos($default, 'nextval') === false) {
+				if (is_string($default) && $default != 'now()') {
 					$default = "'" . $default . "'";
 				} else if ($default === 'now()') {
-					if ($type == 'datetime(6)') {
+					if ($data['data']['sql_type'] == 'datetime(6)') {
 						$default = 'CURRENT_TIMESTAMP(6)';
 					} else {
 						$default = 'CURRENT_TIMESTAMP';
 					}
-				} else if (strpos($default, 'nextval') !== false) {
-					// we do nothing
 				}
 				$null = $data['data']['null'] ?? false;
 				if (empty($options['column_new_no_alter'])) {
-					$result = "ALTER TABLE {$data['table']} ADD COLUMN {$data['name']} {$type}" . ($default !== null ? (' DEFAULT ' . $default) : '') . (!$null ? (' NOT NULL') : '') . (!empty($data['data']['auto_increment']) ? ' AUTO_INCREMENT' : '') . ";";
+					$result = "ALTER TABLE {$data['table']} ADD COLUMN {$data['name']} {$data['data']['sql_type']}" . ($default !== null ? (' DEFAULT ' . $default) : '') . (!$null ? (' NOT NULL') : '') . ";";
 				} else {
-					// auto increment column with primary key as a must
-					if (!empty($data['data']['auto_increment'])) {
-						$master = $data['data'];
-						self::$extra['auto_increment'][$data['table']] = "ALTER TABLE {$data['table']} CHANGE {$data['name']} {$data['name']} {$master['type']}" . (!$master['null'] ? ' NOT NULL' : '') . ($master['default'] !== null ? (" DEFAULT " . (is_string($master['default']) ? ("'" . $master['default'] . "'") : $master['default'])) : '') . (!empty($master['auto_increment']) ? ' AUTO_INCREMENT' : '') . ";";
-					}
-					$result = "{$data['name']} {$type}" . ($default !== null ? (' DEFAULT ' . $default) : '') . (!$null ? (' NOT NULL') : '');
+					$result = "{$data['name']} {$data['data']['sql_type']}" . ($default !== null ? (' DEFAULT ' . $default) : '') . (!$null ? (' NOT NULL') : '');
 				}
 				break;
 			case 'column_change':
+				$result = [];
 				$master = $data['data'];
-				$default = $data['data']['default'] ?? null;
-				if (is_string($default) && $default !== 'now()' && strpos($default, 'nextval') === false) {
-					$default = "'" . $default . "'";
-				} else if ($default === 'now()') {
-					if ($type == 'datetime(6)') {
-						$default = 'CURRENT_TIMESTAMP(6)';
-					} else {
-						$default = 'CURRENT_TIMESTAMP';
-					}
-				} else if (strpos($default, 'nextval') !== false) {
-					// we do nothing
+				$slave = $data['data_old'];
+				if ($master['sql_type'] !== $slave['sql_type']) {
+					$result[]= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} SET DATA TYPE {$master['sql_type']};\n";
 				}
-				$result = "ALTER TABLE {$data['table']} CHANGE {$data['name']} {$data['name']} {$master['type']}" . (!$master['null'] ? ' NOT NULL' : '') . ($default !== null ? (' DEFAULT ' . $default) : '') . (!empty($master['auto_increment']) ? ' AUTO_INCREMENT' : '') . ";";
+				if ($master['default'] !== $slave['default']) {
+					if (is_string($master['default'])) {
+						$master['default'] = "'" . $master['default'] . "'";
+					}
+					$temp = !isset($master['default']) ? ' DROP DEFAULT' : ('SET DEFAULT ' . $master['default']);
+					$result[]= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} $temp;\n";
+				}
+				if ($master['null'] !== $slave['null']) {
+					$temp = !empty($master['null']) ? 'DROP'  : 'SET';
+					$result[]= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} $temp NOT NULL;\n";
+				}
 				break;
 			// table
-			case 'table_owner':
-				$result = "ALTER TABLE {$data['data']['full_table_name']} OWNER TO {$data['data']['owner']};";
-				break;
 			case 'table_new':
-				$columns = array();
+				$columns = [];
 				foreach ($data['data']['columns'] as $k => $v) {
-					$columns[] = $this->renderSql('column_new', ['table' => $data['data']['full_table_name'], 'name' => $k, 'data' => $v], ['column_new_no_alter' => true]);
+					$columns[] = $this->renderSql('column_new', ['table' => '', 'name' => $k, 'data' => $v], ['column_new_no_alter' => true]);
 				}
 				$result = "CREATE TABLE {$data['data']['full_table_name']} (\n\t";
 					$result.= implode(",\n\t", $columns);
-				$engine = isset($data['data']['engine']) ? $data['data']['engine'] : 'InnoDB';
+					$engine = isset($data['data']['engine']['MySQLi']) ? $data['data']['engine']['MySQLi'] : 'InnoDB';
 				$result.= "\n) ENGINE={$engine} DEFAULT CHARSET=utf8;";
 				break;
 			case 'table_delete':
-				$result = "DROP TABLE {$data['data']['full_table_name']};";
+				$result = "DROP TABLE {$data['data']['full_table_name']} CASCADE;";
+				break;
+			// view
+			case 'view_new':
+				$result = "CREATE OR REPLACE VIEW {$data['name']} AS {$data['definition']}\nALTER VIEW {$data['name']} OWNER TO {$data['owner']};";
+				break;
+			case 'view_change':
+				$result = "DROP VIEW {$data['name']};\nCREATE OR REPLACE VIEW {$data['name']} AS {$data['definition']}\nALTER VIEW {$data['name']} OWNER TO {$data['owner']};";
+				break;
+			case 'view_delete':
+				$result = "DROP VIEW {$data['name']};";
 				break;
 			// foreign key/unique/primary key
 			case 'constraint_new':
 				switch ($data['data']['type']) {
 					case 'pk':
-						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD PRIMARY KEY (" . implode(", ", $data['data']['columns']) . ");";
-						// adding auto_increment after we add primary key
-						if (!empty(self::$extra['auto_increment'][$data['data']['full_table_name']])) {
-							$result = [$result, self::$extra['auto_increment'][$data['data']['full_table_name']]];
-						}
+						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} PRIMARY KEY (" . implode(", ", $data['data']['columns']) . ");";
 						break;
 					case 'unique':
-						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} UNIQUE (" . implode(", ", $data['data']['columns']) . ")";
+						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} UNIQUE (" . implode(", ", $data['data']['columns']) . ");";
 						break;
 					case 'fk':
 						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} FOREIGN KEY (" . implode(", ", $data['data']['columns']) . ") REFERENCES {$data['data']['foreign_table']} (" . implode(", ", $data['data']['foreign_columns']) . ") ON UPDATE " . strtoupper($data['data']['options']['update'] ?? 'NO ACTION') . " ON DELETE " . strtoupper($data['data']['options']['delete'] ?? 'NO ACTION') . ";";
@@ -510,30 +537,33 @@ TTT;
 				}
 				break;
 			case 'constraint_delete':
+				// drop primary key
 				if ($data['data']['type'] == 'pk') {
 					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP PRIMARY KEY;";
-				} else if ($data['data']['type'] == 'unique') {
-					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP INDEX {$data['name']};";
 				} else if ($data['data']['type'] == 'fk') {
 					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP FOREIGN KEY {$data['name']};";
-				} else {
-					Throw new Exception($data['data']['type'] . '?');
+				} else if ($data['data']['type'] == 'unique') {
+					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP INDEX {$data['name']};";
 				}
 				break;
 			// indexes
 			case 'index_new':
+				// fulltext indexes as gin
 				if ($data['data']['type'] == 'fulltext') {
-					$result = "CREATE FULLTEXT INDEX {$data['name']} ON {$data['data']['full_table_name']} (" . implode(", ", $data['data']['columns']) . ")";
+					$result = "CREATE FULLTEXT INDEX {$data['name']} ON {$data['data']['full_table_name']} (" . implode(", ", $data['data']['columns']) . ");";
 				} else {
 					$result = "CREATE INDEX {$data['name']} ON {$data['data']['full_table_name']} (" . implode(", ", $data['data']['columns']) . ") USING {$data['data']['type']};";
 				}
 				break;
 			case 'index_delete':
-				$result = "DROP INDEX {$data['name']} ON {$data['data']['full_table_name']};";
+				$result = "DROP INDEX {$data['name']};";
 				break;
-			case 'sequences_new':
+			// sequences
+			case 'sequence_new':
+				// insert entry into sequences table
+				$model = new \Numbers\Backend\Db\Common\Model\Sequences();
 				$result = <<<TTT
-					INSERT INTO sm_sequences (
+					INSERT INTO {$model->full_table_name} (
 						sm_sequence_name,
 						sm_sequence_description,
 						sm_sequence_prefix,
@@ -542,7 +572,7 @@ TTT;
 						sm_sequence_counter,
 						sm_sequence_type
 					) VALUES (
-						'{$data['name']}',
+						'{$data['data']['full_sequence_name']}',
 						null,
 						'{$data['data']['prefix']}',
 						{$data['data']['length']},
@@ -554,15 +584,46 @@ TTT;
 				break;
 			case 'sequence_delete':
 				$result = [];
-				$result[]= "DELETE FROM sm_sequences WHERE sm_sequence_name = '{$data['name']}'";
+				if (($options['mode'] ?? '') != 'drop') {
+					$model = new \Numbers\Backend\Db\Common\Model\Sequences();
+					$result[]= "DELETE FROM {$model->full_table_name} WHERE sm_sequence_name = '{$data['data']['full_sequence_name']}'";
+				}
+				break;
+			// functions
+			case 'function_new':
+				$result = $data['data']['definition'] . ";";
 				break;
 			case 'function_delete':
-				$result = "DROP FUNCTION IF EXISTS {$data['name']}";
+				$result = "DROP FUNCTION {$data['data']['full_function_name']};";
 				break;
-			case 'function_new':
-				$result = $data['data']['sql_full'];
+			// trigger
+			case 'trigger_new':
+				$result.= trim($data['definition']) . ";";
+				break;
+			case 'trigger_delete':
+				$result = "DROP TRIGGER {$data['name']} ON {$data['table']};";
+				break;
+			case 'trigger_change':
+				$result = "DROP TRIGGER {$data['name']} ON {$data['table']};\n";
+				$result.= trim($data['definition']) . ";";
+				break;
+			case 'permission_revoke_all':
+				//$result = "REVOKE ALL PRIVILEGES ON DATABASE {$data['database']} FROM {$data['owner']};";
+				break;
+			case 'permission_grant_schema':
+				//$result = "GRANT USAGE ON SCHEMA {$data['schema']} TO {$data['owner']};";
+				break;
+			case 'permission_grant_table':
+				$result = "GRANT SELECT, INSERT, UPDATE, DELETE ON {$data['database']}.{$data['table']} TO {$data['owner']};";
+				break;
+			case 'permission_grant_sequence':
+				//$result = "GRANT USAGE, SELECT, UPDATE ON SEQUENCE {$data['sequence']} TO {$data['owner']};";
+				break;
+			case 'permission_grant_function':
+				$result = "GRANT EXECUTE ON FUNCTION {$data['database']}.{$data['function']} TO {$data['owner']};";
 				break;
 			default:
+				// nothing
 				Throw new Exception($type . '?');
 		}
 		return $result;

@@ -392,6 +392,7 @@ run_again:
 		if (!empty($objects['table'])) {
 			foreach ($objects['table'] as $v) {
 				$temp = $ddl_object->renderSql('permission_grant_table', [
+					'database' => $options['database'],
 					'table' => $v,
 					'owner' => $db_query_owner
 				]);
@@ -405,6 +406,7 @@ run_again:
 		if (!empty($objects['sequence'])) {
 			foreach ($objects['sequence'] as $v) {
 				$temp = $ddl_object->renderSql('permission_grant_sequence', [
+					'database' => $options['database'],
 					'sequence' => $v,
 					'owner' => $db_query_owner
 				]);
@@ -418,6 +420,7 @@ run_again:
 		if (!empty($objects['function'])) {
 			foreach ($objects['function'] as $k => $v) {
 				$temp = $ddl_object->renderSql('permission_grant_function', [
+					'database' => $options['database'],
 					'function' => $k,
 					'header' => $v,
 					'owner' => $db_query_owner

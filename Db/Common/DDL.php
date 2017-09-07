@@ -633,7 +633,7 @@ class DDL {
 							// comparing
 							$temp_error = false;
 							foreach ($compare_columns as $v88) {
-								if ($v88 == 'default' && $master_compare['type'] == 'bcnumeric') {
+								if ($v88 == 'default' && in_array($master_compare['type'], ['bcnumeric', 'numeric'])) {
 									if (\Math::compare($master_compare[$v88], $slave_compare[$v88], 25) != 0) {
 										$temp_error = true;
 										break;
@@ -645,6 +645,10 @@ class DDL {
 							}
 							// add changes
 							if ($temp_error) {
+								// debug
+								//var_export2($master_compare);
+								//var_export2($slave_compare);
+								//exit;
 								$master_compare['sql_type'] = null;
 								$slave_compare['sql_type'] = null;
 								// up
@@ -704,32 +708,6 @@ class DDL {
 							];
 							// count
 							$result['count']++;
-						}
-					}
-				}
-			}
-		}
-
-		// pk constraints can have different names
-		if (!empty($obj_slave['constraint'])) {
-			foreach ($obj_slave['constraint'] as $k => $v) {
-				foreach ($v as $k2 => $v2) {
-					foreach ($v2 as $k3 => $v3) {
-						if ($v3['type'] == 'pk') {
-							$found = null;
-							if (!empty($obj_master['constraint'][$k][$k2])) {
-								foreach ($obj_master['constraint'][$k][$k2] as $k4 => $v4) {
-									if ($v4['type'] == 'pk') {
-										$found = $k4;
-										break;
-									}
-								}
-							}
-							if (!empty($found)) {
-								$temp = $obj_slave['constraint'][$k][$k2][$k3];
-								unset($obj_slave['constraint'][$k][$k2][$k3]);
-								$obj_slave['constraint'][$k][$k2][$found] = $temp;
-							}
 						}
 					}
 				}
@@ -979,7 +957,17 @@ class DDL {
 						} else { // function changed
 							// body
 							$v3_old = $obj_slave['function'][$k][$k2][$k3];
-							if (self::sanitizeFunction($v3['data']['definition']) != self::sanitizeFunction($v3_old['data']['definition'])) {
+							$good = false;
+							if (self::sanitizeFunction($v3['data']['definition']) == self::sanitizeFunction($v3_old['data']['definition'])) {
+								$good = true;
+							} else if (strpos($v3['data']['definition'], $v3_old['data']['definition']) !== false) {
+								$good = true;
+							}
+							if (!$good) {
+								// debug
+								//print_r2($v3['data']['definition']);
+								//print_r2($v3_old['data']['definition']);
+								//exit;
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_old['migration_id'] = $result['count'] + 1;
 								// up
@@ -1161,8 +1149,14 @@ class DDL {
 		// if we are dropping we need to disable foregn key checks
 		if ($options['mode'] == 'drop') {
 			$backend = \Factory::get(['db', $db_link, 'backend']);
-			if ($backend == 'mysqli') {
-				$diff['before_execution']['foreign_key_checks']['sql'] = 'SET foreign_key_checks = 0;';
+			if ($backend == 'MySQLi') {
+				$diff = array_merge_hard([
+					'before_execution' => [
+						'foreign_key_checks' => [
+							'sql' => 'SET foreign_key_checks = 0;'
+						]
+					]
+				], $diff);
 				// we also need to unset sequences
 				unset($diff['delete_sequences']);
 			}

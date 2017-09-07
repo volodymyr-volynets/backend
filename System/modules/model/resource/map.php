@@ -19,7 +19,7 @@ class Map extends \Object\Table {
 		'sm_rsrcmp_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
 	];
 	public $constraints = [
-		'tm_resource_map_pk' => ['type' => 'pk', 'columns' => ['sm_rsrcmp_resource_id', 'sm_rsrcmp_method_code', 'sm_rsrcmp_action_id']],
+		'sm_resource_map_pk' => ['type' => 'pk', 'columns' => ['sm_rsrcmp_resource_id', 'sm_rsrcmp_method_code', 'sm_rsrcmp_action_id']],
 		'sm_rsrcmp_resource_id_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_rsrcmp_resource_id'],
@@ -45,7 +45,7 @@ class Map extends \Object\Table {
 	public $options_map = [];
 	public $options_active = [];
 	public $engine = [
-		'mysqli' => 'InnoDB'
+		'MySQLi' => 'InnoDB'
 	];
 
 	public $cache = false;
