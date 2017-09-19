@@ -1,6 +1,6 @@
 <?php
 
-class numbers_backend_cache_db_unit_tests_base extends PHPUnit_Framework_TestCase {
+class numbers_backend_cache_db_unit_tests_base extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * test all

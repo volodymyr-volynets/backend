@@ -158,16 +158,20 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	public function query(string $sql, $key = null, array $options = []) : array {
 		$result = [
 			'success' => false,
-			'sql' => $sql,
 			'error' => [],
 			'errno' => 0,
 			'num_rows' => 0,
 			'affected_rows' => 0,
 			'rows' => [],
-			'key' => $key,
 			'structure' => [],
+			'last_insert_id' => 0,
+			// debug attributes
+			'cache' => false,
+			'cache_tags' => [],
 			'time' => microtime(true),
-			'last_insert_id' => 0
+			'sql' => $sql,
+			'key' => $key,
+			'backtrace' => null
 		];
 		// if query caching is enabled
 		if (!empty($this->options['cache_link'])) {
@@ -347,7 +351,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	/**
 	 *	@see db::sequence();
 	 */
-	public function sequence($sequence_name, $type = 'nextval') {
+	public function sequence($sequence_name, $type = 'nextval', $tenant = null, $module = null) {
 		$query = new \Object\Query\Builder($this->db_link);
 		// extended sequence
 		if (isset($tenant) || isset($module)) {
@@ -571,20 +575,21 @@ TTT;
 				}
 				break;
 			case 'delete':
-				$sql.= "DELETE FROM ";
 				// from
 				if (empty($object->data['from'])) {
 					$result['error'][] = 'From?';
 				} else {
 					$temp = [];
+					$aliases = [];
 					foreach ($object->data['from'] as $k => $v) {
 						$temp2 = $v;
 						if (!is_numeric($k)) {
 							$temp2.= " AS $k";
+							$aliases[] = $k;
 						}
 						$temp[] = $temp2;
 					}
-					$sql.= implode(",", $temp);
+					$sql.= 'DELETE ' . implode(', ', $aliases) . ' FROM ' . implode(",", $temp);
 				}
 				// where
 				if (!empty($object->data['where'])) {

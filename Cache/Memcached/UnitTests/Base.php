@@ -1,7 +1,7 @@
 <?php
 
 namespace Numbers\Backend\Cache\Memcached\UnitTests;
-class Base extends \PHPUnit_Framework_TestCase {
+class Base extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * test all cache operations

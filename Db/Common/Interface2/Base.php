@@ -9,7 +9,7 @@ interface Base {
 	public function query(string $sql, $key = null, array $options = []) : array;
 	public function commit();
 	public function rollback();
-	public function sequence($sequence_name, $type);
+	public function sequence($sequence_name, $type = 'nextval', $tenant = null, $module = null);
 	public function close();
 	public function fullTextSearchQuery($fields, $str, $operator = '&', $options = []);
 	public function createTempTable($table, $columns, $pk = null, $options = []);

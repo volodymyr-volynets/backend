@@ -167,6 +167,11 @@ class Base {
 				$operator = $par[1] ?? '=';
 				$as_is = (isset($par[2]) && $par[2] == '~~') ? true : false;
 				$string = $par[0];
+				// cast
+				if (strpos($string, '::') !== false && strpos($string, '\'::\'') === false) {
+					$exploded = explode('::', $string);
+					$string = $this->cast($exploded[0], $exploded[1]);
+				}
 				// special handling for array and nulls
 				if ($operator == '=') {
 					if (is_array($v)) {

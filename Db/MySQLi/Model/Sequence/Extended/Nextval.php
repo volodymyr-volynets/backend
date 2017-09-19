@@ -12,7 +12,7 @@ class Nextval extends \Object\Function2 {
 BEGIN
 	DECLARE result BIGINT;
 	SELECT sm_sequence_counter INTO result FROM sm_sequence_extended WHERE sm_sequence_name = sequence_name AND sm_sequence_tenant_id = tenant_id AND sm_sequence_module_id = module_id;
-	IF FOUND THEN
+	IF result IS NOT NULL THEN
 		SET result = result + 1;
 		UPDATE sm_sequence_extended SET sm_sequence_counter = result WHERE sm_sequence_name = sequence_name AND sm_sequence_tenant_id = tenant_id AND sm_sequence_module_id = module_id;
 	ELSE
