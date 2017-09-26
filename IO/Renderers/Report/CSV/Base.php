@@ -39,7 +39,7 @@ class Base {
 					foreach ($header as $k2 => $v2) {
 						$value = $row_data[0][$v2['__index']] ?? '';
 						if (is_array($value)) {
-							$value = $value['value'];
+							$value = $value['value_export'] ?? $value['value'];
 						}
 						$row[] = strip_tags2($value);
 					}

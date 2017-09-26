@@ -664,6 +664,11 @@ TTT;
 				if (!empty($object->data['groupby'])) {
 					$sql.= "\nGROUP BY " . implode(",\n\t", $object->data['groupby']);
 				}
+				// having
+				if (!empty($object->data['having'])) {
+					$sql.= "\nHAVING";
+					$sql.= $object->renderWhere($object->data['having']);
+				}
 				// orderby
 				if (!empty($object->data['orderby'])) {
 					$sql.= "\nORDER BY " . array_key_sort_prepare_keys($object->data['orderby'], true);

@@ -38,6 +38,7 @@ class Builder {
 		'where' => [],
 		'orderby' => [],
 		'groupby' => [],
+		'having' => [],
 		'union' => []
 	];
 
@@ -328,6 +329,18 @@ class Builder {
 	public function where(string $operator = 'AND', $condition, bool $exists = false) : \Numbers\Backend\Db\Common\Query\Builder {
 		// add condition
 		array_push($this->data['where'], $this->singleConditionClause($operator, $condition, $exists));
+		return $this;
+	}
+
+	/**
+	 * Having
+	 *
+	 * @param string $operator
+	 * @param mixed $condition
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function having(string $operator = 'AND', $condition) : \Numbers\Backend\Db\Common\Query\Builder {
+		array_push($this->data['having'], $this->singleConditionClause($operator, $condition, false));
 		return $this;
 	}
 
