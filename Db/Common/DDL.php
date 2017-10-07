@@ -758,6 +758,7 @@ class DDL {
 							// if we have an error we rebuild
 							if ($temp_error) {
 								// debuging
+								//print_r2($name);
 								//print_r2($v3['data']);
 								//print_r2($obj_slave['constraint'][$k][$k2][$k3]['data']);
 								//exit;

@@ -428,7 +428,7 @@ TTT;
 										AND kc.table_schema = tc.table_schema
 										AND kc.constraint_name = tc.constraint_name
 										AND tc.constraint_type IN ('PRIMARY KEY', 'UNIQUE')
-								ORDER BY kc.ordinal_position ASC
+								ORDER BY schema_name, table_name, constraint_name, kc.ordinal_position ASC
 							) a
 							GROUP BY schema_name, table_name, constraint_name
 
@@ -468,7 +468,7 @@ TTT;
 								JOIN (
 									SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position ASC
 								) y ON y.ordinal_position = x.position_in_unique_constraint AND y.constraint_name = c.unique_constraint_name
-								ORDER BY x.ordinal_position ASC
+								ORDER BY schema_name, table_name, constraint_name, foreign_schema_name, foreign_table_name, x.ordinal_position ASC
 							) a
 							GROUP BY schema_name, table_name, constraint_name, foreign_schema_name, foreign_table_name
 
