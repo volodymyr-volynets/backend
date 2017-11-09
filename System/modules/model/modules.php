@@ -55,9 +55,9 @@ class Modules extends \Object\Table {
 	 * @param array $options
 	 * @return array
 	 */
-	public function options_short($options = []) {
+	public function optionsAbbreviation($options = []) {
 		$options['options_map'] = [
-			'sm_module_short' => 'name',
+			'sm_module_abbreviation' => 'name',
 			'sm_module_name' => 'title'
 		];
 		return parent::options($options);
