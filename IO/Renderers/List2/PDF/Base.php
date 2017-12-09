@@ -1,6 +1,6 @@
 <?php
 
-namespace Numbers\Backend\IO\Renderers\List2\CSV;
+namespace Numbers\Backend\IO\Renderers\List2\PDF;
 class Base {
 
 	/**
@@ -24,8 +24,10 @@ class Base {
 			$header[$k] = $k;
 		}
 		// add data
+		$counter = 1;
 		foreach ($object->misc_settings['list']['rows'] as $k => $v) {
 			$v_original = $v;
+			$even = $counter % 2 ? ODD : EVEN;
 			foreach ($header as $v2) {
 				foreach ($object->misc_settings['list']['columns'][$v2]['elements'] as $k3 => $v3) {
 					// format
@@ -43,9 +45,11 @@ class Base {
 							$v[$k3] = $object->renderListContainerDefaultOptions($v3['options'], $v[$k3], $v_original);
 						}
 					}
+					$v[$k3] = ['value' => $v[$k3] ?? null, 'align' => $v3['options']['align'] ?? 'left'];
 				}
-				$report->addData(DEF, $v2, 0, $v);
+				$report->addData(DEF, $v2, $even, $v);
 			}
+			$counter++;
 			// gc
 			unset($object->misc_settings['list']['rows'][$k]);
 		}
@@ -53,7 +57,7 @@ class Base {
 		$report->addSeparator(DEF);
 		$report->addLegend(DEF, i18n(null, \Object\Content\Messages::REPORT_ROWS_NUMBER, ['replace' => ['[Number]' => \Format::id($object->misc_settings['list']['num_rows'])]]));
 		// render CSV through report renderer
-		$renderer = new \Numbers\Backend\IO\Renderers\Report\CSV\Base();
+		$renderer = new \Numbers\Backend\IO\Renderers\Report\PDF\Base();
 		return $renderer->render($report);
 	}
 }

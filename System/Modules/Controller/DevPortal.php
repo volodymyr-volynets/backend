@@ -4,7 +4,7 @@ namespace Numbers\Backend\System\Modules\Controller;
 class DevPortal extends \Object\Controller {
 
 	public $title = 'Development Portal';
-	public $icon = 'cogs';
+	public $icon = 'fas fa-cogs';
 
 	public function actionIndex() {
 		if (!\Application::get('debug.toolbar')) {

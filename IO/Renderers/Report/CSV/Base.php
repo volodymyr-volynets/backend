@@ -11,8 +11,17 @@ class Base {
 	 */
 	public function render(\Object\Form\Builder\Report & $object) : string {
 		$result = [];
+		$result[] = [\Application::$controller->title, \Format::id(\Format::datetime(\Format::now('datetime')))];
 		$report_counter = 1;
 		foreach (array_keys($object->data) as $report_name) {
+			// render filter
+			if (!empty($object->data[$report_name]['filter'])) {
+				$result[] = [' '];
+				foreach ($object->data[$report_name]['filter'] as $k => $v) {
+					$result[] = [$k, $v];
+				}
+				$result[] = [' '];
+			}
 			// render headers
 			$new_headers = [];
 			foreach ($object->data[$report_name]['header'] as $header_name => $header_data) {
@@ -48,15 +57,15 @@ class Base {
 			}
 			// add separator
 			if ($report_counter != 1) {
-				$result[] = [''];
-				$result[] = [''];
-				$result[] = [''];
+				$result[] = [' '];
+				$result[] = [' '];
+				$result[] = [' '];
 			}
 			$report_counter++;
 		}
 		// render csv
 		$export_model = new \Numbers\Backend\IO\Common\Base();
-		$export_model->export('csv', ['Main Sheet' => $result], ['output_file_name' => 'Report_Export.csv']);
+		$export_model->export('csv', ['Main Sheet' => $result], ['output_file_name' => str_replace(' ', '_', \Application::$controller->title) . '.csv']);
 		return '';
 	}
 }

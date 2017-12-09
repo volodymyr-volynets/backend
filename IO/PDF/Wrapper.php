@@ -54,16 +54,21 @@ class Wrapper extends \TCPDF {
 		$this->SetFont($this->__options['font']['family'], $this->__options['font']['style'], $this->__options['font']['size']);
 	}
 
+	/**
+	 * Header
+	 */
     public function Header() {
         $this->SetFont($this->__options['font']['family'], 'B', 8);
 		$this->SetXY(15, 10);
 		$this->Cell(0, 10, i18n(null, \Application::$controller->title), 0, false, 'L', 0, '', 0, false, 'T', 'M');
 		$this->SetXY(15, 15);
 		$this->SetFont($this->__options['font']['family'], '', 8);
-		$this->Cell(0, 10, i18n(null, \Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
+		$this->Cell(0, 10, \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
     }
 
-    // Page footer
+	/**
+	 * Footer
+	 */
     public function Footer() {
 		$this->SetFont($this->__options['font']['family'], '', 8);
 		$page_number = i18n(null, 'Page [number]/[total]', [

@@ -15,11 +15,20 @@ class Base {
 		$pdf->AddPage();
 		$page_y = 25;
 		$rectangle_style = ['width' => 0.5, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'phase' => 10, 'color' => [255, 0, 0]];
-		// render filter
-		// todo
 		// render results
 		$report_counter = 1;
 		foreach (array_keys($object->data) as $report_name) {
+			// render filter
+			if (!empty($object->data[$report_name]['filter'])) {
+				foreach ($object->data[$report_name]['filter'] as $k => $v) {
+					$pdf->SetXY(15, $page_y);
+					$pdf->Cell(50, 10, $k . ':', 0, false, 'L', 0, '', 0, false, 'T', 'M');
+					$pdf->SetXY(60, $page_y);
+					$pdf->Cell(200, 10, $v, 0, false, 'L', 0, '', 0, false, 'T', 'M');
+					$page_y+= 5;
+				}
+				$page_y+= 5;
+			}
 			// render headers
 			$new_headers = [];
 			foreach ($object->data[$report_name]['header'] as $header_name => $header_data) {
@@ -30,7 +39,6 @@ class Base {
 				$pdf->SetFont($pdf->__options['font']['family'], 'B', $pdf->__options['font']['size']);
 				$pdf->SetLineStyle(array('width' => 0, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
 				$pdf->Line(15, $page_y + 2.5, $pdf->getPageWidth() - 15, $page_y + 2.5);
-				$pdf->Line(15, $page_y + 2.5 + (count($new_headers) * 5), $pdf->getPageWidth() - 15, $page_y + 2.5 + (count($new_headers) * 5));
 				foreach ($object->data[$report_name]['header'] as $header_name => $header_data) {
 					$start = 15;
 					foreach ($header_data as $k2 => $v2) {
@@ -45,8 +53,11 @@ class Base {
 						// increment start
 						$start+= $object->data[$report_name]['header'][$header_name][$k2]['__mm'];
 					}
-					$page_y+= 5;
+					if (empty($object->data[$report_name]['header_options'][$header_name]['skip_rendering'])) {
+						$page_y+= 5;
+					}
 				}
+				$pdf->Line(15, $page_y + 2.5, $pdf->getPageWidth() - 15, $page_y + 2.5);
 			}
 			// render data
 			$page_y+= 0.25;
@@ -76,7 +87,7 @@ class Base {
 							$as_header = $value['as_header'] ?? $as_header;
 							$total = $value['total'] ?? $total;
 							$alarm = $value['alarm'] ?? $alarm;
-							$value = $value['value'];
+							$value = $value['value'] ?? null;
 						}
 						$align = str_replace(['left', 'right', 'center'], ['L', 'R', 'C'], $align);
 						// global odd/even
