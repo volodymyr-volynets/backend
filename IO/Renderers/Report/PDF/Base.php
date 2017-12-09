@@ -22,10 +22,10 @@ class Base {
 			if (!empty($object->data[$report_name]['filter'])) {
 				foreach ($object->data[$report_name]['filter'] as $k => $v) {
 					$pdf->SetXY(15, $page_y);
-					$pdf->Cell(50, 10, $k . ':', 0, false, 'L', 0, '', 0, false, 'T', 'M');
+					$pdf->MultiCell(50, 10, $k . ':', 0, 'L', 1, 0, '', '', true, 0, false, false, 50, 'T');
 					$pdf->SetXY(60, $page_y);
-					$pdf->Cell(200, 10, $v, 0, false, 'L', 0, '', 0, false, 'T', 'M');
-					$page_y+= 5;
+					$cell_number = $pdf->MultiCell($pdf->getPageWidth() - 75, 10, $v, 0, 'L', 1, 0, '', '', true, 0, false, false, 50, 'T');
+					$page_y+= 5 * $cell_number;
 				}
 				$page_y+= 5;
 			}

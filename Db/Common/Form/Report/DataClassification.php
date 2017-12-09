@@ -58,7 +58,7 @@ class DataClassification extends \Object\Form\Wrapper\Report {
 	public function buildReport(& $form) {
 		// create new report
 		$report = new \Object\Form\Builder\Report();
-		$report->addReport(DEF);
+		$report->addReport(DEF, $form);
 		// add header
 		$report->addHeader(DEF, 'row1', [
 			'sm_model_id' => ['label_name' => 'Model #', 'percent' => 10],
