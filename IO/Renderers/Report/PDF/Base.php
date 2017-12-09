@@ -67,6 +67,7 @@ class Base {
 				if (!empty($row_data[2])) { // separator
 					$page_y+= 5;
 				} else if (!empty($row_data[4])) { // legend
+					$pdf->SetFont($pdf->__options['font']['family'], '', $pdf->__options['font']['size']);
 					$pdf->SetXY(15, $page_y);
 					$pdf->Cell(0, 10, strip_tags2($row_data[4]), 0, false, 'L', 0, '', 0, false, 'T', 'M');
 				} else { // regular rows
@@ -91,16 +92,19 @@ class Base {
 						}
 						$align = str_replace(['left', 'right', 'center'], ['L', 'R', 'C'], $align);
 						// global odd/even
+						/*
 						if ($row_data[1] == ODD) {
 							$pdf->Rect($v2['__start'], $page_y + 2.5, $v2['__mm'], 10, 'DF', $rectangle_style, hex2rgb('#f9f9f9'));
 						} else if ($row_data[1] == EVEN && $prev_odd_even != EVEN) {
 							$pdf->Rect($v2['__start'], $page_y + 2.5, $v2['__mm'], 10, 'DF', $rectangle_style, hex2rgb('#ffffff'));
 						}
+						*/
 						if ($prev_odd_even != $row_data[1]) {
 							$pdf->SetLineStyle(['width' => 0, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => hex2rgb('#d9d9d9')]);
 							$pdf->Line($v2['__start'], $page_y + 2.5, $v2['__start'] + $v2['__mm'], $page_y + 2.5);
 						}
 						// inner odd/even
+						/*
 						if (isset($row_data[5]['cell_even']) && $value . '' != '') {
 							if ($row_data[5]['cell_even'] == ODD) {
 								$pdf->Rect($v2['__start'], $page_y + 2.5, $v2['__mm'], 10, 'DF', $rectangle_style, hex2rgb('#f9f9f9'));
@@ -108,6 +112,7 @@ class Base {
 								$pdf->Rect($v2['__start'], $page_y + 2.5, $v2['__mm'], 10, 'DF', $rectangle_style, hex2rgb('#ffffff'));
 							}
 						}
+						*/
 						// color
 						if ($alarm) {
 							$pdf->SetTextColorArray(hex2rgb('#ff0000'));
