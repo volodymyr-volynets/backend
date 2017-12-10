@@ -79,7 +79,9 @@ class Wrapper extends \TCPDF {
 		]);
 		$this->SetXY(15, -15);
 		$this->Cell(0, 10, $page_number, 0, false, 'R', 0, '', 0, false, 'T', 'M');
+		$this->SetXY(15, -20);
+		$this->Cell(0, 10, i18n(null, \Application::$controller->title) . ' (#' . \Format::id(\Application::$controller->controller_id) . ')', 0, false, 'L', 0, '', 0, false, 'T', 'M');
 		$this->SetXY(15, -15);
-		$this->Cell(0, 10, i18n(null, \Application::$controller->title), 0, false, 'L', 0, '', 0, false, 'T', 'M');
+		$this->Cell(0, 10, i18n(null, 'By:') .  ' ' . \User::get('name') . ', ' . i18n(null, ' On:') . ' ' . \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
     }
 }

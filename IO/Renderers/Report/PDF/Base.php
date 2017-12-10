@@ -47,8 +47,9 @@ class Base {
 						$object->data[$report_name]['header'][$header_name][$k2]['__start'] = $start;
 						// render cell if not skipping
 						if (empty($object->data[$report_name]['header_options'][$header_name]['skip_rendering'])) {
+							$align = str_replace(['left', 'right', 'center'], ['L', 'R', 'C'], $v2['align'] ?? 'left');
 							$pdf->SetXY($start, $page_y);
-							$pdf->Cell($object->data[$report_name]['header'][$header_name][$k2]['__mm'], 10, $object->data[$report_name]['header'][$header_name][$k2]['__label_name'], 0, false, 'L', 0, '', 0, false, 'T', 'M');
+							$pdf->Cell($object->data[$report_name]['header'][$header_name][$k2]['__mm'], 10, $object->data[$report_name]['header'][$header_name][$k2]['__label_name'], 0, false, $align, 0, '', 0, false, 'T', 'M');
 						}
 						// increment start
 						$start+= $object->data[$report_name]['header'][$header_name][$k2]['__mm'];
@@ -68,6 +69,7 @@ class Base {
 					$page_y+= 5;
 				} else if (!empty($row_data[4])) { // legend
 					$pdf->SetFont($pdf->__options['font']['family'], '', $pdf->__options['font']['size']);
+					$pdf->SetTextColorArray(hex2rgb('#000000'));
 					$pdf->SetXY(15, $page_y);
 					$pdf->Cell(0, 10, strip_tags2($row_data[4]), 0, false, 'L', 0, '', 0, false, 'T', 'M');
 				} else { // regular rows
@@ -78,6 +80,7 @@ class Base {
 						$align = $v2['data_align'] ?? 'left';
 						$bold = $v2['data_bold'] ?? false;
 						$total = $v2['data_total'] ?? false;
+						$subtotal = $v2['data_subtotal'] ?? false;
 						$underline = $v2['data_underline'] ?? false;
 						$as_header = $v2['data_as_header'] ?? false;
 						$alarm = false;
@@ -87,6 +90,7 @@ class Base {
 							$underline = $value['underline'] ?? $underline;
 							$as_header = $value['as_header'] ?? $as_header;
 							$total = $value['total'] ?? $total;
+							$subtotal = $value['subtotal'] ?? $subtotal;
 							$alarm = $value['alarm'] ?? $alarm;
 							$value = $value['value'] ?? null;
 						}
@@ -125,6 +129,11 @@ class Base {
 							$pdf->SetLineStyle(['width' => 0, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => hex2rgb('#000000')]);
 							$pdf->Line($v2['__start'], $page_y + 2.5, $v2['__start'] + $v2['__mm'], $page_y + 2.5);
 							$pdf->Line($v2['__start'], $page_y + 3, $v2['__start'] + $v2['__mm'], $page_y + 3);
+						}
+						if ($subtotal) {
+							$bold = true;
+							$pdf->SetLineStyle(['width' => 0, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => hex2rgb('#000000')]);
+							$pdf->Line($v2['__start'], $page_y + 2.5, $v2['__start'] + $v2['__mm'], $page_y + 2.5);
 						}
 						// bold
 						if ($bold) {
