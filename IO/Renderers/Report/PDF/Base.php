@@ -152,7 +152,7 @@ class Base {
 					}
 				}
 				$page_y+= 5;
-				if ($page_y >= ($pdf->getPageHeight() - 20)) {
+				if ($page_y >= ($pdf->getPageHeight() - 25)) {
 					$page_y = 25;
 					$pdf->AddPage();
 				}
