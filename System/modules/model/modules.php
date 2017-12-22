@@ -5,7 +5,7 @@ class Modules extends \Object\Table {
 	public $db_link;
 	public $db_link_flag;
 	public $module_code = 'SM';
-	public $title = 'S/M System';
+	public $title = 'S/M Modules';
 	public $name = 'sm_modules';
 	public $pk = ['sm_module_code'];
 	public $tenant = false;

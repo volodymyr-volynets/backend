@@ -82,7 +82,8 @@ class Schemas {
 			'error' => [],
 			'data' => [
 				'\Object\Import' => [],
-				'\Object\Models' => []
+				'\Object\Models' => [],
+				'\Object\Forms' => []
 			],
 			'objects' => [],
 			'permissions' => [],
@@ -215,6 +216,33 @@ run_again:
 							}
 						}
 					}
+				}
+			}
+			// forms
+			if (!empty($dep['data']['form'])) {
+				$forms = [];
+				$type_model = new \Numbers\Backend\System\Modules\Model\Form\Types();
+				foreach ($dep['data']['form'] as $k => $v) {
+					$form_model = new $k(['skip_acl' => true]);
+					$fields = $form_model->form_object->generateFormFields();
+					$fields_mapped = [];
+					foreach ($fields['data'] as $k2 => $v2) {
+						$fields_mapped[$k . '::' . $k2] = [
+							'sm_frmfield_form_code' => $k,
+							'sm_frmfield_code' => $k2,
+							'sm_frmfield_type' => $v2['type'],
+							'sm_frmfield_name' => $v2['name'],
+							'sm_frmfield_inactive' => 0
+						];
+					}
+					$result['data']['\Object\Form'][$k] = [
+						'sm_form_code' => $k,
+						'sm_form_type' => $type_model->determineTypeId($v),
+						'sm_form_module_code' => $form_model->module_code,
+						'sm_form_name' => $form_model->title,
+						'sm_form_inactive' => 0,
+						'\Numbers\Backend\System\Modules\Model\Form\Fields' => $fields_mapped
+					];
 				}
 			}
 			// if we got here - we are ok
@@ -516,6 +544,18 @@ run_again:
 						$result['count']+= $import_result['count'];
 					}
 					break;
+				case '\Object\Form':
+					$form_model = new \Numbers\Backend\System\Modules\Model\Forms();
+					if ($form_model->dbPresent()) {
+						$form_collection = new \Numbers\Backend\System\Modules\Model\Collection\Forms();
+						$form_result = $form_collection->mergeMultiple($v);
+						if (!$form_result['success']) {
+							$result['error'] = array_merge($result['error'], $form_result['error']);
+							return $result;
+						}
+						$result['count']+= $form_result['count'];
+						$result['legend'][] = '         * Process form changes ' . $form_result['count'];
+					}
 			}
 		}
 		// see if we have a migration table

@@ -12,6 +12,11 @@ class Aliases {
 			'no_data_alias_name' => 'Action #',
 			'no_data_alias_model' => '\Numbers\Backend\System\Modules\Model\Resource\Actions',
 			'no_data_alias_column' => 'sm_action_code'
-		]
+		],
+		'form_id' => [
+			'no_data_alias_name' => 'Form #',
+			'no_data_alias_model' => '\Numbers\Backend\System\Modules\Model\Forms',
+			'no_data_alias_column' => 'sm_form_code'
+		],
 	];
 }
