@@ -2,7 +2,9 @@
 
 namespace Numbers\Backend\Db\Common\Form\Report;
 class DataClassification extends \Object\Form\Wrapper\Report {
-	public $form_link = 'data_classification_report';
+	public $form_link = 'sm_data_classification_report';
+	public $module_code = 'SM';
+	public $title = 'S/M Data Classification Report';
 	public $options = [
 		'segment' => self::SEGMENT_REPORT,
 		'actions' => [

@@ -15,7 +15,7 @@ class Import extends \Object\Import {
 					'sm_module_type' => 20,
 					'sm_module_name' => 'S/M System',
 					'sm_module_abbreviation' => 'S/M',
-					'sm_module_icon' => 'wrench',
+					'sm_module_icon' => 'fas fa-wrench',
 					'sm_module_transactions' => 0,
 					'sm_module_multiple' => 0,
 					'sm_module_inactive' => 0

@@ -2,7 +2,9 @@
 
 namespace Numbers\Backend\Session\Db\Form\Report;
 class SessionLog extends \Object\Form\Wrapper\Report {
-	public $form_link = 'session_log_report';
+	public $form_link = 'sm_session_log_report';
+	public $module_code = 'SM';
+	public $title = 'S/M Session Log Report';
 	public $options = [
 		'segment' => self::SEGMENT_REPORT,
 		'actions' => [

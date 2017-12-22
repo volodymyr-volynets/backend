@@ -15,7 +15,7 @@ class Notifications extends \Object\Import {
 					'sm_feature_code' => 'SM::EMAIL_COMMON_RECORD_CHANGE',
 					'sm_feature_type' => 21,
 					'sm_feature_name' => 'S/M Email Common Record Changed',
-					'sm_feature_icon' => 'envelope-o',
+					'sm_feature_icon' => 'far fa-envelop',
 					'sm_feature_activated_by_default' => 1,
 					'sm_feature_activation_model' => null,
 					'sm_feature_inactive' => 0
