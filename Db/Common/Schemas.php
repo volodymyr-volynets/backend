@@ -223,7 +223,7 @@ run_again:
 				$forms = [];
 				$type_model = new \Numbers\Backend\System\Modules\Model\Form\Types();
 				foreach ($dep['data']['form'] as $k => $v) {
-					$form_model = new $k(['skip_acl' => true]);
+					$form_model = new $k(['skip_acl' => true, 'skip_processing' => true]);
 					$fields = $form_model->form_object->generateFormFields();
 					$fields_mapped = [];
 					foreach ($fields['data'] as $k2 => $v2) {
