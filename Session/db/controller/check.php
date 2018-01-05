@@ -21,7 +21,7 @@ class Check extends \Object\Controller {
 		if (!empty($input['token']) && !empty($input[session_name()])) {
 			$crypt = new \Crypt();
 			$token_data = $crypt->tokenValidate($input['token'], ['skip_time_validation' => true]);
-			if (!($token_data === false || $token_data['id'] !== 'general')) {
+			if (!($token_data === false || $token_data['token'] !== 'general')) {
 				// quering database
 				$query = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic()->select();
 				$query->columns([
@@ -59,7 +59,7 @@ class Check extends \Object\Controller {
 		if (!empty($input['token'])) {
 			$crypt = new \Crypt();
 			$token_data = $crypt->tokenValidate($input['token'], ['skip_time_validation' => true]);
-			if (!($token_data === false || $token_data['id'] !== 'general')) {
+			if (!($token_data === false || $token_data['token'] !== 'general')) {
 				$result['success'] = true;
 			}
 		}

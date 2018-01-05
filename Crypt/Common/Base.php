@@ -189,6 +189,26 @@ abstract class Base {
 	}
 
 	/**
+	 * Verify token with tokens
+	 *
+	 * @param string $token
+	 * @param array $tokens
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function tokenVerify($token, $tokens) {
+		if (empty($token)) {
+			Throw new \Exception('Invalid token!');
+		} else {
+			$token_data = $this->tokenValidate($token);
+			if ($token_data === false || !in_array($token_data['token'], $tokens)) {
+				Throw new \Exception('Invalid token!');
+			}
+			return $token_data;
+		}
+	}
+
+	/**
 	 * Hash password
 	 *
 	 * @param string $password
