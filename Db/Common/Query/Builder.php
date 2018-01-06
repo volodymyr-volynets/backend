@@ -530,7 +530,7 @@ class Builder {
 		$function($subquery);
 		$result = $subquery->render();
 		if (!$result['success']) {
-			Throw new Exception('Subquery: ' . implode(', ', $result['error']));
+			Throw new \Exception('Subquery: ' . implode(', ', $result['error']));
 		}
 		// grab tags
 		$this->cache_tags = array_merge($this->cache_tags, $subquery->cache_tags);
@@ -559,7 +559,7 @@ class Builder {
 		if ($result['success']) {
 			return $this->db_object->query($result['sql'], $pk, $options);
 		} else {
-			Throw new Exception(implode(', ', $result['error']));
+			Throw new \Exception(implode(', ', $result['error']));
 		}
 	}
 

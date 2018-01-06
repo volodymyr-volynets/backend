@@ -222,7 +222,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			$this->commit_status++;
 			$result = $this->query('BEGIN');
 			if (!$result['success']) {
-				Throw new Exception('Could not start transaction: ' . implode(', ', $result['error']));
+				Throw new \Exception('Could not start transaction: ' . implode(', ', $result['error']));
 			}
 			return $result;
 		}
@@ -239,7 +239,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			$this->commit_status = 0;
 			$result = $this->query('COMMIT');
 			if (!$result['success']) {
-				Throw new Exception('Could not commit transaction: ' . implode(', ', $result['error']));
+				Throw new \Exception('Could not commit transaction: ' . implode(', ', $result['error']));
 			}
 			return $result;
 		}
@@ -255,7 +255,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		$this->commit_status = 0;
 		$result = $this->query('ROLLBACK');
 		if (!$result['success']) {
-			Throw new Exception('Could not rollback transaction: ' . implode(', ', $result['error']));
+			Throw new \Exception('Could not rollback transaction: ' . implode(', ', $result['error']));
 		}
 		return $result;
 	}
@@ -393,7 +393,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 TTT;
 				break;
 			default:
-				Throw new Exception('Statement?');
+				Throw new \Exception('Statement?');
 		}
 		return $result;
 	}
