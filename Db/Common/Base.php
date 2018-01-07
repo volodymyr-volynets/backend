@@ -78,7 +78,7 @@ class Base {
 	 */
 	protected function errorOverrides(& $result, $errno, $error) {
 		$result['errno'] = trim($errno . '');
-		if (isset($this->error_overrides[$result['errno']])) {
+		if (!\Helper\Cmd::isCli() && isset($this->error_overrides[$result['errno']])) {
 			$result['error'][] = $this->error_overrides[$result['errno']];
 			$result['error_original'][] = $error;
 		} else {
