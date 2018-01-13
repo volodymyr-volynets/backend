@@ -506,7 +506,7 @@ TTT;
 	 * @param array $rows
 	 * @return array
 	 */
-	public function copy($table, $rows) {
+	public function copy(string $table, array $rows) : array {
 		$result = [
 			'success' => false,
 			'error' => []

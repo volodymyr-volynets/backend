@@ -16,4 +16,5 @@ interface Base {
 	public function sqlHelper($statement, $options = []);
 	public function cast(string $column, string $type) : string;
 	public function queryBuilderRender(\Numbers\Backend\Db\Common\Query\Builder $object) : array;
+	public function copy(string $table, array $rows) : array;
 }
