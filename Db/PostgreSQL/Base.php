@@ -500,6 +500,37 @@ TTT;
 	}
 
 	/**
+	 * Copy data directly into db, rows are key=>value pairs
+	 *
+	 * @param string $table
+	 * @param array $rows
+	 * @return array
+	 */
+	public function copy($table, $rows) {
+		$result = [
+			'success' => false,
+			'error' => []
+		];
+		$replaces = ['from' => ["\t", "\n", "\r", "\\"], 'to' => ['	', '\\\\n', '', "\\\\"]];
+		foreach ($rows as $k => $v) {
+			foreach ($v as $k2 => $v2) {
+				if (is_null($v2)) {
+					$rows[$k][$k2] = '\N';
+				} else {
+					$rows[$k][$k2] = str_replace($replaces['from'], $replaces['to'], $rows[$k][$k2]);
+				}
+			}
+			$rows[$k] = implode("\t", $rows[$k]);
+		}
+		if (!pg_copy_from($this->db_resource, $table, $rows, "\t")) {
+			$result['error'][] = pg_last_error($this->db_resource);
+		} else {
+			$result['success'] = true;
+		}
+		return $result;
+	}
+
+	/**
 	 * Query builder - render
 	 *
 	 * @param \Numbers\Backend\Db\Common\Query\Builder $object

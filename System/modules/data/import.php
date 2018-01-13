@@ -104,6 +104,14 @@ class Import extends \Object\Import {
 					'sm_action_parent_action_id' => 2020,
 					'sm_action_inactive' => 0
 				],
+				[
+					'sm_action_id' => 2900,
+					'sm_action_code' => 'Record_TreeView',
+					'sm_action_name' => 'Tree View',
+					'sm_action_icon' => 'fas fa-sitemap',
+					'sm_action_parent_action_id' => null,
+					'sm_action_inactive' => 0
+				],
 				// import related items
 				[
 					'sm_action_id' => 3000,
@@ -146,6 +154,10 @@ class Import extends \Object\Import {
 				[
 					'sm_method_code' => 'AllActions',
 					'sm_method_name' => 'All Actions'
+				],
+				[
+					'sm_method_code' => 'TreeView',
+					'sm_method_name' => 'Tree View / Form'
 				]
 			]
 		],
