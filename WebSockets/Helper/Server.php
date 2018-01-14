@@ -4,6 +4,13 @@ namespace Numbers\Backend\WebSocket\Helper;
 class Server {
 
 	/**
+	 * Socket
+	 *
+	 * @var resource
+	 */
+	private $socket;
+
+	/**
 	 * Options
 	 *
 	 * @var array
@@ -25,11 +32,13 @@ class Server {
 	 * Start
 	 */
 	public function start() {
-		$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-		socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
-		socket_bind($socket, 0, $this->options['port']);
-		socket_listen($socket);
-		$clients = [$socket];
+		register_tick_function(array(& $this, 'tick'));
+		declare(ticks = 200000);
+		$this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+		socket_set_option($this->socket, SOL_SOCKET, SO_REUSEADDR, 1);
+		socket_bind($this->socket, 0, $this->options['port']);
+		socket_listen($this->socket);
+		$clients = [$this->socket];
 		$client_data = [];
 		$null = null;
 		// endless loop
@@ -37,12 +46,12 @@ class Server {
 			$changed = $clients;
 			socket_select($changed, $null, $null, 0, 10);
 			//check for new socket
-			if (in_array($socket, $changed)) {
-				$socket_new = socket_accept($socket);
-				$clients[] = $socket_new;
-				$header = socket_read($socket_new, 1024);
-				$this->handshake($header, $socket_new, $this->options['host'], $this->options['port']);
-				socket_getpeername($socket_new, $ip);
+			if (in_array($this->socket, $changed)) {
+				$new = socket_accept($this->socket);
+				$clients[] = $new;
+				$header = socket_read($new, 1024);
+				$this->handshake($header, $new, $this->options['host'], $this->options['port']);
+				socket_getpeername($new, $ip);
 				$response = $this->mask(json_encode([
 					'success' => true,
 					'error' => [],
@@ -50,7 +59,7 @@ class Server {
 					'message' => $ip . ' connected!'
 				]));
 				$this->sendMessage($response, $clients);
-				unset($changed[array_search($socket, $changed)]);
+				unset($changed[array_search($this->socket, $changed)]);
 			}
 			//loop through all connected sockets
 			$api_sent = false;
@@ -95,16 +104,20 @@ class Server {
 					$this->sendMessage($response, $clients);
 				}
 			}
-			// we need to shutdown
-			if (file_exists(__DIR__ . '/websocket.lock')) {
-				$lock = file_get_contents(__DIR__ . '/websocket.lock');
-				if (!empty($lock)) {
-					break;
-				}
-			}
 		}
 		// close the listening socket
-		socket_close($socket);
+		socket_close($this->socket);
+	}
+
+	public function tick() {
+		// we need to shutdown
+		if (file_exists(__DIR__ . '/websocket.lock')) {
+			$lock = file_get_contents(__DIR__ . '/websocket.lock');
+			if (!empty($lock)) {
+				socket_close($this->socket);
+				exit;
+			}
+		}
 	}
 
 	/**
