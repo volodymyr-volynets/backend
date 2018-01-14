@@ -455,6 +455,17 @@ TTT;
 	}
 
 	/**
+	 * Copy data directly into db, rows are key=>value pairs
+	 *
+	 * @param string $table
+	 * @param array $rows
+	 * @return array
+	 */
+	public function copy(string $table, array $rows) : array {
+		return $this->insert($table, $rows);
+	}
+
+	/**
 	 * Create temporary table
 	 *
 	 * @param string $table
