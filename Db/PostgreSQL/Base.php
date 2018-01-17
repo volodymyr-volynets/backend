@@ -392,6 +392,13 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 					ORDER BY schema_name, table_name
 TTT;
 				break;
+			case 'concat':
+				$result = []; //'string_agg(' . $options['expression'] . ', \'' . ($options['delimiter'] ?? ';') . '\')';
+				foreach ($options as $v) {
+					$result[] = $v;
+				}
+				return implode(' || ', $result);
+				break;
 			default:
 				Throw new \Exception('Statement?');
 		}

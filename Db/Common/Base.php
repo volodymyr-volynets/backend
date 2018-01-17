@@ -200,7 +200,9 @@ class Base {
 					case 'LIKE%':
 						$v = '%' . $v . '%';
 					case 'LIKE':
-						$v = "'" . $this->escape($v) . "'";
+						if (!$as_is) {
+							$v = "'" . $this->escape($v) . "'";
+						}
 						$string.= ' ' . $this->sql_keywords['like'] . ' ' . $v;
 						break;
 					case 'FTS':
