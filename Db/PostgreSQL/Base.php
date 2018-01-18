@@ -393,11 +393,11 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 TTT;
 				break;
 			case 'concat':
-				$result = []; //'string_agg(' . $options['expression'] . ', \'' . ($options['delimiter'] ?? ';') . '\')';
+				$result = [];
 				foreach ($options as $v) {
 					$result[] = $v;
 				}
-				return implode(' || ', $result);
+				$result = implode(' || ', $result);
 				break;
 			default:
 				Throw new \Exception('Statement?');
