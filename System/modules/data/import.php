@@ -105,6 +105,46 @@ class Import extends \Object\Import {
 					'sm_action_inactive' => 0
 				],
 				[
+					'sm_action_id' => 2100,
+					'sm_action_code' => 'Record_View_Comment',
+					'sm_action_name' => 'View Comments',
+					'sm_action_icon' => 'far fa-comment',
+					'sm_action_parent_action_id' => 2020,
+					'sm_action_inactive' => 0
+				],
+				[
+					'sm_action_id' => 2101,
+					'sm_action_code' => 'Record_Make_Comment',
+					'sm_action_name' => 'Make a Comment',
+					'sm_action_icon' => 'far fa-comment-alt',
+					'sm_action_parent_action_id' => 2100,
+					'sm_action_inactive' => 0
+				],
+				[
+					'sm_action_id' => 2110,
+					'sm_action_code' => 'Record_Audit',
+					'sm_action_name' => 'View Audit',
+					'sm_action_icon' => 'fab fa-linux',
+					'sm_action_parent_action_id' => 2020,
+					'sm_action_inactive' => 0
+				],
+				[
+					'sm_action_id' => 2120,
+					'sm_action_code' => 'Record_View_Document',
+					'sm_action_name' => 'View Documents',
+					'sm_action_icon' => 'far fa-file-alt',
+					'sm_action_parent_action_id' => 2020,
+					'sm_action_inactive' => 0
+				],
+				[
+					'sm_action_id' => 2121,
+					'sm_action_code' => 'Record_Add_Document',
+					'sm_action_name' => 'Add Documents',
+					'sm_action_icon' => 'far fa-file-code',
+					'sm_action_parent_action_id' => 2120,
+					'sm_action_inactive' => 0
+				],
+				[
 					'sm_action_id' => 2900,
 					'sm_action_code' => 'Record_TreeView',
 					'sm_action_name' => 'Tree View',
