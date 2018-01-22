@@ -145,6 +145,22 @@ class Import extends \Object\Import {
 					'sm_action_inactive' => 0
 				],
 				[
+					'sm_action_id' => 2200,
+					'sm_action_code' => 'Record_View_Workflow',
+					'sm_action_name' => 'View Workflow',
+					'sm_action_icon' => 'fab fa-hubspot',
+					'sm_action_parent_action_id' => 2020,
+					'sm_action_inactive' => 0
+				],
+				[
+					'sm_action_id' => 2210,
+					'sm_action_code' => 'Record_Execute_Workflow',
+					'sm_action_name' => 'Execute Workflow',
+					'sm_action_icon' => 'fas fa-braille',
+					'sm_action_parent_action_id' => 2200,
+					'sm_action_inactive' => 0
+				],
+				[
 					'sm_action_id' => 2900,
 					'sm_action_code' => 'Record_TreeView',
 					'sm_action_name' => 'Tree View',
