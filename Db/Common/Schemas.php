@@ -219,7 +219,7 @@ run_again:
 				}
 			}
 			// forms
-			if (!empty($dep['data']['form'])) {
+			if (!empty($dep['data']['form']) && empty($options['skip_db_object'])) {
 				$forms = [];
 				$type_model = new \Numbers\Backend\System\Modules\Model\Form\Types();
 				foreach ($dep['data']['form'] as $k => $v) {
