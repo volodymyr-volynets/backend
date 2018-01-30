@@ -207,7 +207,7 @@ abstract class Base {
 					$query_result = $this->db_object->query($v, $options['key'] ?? null, $options);
 					if (!$query_result['success']) {
 						$this->db_object->rollback();
-						Throw new Exception(implode("\n", $query_result['error']));
+						Throw new \Exception(implode("\n", $query_result['error']));
 					}
 				}
 			}
@@ -258,7 +258,7 @@ abstract class Base {
 				// insert new migration record
 				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge($this->executed_migration_stats);
 				if (!$temp_result['success']) {
-					Throw new Exception(implode("\n", $temp_result['error']));
+					Throw new \Exception(implode("\n", $temp_result['error']));
 				}
 				// mark original up migration as rolled back
 				if ($type == 'down') {
@@ -275,21 +275,21 @@ abstract class Base {
 						]
 					]);
 					if (empty($temp)) {
-						Throw new Exception('Could not find original up migration!');
+						Throw new \Exception('Could not find original up migration!');
 					}
 					$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge([
 						'sm_migration_id' => key($temp),
 						'sm_migration_rolled_back' => 1
 					]);
 					if (!$temp_result['success']) {
-						Throw new Exception(implode("\n", $temp_result['error']));
+						Throw new \Exception(implode("\n", $temp_result['error']));
 					}
 				}
 			}
 			$this->db_object->commit();
 			$result['success'] = true;
 			$result['permissions'] = $this->new_objects;
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$result['error'][] = "Migration type: {$type} failed - " . $e->getMessage();
 			// manual rollback for MySQL
 			// todo
@@ -308,12 +308,12 @@ abstract class Base {
 						$old_stats['sm_migration_rolled_back'] = 1;
 						$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->mergeMultiple([$old_stats, $this->executed_migration_stats]);
 						if (!$temp_result['success']) {
-							Throw new Exception(implode("\n", $temp_result['error']));
+							Throw new \Exception(implode("\n", $temp_result['error']));
 						}
 					}
 					$this->db_object->commit();
 					$result['error'][] = "Type: down rollback completed!";
-				} catch(Exception $e2) {
+				} catch(\Exception $e2) {
 					$this->db_object->rollback();
 					$result['error'][] = "Type: down rollback failed - " . $e2->getMessage();
 				}

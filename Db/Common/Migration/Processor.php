@@ -267,7 +267,7 @@ class Processor {
 				$ddl->objectAdd($object, $options['db_link']);
 				break;
 			default:
-				Throw new Exception("Migration object type {$object['type']} ?");
+				Throw new \Exception("Migration object type {$object['type']} ?");
 		}
 		if (empty($result['error'])) {
 			$result['success'] = true;

@@ -1054,6 +1054,19 @@ class DDL {
 			}
 		}
 
+		// we need to process primary and unique constraints first
+		if (!empty($result['up']['new_constraints'])) {
+			$temp_pks_and_uniques = $temp_fks = [];
+			foreach ($result['up']['new_constraints'] as $k => $v) {
+				if ($v['data']['type'] == 'fk') { // fk goes last
+					$temp_fks[$k] = $v;
+				} else {
+					$temp_pks_and_uniques[$k] = $v;
+				}
+			}
+			$result['up']['new_constraints'] = array_merge($temp_pks_and_uniques, $temp_fks);
+		}
+
 		// final step clean up empty keys
 		foreach (['up', 'down'] as $k0) {
 			foreach ($result[$k0] as $k => $v) {
