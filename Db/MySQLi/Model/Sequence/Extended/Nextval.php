@@ -9,6 +9,8 @@ class Nextval extends \Object\Function2 {
 	public $backend = 'MySQLi';
 	public $header = 'nextval_extended(sequence_name varchar(255), tenant_id integer, module_id integer)';
 	public $definition = 'CREATE FUNCTION nextval_extended(sequence_name varchar(255), tenant_id integer, module_id integer) RETURNS BIGINT
+READS SQL DATA
+DETERMINISTIC
 BEGIN
 	DECLARE result BIGINT;
 	SELECT sm_sequence_counter INTO result FROM sm_sequence_extended WHERE sm_sequence_name = sequence_name AND sm_sequence_tenant_id = tenant_id AND sm_sequence_module_id = module_id;
