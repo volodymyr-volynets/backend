@@ -75,7 +75,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				'sm_session_expires' => \Format::now('timestamp', ['add_seconds' => \Session::$default_options['gc_maxlifetime']]),
 				'sm_session_last_requested' => \Format::now('timestamp'),
 				'sm_session_pages_count;=;~~' => 'sm_session_pages_count + ' . $inc,
-				'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
+				'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'] ?? \Request::ip(),
 				'sm_session_user_id' => \User::id() ?? 0,
 				'sm_session_tenant_id' => \Tenant::id(),
 				'sm_session_data' => $data
@@ -102,7 +102,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 					'sm_session_expires' => \Format::now('timestamp', ['add_seconds' => \Session::$default_options['gc_maxlifetime']]),
 					'sm_session_last_requested' => \Format::now('timestamp'),
 					'sm_session_pages_count' => $inc,
-					'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'],
+					'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip']  ?? \Request::ip(),
 					'sm_session_user_id' => \User::id() ?? 0,
 					'sm_session_tenant_id' => \Tenant::id(),
 					'sm_session_data' => $data
