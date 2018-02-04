@@ -533,7 +533,7 @@ TTT;
 						$result = "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} FOREIGN KEY (" . implode(", ", $data['data']['columns']) . ") REFERENCES {$data['data']['foreign_table']} (" . implode(", ", $data['data']['foreign_columns']) . ") ON UPDATE " . strtoupper($data['data']['options']['update'] ?? 'NO ACTION') . " ON DELETE " . strtoupper($data['data']['options']['delete'] ?? 'NO ACTION') . ";";
 						break;
 					default:
-						Throw new Exception($data['data']['type'] . '?');
+						Throw new \Exception($data['data']['type'] . '?');
 				}
 				break;
 			case 'constraint_delete':
@@ -624,7 +624,7 @@ TTT;
 				break;
 			default:
 				// nothing
-				Throw new Exception($type . '?');
+				Throw new \Exception($type . '?');
 		}
 		return $result;
 	}
