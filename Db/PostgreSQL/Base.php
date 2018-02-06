@@ -127,7 +127,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		];
 		// if query caching is enabled
 		if (!empty($this->options['cache_link'])) {
-			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'Db_Query_' . sha1($sql . serialize($key));
+			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'Db_Query_' . trim(sha1($sql . serialize($key)));
 			// if we cache this query
 			if (!empty($options['cache'])) {
 				$cache_object = new \Cache($this->options['cache_link']);
@@ -142,6 +142,10 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			}
 		} else {
 			$options['cache'] = false;
+		}
+		// check connection
+		if (pg_connection_status($this->db_resource) === PGSQL_CONNECTION_BAD) {
+			pg_connection_reset($this->db_resource);
 		}
 		// quering
 		$resource = pg_query($this->db_resource, $sql);

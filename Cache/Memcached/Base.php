@@ -137,7 +137,7 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 				$query->where('AND', ['a.sm_memcached_cache_id', 'IN', array_keys($v)]);
 			});
 		}
-		$delete_query->query(null, ['cache' => false]);
+		$delete_result = $delete_query->query(null, ['cache' => false]);
 		// insert new tags
 		$values = [];
 		$hash = [];
@@ -162,7 +162,7 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 			'sm_memcached_tag'
 		]);
 		$insert_query->values($values);
-		$insert_query->query(null, ['cache' => false]);
+		$insert_result = $insert_query->query(null, ['cache' => false]);
 		// commit
 		$model->db_object->commit();
 		// a must to zero out
