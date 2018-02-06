@@ -541,7 +541,10 @@ TTT;
 				if ($data['data']['type'] == 'pk') {
 					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP PRIMARY KEY;";
 				} else if ($data['data']['type'] == 'fk') {
-					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP FOREIGN KEY {$data['name']};";
+					$result = [
+						"ALTER TABLE {$data['data']['full_table_name']} DROP FOREIGN KEY {$data['name']};",
+						"ALTER TABLE {$data['data']['full_table_name']} DROP INDEX {$data['name']};"
+					];
 				} else if ($data['data']['type'] == 'unique') {
 					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP INDEX {$data['name']};";
 				}
