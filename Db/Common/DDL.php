@@ -100,11 +100,26 @@ class DDL {
 	public function processTableModel($model_class, $options = []) {
 		$result = [
 			'success' => false,
-			'error' => []
+			'error' => [],
+			'hint' => []
 		];
 		do {
 			// model
 			$model = is_object($model_class) ? $model_class : \Factory::model($model_class, true, $options);
+			// acl
+			if (!empty($model->acl)) {
+				$not_found = false;
+				foreach ($model->acl as $v) {
+					if (!\Application::get("dep.submodule.{$v}")) {
+						$not_found = true;
+					}
+				}
+				if ($not_found) {
+					$result['hint'] = 'Skipped due to ACL!';
+					$result['success'] = true;
+					break;
+				}
+			}
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
@@ -355,6 +370,17 @@ class DDL {
 				'name' => $model->name,
 				'backend' => $model->backend
 			], $model->db_link);
+			// add schema
+			if (!empty($model->schema) && $model->schema != 'pg_catalog') {
+				$this->objectAdd([
+					'type' => 'schema',
+					'name' => $model->schema,
+					'data' => [
+						'owner' => $options['db_schema_owner'] ?? null,
+						'name' => $model->schema
+					]
+				], $model->db_link);
+			}
 			// if we got here - we are ok
 			$result['success'] = true;
 		} while(0);
@@ -399,12 +425,12 @@ class DDL {
 		$result['up']['delete_sequences'] = []; // before tables
 		$result['up']['delete_columns'] = [];
 		$result['up']['delete_tables'] = [];
-		$result['up']['delete_schemas'] = [];
-		$result['up']['delete_extensions'] = []; // last
+		$result['up']['delete_extensions'] = [];
+		$result['up']['delete_schemas'] = []; // last
 		// new/change second
-		$result['up']['new_extensions'] = []; // first
-		$result['up']['new_schemas'] = [];
+		$result['up']['new_schemas'] = []; // first
 		$result['up']['new_schema_owners'] = [];
+		$result['up']['new_extensions'] = []; // after schema
 		$result['up']['new_tables'] = []; // after schemas
 		$result['up']['new_table_owners'] = [];
 		$result['up']['new_table_engines'] = []; // todo
@@ -423,53 +449,6 @@ class DDL {
 		//$result['up']['change_triggers'] = [];
 		// preset reverse array
 		$result['down'] = $result['up'];
-
-		// add extension
-		if (!empty($obj_master['extension'])) {
-			foreach ($obj_master['extension'] as $k => $v) {
-				// in schema mode we skip not related extensions
-				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
-				foreach ($v as $k2 => $v2) {
-					foreach ($v2 as $k3 => $v3) {
-						// extension must be present
-						if (empty($obj_slave['extension'][$k][$k2][$k3])) {
-							$v3['migration_id'] = $result['count'] + 1;
-							// up
-							$v3['type'] = 'extension_new';
-							$result['up']['new_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
-							// down
-							$v3['type'] = 'extension_delete';
-							$result['down']['delete_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
-							// count
-							$result['count']++;
-						}
-					}
-				}
-			}
-		}
-
-		// delete extensions
-		if (!empty($obj_slave['extension'])) {
-			foreach ($obj_slave['extension'] as $k => $v) {
-				// in schema mode we skip not related extensions
-				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
-				foreach ($v as $k2 => $v2) {
-					foreach ($v2 as $k3 => $v3) {
-						if (empty($obj_master['extension'][$k][$k2][$k3])) {
-							$v3['migration_id'] = $result['count'] + 1;
-							// up
-							$v3['type'] = 'extension_delete';
-							$result['up']['delete_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
-							// down
-							$v3['type'] = 'extension_new';
-							$result['down']['new_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
-							// count
-							$result['count']++;
-						}
-					}
-				}
-			}
-		}
 
 		// new schemas
 		if (!empty($obj_master['schema'])) {
@@ -521,6 +500,53 @@ class DDL {
 					$result['down']['new_schemas'][$k] = $v;
 					// count
 					$result['count']++;
+				}
+			}
+		}
+
+		// add extension
+		if (!empty($obj_master['extension'])) {
+			foreach ($obj_master['extension'] as $k => $v) {
+				// in schema mode we skip not related extensions
+				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
+				foreach ($v as $k2 => $v2) {
+					foreach ($v2 as $k3 => $v3) {
+						// extension must be present
+						if (empty($obj_slave['extension'][$k][$k2][$k3])) {
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'extension_new';
+							$result['up']['new_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// down
+							$v3['type'] = 'extension_delete';
+							$result['down']['delete_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// count
+							$result['count']++;
+						}
+					}
+				}
+			}
+		}
+
+		// delete extensions
+		if (!empty($obj_slave['extension'])) {
+			foreach ($obj_slave['extension'] as $k => $v) {
+				// in schema mode we skip not related extensions
+				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
+				foreach ($v as $k2 => $v2) {
+					foreach ($v2 as $k3 => $v3) {
+						if (empty($obj_master['extension'][$k][$k2][$k3])) {
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'extension_delete';
+							$result['up']['delete_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// down
+							$v3['type'] = 'extension_new';
+							$result['down']['new_extensions'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// count
+							$result['count']++;
+						}
+					}
 				}
 			}
 		}

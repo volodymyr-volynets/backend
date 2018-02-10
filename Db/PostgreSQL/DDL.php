@@ -208,7 +208,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 												'full_table_name' => $full_table_name
 											];
 										} else {
-											print_r($v5);
+											print_r2($v5);
 											exit;
 										}
 										// add constraint
@@ -391,7 +391,7 @@ TTT;
 								INNER JOIN pg_am f ON f.oid = i.relam
 								WHERE b.indisprimary != true
 									AND b.indisunique != true
-									AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+									AND n.nspname NOT IN ('pg_catalog', 'information_schema', 'extensions')
 								ORDER BY table_name, constraint_name, column_position
 							) v
 							GROUP BY v.schema_name, v.table_name, v.constraint_name
@@ -428,6 +428,7 @@ TTT;
 										AND kc.table_schema = tc.table_schema
 										AND kc.constraint_name = tc.constraint_name
 										AND tc.constraint_type IN ('PRIMARY KEY', 'UNIQUE')
+										AND kc.table_schema NOT IN ('extensions')
 								ORDER BY schema_name, table_name, constraint_name, kc.ordinal_position ASC
 							) a
 							GROUP BY schema_name, table_name, constraint_name
@@ -468,115 +469,36 @@ TTT;
 								JOIN (
 									SELECT * FROM information_schema.key_column_usage ORDER BY ordinal_position ASC
 								) y ON y.ordinal_position = x.position_in_unique_constraint AND y.constraint_name = c.unique_constraint_name
+								WHERE x.table_schema NOT IN ('extensions')
 								ORDER BY schema_name, table_name, constraint_name, foreign_schema_name, foreign_table_name, x.ordinal_position ASC
 							) a
 							GROUP BY schema_name, table_name, constraint_name, foreign_schema_name, foreign_table_name
-
-							UNION ALL
-
-							SELECT
-								'CHECK' constraint_type,
-								n.nspname schema_name,
-								r.relname table_name,
-								c.conname constraint_name,
-								'' index_type,
-								'{}'::text[] column_names,
-								'' foreign_schema_name,
-								'' foreign_table_name,
-								'{}'::text[] foreign_column_names,
-								c.consrc match_option,
-								null update_rule,
-								null delete_rule
-							FROM pg_class r, pg_constraint c, pg_namespace n, pg_class i
-							WHERE r.oid = c.conrelid
-								AND c.contype = 'c'
-								AND n.oid = r.relnamespace
 					) a
 TTT;
 				break;
 			 case 'columns':
 				$key = array('schema_name', 'table_name', 'column_name');
 				$sql = <<<TTT
-					SELECT 
-							b.table_schema schema_name,
-							b.table_name table_name,
-							c.tableowner table_owner,
-							a.column_name column_name,
-							a.data_type "type",
-							CASE WHEN a.is_nullable = 'NO' THEN 0 ELSE 1 END "null",
-							a.column_default "default",
-							a.character_maximum_length "length",
-							coalesce(a.numeric_precision, a.datetime_precision) "precision",
-							a.numeric_scale "scale"
+					SELECT
+						b.table_schema schema_name,
+						b.table_name table_name,
+						c.tableowner table_owner,
+						a.column_name column_name,
+						CASE WHEN a.data_type <> 'USER-DEFINED' THEN a.data_type ELSE a.udt_name END "type",
+						CASE WHEN a.is_nullable = 'NO' THEN 0 ELSE 1 END "null",
+						a.column_default "default",
+						a.character_maximum_length "length",
+						coalesce(a.numeric_precision, a.datetime_precision) "precision",
+						a.numeric_scale "scale"
 					FROM information_schema.columns a
 					LEFT JOIN information_schema.tables b ON a.table_schema = b.table_schema AND a.table_name = b.table_name
 					LEFT JOIN pg_tables c ON a.table_schema = c.schemaname AND a.table_name = c.tablename
 					WHERE 1=1
-							AND b.table_schema NOT IN ('pg_catalog', 'information_schema')
-							AND b.table_type = 'BASE TABLE'
+						AND b.table_schema NOT IN ('pg_catalog', 'information_schema', 'extensions')
+						AND b.table_type = 'BASE TABLE'
 					ORDER BY b.table_schema, b.table_name, a.ordinal_position
 TTT;
 				break;
-/*
-			case 'views':
-				$key = array('schema_name', 'view_name');
-				$sql = <<<TTT
-					SELECT
-							schemaname schema_name,
-							viewname view_name,
-							viewowner view_owner,
-							definition view_definition
-					FROM pg_views 
-					WHERE 1=1
-							AND schemaname NOT IN('information_schema', 'pg_catalog')
-TTT;
-				break;
-*/
-/*
-			case 'domains':
-				$key = array('schema_name', 'domain_name');
-				$sql = <<<TTT
-					SELECT 
-							a.domain_schema schema_name,
-							a.domain_name domain_name,
-							a.data_type data_type,
-							CASE WHEN b.typnotnull = 't' THEN 'NOT NULL' ELSE '' END is_nullable,
-							a.domain_default domain_default,
-							a.character_maximum_length character_maximum_length,
-							a.numeric_precision numeric_precision,
-							a.numeric_scale numeric_scale,
-							a.udt_name data_type_udt,
-							c.constraint_name constraint_name,
-							c.constraint_definition constraint_definition,
-							b.rolname domain_owner
-					FROM information_schema.domains a
-					LEFT JOIN (
-							SELECT 
-									n.nspname schema_name,
-									pg_catalog.format_type(t.oid, NULL) type_name,
-									t.typnotnull,
-									x.rolname,
-									t.typowner
-							FROM pg_catalog.pg_type t
-							LEFT JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
-							LEFT JOIN pg_catalog.pg_authid x ON x.oid = t.typowner
-					) b ON a.domain_schema = b.schema_name AND b.type_name = (case when b.schema_name='public' then a.domain_name ELSE b.schema_name || '.' || a.domain_name END)
-					LEFT JOIN (
-							SELECT 
-									s.nspname as schema_name, 
-									pg_type.typname as domain_name,
-									array_agg(c.conname) constraint_name,
-									array_agg(pg_get_constraintdef(c.oid)) AS constraint_definition
-							FROM (SELECT oid,* FROM pg_constraint WHERE contypid>0) as c
-							LEFT JOIN pg_type ON pg_type.oid = c.contypid
-							JOIN pg_namespace s ON s.oid = c.connamespace
-							WHERE s.nspname NOT IN ('information_schema', 'pg_catalog')
-							GROUP BY s.nspname, pg_type.typname
-					) c ON a.domain_schema = c.schema_name AND c.domain_name = a.domain_name
-					WHERE domain_schema NOT IN ('information_schema', 'pg_catalog')
-TTT;
-				break;
-*/
 			case 'sequences':
 				$key = array('schema_name', 'sequence_name');
 				$sql = <<<TTT
@@ -593,38 +515,6 @@ TTT;
 					LEFT JOIN pg_namespace s1 ON s1.oid = t.relnamespace
 					WHERE a.relkind = 'S'
 TTT;
-/**
-					SELECT
-							s.nspname schema_name,
-							c.relname sequence_name,
-							c.rolname sequence_owner,
-							null "type",
-							null prefix,
-							0 length,
-							null suffix
-					FROM (
-							SELECT 
-									a.oid,
-									a.relnamespace, 
-									a.relname,
-									r.rolname
-							FROM pg_class a
-							INNER JOIN pg_catalog.pg_roles r ON r.oid = a.relowner
-							WHERE a.relkind = 'S'
-					) c
-					LEFT JOIN pg_namespace s ON s.oid = c.relnamespace
-					WHERE 1=1
-						AND s.nspname || '.' || c.relname NOT IN (
-							SELECT
-								n.nspname || '.' || s.relname sequence_name
-							FROM pg_class s
-							INNER JOIN pg_depend d ON d.objid = s.oid
-							INNER JOIN pg_class t ON d.objid = s.oid AND d.refobjid = t.oid
-							INNER JOIN pg_attribute a ON (d.refobjid, d.refobjsubid) = (a.attrelid, a.attnum)
-							INNER JOIN pg_namespace n ON n.oid = s.relnamespace
-							WHERE s.relkind = 'S'
-						)
-*/
 				break;
 			case 'functions':
 				$key = array('schema_name', 'function_name');
@@ -639,7 +529,7 @@ TTT;
 					INNER JOIN pg_catalog.pg_roles r ON r.oid = p.proowner
 					LEFT JOIN pg_catalog.pg_namespace n ON p.pronamespace = n.oid
 					WHERE 1=1
-							AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+							AND n.nspname NOT IN ('pg_catalog', 'information_schema', 'extensions')
 							AND p.proisagg = 'f'
 TTT;
 				break;
@@ -653,24 +543,6 @@ TTT;
 					LEFT JOIN pg_catalog.pg_namespace n ON a.extnamespace = n.oid
 TTT;
 				break;
-
-/*
-			case 'triggers':
-				$key = array('schema_name', 'table_name', 'trigger_name');
-				$sql = <<<TTT
-					SELECT
-							n.nspname schema_name,
-							b.relname table_name,
-							a.tgname trigger_name,
-							pg_get_triggerdef(a.oid) trigger_definition
-					FROM pg_trigger a
-					LEFT JOIN pg_class b ON a.tgrelid = b.oid
-					LEFT JOIN pg_namespace n ON n.oid = b.relnamespace
-					WHERE 1=1
-							AND tgisinternal = 'f'
-TTT;
-				break;
-*/
 			default:
 				Throw new Exception('type?');
 		}
@@ -704,7 +576,12 @@ TTT;
 		switch ($type) {
 			// extension
 			case 'extension_new':
-				$result = "CREATE EXTENSION {$data['name']} SCHEMA {$data['schema']};";
+				$result = "CREATE EXTENSION {$data['name']}";
+				if (!empty($data['schema'])) {
+					$result.= " SCHEMA {$data['schema']};";
+				} else {
+					$result.= ';';
+				}
 				break;
 			case 'extension_delete':
 				$result = "DROP EXTENSION {$data['name']};";

@@ -113,7 +113,12 @@ class Base {
 			$key = $temp[0];
 			$operator = !empty($temp[1]) ? $temp[1] : '=';
 			if (is_string($v)) {
-				$result[] = "'" . $this->escape($v) . "'";
+				// geometry
+				if (strpos($v, 'ST_GeomFromText') === 0) {
+					$result[] = $v;
+				} else {
+					$result[] = "'" . $this->escape($v) . "'";
+				}
 			} else if ((isset($temp[2]) && $temp[2] == '~~') || is_numeric($v)) {
 				$result[] = $v;
 			} else if (is_null($v)) {
@@ -216,7 +221,12 @@ class Base {
 						if ($as_is) {
 							// do not remove it !!!
 						} else if (is_string($v)) {
-							$v = "'" . $this->escape($v) . "'";
+							// geometry
+							if (strpos($v, 'ST_GeomFromText') === 0) {
+								// nothing
+							} else {
+								$v = "'" . $this->escape($v) . "'";
+							}
 						} else if (is_numeric($v)) {
 							// no changes
 						} else if (is_null($v)) {

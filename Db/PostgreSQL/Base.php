@@ -403,6 +403,12 @@ TTT;
 				}
 				$result = implode(' || ', $result);
 				break;
+			case 'ST_Point':
+				$result = "ST_Point({$options['latitude']}, {$options['longitude']})";
+				break;
+			case 'ST_Contains':
+				$result = "ST_Contains({$options['from']}, {$options['to']})";
+				break;
 			default:
 				Throw new \Exception('Statement?');
 		}
