@@ -161,6 +161,22 @@ class Import extends \Object\Import {
 					'sm_action_inactive' => 0
 				],
 				[
+					'sm_action_id' => 2300,
+					'sm_action_code' => 'Record_View_Service_Script',
+					'sm_action_name' => 'View Service Script',
+					'sm_action_icon' => 'fas fa-question-circle',
+					'sm_action_parent_action_id' => 2020,
+					'sm_action_inactive' => 0
+				],
+				[
+					'sm_action_id' => 2310,
+					'sm_action_code' => 'Record_Execute_Service_Script',
+					'sm_action_name' => 'Execute Service Script',
+					'sm_action_icon' => 'fas fa-question-circle',
+					'sm_action_parent_action_id' => 2300,
+					'sm_action_inactive' => 0
+				],
+				[
 					'sm_action_id' => 2900,
 					'sm_action_code' => 'Record_TreeView',
 					'sm_action_name' => 'Tree View',
