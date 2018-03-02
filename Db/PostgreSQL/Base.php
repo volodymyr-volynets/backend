@@ -415,6 +415,18 @@ TTT;
 			case 'ST_Contains':
 				$result = "ST_Contains({$options['from']}, {$options['to']})";
 				break;
+			case 'distance_in_meters':
+				if (!isset($options['latitude_1'])) $options['latitude_1'] = 0;
+				if (!isset($options['longitude_1'])) $options['longitude_1'] = 0;
+				if (!isset($options['latitude_2'])) $options['latitude_2'] = 0;
+				if (!isset($options['longitude_2'])) $options['longitude_2'] = 0;
+				// use geo extension
+				if (\Can::submoduleExists('Numbers.Backend.Db.Extension.PostgreSQL.PostGIS')) {
+					$result = "ST_Distance(ST_Point({$options['latitude_1']}, {$options['longitude_1']}), ST_Point({$options['latitude_2']}, {$options['longitude_2']}), true)";
+				} else {
+					$result = "(ACOS(SIN({$options['latitude_1']}) * SIN({$options['latitude_2']}) + COS({$options['latitude_1']}) * COS({$options['latitude_2']}) * COS({$options['longitude_2']} - {$options['longitude_1']})) * 6378.70)";
+				}
+				break;
 			default:
 				Throw new \Exception('Statement?');
 		}
