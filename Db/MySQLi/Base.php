@@ -403,6 +403,11 @@ TTT;
 				}
 				$result = 'CONCAT(' . implode(', ', $result) . ')';
 				break;
+			case 'random':
+				if (empty($options['min'])) $options['min'] = 1000;
+				if (empty($options['max'])) $options['max'] = 9999;
+				$result = "FLOOR({$options['min']} + RAND() * ({$options['max']} - {$options['min']}))";
+				break;
 			default:
 				Throw new \Exception('Statement?');
 		}

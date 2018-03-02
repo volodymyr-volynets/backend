@@ -403,6 +403,12 @@ TTT;
 				}
 				$result = implode(' || ', $result);
 				break;
+			case 'random':
+				if (empty($options['min'])) $options['min'] = 1000;
+				if (empty($options['max'])) $options['max'] = 9999;
+				$result = "({$options['min']} + RANDOM() * ({$options['max']} - {$options['min']}))::integer";
+				break;
+			// geo functions
 			case 'ST_Point':
 				$result = "ST_Point({$options['latitude']}, {$options['longitude']})";
 				break;
