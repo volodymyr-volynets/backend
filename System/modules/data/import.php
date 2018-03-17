@@ -177,6 +177,22 @@ class Import extends \Object\Import {
 					'sm_action_inactive' => 0
 				],
 				[
+					'sm_action_id' => 2400,
+					'sm_action_code' => 'Record_View_Owners',
+					'sm_action_name' => 'View Owners',
+					'sm_action_icon' => 'far fa-user',
+					'sm_action_parent_action_id' => 2020,
+					'sm_action_inactive' => 0
+				],
+				[
+					'sm_action_id' => 2410,
+					'sm_action_code' => 'Record_Execute_Owners',
+					'sm_action_name' => 'Execute Owners',
+					'sm_action_icon' => 'far fa-user',
+					'sm_action_parent_action_id' => 2400,
+					'sm_action_inactive' => 0
+				],
+				[
 					'sm_action_id' => 2900,
 					'sm_action_code' => 'Record_TreeView',
 					'sm_action_name' => 'Tree View',
