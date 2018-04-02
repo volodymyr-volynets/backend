@@ -23,6 +23,15 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	];
 
 	/**
+	 * Column overrides
+	 *
+	 * @var array
+	 */
+	public $sql_column_overrides = [
+		'geometry' => 'ST_AsGeoJSON'
+	];
+
+	/**
 	 * Backend
 	 *
 	 * @var string

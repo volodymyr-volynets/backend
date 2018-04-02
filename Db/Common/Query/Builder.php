@@ -579,4 +579,21 @@ class Builder {
 		}
 		return implode("\n", $temp);
 	}
+
+	/**
+	 * Override columns
+	 *
+	 * @param array $columns
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function columnOverrides(array $columns) : \Numbers\Backend\Db\Common\Query\Builder {
+		foreach ($columns as $k => $v) {
+			if (!empty($this->db_object->object->sql_column_overrides[$v['type']])) {
+				$this->columns([
+					$k . '__' . $v['type'] => $this->db_object->object->sql_column_overrides[$v['type']] . '(' . $k . ')'
+				]);
+			}
+		}
+		return $this;
+	}
 }
