@@ -605,6 +605,8 @@ TTT;
 			case 'function_delete':
 				$result = "DROP FUNCTION {$data['data']['full_function_name']};";
 				break;
+			case 'function_owner':
+				break;
 			// trigger
 			case 'trigger_new':
 				$result.= trim($data['definition']) . ";";
