@@ -617,13 +617,13 @@ TTT;
 				//$result = "GRANT USAGE ON SCHEMA {$data['schema']} TO {$data['owner']};";
 				break;
 			case 'permission_grant_table':
-				$result = "GRANT SELECT, INSERT, UPDATE, DELETE ON {$data['database']}.{$data['table']} TO {$data['owner']};";
+				$result = "GRANT SELECT, INSERT, UPDATE, DELETE ON {$data['database']}.{$data['table']} TO '{$data['owner']}';";
 				break;
 			case 'permission_grant_sequence':
 				//$result = "GRANT USAGE, SELECT, UPDATE ON SEQUENCE {$data['sequence']} TO {$data['owner']};";
 				break;
 			case 'permission_grant_function':
-				$result = "GRANT EXECUTE ON FUNCTION {$data['database']}.{$data['function']} TO {$data['owner']};";
+				$result = "GRANT EXECUTE ON FUNCTION {$data['database']}.{$data['function']} TO '{$data['owner']}';";
 				break;
 			default:
 				// nothing
