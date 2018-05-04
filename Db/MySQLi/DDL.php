@@ -510,6 +510,9 @@ TTT;
 			case 'table_delete':
 				$result = "DROP TABLE {$data['data']['full_table_name']} CASCADE;";
 				break;
+			case 'table_owner':
+				// nothing
+				break;
 			// view
 			case 'view_new':
 				$result = "CREATE OR REPLACE VIEW {$data['name']} AS {$data['definition']}\nALTER VIEW {$data['name']} OWNER TO {$data['owner']};";
@@ -591,6 +594,9 @@ TTT;
 					$model = new \Numbers\Backend\Db\Common\Model\Sequences();
 					$result[]= "DELETE FROM {$model->full_table_name} WHERE sm_sequence_name = '{$data['data']['full_sequence_name']}'";
 				}
+				break;
+			case 'sequence_owner':
+				// nothing
 				break;
 			// functions
 			case 'function_new':
