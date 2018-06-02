@@ -14,6 +14,8 @@ class Types extends \Object\Data {
 	public $data = [
 		// controllers
 		100 => ['sm_rsrctype_name' => 'Controllers'],
+		// APIs
+		150 => ['sm_rsrctype_name' => 'APIs'],
 		// menu
 		200 => ['sm_rsrctype_name' => 'Main Menu - Left Side'],
 		210 => ['sm_rsrctype_name' => 'Main Menu - Right Side'],
