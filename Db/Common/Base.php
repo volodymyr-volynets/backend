@@ -123,6 +123,8 @@ class Base {
 				$result[] = $v;
 			} else if (is_null($v)) {
 				$result[] = 'NULL';
+			} else if (is_array($v)) {
+				$result[] = "'" . json_encode($v) . "'";
 			} else {
 				Throw new \Exception("Unknown data type: {$k}");
 			}
