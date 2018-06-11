@@ -47,7 +47,7 @@ class DDL {
 		} else if ($object['type'] == 'function_owner') {
 			$temp = str_replace('_owner', '', $object['type']);
 			$this->objects[$db_link][$temp][$object['backend']][$object['schema']][$object['name']]['data']['owner'] = $object['owner'];
-		} else if (in_array($object['type'], ['function', 'extension'])) { // backend specific objects
+		} else if (in_array($object['type'], ['function', 'extension', 'trigger'])) { // backend specific objects
 			$this->objects[$db_link][$object['type']][$object['backend']][$object['schema']][$object['name']] = $object;
 		}
 		$this->count[$db_link]['Total']++;
@@ -70,7 +70,7 @@ class DDL {
 			$type = ucwords(str_replace('_', ' ', $object['type'])) . '(s)';
 		}
 		// if based on object
-		if (in_array($object['type'], ['table', 'sequence', 'function', 'extension'])) {
+		if (in_array($object['type'], ['table', 'sequence', 'function', 'extension', 'trigger'])) {
 			// remove table
 			unset($this->objects[$db_link][$object['type']][$object['schema']][$object['name']]);
 			// remove constraints and indexes for this table
@@ -343,6 +343,47 @@ class DDL {
 	}
 
 	/**
+	 * Process trigger model
+	 *
+	 * @param string $model_class
+	 * @param array $options
+	 *		db_link
+	 * @return array
+	 */
+	public function processTriggerModel($model_class, $options = []) {
+		$result = [
+			'success' => false,
+			'error' => []
+		];
+		do {
+			// model
+			$model = \Factory::model($model_class, true);
+			// skip tables with different db_link
+			if ($model->db_link != ($options['db_link'] ?? 'default')) {
+				$result['success'] = true;
+				break;
+			}
+			// add object
+			$this->objectAdd([
+				'type' => 'trigger',
+				'schema' => $model->schema,
+				'name' => $model->name,
+				'backend' => $model->backend,
+				'data' => [
+					'owner' => $options['db_schema_owner'] ?? null,
+					'full_function_name' => $model->full_function_name,
+					'full_table_name' => $model->full_table_name,
+					'header' => $model->header,
+					'definition' => $model->definition
+				]
+			], $model->db_link);
+			// if we got here - we are ok
+			$result['success'] = true;
+		} while(0);
+		return $result;
+	}
+
+	/**
 	 * Process extension
 	 *
 	 * @param string $model_class
@@ -445,8 +486,7 @@ class DDL {
 		//$result['up']['new_view_owners'] = [];
 		$result['up']['new_functions'] = [];
 		$result['up']['new_function_owners'] = [];
-		//$result['up']['new_triggers'] = []; // after functions
-		//$result['up']['change_triggers'] = [];
+		$result['up']['new_triggers'] = []; // after functions
 		// preset reverse array
 		$result['down'] = $result['up'];
 
@@ -992,9 +1032,9 @@ class DDL {
 							}
 							if (!$good) {
 								// debug
-								//print_r2($v3['data']['definition']);
-								//print_r2($v3_old['data']['definition']);
-								//exit;
+//								print_r2($v3['data']['definition']);
+//								print_r2($v3_old['data']['definition']);
+//								exit;
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_old['migration_id'] = $result['count'] + 1;
 								// up
@@ -1062,6 +1102,82 @@ class DDL {
 			}
 		}
 
+		// new/change function
+		if (!empty($obj_master['trigger'])) {
+			foreach ($obj_master['trigger'] as $k => $v) {
+				// in schema mode we skip not related functions
+				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
+				foreach ($v as $k2 => $v2) {
+					foreach ($v2 as $k3 => $v3) {
+						// function must be present
+						if (empty($obj_slave['trigger'][$k][$k2][$k3])) {
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'trigger_new';
+							$result['up']['new_triggers'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// down
+							$v3['type'] = 'trigger_delete';
+							$result['down']['delete_triggers'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// count
+							$result['count']++;
+						} else { // function changed
+							// body
+							$v3_old = $obj_slave['trigger'][$k][$k2][$k3];
+							$good = false;
+							if (self::sanitizeFunction($v3['data']['definition']) == self::sanitizeFunction($v3_old['data']['definition'])) {
+								$good = true;
+							} else if (strpos($v3['data']['definition'], $v3_old['data']['definition']) !== false) {
+								$good = true;
+							}
+							if (!$good) {
+								// debug
+//								print_r2($v3['data']['definition']);
+//								print_r2($v3_old['data']['definition']);
+//								exit;
+								$v3['migration_id'] = $result['count'] + 1;
+								$v3_old['migration_id'] = $result['count'] + 1;
+								// up
+								$v3_old['type'] = 'trigger_delete';
+								$result['up']['delete_triggers'][$k . '.' . $k2 . '.' . $k3] = $v3_old;
+								$v3['type'] = 'trigger_new';
+								$result['up']['new_triggers'][$k . '.' . $k2 . '.' . $k3] = $v3;
+								// down
+								$v3['type'] = 'trigger_delete';
+								$result['down']['delete_triggers'][$k . '.' . $k2 . '.' . $k3] = $v3;
+								$v3_old['type'] = 'trigger_new';
+								$result['down']['new_triggers'][$k . '.' . $k2 . '.' . $k3] = $v3_old;
+								// count
+								$result['count']++;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// delete trigger
+		if (!empty($obj_slave['trigger'])) {
+			foreach ($obj_slave['trigger'] as $k => $v) {
+				// in schema mode we skip not related functions
+				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
+				foreach ($v as $k2 => $v2) {
+					foreach ($v2 as $k3 => $v3) {
+						if (empty($obj_master['trigger'][$k][$k2][$k3])) {
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'trigger_delete';
+							$result['up']['delete_triggers'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// down
+							$v3['type'] = 'trigger_new';
+							$result['down']['new_triggers'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// count
+							$result['count']++;
+						}
+					}
+				}
+			}
+		}
+
 		// if we delete tables there's no need to delete constrants and/or indexes
 		foreach (['up', 'down'] as $k0) {
 			foreach ($result[$k0]['delete_tables'] as $k => $v) {
@@ -1115,7 +1231,7 @@ class DDL {
 	 */
 	public static function sanitizeFunction($sql) {
 		$result = str_replace(['$BODY$', '$function$'], '$$$$$$', $sql);
-		return trim(str_replace([' ', "\n", "\r", "\t"], '', $result));
+		return trim(str_replace([' ', "\n", "\r", "\t", 'public.'], '', $result));
 	}
 
 	/**

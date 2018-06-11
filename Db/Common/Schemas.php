@@ -176,7 +176,11 @@ run_again:
 					if (!$temp_result['success']) {
 						array_merge3($result['error'], $temp_result['error']);
 					}
-					//$object_documentation[$v][$k2] = $k2;
+				} else if ($v == '\Object\Trigger') {
+					$temp_result = $ddl->processTriggerModel($k2, $options);
+					if (!$temp_result['success']) {
+						array_merge3($result['error'], $temp_result['error']);
+					}
 				} else if ($v == '\Object\Extension') {
 					$temp_result = $ddl->processExtensionModel($k2, $options);
 					if (!$temp_result['success']) {
@@ -186,7 +190,7 @@ run_again:
 				} else if ($v == '\Object\Import') {
 					$result['data']['\Object\Import'][$k2] = $k2;
 				} else {
-					Throw new Exception('Unknown type: ' . $v);
+					Throw new \Exception('Unknown type: ' . $v);
 				}
 			}
 			// if we have erros

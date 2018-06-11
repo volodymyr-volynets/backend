@@ -63,7 +63,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 			'count' => []
 		];
 		// getting information
-		foreach (array('extensions', 'schemas', 'columns', 'constraints', 'sequences', 'functions') as $v) { //'views', 'domains', 'triggers'
+		foreach (array('extensions', 'schemas', 'columns', 'constraints', 'sequences', 'functions', 'triggers') as $v) { //'views', 'domains', 'triggers'
 			$temp = $this->loadSchemaDetails($v, $db_link);
 			if (!$temp['success']) {
 				$result['error'] = array_merge($result['error'], $temp['error']);
@@ -305,6 +305,29 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 							}
 						}
 						break;
+					case 'triggers':
+						foreach ($temp['data'] as $k2 => $v2) {
+							if ($k2 == 'public') {
+								$k2 = '';
+							}
+							foreach ($v2 as $k3 => $v3) {
+								$full_function_name = ltrim($v3['schema_name'] . '.' . $v3['function_name'], '.');
+								// add object
+								$this->objectAdd([
+									'type' => 'trigger',
+									'schema' => $k2,
+									'name' => $k3,
+									'backend' => 'PostgreSQL',
+									'data' => [
+										'full_function_name' => $full_function_name,
+										'full_table_name' => $v3['full_table_name'],
+										'header' => $v3['full_function_name'],
+										'definition' => $v3['routine_definition']
+									]
+								], $db_link);
+							}
+						}
+						break;
 					default:
 						// nothing
 				}
@@ -533,6 +556,21 @@ TTT;
 							AND p.proisagg = 'f'
 TTT;
 				break;
+			case 'triggers':
+				$key = array('schema_name', 'function_name');
+				$sql = <<<TTT
+					SELECT
+						nspname schema_name,
+						tgname function_name,
+						tgname full_function_name,
+						pg_class.relname full_table_name,
+						pg_catalog.pg_get_triggerdef(pg_trigger.oid) routine_definition
+					FROM pg_catalog.pg_trigger
+					JOIN pg_catalog.pg_class on pg_trigger.tgrelid = pg_class.oid
+					JOIN pg_catalog.pg_namespace ON pg_namespace.oid=pg_class.relnamespace
+					WHERE pg_trigger.tgisinternal = false
+TTT;
+				break;
 			case 'extensions':
 				$key = array('schema_name', 'extension_name');
 				$sql = <<<TTT
@@ -751,15 +789,13 @@ TTT;
 				break;
 			// trigger
 			case 'trigger_new':
-				$result.= trim($data['definition']) . ";";
+				$result = [];
+				$result[]= $data['data']['definition'] . ";";
 				break;
 			case 'trigger_delete':
-				$result = "DROP TRIGGER {$data['name']} ON {$data['table']};";
+				$result = "DROP TRIGGER IF EXISTS {$data['data']['header']} ON {$data['data']['full_table_name']};";
 				break;
-			case 'trigger_change':
-				$result = "DROP TRIGGER {$data['name']} ON {$data['table']};\n";
-				$result.= trim($data['definition']) . ";";
-				break;
+			// permissions
 			case 'permission_revoke_all':
 				$result = "REVOKE ALL PRIVILEGES ON DATABASE {$data['database']} FROM {$data['owner']};";
 				break;
@@ -777,7 +813,7 @@ TTT;
 				break;
 			default:
 				// nothing
-				Throw new Exception($type . '?');
+				Throw new \Exception($type . '?');
 		}
 		return $result;
 	}
