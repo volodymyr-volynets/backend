@@ -79,8 +79,9 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 			'count' => []
 		];
 		$sequence_model = \Factory::model('\Numbers\Backend\Db\Common\Model\Sequences');
+		$db_object = new \Db($db_link);
 		// getting information
-		foreach (array('sequences', 'columns', 'constraints', 'functions') as $v) {
+		foreach (array('sequences', 'columns', 'constraints', 'functions', 'triggers') as $v) {
 			// we only load sequences if we have a sequence table
 			if ($v == 'sequences') {
 				if (!$sequence_model->dbPresent()) {
@@ -265,6 +266,30 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 							}
 						}
 						break;
+					case 'triggers':
+						foreach ($temp['data'] as $k2 => $v2) {
+							foreach ($v2 as $k3 => $v3) {
+								$full_function_name = ltrim($v3['schema_name'] . '.' . $v3['function_name'], '.');
+								// get definition
+								$definition = $db_object->query('SHOW CREATE TRIGGER ' . $full_function_name);
+								$temp = explode(' TRIGGER ', $definition['rows'][0]['SQL Original Statement']);
+								$definition = 'CREATE TRIGGER ' . $temp[1] . ';';
+								// add object
+								$this->objectAdd([
+									'type' => 'trigger',
+									'schema' => $k2,
+									'name' => $k3,
+									'backend' => 'MySQLi',
+									'data' => [
+										'full_function_name' => $full_function_name,
+										'full_table_name' => $v3['full_table_name'],
+										'header' => $v3['full_function_name'],
+										'definition' => $definition
+									]
+								], $db_link);
+							}
+						}
+						break;
 					default:
 						// nothing
 				}
@@ -424,6 +449,16 @@ TTT;
 					WHERE 1=1
 						AND routine_type = 'FUNCTION'
 						AND routine_schema = '{$database_name}'
+TTT;
+				break;
+			case 'triggers':
+				$key = array('schema_name', 'function_name');
+				$sql = <<<TTT
+					SELECT
+						CASE WHEN '{$database_name}' = trigger_schema THEN '' ELSE trigger_schema END schema_name,
+						trigger_name function_name
+					FROM INFORMATION_SCHEMA.TRIGGERS
+					WHERE trigger_schema = '{$database_name}'
 TTT;
 				break;
 			default:
@@ -609,14 +644,11 @@ TTT;
 				break;
 			// trigger
 			case 'trigger_new':
-				$result.= trim($data['definition']) . ";";
+				$result = trim($data['data']['definition']) . ";";
 				break;
 			case 'trigger_delete':
-				$result = "DROP TRIGGER {$data['name']} ON {$data['table']};";
-				break;
-			case 'trigger_change':
-				$result = "DROP TRIGGER {$data['name']} ON {$data['table']};\n";
-				$result.= trim($data['definition']) . ";";
+				$full_function_name = ltrim($data['schema'] . '.' . $data['name'], '.');
+				$result = "DROP TRIGGER {$full_function_name};";
 				break;
 			case 'permission_revoke_all':
 				//$result = "REVOKE ALL PRIVILEGES ON DATABASE {$data['database']} FROM {$data['owner']};";

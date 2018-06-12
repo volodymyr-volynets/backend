@@ -103,6 +103,7 @@ class Schemas {
 				break;
 			}
 			$ddl = new \Numbers\Backend\Db\Common\DDL();
+			$backend = \Factory::get(['db', $db_link, 'backend']);
 			// run 1 to deterine virtual tables
 			$first = true;
 			$virtual_models = $dep['data']['model_processed'];
@@ -201,7 +202,7 @@ run_again:
 			foreach ($ddl->objects as $k => $v) {
 				foreach ($v as $k2 => $v2) {
 					// skip objects that does not have owner
-					if (in_array($k2, ['constraint', 'index'])) continue;
+					if (in_array($k2, ['constraint', 'index', 'trigger'])) continue;
 					// loop through actual objects
 					foreach ($v2 as $k3 => $v3) {
 						if ($k2 == 'schema') {
@@ -209,6 +210,8 @@ run_again:
 						} else if ($k2 == 'function') { // we must pass header for function
 							foreach ($v3 as $k4 => $v4) {
 								foreach ($v4 as $k5 => $v5) {
+									// skip not these backends
+									if ($v5['backend'] != $backend) continue;
 									$name = ltrim($k4 . '.' . $k5, '.');
 									$result['permissions'][$k][$k2][$name] = $v5['data']['header'];
 								}

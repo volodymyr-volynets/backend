@@ -70,13 +70,15 @@ class DDL {
 			$type = ucwords(str_replace('_', ' ', $object['type'])) . '(s)';
 		}
 		// if based on object
-		if (in_array($object['type'], ['table', 'sequence', 'function', 'extension', 'trigger'])) {
+		if (in_array($object['type'], ['table', 'sequence'])) {
 			// remove table
 			unset($this->objects[$db_link][$object['type']][$object['schema']][$object['name']]);
 			// remove constraints and indexes for this table
 			foreach (['constraint', 'index'] as $v) {
 				unset($this->objects[$db_link][$v][$object['schema']][$object['name']]);
 			}
+		} else if (in_array($object['type'], ['function', 'extension', 'trigger'])) {
+			unset($this->objects[$db_link][$object['type']][$object['backend']][$object['schema']][$object['name']]);
 		} else if ($object['type'] == 'schema') {
 			unset($this->objects[$db_link][$object['type']][$object['name']]);
 		} else if ($object['type'] == 'constraint' || $object['type'] == 'index') {
@@ -370,7 +372,6 @@ class DDL {
 				'name' => $model->name,
 				'backend' => $model->backend,
 				'data' => [
-					'owner' => $options['db_schema_owner'] ?? null,
 					'full_function_name' => $model->full_function_name,
 					'full_table_name' => $model->full_table_name,
 					'header' => $model->header,
@@ -1102,7 +1103,7 @@ class DDL {
 			}
 		}
 
-		// new/change function
+		// new/change trigger
 		if (!empty($obj_master['trigger'])) {
 			foreach ($obj_master['trigger'] as $k => $v) {
 				// in schema mode we skip not related functions
@@ -1270,6 +1271,7 @@ class DDL {
 			'count' => 0
 		];
 		$options['mode'] = $options['mode'] ?? 'commit';
+		$backend = \Factory::get(['db', $db_link, 'backend']);
 		// process column sql_type for new tables
 		if (!empty($diff['new_tables'])) {
 			foreach ($diff['new_tables'] as $k => $v) {
@@ -1291,6 +1293,16 @@ class DDL {
 				$diff['change_columns'][$k]['data_old'] = $this->columnSqlType($v['data_old']);
 			}
 		}
+		// fixes for new triggers, functions and extensions
+		foreach (['new_triggers', 'new_functions', 'new_extensions'] as $k0) {
+			if (!empty($diff[$k0])) {
+				foreach ($diff[$k0] as $k => $v) {
+					if ($v['backend'] != $backend) {
+						unset($diff[$k0][$k]);
+					}
+				}
+			}
+		}
 		// generating sql
 		foreach ($diff as $k => $v) {
 			foreach ($v as $k2 => $v2) {
@@ -1304,7 +1316,6 @@ class DDL {
 		}
 		// if we are dropping we need to disable foregn key checks
 		if ($options['mode'] == 'drop') {
-			$backend = \Factory::get(['db', $db_link, 'backend']);
 			if ($backend == 'MySQLi') {
 				$diff = array_merge_hard([
 					'before_execution' => [

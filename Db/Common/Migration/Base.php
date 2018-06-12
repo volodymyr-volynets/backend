@@ -196,6 +196,12 @@ abstract class Base {
 			 * for now we would rollback entire migration_id
 			 */
 			if (!empty($sql_queries)) {
+				// we make sure we execute proper backend
+				if (!empty($data['backend'])) {
+					if ($data['backend'] != $this->db_object->backend) {
+						return;
+					}
+				}
 				// remember what ids we have executed
 				if (!empty($migration_id)) {
 					$this->executed_migration_ids[$migration_id] = $migration_id;
