@@ -22,6 +22,7 @@ class Schemas {
 			'db_list' => [],
 			'db_settings' => [],
 			'db_query_owner' => null, // insert, update, delete owner
+			'db_query_password' => null,
 			'db_schema_owner' => null, // schema owner
 			'app_structure' => []
 		];
@@ -39,6 +40,7 @@ class Schemas {
 			$result['db_settings'] = array_merge_hard($result['db_settings'], $temp);
 		}
 		$result['db_query_owner'] = $temp['username'];
+		$result['db_query_password'] = $temp['password'];
 		$result['db_schema_owner'] = $result['db_settings']['username'];
 		// if its a multi database we need to get a list of databases
 		$result['app_structure'] = \Application::get('application.structure');
@@ -52,14 +54,16 @@ class Schemas {
 			}
 			$result['db_list'] = [];
 			if (!empty($result['app_structure']['db_prefix'])) {
-				$sql = "SELECT * FROM (" . $db_object->sql_helper('fetch_databases') . ") a WHERE a.database_name LIKE '{$result['app_structure']['db_prefix']}%'";
+				$query = new \Object\Query\Builder($result['db_link'] . '_temp');
+				$query->select();
+				$query->from('(' . $db_object->sqlHelper('fetch_databases') . ')', 'a');
+				$query->where('AND', ['a.database_name', 'LIKE', "{$result['app_structure']['db_prefix']}%"]);
+				$temp = $query->query('database_name');
 			} else {
-				$sql = $db_object->sql_helper('fetch_databases');
+				$sql = $db_object->sqlHelper('fetch_databases');
+				$temp = $db_object->query($sql, 'database_name');
 			}
-			$temp = $db_object->query($sql);
-			foreach ($temp['rows'] as $v) {
-				$result['db_list'][] = $v['database_name'];
-			}
+			$result['db_list'] = array_keys($temp['rows']);
 		} else {
 			$result['db_list'] = [$result['db_settings']['dbname']];
 		}
@@ -103,7 +107,7 @@ class Schemas {
 				break;
 			}
 			$ddl = new \Numbers\Backend\Db\Common\DDL();
-			$backend = \Factory::get(['db', $db_link, 'backend']);
+			$backend = \Factory::get(['db', $options['db_link'], 'backend']);
 			// run 1 to deterine virtual tables
 			$first = true;
 			$virtual_models = $dep['data']['model_processed'];
@@ -182,12 +186,22 @@ run_again:
 					if (!$temp_result['success']) {
 						array_merge3($result['error'], $temp_result['error']);
 					}
+				} else if ($v == '\Object\View') {
+					$temp_result = $ddl->processViewModel($k2, $options);
+					if (!$temp_result['success']) {
+						array_merge3($result['error'], $temp_result['error']);
+					}
 				} else if ($v == '\Object\Extension') {
 					$temp_result = $ddl->processExtensionModel($k2, $options);
 					if (!$temp_result['success']) {
 						array_merge3($result['error'], $temp_result['error']);
 					}
 					//$object_documentation[$v][$k2] = $k2;
+				} else if ($v == '\Object\Schema') {
+					$temp_result = $ddl->processSchemaModel($k2, $options);
+					if (!$temp_result['success']) {
+						array_merge3($result['error'], $temp_result['error']);
+					}
 				} else if ($v == '\Object\Import') {
 					$result['data']['\Object\Import'][$k2] = $k2;
 				} else {
@@ -214,6 +228,15 @@ run_again:
 									if ($v5['backend'] != $backend) continue;
 									$name = ltrim($k4 . '.' . $k5, '.');
 									$result['permissions'][$k][$k2][$name] = $v5['data']['header'];
+								}
+							}
+						} else if ($k2 == 'view') { // view has grants
+							foreach ($v3 as $k4 => $v4) {
+								foreach ($v4 as $k5 => $v5) {
+									// skip not these backends
+									if ($v5['backend'] != $backend) continue;
+									$name = $v5['data']['full_view_name'];
+									$result['permissions'][$k][$k2][$name] = $v5['data']['grant_tables'];
 								}
 							}
 						} else {
@@ -307,9 +330,10 @@ run_again:
 		// generate hints
 		if ($result['success'] && $result['count'] > 0) {
 			foreach (['up', 'down'] as $k0) {
+				if ($options['type'] == 'schema' && $k0 == 'down') continue;
 				$result['hint'][] = '       * ' . $k0 . ':';
 				foreach ($result[$k0] as $k2 => $v2) {
-					$temp = '         * ' . $k2 . ': ';
+					$temp = '         * ' . $k2 . '(' . count($v2) . ')' . ': ';
 					$result['hint'][] = $temp;
 					$result['legend'][$k0][] = $temp;
 					foreach ($v2 as $k3 => $v3) {
@@ -347,6 +371,7 @@ run_again:
 		if (!empty($options['execute']) && $result['count'] > 0) {
 			$db_object = new \Db($db_link);
 			$db_object->begin();
+			$counter = 0;
 			foreach ($result['data'] as $v) {
 				$temp_result = $db_object->query($v);
 				if (!$temp_result['success']) {
@@ -354,6 +379,9 @@ run_again:
 					$db_object->rollback();
 					return $result;
 				}
+				$counter++;
+				// update progress bar
+				\Helper\Cmd::progressBar(50 + round($counter / $result['count'] * 100 / 4, 0), 100, 'Executing SQL changes');
 			}
 			// see if we have a migration table
 			$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
@@ -401,21 +429,24 @@ run_again:
 		// ddl object
 		$ddl_object = \Factory::get(['db', $db_link, 'ddl_object']);
 		$sqls = [];
-		// step 1: revoke all priviledges on database
-		$temp = $ddl_object->renderSql('permission_revoke_all', [
+		// database
+		$temp = $ddl_object->renderSql('permission_grant_database', [
 			'database' => $options['database'],
-			'owner' => $db_query_owner
+			'owner' => $db_query_owner,
+			'password' => $options['db_query_password'] ?? ''
 		]);
 		if (!empty($temp)) {
 			$sqls[] = $temp;
-			$result['legend'][] = "         * Revoke all privileges on database {$options['database']} from {$db_query_owner}";
+			$result['legend'][] = "         * Grant USAGE on database {$options['database']} to {$db_query_owner}";
 		}
-		// step 2: schemas
+		// schemas
 		if (!empty($objects['schema'])) {
 			foreach ($objects['schema'] as $v) {
 				$temp = $ddl_object->renderSql('permission_grant_schema', [
+					'database' => $options['database'],
 					'schema' => $v,
-					'owner' => $db_query_owner
+					'owner' => $db_query_owner,
+					'password' => $options['db_query_password'] ?? ''
 				]);
 				if (!empty($temp)) {
 					$sqls[] = $temp;
@@ -423,7 +454,7 @@ run_again:
 				}
 			}
 		}
-		// step 3: tables
+		// tables
 		if (!empty($objects['table'])) {
 			foreach ($objects['table'] as $v) {
 				$temp = $ddl_object->renderSql('permission_grant_table', [
@@ -437,7 +468,22 @@ run_again:
 				}
 			}
 		}
-		// step 4: sequences
+		// views
+		if (!empty($objects['view'])) {
+			foreach ($objects['view'] as $k => $v) {
+				$temp = $ddl_object->renderSql('permission_grant_view', [
+					'database' => $options['database'],
+					'view' => $k,
+					'grant_tables' => $v,
+					'owner' => $db_query_owner
+				]);
+				if (!empty($temp)) {
+					$sqls[] = $temp;
+					$result['legend'][] = "         * Grant SELECT on view {$k} to {$db_query_owner}";
+				}
+			}
+		}
+		// sequences
 		if (!empty($objects['sequence'])) {
 			foreach ($objects['sequence'] as $v) {
 				$temp = $ddl_object->renderSql('permission_grant_sequence', [
@@ -451,7 +497,7 @@ run_again:
 				}
 			}
 		}
-		// step 5: functions
+		// functions
 		if (!empty($objects['function'])) {
 			foreach ($objects['function'] as $k => $v) {
 				$temp = $ddl_object->renderSql('permission_grant_function', [
@@ -466,17 +512,29 @@ run_again:
 				}
 			}
 		}
+		// flush
+		$temp = $ddl_object->renderSql('permission_grant_flush', [
+			'database' => $options['database'],
+			'owner' => $db_query_owner
+		]);
+		if (!empty($temp)) {
+			$sqls[] = $temp;
+			$result['legend'][] = "         * Flush Privileges";
+		}
 		// if we have changes
 		if (!empty($sqls)) {
 			array_unshift($result['legend'], '       * permission:');
 			$db_object = new \Db($db_link);
 			$db_object->begin();
 			foreach ($sqls as $v) {
-				$temp_result = $db_object->query($v);
-				if (!$temp_result['success']) {
-					array_merge3($result['error'], $temp_result['error']);
-					$db_object->rollback();
-					return $result;
+				if (!is_array($v)) $v = [$v];
+				foreach ($v as $v2) {
+					$temp_result = $db_object->query($v2);
+					if (!$temp_result['success']) {
+						array_merge3($result['error'], $temp_result['error']);
+						$db_object->rollback();
+						return $result;
+					}
 				}
 			}
 			// see if we have a migration table

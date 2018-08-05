@@ -112,14 +112,15 @@ class Base {
 			$temp = explode(';', $k);
 			$key = $temp[0];
 			$operator = !empty($temp[1]) ? $temp[1] : '=';
-			if (is_string($v)) {
+			$as_is = !empty($temp[2]) && $temp[2] == '~~';
+			if (is_string($v) && !$as_is) {
 				// geometry
-				if (strpos($v, 'ST_GeomFromText') === 0) {
+				if (stripos($v, 'ST_GeomFromText') === 0) {
 					$result[] = $v;
 				} else {
 					$result[] = "'" . $this->escape($v) . "'";
 				}
-			} else if ((isset($temp[2]) && $temp[2] == '~~') || is_numeric($v)) {
+			} else if ($as_is || is_numeric($v)) {
 				$result[] = $v;
 			} else if (is_null($v)) {
 				$result[] = 'NULL';
@@ -224,7 +225,7 @@ class Base {
 							// do not remove it !!!
 						} else if (is_string($v)) {
 							// geometry
-							if (strpos($v, 'ST_GeomFromText') === 0) {
+							if (stripos($v, 'ST_GeomFromText') === 0) {
 								// nothing
 							} else {
 								$v = "'" . $this->escape($v) . "'";
@@ -301,11 +302,6 @@ class Base {
 			->delete()
 			->from($table)
 			->where('AND', $this->prepareCondition($where, 'AND'));
-		/*
-		if (!empty($options['returning'])) {
-			$query->returning();
-		}
-		*/
 		return $query->query($this->prepareKeys($keys), $options);
 	}
 
@@ -333,11 +329,6 @@ class Base {
 			->from($table)
 			->set($data)
 			->where('AND', $this->prepareCondition($where, 'AND'));
-		/*
-		if (!empty($options['returning'])) {
-			$query->returning();
-		}
-		*/
 		return $query->query($this->prepareKeys($keys), $options);
 	}
 
@@ -356,11 +347,6 @@ class Base {
 			->from($table)
 			->columns(array_keys(current($data)))
 			->values($data);
-		/*
-		if (!empty($options['returning'])) {
-			$query->returning();
-		}
-		*/
 		return $query->query($this->prepareKeys($keys), $options);
 	}
 
@@ -416,5 +402,42 @@ class Base {
 			$this->rollback();
 		}
 		return $result;
+	}
+
+	/**
+	 * Copy data directly into db, rows are key=>value pairs
+	 *
+	 * @param string $table
+	 * @param array $rows
+	 * @return array
+	 */
+	public function copy(string $table, array $rows) : array {
+		return $this->insert($table, $rows);
+	}
+
+	/**
+	 * Random names
+	 *
+	 * @var array
+	 */
+	public static $random_names = [];
+
+	/**
+	 * Random name
+	 *
+	 * @param string $type
+	 * @return string
+	 */
+	public function randomName(string $type = 'first_name') : string {
+		// preload
+		if (!isset(self::$random_names[$type])) {
+			$filename = __DIR__ . DIRECTORY_SEPARATOR . 'Names' . DIRECTORY_SEPARATOR . $type . '.csv';
+			if (!file_exists($filename)) {
+				$filename = __DIR__ . DIRECTORY_SEPARATOR . 'Names' . DIRECTORY_SEPARATOR . 'first_name' . '.csv';
+			}
+			self::$random_names[$type] = file($filename);
+		}
+		$num = array_rand(self::$random_names[$type], 1);
+		return trim(self::$random_names[$type][$num]);
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 
 namespace Numbers\Backend\Db\Test\Model\Trigger;
-class UpdateEmployeeTrigger extends \Object\Trigger {
+class UpdateEmployeeTriggerPostgreSQL extends \Object\Trigger {
 	public $db_link;
 	public $db_link_flag;
 	public $schema;

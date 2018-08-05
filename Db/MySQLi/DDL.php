@@ -81,7 +81,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 		$sequence_model = \Factory::model('\Numbers\Backend\Db\Common\Model\Sequences');
 		$db_object = new \Db($db_link);
 		// getting information
-		foreach (array('sequences', 'columns', 'constraints', 'functions', 'triggers') as $v) {
+		foreach (['schemas', 'sequences', 'columns', 'constraints', 'functions', 'triggers', 'views'] as $v) {
 			// we only load sequences if we have a sequence table
 			if ($v == 'sequences') {
 				if (!$sequence_model->dbPresent()) {
@@ -169,6 +169,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 								foreach ($v3 as $k4 => $v4) {
 									foreach ($v4 as $k5 => $v5) {
 										$constraint_type = 'constraint';
+										$full_table_name = $v5['schema_name'] . '.' . $v5['table_name'];
 										if ($v5['constraint_type'] == 'PRIMARY KEY') {
 											if ($k5 == 'PRIMARY') {
 												$k5 = $v5['table_name'] . '_pk';
@@ -176,26 +177,27 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 											$temp2 = [
 												'type' => 'pk',
 												'columns' => explode(',', $v5['column_names']),
-												'full_table_name' => $v5['table_name']
+												'full_table_name' => $full_table_name
 											];
 										} else if ($v5['constraint_type'] == 'UNIQUE') {
 											$temp2 = [
 												'type' => 'unique',
 												'columns' => explode(',', $v5['column_names']),
-												'full_table_name' => $v5['table_name']
+												'full_table_name' => $full_table_name
 											];
 										} else if ($v5['constraint_type'] == 'INDEX') {
 											$temp2 = [
 												'type' => strtolower($v5['index_type']),
 												'columns' => explode(',', $v5['column_names']),
-												'full_table_name' => $v5['table_name']
+												'full_table_name' => $full_table_name
 											];
 											$constraint_type = 'index';
 										} else if ($v5['constraint_type'] == 'FOREIGN KEY') {
+											$foreign_table_name = $v5['schema_name'] . '.' . $v5['foreign_table_name'];
 											$temp2 = [
 												'type' => 'fk',
 												'columns' => explode(',', $v5['column_names']),
-												'foreign_table' => $v5['foreign_table_name'],
+												'foreign_table' => $foreign_table_name,
 												'foreign_columns' => explode(',', $v5['foreign_column_names']),
 												'options' => [
 													'match' => 'simple',
@@ -203,7 +205,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 													'delete' => 'restrict'
 												],
 												'name' => $v5['constraint_name'],
-												'full_table_name' => $v5['table_name']
+												'full_table_name' => $full_table_name
 											];
 										} else {
 											print_r2($v5);
@@ -236,7 +238,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 									'data' => [
 										'owner' => $v3['sequence_owner'],
 										'full_sequence_name' => $full_sequence_name,
-										'full_table_name' => $v3['full_table_name'],
+										'full_table_name' => '',
 										'type' => $sequence_attributes[$full_sequence_name]['sm_sequence_type'] ?? 'global_simple',
 										'prefix' => $sequence_attributes[$full_sequence_name]['sm_sequence_prefix'] ?? '',
 										'suffix' => $sequence_attributes[$full_sequence_name]['sm_sequence_suffix'] ?? '',
@@ -244,6 +246,18 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 									]
 								], $db_link);
 							}
+						}
+						break;
+					case 'schemas':
+						foreach ($temp['data'] as $k2 => $v2) {
+							$this->objectAdd([
+								'type' => 'schema',
+								'name' => $v2['name'],
+								'data' => [
+									'owner' => $v2['owner'],
+									'name' => $v2['name']
+								]
+							], $db_link);
 						}
 						break;
 					case 'functions':
@@ -272,7 +286,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 								$full_function_name = ltrim($v3['schema_name'] . '.' . $v3['function_name'], '.');
 								// get definition
 								$definition = $db_object->query('SHOW CREATE TRIGGER ' . $full_function_name);
-								$temp = explode(' TRIGGER ', $definition['rows'][0]['SQL Original Statement']);
+								$temp = explode(' TRIGGER ', $definition['rows'][0]['sql original statement']);
 								$definition = 'CREATE TRIGGER ' . $temp[1] . ';';
 								// add object
 								$this->objectAdd([
@@ -285,6 +299,23 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 										'full_table_name' => $v3['full_table_name'],
 										'header' => $v3['full_function_name'],
 										'definition' => $definition
+									]
+								], $db_link);
+							}
+						}
+						break;
+					case 'views':
+						foreach ($temp['data'] as $k2 => $v2) {
+							foreach ($v2 as $k3 => $v3) {
+								// add object
+								$this->objectAdd([
+									'type' => 'view',
+									'schema' => $k2,
+									'name' => $k3,
+									'backend' => 'MySQLi',
+									'data' => [
+										'full_view_name' => $v3['full_view_name'],
+										'definition' => $v3['routine_definition']
 									]
 								], $db_link);
 							}
@@ -324,15 +355,23 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 		$owner = $db_object->object->connect_options['username'];
 		// getting proper query
 		switch($type) {
+			case 'schemas':
+				$key = array('name');
+				$sql = <<<TTT
+					SELECT
+						DATABASE() AS name,
+						'{$owner}' owner
+TTT;
+				break;
 			case 'constraints':
-				$key = array('constraint_type', 'schema_name', 'table_name', 'constraint_name');
+				$key = ['constraint_type', 'schema_name', 'table_name', 'constraint_name'];
 				$sql = <<<TTT
 					SELECT
 							*
 					FROM (
 						SELECT
 							a.constraint_type,
-							null schema_name,
+							a.table_schema schema_name,
 							a.table_name,
 							a.constraint_name,
 							null index_type,
@@ -365,7 +404,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 
 						SELECT
 							'INDEX' constraint_type,
-							null schema_name,
+							a.table_schema schema_name,
 							a.table_name,
 							a.index_name constraint_name,
 							MAX(a.index_type) index_type,
@@ -391,10 +430,10 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 TTT;
 				break;
 			 case 'columns':
-				$key = array('schema_name', 'table_name', 'column_name');
+				$key = ['schema_name', 'table_name', 'column_name'];
 				$sql = <<<TTT
 					SELECT
-						null schema_name,
+						a.table_schema schema_name,
 						a.table_name,
 						'{$owner}' table_owner,
 						a.column_name,
@@ -408,7 +447,7 @@ TTT;
 						b.engine "engine",
 						CASE WHEN a.extra LIKE '%auto_increment%' THEN 1 ELSE 0 END auto_increment
 					FROM information_schema.columns a
-					LEFT JOIN (
+					INNER JOIN (
 						SELECT
 							table_schema schema_name,
 							table_name,
@@ -424,24 +463,24 @@ TTT;
 TTT;
 				break;
 			case 'sequences':
-				$key = array('schema_name', 'sequence_name');
+				$key = ['schema_name', 'sequence_name'];
 				$sql = <<<TTT
 					SELECT
-						'' schema_name,
-						sm_sequence_name sequence_name,
+						substring(a.sm_sequence_name, 1, locate('.', a.sm_sequence_name) - 1) schema_name,
+						substring(a.sm_sequence_name, locate('.', a.sm_sequence_name) + 1) sequence_name,
 						'{$owner}' sequence_owner,
 						sm_sequence_type "type",
 						sm_sequence_prefix prefix,
 						sm_sequence_length length,
 						sm_sequence_suffix suffix
-					FROM sm_sequences
+					FROM sm_sequences a
 TTT;
 				break;
 			case 'functions':
-				$key = array('schema_name', 'function_name');
+				$key = ['schema_name', 'function_name'];
 				$sql = <<<TTT
 					SELECT
-						'' schema_name,
+						routine_schema schema_name,
 						routine_name function_name,
 						'{$owner}' function_owner,
 						routine_definition
@@ -452,13 +491,25 @@ TTT;
 TTT;
 				break;
 			case 'triggers':
-				$key = array('schema_name', 'function_name');
+				$key = ['schema_name', 'function_name'];
 				$sql = <<<TTT
 					SELECT
-						CASE WHEN '{$database_name}' = trigger_schema THEN '' ELSE trigger_schema END schema_name,
+						trigger_schema schema_name,
 						trigger_name function_name
-					FROM INFORMATION_SCHEMA.TRIGGERS
+					FROM information_schema.triggers
 					WHERE trigger_schema = '{$database_name}'
+TTT;
+				break;
+			case 'views':
+				$key = ['schema_name', 'view_name'];
+				$sql = <<<TTT
+					SELECT
+						a.table_schema schema_name,
+						a.table_name view_name,
+						a.table_name full_view_name,
+						a.view_definition routine_definition
+					FROM information_schema.views a
+					WHERE a.table_schema = '{$database_name}'
 TTT;
 				break;
 			default:
@@ -484,10 +535,12 @@ TTT;
 	 * @param string $type
 	 * @param array $data
 	 * @param array $options
+	 *		string mode
+	 * @param mixed $extra_comments
 	 * @return string
 	 * @throws Exception
 	 */
-	public function renderSql($type, $data, $options = array()) {
+	public function renderSql($type, $data, $options = [], & $extra_comments = null) {
 		$result = '';
 		switch ($type) {
 			// columns
@@ -545,19 +598,15 @@ TTT;
 			case 'table_delete':
 				$result = "DROP TABLE {$data['data']['full_table_name']} CASCADE;";
 				break;
-			case 'table_owner':
-				// nothing
-				break;
+			case 'table_owner': /* nothing */ break;
 			// view
 			case 'view_new':
-				$result = "CREATE OR REPLACE VIEW {$data['name']} AS {$data['definition']}\nALTER VIEW {$data['name']} OWNER TO {$data['owner']};";
-				break;
-			case 'view_change':
-				$result = "DROP VIEW {$data['name']};\nCREATE OR REPLACE VIEW {$data['name']} AS {$data['definition']}\nALTER VIEW {$data['name']} OWNER TO {$data['owner']};";
+				$result = "CREATE OR REPLACE VIEW {$data['data']['full_view_name']} AS {$data['data']['definition']};";
 				break;
 			case 'view_delete':
 				$result = "DROP VIEW {$data['name']};";
 				break;
+			case 'view_owner': /* nothing */ break;
 			// foreign key/unique/primary key
 			case 'constraint_new':
 				switch ($data['data']['type']) {
@@ -579,10 +628,7 @@ TTT;
 				if ($data['data']['type'] == 'pk') {
 					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP PRIMARY KEY;";
 				} else if ($data['data']['type'] == 'fk') {
-					$result = [
-						"ALTER TABLE {$data['data']['full_table_name']} DROP FOREIGN KEY {$data['name']};",
-						"ALTER TABLE {$data['data']['full_table_name']} DROP INDEX {$data['name']};"
-					];
+					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP FOREIGN KEY {$data['name']};";
 				} else if ($data['data']['type'] == 'unique') {
 					$result = "ALTER TABLE {$data['data']['full_table_name']} DROP INDEX {$data['name']};";
 				}
@@ -597,7 +643,7 @@ TTT;
 				}
 				break;
 			case 'index_delete':
-				$result = "DROP INDEX {$data['name']};";
+				$result = "DROP INDEX {$data['name']} ON {$data['data']['full_table_name']};";
 				break;
 			// sequences
 			case 'sequence_new':
@@ -630,9 +676,7 @@ TTT;
 					$result[]= "DELETE FROM {$model->full_table_name} WHERE sm_sequence_name = '{$data['data']['full_sequence_name']}'";
 				}
 				break;
-			case 'sequence_owner':
-				// nothing
-				break;
+			case 'sequence_owner': /* nothing */ break;
 			// functions
 			case 'function_new':
 				$result = $data['data']['definition'] . ";";
@@ -640,8 +684,7 @@ TTT;
 			case 'function_delete':
 				$result = "DROP FUNCTION {$data['data']['full_function_name']};";
 				break;
-			case 'function_owner':
-				break;
+			case 'function_owner': /* nothing */ break;
 			// trigger
 			case 'trigger_new':
 				$result = trim($data['data']['definition']) . ";";
@@ -650,24 +693,29 @@ TTT;
 				$full_function_name = ltrim($data['schema'] . '.' . $data['name'], '.');
 				$result = "DROP TRIGGER {$full_function_name};";
 				break;
-			case 'permission_revoke_all':
-				//$result = "REVOKE ALL PRIVILEGES ON DATABASE {$data['database']} FROM {$data['owner']};";
+			case 'permission_grant_database':
+				$result = [];
+				$result[] = "CREATE USER IF NOT EXISTS {$data['owner']} IDENTIFIED WITH mysql_native_password BY '{$data['password']}';";
 				break;
 			case 'permission_grant_schema':
-				//$result = "GRANT USAGE ON SCHEMA {$data['schema']} TO {$data['owner']};";
+				$result = [];
+				$result[] = "GRANT LOCK TABLES ON {$data['schema']}.* TO '{$data['owner']}';";
 				break;
 			case 'permission_grant_table':
-				$result = "GRANT SELECT, INSERT, UPDATE, DELETE ON {$data['database']}.{$data['table']} TO '{$data['owner']}';";
+				$result = "GRANT SELECT, INSERT, UPDATE, DELETE ON {$data['table']} TO '{$data['owner']}';";
 				break;
-			case 'permission_grant_sequence':
-				//$result = "GRANT USAGE, SELECT, UPDATE ON SEQUENCE {$data['sequence']} TO {$data['owner']};";
+			case 'permission_grant_view':
+				$result = "GRANT SELECT ON {$data['view']} TO '{$data['owner']}';";
 				break;
+			case 'permission_grant_sequence': /* nothing */ break;
 			case 'permission_grant_function':
-				$result = "GRANT EXECUTE ON FUNCTION {$data['database']}.{$data['function']} TO '{$data['owner']}';";
+				$result = "GRANT EXECUTE ON FUNCTION {$data['function']} TO '{$data['owner']}';";
+				break;
+			case 'permission_grant_flush':
+				$result = "FLUSH PRIVILEGES;";
 				break;
 			default:
-				// nothing
-				Throw new \Exception($type . '?');
+				/* nothing */
 		}
 		return $result;
 	}

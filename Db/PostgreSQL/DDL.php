@@ -606,10 +606,11 @@ TTT;
 	 * @param array $data
 	 * @param array $options
 	 *		string mode
+	 * @param mixed $extra_comments
 	 * @return string
 	 * @throws Exception
 	 */
-	public function renderSql($type, $data, $options = array()) {
+	public function renderSql($type, $data, $options = [], & $extra_comments = null) {
 		$result = '';
 		switch ($type) {
 			// extension
@@ -691,9 +692,6 @@ TTT;
 			// view
 			case 'view_new':
 				$result = "CREATE OR REPLACE VIEW {$data['name']} AS {$data['definition']}\nALTER VIEW {$data['name']} OWNER TO {$data['owner']};";
-				break;
-			case 'view_change':
-				$result = "DROP VIEW {$data['name']};\nCREATE OR REPLACE VIEW {$data['name']} AS {$data['definition']}\nALTER VIEW {$data['name']} OWNER TO {$data['owner']};";
 				break;
 			case 'view_delete':
 				$result = "DROP VIEW {$data['name']};";
@@ -796,9 +794,6 @@ TTT;
 				$result = "DROP TRIGGER IF EXISTS {$data['data']['header']} ON {$data['data']['full_table_name']};";
 				break;
 			// permissions
-			case 'permission_revoke_all':
-				$result = "REVOKE ALL PRIVILEGES ON DATABASE {$data['database']} FROM {$data['owner']};";
-				break;
 			case 'permission_grant_schema':
 				$result = "GRANT USAGE ON SCHEMA {$data['schema']} TO {$data['owner']};";
 				break;

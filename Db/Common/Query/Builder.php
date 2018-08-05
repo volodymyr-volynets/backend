@@ -39,7 +39,8 @@ class Builder {
 		'orderby' => [],
 		'groupby' => [],
 		'having' => [],
-		'union' => []
+		'union' => [],
+		'union_orderby' => false, // indicator that previous
 	];
 
 	/**
@@ -245,7 +246,7 @@ class Builder {
 			return "(\n" . $this->wrapSqlIntoTabs($table->sql()) . "\n)";
 		} else if (is_object($table) && is_a($table, 'Object\DataSource')) { // datasource object
 			return $table->sql([], $this->cache_tags);
-		} else if (is_object($table) && is_a($table, '\Object\Table')) { // table object
+		} else if (is_object($table) && is_a($table, 'Object\Table')) { // table object
 			// injecting tenant
 			if ($table->tenant && empty($table->options['skip_tenant'])) {
 				$conditions[] = ['AND', [ltrim($alias . '.' . $table->tenant_column), '=', \Tenant::id(), false], false];
@@ -253,6 +254,9 @@ class Builder {
 			// grab tags
 			$this->cache_tags = array_merge($this->cache_tags, $table->cache_tags);
 			return $table->full_table_name;
+		} else if (is_object($table) && is_a($table, 'Object\View')) { // view object
+			$this->cache_tags = array_merge($this->cache_tags, $table->grant_tables);
+			return $table->full_view_name;
 		} else if (is_callable($table)) {
 			return "(\n" . $this->wrapSqlIntoTabs($this->subquery($table)) . "\n)";
 		}
@@ -262,10 +266,32 @@ class Builder {
 	 * Union
 	 *
 	 * @param string $type
+	 *		UNION
+	 *		UNION ALL
+	 *		INTERSECT
+	 *		EXCEPT
 	 * @param mixed $select
 	 */
 	public function union(string $type, $select) : \Numbers\Backend\Db\Common\Query\Builder {
-		if (is_callable($select)) {
+		// validate type
+		if (!in_array($type, ['UNION', 'UNION ALL', 'INTERSECT', 'EXCEPT'])) {
+			Throw new \Exception('Unknown type: ' . $type);
+		}
+		// we render if query builder
+		if (is_object($select) && is_a($select, 'Numbers\Backend\Db\Common\Query\Builder')) {
+			// validation on addition clauses
+			if (!empty($this->data['union_orderby'])) {
+				Throw new \Exception('Previous queries have extra parameters in UNION');
+			}
+			if (!empty($select->data['limit']) || !empty($select->data['offset']) || !empty($select->data['orderby'])) {
+				$this->data['union_orderby'] = true;
+			}
+			// render
+			$result = $select->render();
+			// grab tags
+			$this->cache_tags = array_merge($this->cache_tags, $select->cache_tags);
+			$select = $result['sql'];
+		} else if (is_callable($select)) { // if its a function
 			$select = $this->subquery($select);
 		}
 		array_push($this->data['union'], [
@@ -423,6 +449,7 @@ class Builder {
 	 */
 	public function limit(int $limit) : \Numbers\Backend\Db\Common\Query\Builder {
 		$this->data['limit'] = $limit;
+		$this->data['union_orderby'] = true;
 		return $this;
 	}
 
@@ -434,6 +461,7 @@ class Builder {
 	 */
 	public function offset(int $offset) : \Numbers\Backend\Db\Common\Query\Builder {
 		$this->data['offset'] = $offset;
+		$this->data['union_orderby'] = true;
 		return $this;
 	}
 
@@ -450,6 +478,7 @@ class Builder {
 		} else {
 			$this->data['orderby'] = array_merge_hard($this->data['orderby'], $orderby);
 		}
+		$this->data['union_orderby'] = true;
 		return $this;
 	}
 
@@ -528,6 +557,13 @@ class Builder {
 	private function subquery($function) {
 		$subquery = new \Numbers\Backend\Db\Common\Query\Builder($this->db_link, ['subquery' => true]);
 		$function($subquery);
+		// validation on addition clauses
+		if (!empty($this->data['union_orderby'])) {
+			Throw new \Exception('Previous queries have extra parameters in UNION');
+		}
+		if (!empty($select->data['limit']) || !empty($select->data['offset']) || !empty($select->data['orderby'])) {
+			$this->data['union_orderby'] = true;
+		}
 		$result = $subquery->render();
 		if (!$result['success']) {
 			Throw new \Exception('Subquery: ' . implode(', ', $result['error']));

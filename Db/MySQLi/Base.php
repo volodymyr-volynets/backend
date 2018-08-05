@@ -39,6 +39,20 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	}
 
 	/**
+	 * Handle name
+	 *
+	 * @param string $schema
+	 * @param string $name
+	 * @return string
+	 */
+	public function handleName(& $schema, & $name) {
+		if (empty($schema)) {
+			$schema =  $this->connect_options['dbname'];
+		}
+		return $schema . '.' . $name;
+	}
+
+	/**
 	 * Connect to database
 	 *
 	 * @param array $options
@@ -95,9 +109,10 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		$result = [];
 		if ($resource) {
 			while ($finfo = mysqli_fetch_field($resource)) {
-				$result[$finfo->name]['type'] = $this->fieldType($finfo->type);
-				$result[$finfo->name]['null'] = ($finfo->flags & 1 ? false : true);
-				$result[$finfo->name]['length'] = $finfo->length;
+				$name = strtolower($finfo->name);
+				$result[$name]['type'] = $this->fieldType($finfo->type);
+				$result[$name]['null'] = ($finfo->flags & 1 ? false : true);
+				$result[$name]['length'] = $finfo->length;
 			}
 		}
 		return $result;
@@ -216,7 +231,8 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 						// casting types
 						$data = [];
 						foreach ($rows as $k => $v) {
-							$data[$k] = $this->processValueAsPerType($v, $result['structure'][$k]['type']);
+							$k2 = strtolower($k);
+							$data[$k2] = $this->processValueAsPerType($v, $result['structure'][$k2]['type']);
 						}
 						// assigning keys
 						if (!empty($key)) {
@@ -260,7 +276,8 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 								// casting types
 								$data = [];
 								foreach ($rows as $k => $v) {
-									$data[$k] = $this->processValueAsPerType($v, $result['structure'][$k]['type']);
+									$k2 = strtolower($k);
+									$data[$k2] = $this->processValueAsPerType($v, $result['structure'][$k2]['type']);
 								}
 								// assigning keys
 								if (!empty($key)) {
@@ -396,8 +413,8 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			case 'fetch_tables':
 				$result = <<<TTT
 					SELECT
-						'' schema_name,
-						table_name
+						table_schema schema_name,
+						table_name table_name
 					FROM information_schema.tables
 					WHERE 1=1
 						AND table_schema = (SELECT DATABASE())
@@ -473,17 +490,6 @@ TTT;
 			$result['rank'] = '(' . $where . ') ts_rank';
 		}
 		return $result;
-	}
-
-	/**
-	 * Copy data directly into db, rows are key=>value pairs
-	 *
-	 * @param string $table
-	 * @param array $rows
-	 * @return array
-	 */
-	public function copy(string $table, array $rows) : array {
-		return $this->insert($table, $rows);
 	}
 
 	/**
@@ -612,16 +618,22 @@ TTT;
 					$result['error'][] = 'From?';
 				} else {
 					$temp = [];
+					$temp1 = '';
 					$aliases = [];
 					foreach ($object->data['from'] as $k => $v) {
 						$temp2 = $v;
+						$temp1 = $v;
 						if (!is_numeric($k)) {
 							$temp2.= " AS $k";
 							$aliases[] = $k;
 						}
 						$temp[] = $temp2;
 					}
-					$sql.= 'DELETE ' . implode(', ', $aliases) . ' FROM ' . implode(",", $temp);
+					if (count($object->data['from']) == 1) {
+						$sql.= 'DELETE FROM ' . $temp1;
+					} else {
+						$sql.= 'DELETE ' . implode(', ', $aliases) . ' FROM ' . implode(",", $temp);
+					}
 				}
 				// where
 				if (!empty($object->data['where'])) {
@@ -631,10 +643,6 @@ TTT;
 				// limit
 				if (!empty($object->data['limit'])) {
 					$sql.= "\nLIMIT " . $object->data['limit'];
-				}
-				// returning
-				if (!empty($object->data['returning'])) {
-					$sql.= "\nRETURNING *";
 				}
 				break;
 			case 'select':
@@ -705,13 +713,13 @@ TTT;
 				if (!empty($object->data['orderby'])) {
 					$sql.= "\nORDER BY " . array_key_sort_prepare_keys($object->data['orderby'], true);
 				}
-				// offset
-				if (!empty($object->data['offset'])) {
-					$sql.= "\nOFFSET " . $object->data['offset'];
-				}
 				// limit
 				if (!empty($object->data['limit'])) {
 					$sql.= "\nLIMIT " . $object->data['limit'];
+				}
+				// offset
+				if (!empty($object->data['offset'])) {
+					$sql.= "\nOFFSET " . $object->data['offset'];
 				}
 				// for update
 				if (!empty($object->data['for_update'])) {

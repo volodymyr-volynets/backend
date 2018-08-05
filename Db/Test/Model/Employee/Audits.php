@@ -6,7 +6,7 @@ class Audits extends \Object\Table {
 	public $db_link_flag;
 	public $module_code = 'SM';
 	public $title = 'S/M Employee Audits';
-	public $name = 'sm_employee_audits';
+	public $name = 'sm_test_employee_audits';
 	public $pk = ['id'];
 	public $tenant;
 	public $orderby;
@@ -20,7 +20,7 @@ class Audits extends \Object\Table {
 		'changed_on' => ['name' => 'Changed On', 'type' => 'timestamp'],
 	];
 	public $constraints = [
-		'sm_employee_audits_pk' => ['type' => 'pk', 'columns' => ['id']],
+		'sm_test_employee_audits_pk' => ['type' => 'pk', 'columns' => ['id']],
 		'employee_id_fk' => [
 			'type' => 'fk',
 			'columns' => ['employee_id'],

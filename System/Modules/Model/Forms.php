@@ -21,7 +21,6 @@ class Forms extends \Object\Table {
 	];
 	public $constraints = [
 		'sm_forms_pk' => ['type' => 'pk', 'columns' => ['sm_form_code']],
-		'sm_form_code_un' => ['type' => 'unique', 'columns' => ['sm_form_code']],
 		'sm_form_module_code_fk' => [
 			'type' => 'fk',
 			'columns' => ['sm_form_module_code'],
