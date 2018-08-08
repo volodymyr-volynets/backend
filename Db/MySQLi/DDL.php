@@ -530,14 +530,14 @@ TTT;
 	}
 
 	/**
-	 * Render sql
-	 * 
+	 * Render SQL
+	 *
 	 * @param string $type
 	 * @param array $data
 	 * @param array $options
 	 *		string mode
 	 * @param mixed $extra_comments
-	 * @return string
+	 * @return string|array
 	 * @throws Exception
 	 */
 	public function renderSql($type, $data, $options = [], & $extra_comments = null) {
@@ -567,21 +567,36 @@ TTT;
 				break;
 			case 'column_change':
 				$result = [];
-				$master = $data['data'];
-				$slave = $data['data_old'];
-				if ($master['sql_type'] !== $slave['sql_type']) {
-					$result[]= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} SET DATA TYPE {$master['sql_type']};\n";
+				$diff = false;
+				$str = $data['data_old']['sql_type'];
+				if ($data['data']['sql_type'] !== $data['data_old']['sql_type']) {
+					$str = $data['data']['sql_type'];
+					$diff = true;
 				}
-				if ($master['default'] !== $slave['default']) {
-					if (is_string($master['default'])) {
-						$master['default'] = "'" . $master['default'] . "'";
-					}
-					$temp = !isset($master['default']) ? ' DROP DEFAULT' : ('SET DEFAULT ' . $master['default']);
-					$result[]= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} $temp;\n";
+				$default = $data['data_old']['default'];
+				if ($data['data']['default'] !== $data['data_old']['default']) {
+					$default = $data['data']['default'];
+					$diff = true;
 				}
-				if ($master['null'] !== $slave['null']) {
-					$temp = !empty($master['null']) ? 'DROP'  : 'SET';
-					$result[]= "ALTER TABLE {$data['table']} ALTER COLUMN {$data['name']} $temp NOT NULL;\n";
+				if (is_null($default)) {
+					// nothing
+				} else if (is_numeric($default)) {
+					$str.= ' DEFAULT ' . $default;
+				} else {
+					$str.= " DEFAULT '{$default}'";
+				}
+				$null = $data['data_old']['null'];
+				if ($data['data']['null'] !== $data['data_old']['null']) {
+					$null = $data['data']['null'];
+					$diff = true;
+				}
+				if (!empty($null)) {
+					$str.= ' NULL';
+				} else {
+					$str.= ' NOT NULL';
+				}
+				if ($diff) {
+					$result[]= "ALTER TABLE {$data['table']} CHANGE COLUMN {$data['name']} {$data['name']} {$str};";
 				}
 				break;
 			// table
@@ -649,6 +664,9 @@ TTT;
 			case 'sequence_new':
 				// insert entry into sequences table
 				$model = new \Numbers\Backend\Db\Common\Model\Sequences();
+				if (strpos($data['data']['full_sequence_name'], '.') === false) {
+					$data['data']['full_sequence_name'] = $model->schema . '.' . $data['data']['full_sequence_name'];
+				}
 				$result = <<<TTT
 					INSERT INTO {$model->full_table_name} (
 						sm_sequence_name,
@@ -673,6 +691,9 @@ TTT;
 				$result = [];
 				if (($options['mode'] ?? '') != 'drop') {
 					$model = new \Numbers\Backend\Db\Common\Model\Sequences();
+					if (strpos($data['data']['full_sequence_name'], '.') === false) {
+						$data['data']['full_sequence_name'] = $model->schema . '.' . $data['data']['full_sequence_name'];
+					}
 					$result[]= "DELETE FROM {$model->full_table_name} WHERE sm_sequence_name = '{$data['data']['full_sequence_name']}'";
 				}
 				break;
@@ -696,11 +717,10 @@ TTT;
 			case 'permission_grant_database':
 				$result = [];
 				$result[] = "CREATE USER IF NOT EXISTS {$data['owner']} IDENTIFIED WITH mysql_native_password BY '{$data['password']}';";
+				$result[] = "GRANT LOCK TABLES ON {$data['database']}.* TO '{$data['owner']}';";
+				$result[] = "GRANT CREATE TEMPORARY TABLES ON {$data['database']}.* TO '{$data['owner']}';";
 				break;
-			case 'permission_grant_schema':
-				$result = [];
-				$result[] = "GRANT LOCK TABLES ON {$data['schema']}.* TO '{$data['owner']}';";
-				break;
+			case 'permission_grant_schema': /* nothing */ break;
 			case 'permission_grant_table':
 				$result = "GRANT SELECT, INSERT, UPDATE, DELETE ON {$data['table']} TO '{$data['owner']}';";
 				break;

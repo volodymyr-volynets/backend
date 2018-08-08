@@ -471,7 +471,7 @@ TTT;
 	 * @return string
 	 */
 	public function cast(string $column, string $type) : string {
-		$type = str_replace(['character varying'], ['varchar2'], $type);
+		$type = str_replace(['varchar'], ['varchar2'], $type);
 		return "CAST({$column} AS {$type})";
 	}
 

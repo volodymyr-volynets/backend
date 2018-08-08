@@ -412,12 +412,47 @@ class Builder {
 	}
 
 	/**
+	 * Full text search
+	 *
+	 * @param string $operator
+	 *		AND, OR
+	 * @param array $fields
+	 * @param string $str
+	 * @param bool $rank
+	 *		Whether to include rank column
+	 * @param int $orderby
+	 *		SORT_ASC or SORT_DESC
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function fullTextSearch(string $operator, array $fields, string $str, bool $rank = false, $orderby = null) : \Numbers\Backend\Db\Common\Query\Builder {
+		$result = $this->db_object->object->fullTextSearchQuery($fields, $str);
+		$this->where($operator, $result['where']);
+		if ($rank || !empty($orderby)) {
+			$this->columns($result['rank']);
+		}
+		if (!empty($orderby)) {
+			$this->orderby([$result['orderby'] => $orderby]);
+		}
+		return $this;
+	}
+
+	/**
 	 * Distinct
 	 *
 	 * @return \Numbers\Backend\Db\Common\Query\Builder
 	 */
 	public function distinct() : \Numbers\Backend\Db\Common\Query\Builder {
 		$this->data['distinct'] = true;
+		return $this;
+	}
+
+	/**
+	 * Create temporary table
+	 *
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function temporaryTable($name) : \Numbers\Backend\Db\Common\Query\Builder {
+		$this->data['temporary_table'] = $name;
 		return $this;
 	}
 

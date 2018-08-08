@@ -171,11 +171,23 @@ abstract class Base {
 					$this->new_objects['schema'][$data['name']] = $data['name'];
 				} else if ($data['type'] == 'schema_delete') {
 					$this->new_objects['schema'][$data['name']] = null;
-				} else if ($data['type'] == 'table_new' || $data['type'] == 'sequence_new' || $data['type'] == 'extension_new') {
+				} else if (in_array($data['type'], ['table_new', 'sequence_new'])) {
 					$name = ltrim($data['schema'] . '.' . $data['name'], '.');
 					$type = str_replace('_new', '', $data['type']);
 					$this->new_objects[$type][$name] = $name;
-				} else if ($data['type'] == 'table_delete' || $data['type'] == 'sequence_delete' || $data['type'] == 'extension_delete') {
+				} else if (in_array($data['type'], ['extension_new', 'function_new', 'view_new'])) { // backend specific
+					$name = ltrim($data['schema'] . '.' . $data['name'], '.');
+					$type = str_replace('_new', '', $data['type']);
+					if ($data['backend'] == $this->db_object->backend) { // a must
+						if ($type == 'function') {
+							$this->new_objects[$type][$name] = $data['data']['header'];
+						} else if ($type == 'view') {
+							$this->new_objects[$type][$name] = $data['data']['grant_tables'];
+						} else {
+							$this->new_objects[$type][$name] = $name;
+						}
+					}
+				} else if (in_array($data['type'], ['table_delete', 'sequence_delete', 'extension_delete', 'function_delete', 'view_delete'])) {
 					$name = ltrim($data['schema'] . '.' . $data['name'], '.');
 					$type = str_replace('_delete', '', $data['type']);
 					$this->new_objects[$type][$name] = null;
@@ -196,12 +208,6 @@ abstract class Base {
 			 * for now we would rollback entire migration_id
 			 */
 			if (!empty($sql_queries)) {
-				// we make sure we execute proper backend
-				if (!empty($data['backend'])) {
-					if ($data['backend'] != $this->db_object->backend) {
-						return;
-					}
-				}
 				// remember what ids we have executed
 				if (!empty($migration_id)) {
 					$this->executed_migration_ids[$migration_id] = $migration_id;

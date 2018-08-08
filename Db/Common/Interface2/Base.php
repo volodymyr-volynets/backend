@@ -11,7 +11,7 @@ interface Base {
 	public function rollback();
 	public function sequence($sequence_name, $type = 'nextval', $tenant = null, $module = null);
 	public function close();
-	public function fullTextSearchQuery($fields, $str, $operator = '&', $options = []);
+	public function fullTextSearchQuery($fields, $str);
 	public function createTempTable($table, $columns, $pk = null, $options = []);
 	public function sqlHelper($statement, $options = []);
 	public function cast(string $column, string $type) : string;

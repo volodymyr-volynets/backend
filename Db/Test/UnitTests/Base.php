@@ -30,6 +30,124 @@ class Base extends \PHPUnit\Framework\TestCase {
 	/**
      * @depends testConnect
      */
+	public function testCast($db_object) {
+		$query = \Object\Query\Builder::quick($db_object->db_link);
+		$query->select();
+		$query->columns([
+			'str2' => $db_object->cast(123, 'varchar'),
+			'date2' => $db_object->cast("'2020-01-01'", 'date')
+		]);
+		$result = $query->query();
+		$this->assertEquals('123', $result['rows'][0]['str2'], 'Cast not working, iteration 1');
+		$this->assertEquals('2020-01-01', $result['rows'][0]['date2'], 'Cast not working, iteration 2');
+	}
+
+	/**
+     * @depends testConnect
+     */
+	public function testCopy($db_object) {
+		$model = new \Numbers\Backend\Db\Test\Model\Employees();
+		$result = $db_object->copy($model->full_table_name, $db_object->randomArray([
+			'id' => $model->sequence('id', 'nextval'),
+			'first_name' => '~~first_name',
+			'last_name' => '~~last_name'
+		], 1));
+		$this->assertEquals(true, $result['success'], 'Copy failed!');
+	}
+
+	/**
+     * @depends testConnect
+     */
+	public function testTemporaryTable($db_object) {
+		// way 1 through db object
+		$model = new \Numbers\Backend\Db\Test\Model\Employees();
+		$result = $db_object->createTempTable($model->full_table_name . '_temp1', $model->columns, ['id'], []);
+		$this->assertEquals(true, $result['success'], 'Create temporary table failed, iteration 1!');
+		$result = $db_object->copy($model->full_table_name . '_temp1', $db_object->randomArray([
+			'id' => $model->sequence('id', 'nextval'),
+			'first_name' => '~~first_name',
+			'last_name' => '~~last_name'
+		], 1));
+		$this->assertEquals(true, $result['success'], 'Create temporary table failed, iteration 2!');
+		// way 2 through query builder
+		$query = \Numbers\Backend\Db\Test\Model\Employees::queryBuilderStatic();
+		$query->temporaryTable($model->full_table_name . '_temp2');
+		$query->select();
+		$result = $query->query();
+		$this->assertEquals(true, $result['success'], 'Create temporary table failed, iteration 3!');
+		$result = $db_object->copy($model->full_table_name . '_temp2', $db_object->randomArray([
+			'id' => $model->sequence('id', 'nextval'),
+			'first_name' => '~~first_name',
+			'last_name' => '~~last_name'
+		], 1));
+		$this->assertEquals(true, $result['success'], 'Create temporary table failed, iteration 4!');
+	}
+
+	/**
+     * @depends testConnect
+     */
+	public function testFullTextSearch($db_object) {
+		// way 1 through where
+		$query = \Numbers\Backend\Db\Test\Model\Employees::queryBuilderStatic();
+		$query->select();
+		$where['full_text_search;FTS'] = [
+			'fields' => ['first_name', 'last_name'],
+			'str' => 'a'
+		];
+		$query->whereMultiple('AND', $where);
+		$result = $query->query();
+		$this->assertEquals(true, $result['success'], 'FTS failed, iteration 1!');
+		// way 2 through query builder
+		$query = \Numbers\Backend\Db\Test\Model\Employees::queryBuilderStatic();
+		$query->select();
+		$query->columns('*');
+		$query->fullTextSearch('AND', ['first_name', 'last_name'], 'a b c', true, SORT_DESC);
+		$result = $query->query();
+		$this->assertEquals(true, $result['success'], 'FTS failed, iteration 2!');
+	}
+
+	/**
+     * @depends testConnect
+     */
+	public function testSQLHelper($db_object) {
+		// string aggregation
+		$query = \Numbers\Backend\Db\Test\Model\Employees::queryBuilderStatic();
+		$query->select();
+		$query->columns([
+			'string_agg_column' => $db_object->sqlHelper('string_agg', ['expression' => 'first_name', 'delimiter' => ','])
+		]);
+		$query->groupby(['last_name']);
+		$result = $query->query();
+		$this->assertEquals(true, $result['success'], 'string_agg failed, iteration 1!');
+		// fetch tables and databases
+		foreach (['fetch_databases', 'fetch_tables'] as $v) {
+			$result = $db_object->query($db_object->sqlHelper($v));
+			$this->assertEquals(true, $result['success'], $v . ' failed, iteration 2!');
+		}
+		// concat
+		$query = \Object\Query\Builder::quick($db_object->db_link);
+		$query->select();
+		$query->columns([
+			'concat_column' => $db_object->sqlHelper('concat', ["'str1'", "' and '", "'str2'"])
+		]);
+		$result = $query->query();
+		$this->assertEquals(true, $result['success'], 'concat failed, iteration 3!');
+		$this->assertEquals('str1 and str2', $result['rows'][0]['concat_column'], 'concat failed, iteration 3!');
+		// random
+		$query = \Object\Query\Builder::quick($db_object->db_link);
+		$query->select();
+		$query->columns([
+			'random_column' => $db_object->sqlHelper('random', ['min' => 1000, 'max' => 9999])
+		]);
+		$result = $query->query();
+		$this->assertEquals(true, $result['success'], 'random failed, iteration 4!');
+		$this->assertEquals(true, $result['rows'][0]['random_column'] >= 1000 && $result['rows'][0]['random_column'] <= 9999, 'concat failed, iteration 4!');
+		// todo add tests for geo functions
+	}
+
+	/**
+     * @depends testConnect
+     */
 	public function testCRUD($db_object) {
 		// test table save/insert/update/select
 		$model = new \Numbers\Backend\Db\Test\Model\Employees();

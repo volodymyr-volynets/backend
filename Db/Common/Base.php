@@ -412,7 +412,31 @@ class Base {
 	 * @return array
 	 */
 	public function copy(string $table, array $rows) : array {
+		// todo maybe chunk it by 250 rows
 		return $this->insert($table, $rows);
+	}
+
+	/**
+	 * Check if table exists
+	 *
+	 * @param string $full_table_name
+	 *		[schema].[name]
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function tableExists(string $full_table_name) :bool {
+		$temp = explode('.', $full_table_name);
+		if (count($temp) != 2) {
+			Throw new \Exception('You must provide full table name');
+		}
+		$query = new \Object\Query\Builder($this->db_link);
+		$query->select();
+		$query->columns(['counter' => 'COUNT(*)']);
+		$query->from('(' . $this->sqlHelper('fetch_tables') . ')', 'a');
+		$query->where('AND', ['a.schema_name', '=', $temp[0]]);
+		$query->where('AND', ['a.table_name', '=', $temp[1]]);
+		$temp_result = $query->query();
+		return !empty($temp_result['rows'][0]['counter']);
 	}
 
 	/**
@@ -439,5 +463,29 @@ class Base {
 		}
 		$num = array_rand(self::$random_names[$type], 1);
 		return trim(self::$random_names[$type][$num]);
+	}
+
+	/**
+	 * Generate random array
+	 *
+	 * @param array $definition
+	 *		[key] => ([value] or [~~type for $this->randomName])
+	 * @param int $number
+	 * @return array
+	 */
+	public function randomArray(array $definition, int $number = 1) : array {
+		$result = [];
+		for ($i = 0; $i < $number; $i++) {
+			$temp = [];
+			foreach ($definition as $k => $v) {
+				if (is_string($v) && substr($v, 0, 2) == '~~') {
+					$temp[$k] = $this->randomName(str_replace('~~', '', $v));
+				} else {
+					$temp[$k] = $v;
+				}
+			}
+			$result[] = $temp;
+		}
+		return $result;
 	}
 }

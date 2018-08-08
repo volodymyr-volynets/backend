@@ -15,7 +15,9 @@ class Employees extends \Object\Table {
 	public $columns = [
 		'id' => ['name' => '#', 'domain' => 'group_id_sequence'],
 		'first_name' => ['name' => 'First name', 'domain' => 'name'],
-		'last_name' => ['name' => 'Last name', 'domain' => 'name']
+		'last_name' => ['name' => 'Last name', 'domain' => 'name'],
+		// testing add, change and drop column
+		//'description' => ['name' => 'Description', 'type' => 'varchar', 'default' => null, 'null' => true, 'length' => 255]
 	];
 	public $constraints = [
 		'sm_test_employees_pk' => ['type' => 'pk', 'columns' => ['id']],

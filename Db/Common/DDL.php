@@ -1445,8 +1445,8 @@ class DDL {
 				$diff['change_columns'][$k]['data_old'] = $this->columnSqlType($v['data_old']);
 			}
 		}
-		// fixes for new triggers, functions and extensions
-		foreach (['new_triggers', 'new_functions', 'new_extensions'] as $k0) {
+		// fixes for new triggers, functions, views and extensions
+		foreach (['new_triggers', 'new_functions', 'new_extensions', 'new_views'] as $k0) {
 			if (!empty($diff[$k0])) {
 				foreach ($diff[$k0] as $k => $v) {
 					if ($v['backend'] != $backend) {

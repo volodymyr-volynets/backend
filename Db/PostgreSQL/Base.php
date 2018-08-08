@@ -458,11 +458,9 @@ TTT;
 	 *
 	 * @param mixed $fields
 	 * @param string $str
-	 * @param string $operator
-	 * @param array $options
 	 * @return string
 	 */
-	public function fullTextSearchQuery($fields, $str, $operator = '&', $options = []) {
+	public function fullTextSearchQuery($fields, $str) {
 		$result = [
 			'where' => '',
 			'orderby' => '',
@@ -471,6 +469,7 @@ TTT;
 		$str = trim($str);
 		$str_escaped = $this->escape($str);
 		$flag_do_not_escape = false;
+		$operator = '&';
 		if (!empty($fields)) {
 			$sql = '';
 			$sql2 = '';

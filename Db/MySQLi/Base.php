@@ -47,7 +47,13 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	 */
 	public function handleName(& $schema, & $name) {
 		if (empty($schema)) {
-			$schema =  $this->connect_options['dbname'];
+			if (!empty($this->connect_options['dbname'])) {
+				$schema =  $this->connect_options['dbname'];
+				return $schema . '.' . $name;
+			} else {
+				$schema = '';
+				return $name;
+			}
 		}
 		return $schema . '.' . $name;
 	}
@@ -408,7 +414,12 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 				$result = 'GROUP_CONCAT(' . $options['expression'] . ' SEPARATOR \'' . ($options['delimiter'] ?? ';') . '\')';
 				break;
 			case 'fetch_databases':
-				$result = 'SELECT schema_name AS database_name FROM information_schema.schemata ORDER BY database_name ASC';
+				$result = <<<TTT
+					SELECT
+						schema_name AS database_name
+					FROM information_schema.schemata
+					ORDER BY database_name ASC
+TTT;
 				break;
 			case 'fetch_tables':
 				$result = <<<TTT
@@ -448,7 +459,7 @@ TTT;
 	 * @return string
 	 */
 	public function cast(string $column, string $type) : string {
-		$type = str_replace(['character varying'], ['char'], $type);
+		$type = str_replace(['varchar'], ['char'], $type);
 		return "CAST({$column} AS {$type})";
 	}
 
@@ -457,19 +468,16 @@ TTT;
 	 *
 	 * @param mixed $fields
 	 * @param string $str
-	 * @param string $operator
-	 * @param array $options
 	 * @return string
 	 */
-	public function fullTextSearchQuery($fields, $str, $operator = '&', $options = []) {
+	public function fullTextSearchQuery($fields, $str) {
 		$result = [
 			'where' => '',
 			'orderby' => '',
 			'rank' => ''
 		];
-		$mode = $options['mode'] ?? 'IN NATURAL LANGUAGE MODE';
+		$mode = $options['mode'] ?? 'IN BOOLEAN MODE'; // 'IN NATURAL LANGUAGE MODE';
 		$str = trim($str);
-		$flag_do_not_escape = false;
 		if (!empty($fields)) {
 			$sql = '';
 			if (is_array($fields)) {
@@ -478,7 +486,7 @@ TTT;
 				$sql = $fields;
 			}
 			$escaped = preg_replace('/\s\s+/', ' ', $str);
-			$escaped = str_replace(' ', ',', $escaped);
+			$escaped = str_replace(' ', '* ', $escaped);
 			$where = "MATCH ({$sql}) AGAINST ('" . $this->escape($escaped) . "' {$mode})";
 			$temp = [];
 			foreach ($fields as $f) {
@@ -647,6 +655,11 @@ TTT;
 				break;
 			case 'select':
 			default:
+				// temporary table first
+				if (!empty($object->data['temporary_table'])) {
+					$sql.= "CREATE TEMPORARY TABLE {$object->data['temporary_table']}\n";
+				}
+				// select with distinct
 				$sql.= "SELECT" . (!empty($object->data['distinct']) ? ' DISTINCT ' : '') . "\n";
 				// columns
 				if (empty($object->data['columns'])) {
