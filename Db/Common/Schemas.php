@@ -116,7 +116,7 @@ run_again:
 			foreach ($virtual_models as $k => $v) {
 				$k2 = str_replace('.', '_', $k);
 				if ($v == '\Object\Table') {
-					$model = \Factory::model($k2, true, [['skip_db_object' => $options['skip_db_object'] ?? false]]);
+					$model = \Factory::model($k2, false, [['skip_db_object' => $options['skip_db_object'] ?? false]]);
 					foreach ($widgets as $v0 => $v02) {
 						if (!empty($model->{$v0})) {
 							$virtual_models[str_replace('_', '.', $model->{$v0 . '_model'})] = '\Object\Table';
@@ -133,7 +133,7 @@ run_again:
 			foreach ($dep['data']['model_processed'] as $k => $v) {
 				$k2 = str_replace('.', '_', $k);
 				if ($v == '\Object\Table') {
-					$model = \Factory::model($k2, true, [$options]);
+					$model = \Factory::model($k2, false, [$options]);
 					// todo: disable non default db links
 					$temp_result = $ddl->processTableModel($model, $options);
 					if (!$temp_result['success']) {

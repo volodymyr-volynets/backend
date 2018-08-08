@@ -108,7 +108,7 @@ class DDL {
 		];
 		do {
 			// model
-			$model = is_object($model_class) ? $model_class : \Factory::model($model_class, true, $options);
+			$model = is_object($model_class) ? $model_class : \Factory::model($model_class, false, $options);
 			// acl
 			if (!empty($model->acl)) {
 				$not_found = false;
@@ -225,7 +225,7 @@ class DDL {
 					$v['full_table_name'] = $model->full_table_name;
 					// additional processing for fk type constraints
 					if ($v['type'] == 'fk') {
-						$temp_object = \Factory::model($v['foreign_model'], true, [$options]);
+						$temp_object = \Factory::model($v['foreign_model'], false, [$options]);
 						$v['foreign_table'] = $temp_object->full_table_name;
 						// default options
 						if (empty($v['options'])) $v['options'] = [];
@@ -278,7 +278,7 @@ class DDL {
 		];
 		do {
 			// model
-			$model = \Factory::model($model_class, true);
+			$model = \Factory::model($model_class, false);
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
@@ -320,7 +320,7 @@ class DDL {
 		];
 		do {
 			// model
-			$model = \Factory::model($model_class, true);
+			$model = \Factory::model($model_class, false);
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
@@ -360,7 +360,7 @@ class DDL {
 		];
 		do {
 			// model
-			$model = \Factory::model($model_class, true);
+			$model = \Factory::model($model_class, false);
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
@@ -400,7 +400,7 @@ class DDL {
 		];
 		do {
 			// model
-			$model = \Factory::model($model_class, true);
+			$model = \Factory::model($model_class, false);
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
@@ -444,7 +444,7 @@ class DDL {
 		];
 		do {
 			// model
-			$model = \Factory::model($model_class, true);
+			$model = \Factory::model($model_class, false);
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
@@ -489,7 +489,7 @@ class DDL {
 		];
 		do {
 			// model
-			$model = \Factory::model($model_class, true);
+			$model = \Factory::model($model_class, false);
 			// skip tables with different db_link
 			if ($model->db_link != ($options['db_link'] ?? 'default')) {
 				$result['success'] = true;
