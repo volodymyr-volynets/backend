@@ -625,28 +625,11 @@ TTT;
 				if (empty($object->data['from'])) {
 					$result['error'][] = 'From?';
 				} else {
-					$temp = [];
-					$temp1 = '';
-					$aliases = [];
-					foreach ($object->data['from'] as $k => $v) {
-						$temp2 = $v;
-						$temp1 = $v;
-						if (!is_numeric($k)) {
-							$temp2.= " AS $k";
-							$aliases[] = $k;
-						}
-						$temp[] = $temp2;
-					}
-					if (count($object->data['from']) == 1) {
-						$sql.= 'DELETE FROM ' . $temp1;
-					} else {
-						$sql.= 'DELETE ' . implode(', ', $aliases) . ' FROM ' . implode(",", $temp);
-					}
+					$sql.= 'DELETE FROM ' . current($object->data['from']);
 				}
 				// where
 				if (!empty($object->data['where'])) {
-					$sql.= "\nWHERE";
-					$sql.= $object->renderWhere($object->data['where']);
+					$sql.= "\nWHERE" . $object->renderWhere($object->data['where']);
 				}
 				// limit
 				if (!empty($object->data['limit'])) {

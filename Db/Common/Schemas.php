@@ -47,6 +47,11 @@ class Schemas {
 		if (!empty($result['app_structure']['db_multiple'])) {
 			// connect to db to get a list of databases
 			$db_object = new \Db($result['db_link'] . '_temp', $result['db_settings']['submodule']);
+			// temporary fix for oracle
+			if ($db_object->backend == 'Oracle') {
+				Throw new \Exception('Multiple databases are not supported in this backend!');
+			}
+			// connect
 			$db_status = $db_object->connect($result['db_settings']);
 			if (!($db_status['success'] && $db_status['status'])) {
 				$result['error'][] = 'Unable to open database connection!';

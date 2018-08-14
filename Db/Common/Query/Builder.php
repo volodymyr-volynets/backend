@@ -177,6 +177,10 @@ class Builder {
 		} else {
 			array_push($this->data['from'], $this->singleFromClause($table));
 		}
+		// exceptions
+		if ($this->data['operator'] == 'delete' && count($this->data['from']) > 1) {
+			Throw new \Exception('Deletes from multiple tables are not allowed!');
+		}
 		return $this;
 	}
 
@@ -355,6 +359,12 @@ class Builder {
 	public function where(string $operator = 'AND', $condition, bool $exists = false) : \Numbers\Backend\Db\Common\Query\Builder {
 		// add condition
 		array_push($this->data['where'], $this->singleConditionClause($operator, $condition, $exists));
+		// exceptions
+		if ($this->data['operator'] == 'delete' && is_array($condition)) {
+			if (strpos($condition[0], '.') !== false) {
+				Throw new \Exception('Aliases are not allowed in delete where clauses!');
+			}
+		}
 		return $this;
 	}
 

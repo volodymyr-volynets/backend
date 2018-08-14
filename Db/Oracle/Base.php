@@ -677,7 +677,7 @@ TTT;
 						}
 						$temp[] = $temp2;
 					}
-					$sql.= implode(",", $temp);
+					$sql.= implode(', ', $temp);
 				}
 				// limit
 				if (!empty($object->data['limit'])) {

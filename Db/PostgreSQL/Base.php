@@ -662,28 +662,22 @@ TTT;
 				if (empty($object->data['from'])) {
 					$result['error'][] = 'From?';
 				} else {
-					$temp = [];
-					foreach ($object->data['from'] as $k => $v) {
-						$temp2 = $v;
-						if (!is_numeric($k)) {
-							$temp2.= " AS $k";
-						}
-						$temp[] = $temp2;
+					$sql = "WITH delete_cte AS\n";
+					$sql.= "(\n";
+						$sql.= "SELECT *, ROW_NUMBER() AS delete_rn\n";
+						$sql.= "FROM " . current($object->data['from']);
+					$sql.= ")\n";
+					$sql.= "DELETE FROM delete_cte\n";
+					// limit
+					if (!empty($object->data['limit'])) {
+						$sql.= "\nLIMIT " . $object->data['limit'];
+						array_push($object->data['where'], ['AND', '', "delete_rn <= {$object->data['limit']}", '']);
 					}
-					$sql.= implode(",", $temp);
-				}
-				// where
-				if (!empty($object->data['where'])) {
-					$sql.= "\nWHERE";
-					$sql.= $object->renderWhere($object->data['where']);
-				}
-				// limit
-				if (!empty($object->data['limit'])) {
-					$sql.= "\nLIMIT " . $object->data['limit'];
-				}
-				// returning
-				if (!empty($object->data['returning'])) {
-					$sql.= "\nRETURNING *";
+					// where
+					if (!empty($object->data['where'])) {
+						$sql.= "\nWHERE";
+						$sql.= $object->renderWhere($object->data['where']);
+					}
 				}
 				break;
 			case 'select':
