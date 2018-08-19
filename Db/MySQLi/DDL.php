@@ -722,7 +722,8 @@ TTT;
 				break;
 			case 'permission_grant_schema': /* nothing */ break;
 			case 'permission_grant_table':
-				$result = "GRANT SELECT, INSERT, UPDATE, DELETE ON {$data['table']} TO '{$data['owner']}';";
+				// DROP is needed so we can TRUNCATE
+				$result = "GRANT SELECT, INSERT, UPDATE, DELETE, DROP ON {$data['table']} TO '{$data['owner']}';";
 				break;
 			case 'permission_grant_view':
 				$result = "GRANT SELECT ON {$data['view']} TO '{$data['owner']}';";
