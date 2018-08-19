@@ -128,9 +128,19 @@ class DDL {
 				$result['success'] = true;
 				break;
 			}
-			// table must have columns
+			// table must have columns including temporary
 			if (empty($model->columns)) {
 				$result['error'][] = 'Table ' . $model->full_table_name . ' must have atleast one column!';
+				break;
+			}
+			// skip temporary tables
+			if ($model->temporary) {
+				$result['success'] = true;
+				break;
+			}
+			// table must have primary key, as a good practice
+			if (empty($model->pk)) {
+				$result['error'][] = 'Table ' . $model->full_table_name . ' must have primary key!';
 				break;
 			}
 			// columns
@@ -417,6 +427,7 @@ class DDL {
 					'name' => $model->name,
 					'backend' => $v,
 					'data' => [
+						'owner' => $options['db_schema_owner'] ?? null,
 						'full_view_name' => $model->full_view_name,
 						'definition' => $model->definition,
 						'grant_tables' => $model->grant_tables
@@ -1349,6 +1360,7 @@ class DDL {
 
 		// pk and unique must be last
 		if (!empty($result['up']['delete_constraints'])) {
+			$temp_pks_and_uniques = $temp_fks = [];
 			foreach ($result['up']['delete_constraints'] as $k => $v) {
 				if ($v['data']['type'] == 'fk') { // fk goes first
 					$temp_fks[$k] = $v;
@@ -1382,7 +1394,7 @@ class DDL {
 	public static function sanitizeFunction($sql) {
 		$result = str_replace(['$BODY$', '$function$'], '$$$$$$', $sql);
 		$result = strtolower($result);
-		$result = str_replace([' as ', 'public.'], ' ', $result);
+		$result = str_replace([' as '], ' ', $result);
 		$result = trim(str_replace([' ', "\n", "\r", "\t", '"', "'", "`"], '', $result));
 		return $result;
 	}

@@ -63,7 +63,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 			'count' => []
 		];
 		// getting information
-		foreach (array('extensions', 'schemas', 'columns', 'constraints', 'sequences', 'functions', 'triggers') as $v) { //'views', 'domains', 'triggers'
+		foreach (['extensions', 'schemas', 'columns', 'constraints', 'sequences', 'functions', 'triggers', 'views'] as $v) {
 			$temp = $this->loadSchemaDetails($v, $db_link);
 			if (!$temp['success']) {
 				$result['error'] = array_merge($result['error'], $temp['error']);
@@ -73,9 +73,6 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 						$tables = [];
 						// small conversion for columns
 						foreach ($temp['data'] as $k2 => $v2) {
-							if ($k2 == 'public') {
-								$k2 = '';
-							}
 							foreach ($v2 as $k3 => $v3) {
 								foreach ($v3 as $k4 => $v4) {
 									// full table name
@@ -157,9 +154,6 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 					case 'constraints':
 						foreach ($temp['data'] as $k2 => $v2) {
 							foreach ($v2 as $k3 => $v3) {
-								if ($k3 == 'public') {
-									$k3 = '';
-								}
 								foreach ($v3 as $k4 => $v4) {
 									foreach ($v4 as $k5 => $v5) {
 										$constraint_type = 'constraint';
@@ -229,7 +223,6 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 						$result['data']['extension'] = [];
 						foreach ($temp['data'] as $k4 => $v4) {
 							foreach ($v4 as $k5 => $v5) {
-								if ($v5['schema_name'] == 'public') $v5['schema_name'] = '';
 								$this->objectAdd([
 									'type' => 'extension',
 									'schema' => $v5['schema_name'],
@@ -263,7 +256,6 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 						// add sequences
 						foreach ($temp['data'] as $k2 => $v2) {
 							foreach ($v2 as $k3 => $v3) {
-								if ($v3['schema_name'] == 'public') $v3['schema_name'] = '';
 								$full_sequence_name = ltrim($v3['schema_name'] . '.' . $v3['sequence_name'], '.');
 								$this->objectAdd([
 									'type' => 'sequence',
@@ -284,9 +276,6 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 						break;
 					case 'functions':
 						foreach ($temp['data'] as $k2 => $v2) {
-							if ($k2 == 'public') {
-								$k2 = '';
-							}
 							foreach ($v2 as $k3 => $v3) {
 								$full_function_name = ltrim($v3['schema_name'] . '.' . $v3['function_name'], '.');
 								// add object
@@ -307,9 +296,6 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 						break;
 					case 'triggers':
 						foreach ($temp['data'] as $k2 => $v2) {
-							if ($k2 == 'public') {
-								$k2 = '';
-							}
 							foreach ($v2 as $k3 => $v3) {
 								$full_function_name = ltrim($v3['schema_name'] . '.' . $v3['function_name'], '.');
 								// add object
@@ -323,6 +309,25 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 										'full_table_name' => $v3['full_table_name'],
 										'header' => $v3['full_function_name'],
 										'definition' => $v3['routine_definition']
+									]
+								], $db_link);
+							}
+						}
+						break;
+					case 'views':
+						foreach ($temp['data'] as $k2 => $v2) {
+							foreach ($v2 as $k3 => $v3) {
+								// add object
+								$this->objectAdd([
+									'type' => 'view',
+									'schema' => $k2,
+									'name' => $k3,
+									'backend' => 'PostgreSQL',
+									'data' => [
+										'owner' => $v3['view_owner'],
+										'full_view_name' => $v3['full_view_name'],
+										'definition' => $v3['routine_definition'],
+										'grant_tables' => []
 									]
 								], $db_link);
 							}
@@ -366,7 +371,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 							schema_name AS name,
 							schema_owner AS owner
 					FROM information_schema.schemata
-					WHERE schema_name !~ 'pg_' AND schema_name != 'information_schema' AND schema_name != 'public'
+					WHERE schema_name !~ 'pg_' AND schema_name != 'information_schema'
 					ORDER BY name
 TTT;
 				break;
@@ -529,7 +534,7 @@ TTT;
 						s2.nspname schema_name,
 						a.relname sequence_name,
 						r.rolname sequence_owner,
-						(CASE WHEN s1.nspname = 'public' THEN '' ELSE s1.nspname END) || '.' || t.relname full_table_name
+						s1.nspname || '.' || t.relname full_table_name
 					FROM pg_class a
 					INNER JOIN pg_catalog.pg_roles r ON r.oid = a.relowner
 					INNER JOIN pg_namespace s2 ON s2.oid = a.relnamespace
@@ -579,6 +584,20 @@ TTT;
 						a.extname extension_name
 					FROM pg_catalog.pg_extension a
 					LEFT JOIN pg_catalog.pg_namespace n ON a.extnamespace = n.oid
+TTT;
+				break;
+			case 'views':
+				$key = array('schema_name', 'view_name');
+				$sql = <<<TTT
+					SELECT
+						a.schemaname schema_name,
+						a.viewname view_name,
+						a.schemaname || '.' || a.viewname full_view_name,
+						a.definition routine_definition,
+						a.viewowner view_owner
+					FROM pg_views a
+					WHERE a.schemaname !~ 'pg_'
+						AND a.schemaname NOT IN ('extensions', 'information_schema')
 TTT;
 				break;
 			default:
@@ -691,13 +710,17 @@ TTT;
 				break;
 			// view
 			case 'view_new':
-				$result = "CREATE OR REPLACE VIEW {$data['name']} AS {$data['definition']}\nALTER VIEW {$data['name']} OWNER TO {$data['owner']};";
+				$result = [];
+				$name = ltrim($data['schema'] . '.' . $data['name'], '.');
+				$result[] = "CREATE OR REPLACE VIEW {$name} AS {$data['data']['definition']}";
+				$result[] = "ALTER VIEW {$name} OWNER TO {$data['data']['owner']};";
 				break;
 			case 'view_delete':
 				$result = "DROP VIEW {$data['name']};";
 				break;
 			case 'view_owner':
-				$result = "ALTER TABLE {$data['name']} OWNER TO {$data['owner']};";
+				$name = ltrim($data['schema'] . '.' . $data['name'], '.');
+				$result = "ALTER VIEW {$name} OWNER TO {$data['data']['owner']};";
 				break;
 			// foreign key/unique/primary key
 			case 'constraint_new':
@@ -794,11 +817,28 @@ TTT;
 				$result = "DROP TRIGGER IF EXISTS {$data['data']['header']} ON {$data['data']['full_table_name']};";
 				break;
 			// permissions
+			case 'permission_grant_database':
+				$result = [];
+				$result[] = <<<TTT
+					DO
+					\$body\$
+					DECLARE
+					  num_users integer;
+					BEGIN
+						SELECT count(*) INTO num_users FROM pg_user WHERE usename = '{$data['owner']}';
+						IF num_users = 0 THEN
+							CREATE USER {$data['owner']} LOGIN PASSWORD '{$data['password']}';
+						END IF;
+					END
+					\$body\$
+					;
+TTT;
+				break;
 			case 'permission_grant_schema':
 				$result = "GRANT USAGE ON SCHEMA {$data['schema']} TO {$data['owner']};";
 				break;
 			case 'permission_grant_table':
-				$result = "GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE {$data['table']} TO {$data['owner']};";
+				$result = "GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLE {$data['table']} TO {$data['owner']};";
 				break;
 			case 'permission_grant_sequence':
 				$result = "GRANT USAGE, SELECT, UPDATE ON SEQUENCE {$data['sequence']} TO {$data['owner']};";
@@ -806,9 +846,15 @@ TTT;
 			case 'permission_grant_function':
 				$result = "GRANT EXECUTE ON FUNCTION {$data['header']} TO {$data['owner']};";
 				break;
-			default:
-				// nothing
-				Throw new \Exception($type . '?');
+			case 'permission_grant_view':
+				$result = [];
+				$result[]= "GRANT SELECT ON {$data['view']} TO {$data['owner']};";
+				// we must grant access to all tables used in view
+				foreach ($data['grant_tables'] as $v) {
+					$result[]= "GRANT SELECT ON TABLE {$v} TO {$data['owner']};";
+				}
+				break;
+			case 'permission_grant_flush': /* nothing */ break;
 		}
 		return $result;
 	}

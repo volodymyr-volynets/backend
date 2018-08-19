@@ -286,7 +286,8 @@ class Base {
 	 * @param array $data
 	 * @param mixed $keys
 	 * @param array $options
-	 *		where - primary key
+	 *		where - condition
+	 *		primary_key - primary key
 	 * @return array
 	 */
 	public function delete($table, $data, $keys, $options = []) {
@@ -298,7 +299,7 @@ class Base {
 			$where = pk($keys, $data, true);
 		}
 		// build a query
-		$query = \Numbers\Backend\Db\Common\Query\Builder::quick($this->db_link)
+		$query = \Numbers\Backend\Db\Common\Query\Builder::quick($this->db_link, ['primary_key' => $options['primary_key']])
 			->delete()
 			->from($table)
 			->where('AND', $this->prepareCondition($where, 'AND'));
@@ -312,7 +313,8 @@ class Base {
 	 * @param array $data
 	 * @param mixed $keys
 	 * @param array $options
-	 *		where - primary key
+	 *		where - condition
+	 *		primary_key - primary key
 	 * @return array
 	 */
 	public function update($table, $data, $keys, $options = []) {
@@ -324,7 +326,7 @@ class Base {
 			$where = pk($keys, $data, true);
 		}
 		// build a query
-		$query = \Numbers\Backend\Db\Common\Query\Builder::quick($this->db_link)
+		$query = \Numbers\Backend\Db\Common\Query\Builder::quick($this->db_link, ['primary_key' => $options['primary_key']])
 			->update()
 			->from($table)
 			->set($data)

@@ -7,7 +7,7 @@ class Dependencies extends \Object\Table {
 	public $module_code = 'SM';
 	public $title = 'S/M Module Dependencies';
 	public $name = 'sm_module_dependencies';
-	public $pk = [];
+	public $pk = ['sm_mdldep_parent_module_code', 'sm_mdldep_parent_feature_code', 'sm_mdldep_child_module_code', 'sm_mdldep_child_feature_code'];
 	public $tenant = false;
 	public $orderby;
 	public $limit;

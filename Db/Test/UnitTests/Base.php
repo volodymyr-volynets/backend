@@ -16,8 +16,8 @@ class Base extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-     * @depends testConnect
-     */
+	 * @depends testConnect
+	 */
 	public function testSequences($db_object) {
 		// plain sequences
 		$model = new \Numbers\Backend\Db\Test\Model\Employees();
@@ -28,8 +28,8 @@ class Base extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-     * @depends testConnect
-     */
+	 * @depends testConnect
+	 */
 	public function testCast($db_object) {
 		$query = \Object\Query\Builder::quick($db_object->db_link);
 		$query->select();
@@ -43,8 +43,8 @@ class Base extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-     * @depends testConnect
-     */
+	 * @depends testConnect
+	 */
 	public function testCopy($db_object) {
 		$model = new \Numbers\Backend\Db\Test\Model\Employees();
 		$result = $db_object->copy($model->full_table_name, $db_object->randomArray([
@@ -56,14 +56,14 @@ class Base extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-     * @depends testConnect
-     */
+	 * @depends testConnect
+	 */
 	public function testTemporaryTable($db_object) {
 		// way 1 through db object
 		$model = new \Numbers\Backend\Db\Test\Model\Employees();
-		$result = $db_object->createTempTable($model->full_table_name . '_temp1', $model->columns, ['id'], []);
+		$result = $db_object->createTempTable('temp_employee_table_1', $model->columns, ['id'], []);
 		$this->assertEquals(true, $result['success'], 'Create temporary table failed, iteration 1!');
-		$result = $db_object->copy($model->full_table_name . '_temp1', $db_object->randomArray([
+		$result = $db_object->copy('temp_employee_table_1', $db_object->randomArray([
 			'id' => $model->sequence('id', 'nextval'),
 			'first_name' => '~~first_name',
 			'last_name' => '~~last_name'
@@ -71,21 +71,30 @@ class Base extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals(true, $result['success'], 'Create temporary table failed, iteration 2!');
 		// way 2 through query builder
 		$query = \Numbers\Backend\Db\Test\Model\Employees::queryBuilderStatic();
-		$query->temporaryTable($model->full_table_name . '_temp2');
-		$query->select();
+		$query->temporaryTable('temp_employee_table_2')->select();
 		$result = $query->query();
 		$this->assertEquals(true, $result['success'], 'Create temporary table failed, iteration 3!');
-		$result = $db_object->copy($model->full_table_name . '_temp2', $db_object->randomArray([
+		$result = $db_object->copy('temp_employee_table_2', $db_object->randomArray([
 			'id' => $model->sequence('id', 'nextval'),
 			'first_name' => '~~first_name',
 			'last_name' => '~~last_name'
 		], 1));
 		$this->assertEquals(true, $result['success'], 'Create temporary table failed, iteration 4!');
+		// way 3 through models
+		$model = new \Numbers\Backend\Db\Test\Model\Temporary\Employees(['create' => true]);
+		$result = $model->queryBuilder()->truncate()->query();
+		$this->assertEquals(true, $result['success'], 'Create temporary table failed, iteration 5!');
+		$result = $db_object->copy($model->full_table_name, $db_object->randomArray([
+			'id' => 1,
+			'first_name' => '~~first_name',
+			'last_name' => '~~last_name'
+		], 1));
+		$this->assertEquals(true, $result['success'], 'Create temporary table failed, iteration 6!');
 	}
 
 	/**
-     * @depends testConnect
-     */
+	 * @depends testConnect
+	 */
 	public function testFullTextSearch($db_object) {
 		// way 1 through where
 		$query = \Numbers\Backend\Db\Test\Model\Employees::queryBuilderStatic();
@@ -107,8 +116,8 @@ class Base extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-     * @depends testConnect
-     */
+	 * @depends testConnect
+	 */
 	public function testSQLHelper($db_object) {
 		// string aggregation
 		$query = \Numbers\Backend\Db\Test\Model\Employees::queryBuilderStatic();
@@ -183,9 +192,14 @@ class Base extends \PHPUnit\Framework\TestCase {
      */
 	public function testQueryBuilder($db_object) {
 		$model = new \Numbers\Backend\Db\Test\Model\Employees();
+		$model2 = new \Numbers\Backend\Db\Test\Model\Employee\Audits();
+		// test truncate
+		$result = $model2->queryBuilder()->truncate()->query();
+		$this->assertEquals(true, $result['success'], 'Truncate failed!');
 		// test delete
 		$query = $model->queryBuilder()->delete();
 		$query->where('AND', ['id', '>', 0]);
+		$query->orderby(['id' => SORT_DESC]);
 		$query->limit(9999999);
 		$result = $query->query();
 		$this->assertEquals(true, $result['success'], 'Delete failed!');
@@ -231,6 +245,7 @@ class Base extends \PHPUnit\Framework\TestCase {
 			'last_name;=;~~' => 'UPPER(last_name)'
 		]);
 		$query->where('AND', ['MOD(id, 2)', '=', 0]);
+		$query->orderby(['id' => SORT_ASC]);
 		$query->limit(9999999);
 		$result = $query->query();
 		$this->assertEquals(true, $result['success'], 'Update failed, iteration 1!');
@@ -292,8 +307,8 @@ class Base extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-     * @depends testConnect
-     */
+	 * @depends testConnect
+	 */
 	public function testClose($db_object) {
 		// close database connection
 		$result = $db_object->close();

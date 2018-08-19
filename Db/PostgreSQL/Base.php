@@ -91,6 +91,24 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	}
 
 	/**
+	 * Handle name
+	 *
+	 * @param string $schema
+	 * @param string $name
+	 * @return string
+	 */
+	public function handleName(& $schema, & $name, $options = []) {
+		if (empty($schema)) {
+			$schema = 'public';
+		}
+		if (!empty($options['temporary'])) {
+			return $schema . '_' . $name;
+		} else {
+			return $schema . '.' . $name;
+		}
+	}
+
+	/**
 	 * Structure of our fields (type, length and null)
 	 *
 	 * @param resource $resource
@@ -535,7 +553,9 @@ TTT;
 		}
 		// pk
 		if ($pk) {
-			$columns_sql[] = "CONSTRAINT {$table}_pk PRIMARY KEY (" . implode(', ', $pk) . ")";
+			$temp = explode('.', $table);
+			$constraint_name = $temp[1] ?? $temp[0];
+			$columns_sql[] = "CONSTRAINT {$constraint_name}_pk PRIMARY KEY (" . implode(', ', $pk) . ")";
 		}
 		$columns_sql = implode(', ', $columns_sql);
 		$sql = "CREATE TEMP TABLE {$table} ({$columns_sql})";
@@ -611,15 +631,20 @@ TTT;
 					$sql.= "\nSET ";
 					$sql.= $this->prepareCondition($object->data['set'], ",\n\t");
 				}
+				$sql2 = 'SELECT ' . implode(', ', $object->data['primary_key']) . ' FROM ' . current($object->data['from']);
 				// where
 				if (!empty($object->data['where'])) {
-					$sql.= "\nWHERE";
-					$sql.= $object->renderWhere($object->data['where']);
+					$sql2.= ' WHERE ' . $object->renderWhere($object->data['where']);
+				}
+				// orderby
+				if (!empty($object->data['orderby'])) {
+					$sql2.= ' ORDER BY ' . array_key_sort_prepare_keys($object->data['orderby'], true);
 				}
 				// limit
 				if (!empty($object->data['limit'])) {
-					$sql.= "\nLIMIT " . $object->data['limit'];
+					$sql2.= ' LIMIT ' . $object->data['limit'];
 				}
+				$sql.= "\nWHERE (" . implode(', ', $object->data['primary_key']) . ") IN (" . $sql2 . ")";
 				break;
 			case 'insert':
 				$sql.= "INSERT INTO ";
@@ -657,31 +682,41 @@ TTT;
 				}
 				break;
 			case 'delete':
-				$sql.= "DELETE FROM ";
 				// from
 				if (empty($object->data['from'])) {
 					$result['error'][] = 'From?';
 				} else {
-					$sql = "WITH delete_cte AS\n";
-					$sql.= "(\n";
-						$sql.= "SELECT *, ROW_NUMBER() AS delete_rn\n";
-						$sql.= "FROM " . current($object->data['from']);
-					$sql.= ")\n";
-					$sql.= "DELETE FROM delete_cte\n";
-					// limit
-					if (!empty($object->data['limit'])) {
-						$sql.= "\nLIMIT " . $object->data['limit'];
-						array_push($object->data['where'], ['AND', '', "delete_rn <= {$object->data['limit']}", '']);
-					}
+					$sql.= "DELETE FROM " . current($object->data['from']);
+					$sql2 = 'SELECT ' . implode(', ', $object->data['primary_key']) . ' FROM ' . current($object->data['from']);
 					// where
 					if (!empty($object->data['where'])) {
-						$sql.= "\nWHERE";
-						$sql.= $object->renderWhere($object->data['where']);
+						$sql2.= ' WHERE ' . $object->renderWhere($object->data['where']);
 					}
+					// orderby
+					if (!empty($object->data['orderby'])) {
+						$sql2.= ' ORDER BY ' . array_key_sort_prepare_keys($object->data['orderby'], true);
+					}
+					// limit
+					if (!empty($object->data['limit'])) {
+						$sql2.= ' LIMIT ' . $object->data['limit'];
+					}
+					$sql.= "\nWHERE (" . implode(', ', $object->data['primary_key']) . ") IN (" . $sql2 . ")";
+				}
+				break;
+			case 'truncate':
+				if (empty($object->data['from'])) {
+					$result['error'][] = 'From?';
+				} else {
+					$sql.= "TRUNCATE TABLE " . current($object->data['from']);
 				}
 				break;
 			case 'select':
 			default:
+				// temporary table first
+				if (!empty($object->data['temporary_table'])) {
+					$sql.= "CREATE TEMP TABLE {$object->data['temporary_table']} AS\n";
+				}
+				// select with distinct
 				$sql.= "SELECT" . (!empty($object->data['distinct']) ? ' DISTINCT ' : '') . "\n";
 				// columns
 				if (empty($object->data['columns'])) {

@@ -14,7 +14,7 @@ class UpdateEmployeeTrigger extends \Object\Function2 {
 AS $function$
 BEGIN
  IF NEW.last_name <> OLD.last_name THEN
- INSERT INTO sm_employee_audits(employee_id,last_name,changed_on)
+ INSERT INTO sm_test_employee_audits(employee_id,last_name,changed_on)
  VALUES(OLD.id,OLD.last_name,now());
  END IF;
  

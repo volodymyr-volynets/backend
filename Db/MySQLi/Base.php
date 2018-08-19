@@ -631,9 +631,20 @@ TTT;
 				if (!empty($object->data['where'])) {
 					$sql.= "\nWHERE" . $object->renderWhere($object->data['where']);
 				}
+				// orderby
+				if (!empty($object->data['orderby'])) {
+					$sql.= "\nORDER BY " . array_key_sort_prepare_keys($object->data['orderby'], true);
+				}
 				// limit
 				if (!empty($object->data['limit'])) {
 					$sql.= "\nLIMIT " . $object->data['limit'];
+				}
+				break;
+			case 'truncate':
+				if (empty($object->data['from'])) {
+					$result['error'][] = 'From?';
+				} else {
+					$sql.= "TRUNCATE TABLE " . current($object->data['from']);
 				}
 				break;
 			case 'select':

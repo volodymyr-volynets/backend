@@ -664,33 +664,42 @@ TTT;
 				}
 				break;
 			case 'delete':
-				$sql.= "DELETE FROM ";
 				// from
 				if (empty($object->data['from'])) {
 					$result['error'][] = 'From?';
 				} else {
-					$temp = [];
-					foreach ($object->data['from'] as $k => $v) {
-						$temp2 = $v;
-						if (!is_numeric($k)) {
-							$temp2.= " $k";
-						}
-						$temp[] = $temp2;
+					$sql.= "DELETE FROM " . current($object->data['from']);
+					$sql2 = 'SELECT ' . implode(', ', $object->data['primary_key']) . ' FROM ' . current($object->data['from']);
+					// where
+					if (!empty($object->data['where'])) {
+						$sql2.= ' WHERE ' . $object->renderWhere($object->data['where']);
 					}
-					$sql.= implode(', ', $temp);
+					// orderby
+					if (!empty($object->data['orderby'])) {
+						$sql2.= ' ORDER BY ' . array_key_sort_prepare_keys($object->data['orderby'], true);
+					}
+					// limit
+					if (!empty($object->data['limit'])) {
+						$sql2.= ' FETCH FIRST ' . $object->data['limit'] . ' ROWS ONLY';
+					}
+					$sql.= "\nWHERE (" . implode(', ', $object->data['primary_key']) . ") IN (" . $sql2 . ")";
 				}
-				// limit
-				if (!empty($object->data['limit'])) {
-					array_push($object->data['where'], ['AND', '', "ROWNUM <= {$object->data['limit']}", '']);
-				}
-				// where
-				if (!empty($object->data['where'])) {
-					$sql.= "\nWHERE";
-					$sql.= $object->renderWhere($object->data['where']);
+				break;
+			case 'truncate':
+				if (empty($object->data['from'])) {
+					$result['error'][] = 'From?';
+				} else {
+					$sql.= "TRUNCATE TABLE " . current($object->data['from']);
 				}
 				break;
 			case 'select':
 			default:
+				// temporary table first
+				if (!empty($object->data['temporary_table'])) {
+					$sql.= "CREATE TEMPORARY TABLE {$object->data['temporary_table']} AS\n";
+					// Oracle supports PRIVATE since 18c
+				}
+				// select with distinct
 				$sql.= "SELECT" . (!empty($object->data['distinct']) ? ' DISTINCT ' : '') . "\n";
 				// columns
 				if (empty($object->data['columns'])) {
