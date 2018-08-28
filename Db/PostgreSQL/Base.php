@@ -606,6 +606,10 @@ TTT;
 			'sql' => ''
 		];
 		$sql = '';
+		// comments always first
+		if (!empty($object->data['comment'])) {
+			$sql.= "/* " . $object->data['comment'] . " */\n";
+		}
 		switch ($object->data['operator']) {
 			case 'update':
 				$sql.= "UPDATE ";

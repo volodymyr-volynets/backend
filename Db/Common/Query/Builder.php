@@ -43,6 +43,7 @@ class Builder {
 		'union' => [],
 		'union_orderby' => false, // indicator that previous
 		'primary_key' => null,
+		'comment' => '',
 	];
 
 	/**
@@ -144,6 +145,17 @@ class Builder {
 	 */
 	public function truncate() : \Numbers\Backend\Db\Common\Query\Builder {
 		$this->data['operator'] = 'truncate';
+		return $this;
+	}
+
+	/**
+	 * Comment
+	 *
+	 * @param string $str
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function comment(string $str) : \Numbers\Backend\Db\Common\Query\Builder {
+		$this->data['comment'] = $str;
 		return $this;
 	}
 

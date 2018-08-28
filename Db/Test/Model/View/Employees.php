@@ -7,8 +7,8 @@ class Employees extends \Object\View {
 	public $schema;
 	public $name = 'sm_employees_view';
 	public $backend = ['Oracle', 'MySQLi', 'PostgreSQL'];
+	public $sql_version = '1.0.0';
 	public $tenant;
-	public $column_prefix = '';
 
 	public function definition() {
 		$this->query->from(new \Numbers\Backend\Db\Test\Model\Employees(), 'a');

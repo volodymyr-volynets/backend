@@ -9,9 +9,11 @@ class UpdateEmployeeTriggerMySQLi extends \Object\Trigger {
 	public $backend = 'MySQLi';
 	public $full_table_name = 'sm_employees';
 	public $header = 'sm_employees_log_last_name_changes_trigger()';
+	public $sql_version = '1.0.0';
 	public $definition = 'CREATE TRIGGER sm_employees_log_last_name_changes_trigger BEFORE UPDATE ON sm_test_employees
 FOR EACH ROW
 BEGIN
+	/* version */
 	IF NEW.last_name <> OLD.last_name THEN
 		INSERT INTO sm_test_employee_audits(employee_id,last_name,changed_on)
 		VALUES(OLD.id,OLD.last_name,now());

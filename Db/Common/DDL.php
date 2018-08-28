@@ -386,7 +386,8 @@ class DDL {
 					'full_function_name' => $model->full_function_name,
 					'full_table_name' => $model->full_table_name,
 					'header' => $model->header,
-					'definition' => $model->definition
+					'definition' => $model->definition,
+					'sql_version' => '/* [[[SQL Version: ' . $model->sql_version . ']]] */'
 				]
 			], $model->db_link);
 			// if we got here - we are ok
@@ -1109,13 +1110,7 @@ class DDL {
 						} else { // function changed
 							// body
 							$v3_old = $obj_slave['function'][$k][$k2][$k3];
-							$good = false;
-							if (self::sanitizeFunction($v3['data']['definition']) == self::sanitizeFunction($v3_old['data']['definition'])) {
-								$good = true;
-							} else if (strpos($v3['data']['definition'], $v3_old['data']['definition']) !== false) {
-								$good = true;
-							}
-							if (!$good) {
+							if (\Helper\Parser::match($v3['data']['definition'], '[[[', ']]]') !== \Helper\Parser::match($v3_old['data']['definition'], '[[[', ']]]')) {
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_old['migration_id'] = $result['count'] + 1;
 								// up
@@ -1201,16 +1196,10 @@ class DDL {
 							$result['down']['delete_triggers'][$k . '.' . $k2 . '.' . $k3] = $v3;
 							// count
 							$result['count']++;
-						} else { // function changed
+						} else { // trigger changed
 							// body
 							$v3_old = $obj_slave['trigger'][$k][$k2][$k3];
-							$good = false;
-							if (self::sanitizeFunction($v3['data']['definition']) == self::sanitizeFunction($v3_old['data']['definition'])) {
-								$good = true;
-							} else if (strpos($v3['data']['definition'], $v3_old['data']['definition']) !== false) {
-								$good = true;
-							}
-							if (!$good) {
+							if (\Helper\Parser::match($v3['data']['definition'], '[[[', ']]]') !== \Helper\Parser::match($v3_old['data']['definition'], '[[[', ']]]')) {
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_old['migration_id'] = $result['count'] + 1;
 								// up
@@ -1273,16 +1262,9 @@ class DDL {
 							$result['down']['delete_views'][$k . '.' . $k2 . '.' . $k3] = $v3;
 							// count
 							$result['count']++;
-						} else { // function changed
-							// body
+						} else { // view changed
 							$v3_old = $obj_slave['view'][$k][$k2][$k3];
-							$good = false;
-							if (self::sanitizeFunction($v3['data']['definition']) == self::sanitizeFunction($v3_old['data']['definition'])) {
-								$good = true;
-							} else if (strpos($v3['data']['definition'], $v3_old['data']['definition']) !== false) {
-								$good = true;
-							}
-							if (!$good) {
+							if (\Helper\Parser::match($v3['data']['definition'], '[[[', ']]]') !== \Helper\Parser::match($v3_old['data']['definition'], '[[[', ']]]')) {
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_old['migration_id'] = $result['count'] + 1;
 								// up
@@ -1394,8 +1376,8 @@ class DDL {
 	public static function sanitizeFunction($sql) {
 		$result = str_replace(['$BODY$', '$function$'], '$$$$$$', $sql);
 		$result = strtolower($result);
-		$result = str_replace([' as '], ' ', $result);
-		$result = trim(str_replace([' ', "\n", "\r", "\t", '"', "'", "`"], '', $result));
+		$result = str_replace([' as ', 'public.'], ' ', $result);
+		$result = trim(str_replace([' ', "\n", "\r", "\t", '"', "'", "`", ';'], '', $result));
 		return $result;
 	}
 

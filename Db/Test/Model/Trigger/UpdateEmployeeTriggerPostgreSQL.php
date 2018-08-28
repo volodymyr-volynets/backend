@@ -9,9 +9,6 @@ class UpdateEmployeeTriggerPostgreSQL extends \Object\Trigger {
 	public $backend = 'PostgreSQL';
 	public $full_table_name = 'sm_test_employees';
 	public $header = 'sm_employees_log_last_name_changes_trigger()';
-	public $definition = 'CREATE TRIGGER sm_employees_log_last_name_changes_trigger
-  BEFORE UPDATE
-  ON sm_test_employees
-  FOR EACH ROW
-  EXECUTE PROCEDURE sm_employees_log_last_name_changes();';
+	public $sql_version = '1.0.0';
+	public $definition = 'CREATE TRIGGER sm_test_employees_log_last_name_changes_trigger BEFORE UPDATE ON sm_test_employees FOR EACH ROW /* version */ EXECUTE PROCEDURE sm_employees_log_last_name_changes();';
 }

@@ -308,7 +308,8 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 										'full_function_name' => $full_function_name,
 										'full_table_name' => $v3['full_table_name'],
 										'header' => $v3['full_function_name'],
-										'definition' => $v3['routine_definition']
+										'definition' => $v3['routine_definition'],
+										'sql_version' => $v3['sql_version']
 									]
 								], $db_link);
 							}
@@ -565,14 +566,25 @@ TTT;
 				$key = array('schema_name', 'function_name');
 				$sql = <<<TTT
 					SELECT
-						nspname schema_name,
-						tgname function_name,
-						tgname full_function_name,
-						pg_class.relname full_table_name,
-						pg_catalog.pg_get_triggerdef(pg_trigger.oid) routine_definition
+						pg_namespace.nspname schema_name,
+						pg_trigger.tgname function_name,
+						pg_trigger.tgname full_function_name,
+						pg_namespace.nspname || '.' || pg_class.relname full_table_name,
+						COALESCE(com.description, '') || pg_catalog.pg_get_triggerdef(pg_trigger.oid) routine_definition,
+						com.description sql_version
 					FROM pg_catalog.pg_trigger
 					JOIN pg_catalog.pg_class on pg_trigger.tgrelid = pg_class.oid
 					JOIN pg_catalog.pg_namespace ON pg_namespace.oid=pg_class.relnamespace
+					LEFT JOIN (
+						SELECT
+							d.nspname,
+							b.tgname,
+							a.description
+						FROM pg_description a
+						JOIN pg_trigger b ON a.objoid = b.oid
+						JOIN pg_class c on b.tgrelid = c.oid
+						JOIN pg_namespace d ON d.oid = c.relnamespace
+					) com ON com.nspname = pg_namespace.nspname AND com.tgname = pg_trigger.tgname
 					WHERE pg_trigger.tgisinternal = false
 TTT;
 				break;
@@ -812,9 +824,11 @@ TTT;
 			case 'trigger_new':
 				$result = [];
 				$result[]= $data['data']['definition'] . ";";
+				// we must set version in comment
+				$result[] = "COMMENT ON TRIGGER {$data['name']} ON {$data['data']['full_table_name']} IS '{$data['data']['sql_version']}';";
 				break;
 			case 'trigger_delete':
-				$result = "DROP TRIGGER IF EXISTS {$data['data']['header']} ON {$data['data']['full_table_name']};";
+				$result = "DROP TRIGGER {$data['name']} ON {$data['data']['full_table_name']};";
 				break;
 			// permissions
 			case 'permission_grant_database':

@@ -193,6 +193,9 @@ class Base extends \PHPUnit\Framework\TestCase {
 	public function testQueryBuilder($db_object) {
 		$model = new \Numbers\Backend\Db\Test\Model\Employees();
 		$model2 = new \Numbers\Backend\Db\Test\Model\Employee\Audits();
+		// test comment
+		$query = $model->queryBuilder()->select()->comment('Test Comment 321');
+		$this->assertEquals(true, strpos($query->sql(), 'Test Comment 321'), 'Comment failed!');
 		// test truncate
 		$result = $model2->queryBuilder()->truncate()->query();
 		$this->assertEquals(true, $result['success'], 'Truncate failed!');

@@ -708,7 +708,7 @@ TTT;
 			case 'function_owner': /* nothing */ break;
 			// trigger
 			case 'trigger_new':
-				$result = trim($data['data']['definition']) . ";";
+				$result = trim($data['data']['definition']);
 				break;
 			case 'trigger_delete':
 				$full_function_name = ltrim($data['schema'] . '.' . $data['name'], '.');
