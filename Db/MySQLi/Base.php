@@ -485,12 +485,18 @@ TTT;
 			} else {
 				$sql = $fields;
 			}
-			$escaped = preg_replace('/\s\s+/', ' ', $str);
-			$escaped = str_replace(' ', '* ', $escaped);
-			$where = "MATCH ({$sql}) AGAINST ('" . $this->escape($escaped) . "' {$mode})";
+			$str = preg_replace('/\s\s+/', ' ', $str);
+			$escaped = str_replace(' ', '* ', $str);
+			$escaped2 = $this->escape($escaped);
+			// we need to enclose emails into double quotes
+			if (strpos($escaped2, '@') !== false) {
+				$escaped2 = '"' . $escaped2 . '"';
+			}
+			$where = "MATCH ({$sql}) AGAINST ('" . $escaped2 . "' {$mode})";
 			$temp = [];
+			$escaped3 = str_replace(' ', '%', $str);
 			foreach ($fields as $f) {
-				$temp[] = "{$f} LIKE '%" . $this->escape($str) . "%'";
+				$temp[] = "{$f} LIKE '%" . $this->escape($escaped3) . "%'";
 			}
 			$sql2 = ' OR (' . implode(' OR ', $temp) . ')';
 			$result['where'] = "(" . $where . $sql2 . ")";

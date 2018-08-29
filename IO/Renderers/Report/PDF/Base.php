@@ -148,6 +148,9 @@ class Base {
 						}
 						// render cell
 						$pdf->SetXY($v2['__start'], $page_y);
+						if (is_array($value)) {
+							$value = $value['value'] ?? '';
+						}
 						$pdf->Cell($v2['__mm'], 10, strip_tags2($value), 0, false, $align, 0, '', 0, false, 'T', 'M');
 					}
 				}
