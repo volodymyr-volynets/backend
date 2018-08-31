@@ -183,7 +183,13 @@ abstract class Base {
 		if (urldecode($rebuilt) != $token) {
 			return false;
 		} else {
-			// todo: validate valid_hours
+			// expiration
+			if ($this->valid_hours > 0) {
+				$hours = (time() - $result['time']) / 60 / 60;
+				if ($hours > $this->valid_hours) {
+					return false;
+				}
+			}
 			return $result;
 		}
 	}
