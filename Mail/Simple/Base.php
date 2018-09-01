@@ -40,7 +40,8 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 		}
 		// overrides for non production environments
 		$environment = \Application::get('environment');
-		if ($environment != 'production') {
+		$debug = \Application::get('debug.debug');
+		if (!empty($debug)) {
 			unset($recepients);
 			$recepients['to'] = \Application::get('debug.email');
 			$options['subject'] = '[' . $environment . '] ' . $options['subject'];
