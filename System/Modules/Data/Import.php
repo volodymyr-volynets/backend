@@ -19,6 +19,16 @@ class Import extends \Object\Import {
 					'sm_module_transactions' => 0,
 					'sm_module_multiple' => 0,
 					'sm_module_inactive' => 0
+				],
+				[
+					'sm_module_code' => 'AN',
+					'sm_module_type' => 20,
+					'sm_module_name' => 'A/N Application',
+					'sm_module_abbreviation' => 'A/N',
+					'sm_module_icon' => 'fab fa-amilia',
+					'sm_module_transactions' => 0,
+					'sm_module_multiple' => 0,
+					'sm_module_inactive' => 0
 				]
 			]
 		],
