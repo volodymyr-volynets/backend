@@ -19,7 +19,8 @@ class Base {
 				'to' => [],
 				'message' => [],
 				'attachments' => [],
-				'requires_fetching' => false
+				'requires_fetching' => false,
+				'is_html' => false
 			]
 		];
 		do {
@@ -60,9 +61,10 @@ class Base {
 					} else {
 						$result['data']['message'][$k]['type'] = 'text/html';
 						$flags['html'] = $k;
+						$result['data']['is_html'] = true;
 					}
 				} else {
-					if (!in_array($v['type'], object_type_mail_messages::$data)) {
+					if (!in_array($v['type'], \Object\Mail\Message\Types::$data)) {
 						$result['error'][] = 'Unknown type: ' . $v['type'];
 					}
 				}
@@ -120,17 +122,19 @@ class Base {
 							$result['data']['attachments'][] = [
 								'type' => $type,
 								'data' => file_get_contents($v['path']),
-								'name' => basename($v['path'])
+								'name' => $v['name'] ?? basename($v['path'])
 							];
 						}
 					} else if (isset($v['data'])) {
 						if (empty($v['type'])) {
 							$result['error'][] = 'Unknown attachment type!';
+						} else if (empty($v['name'])) {
+							$result['error'][] = 'Unknown attachment name!';
 						} else {
 							$result['data']['attachments'][] = [
 								'type' => $v['type'],
 								'data' => $v['data'],
-								'name' => isset($v['name']) ? $v['name'] : ''
+								'name' => $v['name'],
 							];
 						}
 					}
@@ -141,7 +145,6 @@ class Base {
 			if ($result['error']) {
 				break;
 			}
-
 			// if we got here, means we are ok
 			$result['success'] = 1;
 		} while(0);

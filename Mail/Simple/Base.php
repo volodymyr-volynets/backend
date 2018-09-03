@@ -38,30 +38,39 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 			}
 			$recepients[$r] = implode(',', $recepients[$r]);
 		}
-		// overrides for non production environments
-		$environment = \Application::get('environment');
-		$debug = \Application::get('debug.debug');
-		if (!empty($debug)) {
-			unset($recepients);
-			$recepients['to'] = \Application::get('debug.email');
-			$options['subject'] = '[' . $environment . '] ' . $options['subject'];
-		}
-		// crypt object
-		$result['unique_id'] = sha1(serialize([$recepients, $options['subject'], microtime()]));
 		// generating header
 		if (isset($options['header'])) {
 			$header = $options['header'];
 		} else {
 			$header = '';
 		}
+		// overrides for non production environments
+		$environment = \Application::get('environment');
+		$debug = \Application::get('debug.debug');
+		if (!empty($debug)) {
+			// special headers
+			foreach ($recepients as $k => $v) {
+				if (!empty($v)) {
+					$header.= 'X-Original-' . ucfirst($k) . ': ' . $v . "\n";
+				}
+			}
+			unset($recepients);
+			$recepients['to'] = \Application::get('debug.email');
+			$options['subject'] = '[' . $environment . '] ' . $options['subject'];
+		}
+		// crypt object
+		$result['unique_id'] = sha1(serialize([$recepients, $options['subject'], microtime()]));
 		// fetch mail settings
 		$options = array_merge_hard(\Application::get('flag.global.mail') ?? [], $options);
 		// process from
 		if (isset($options['from']['name'])) {
 			$header.= "From: {$options['from']['name']} <{$options['from']['email']}>\n";
-			$header.= "Organization: {$options['from']['name']}\n";
 		} else {
 			$header.= "From: {$options['from']['email']}\n";
+		}
+		// organization
+		if (!empty($options['from']['organization'])) {
+			$header.= "Organization: {$options['from']['organization']}\n";
 		}
 		if (!empty($recepients['bcc'])) {
 			$header.= "Bcc: " . $recepients['bcc'] . "\n";
