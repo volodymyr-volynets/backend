@@ -660,9 +660,6 @@ TTT;
 			case 'schema_new':
 				$result = "CREATE SCHEMA {$data['data']['name']} AUTHORIZATION {$data['data']['owner']};";
 				break;
-			case 'schema_owner':
-				$result = "ALTER SCHEMA {$data['schema']} OWNER TO {$data['owner']};";
-				break;
 			case 'schema_delete':
 				$result = "DROP SCHEMA {$data['data']['name']};";
 				break;
@@ -711,11 +708,6 @@ TTT;
 					$result2.= implode(",\n\t", $columns);
 				$result2.= "\n);";
 				$result = [$result2];
-				$result[]= "ALTER TABLE {$data['data']['full_table_name']} OWNER TO {$data['data']['owner']};";
-				break;
-			case 'table_owner':
-				$name = ltrim($data['schema'] . '.' . $data['name'], '.');
-				$result = "ALTER TABLE {$name} OWNER TO {$data['owner']};";
 				break;
 			case 'table_delete':
 				$result = "DROP TABLE {$data['data']['full_table_name']} CASCADE;";
@@ -725,14 +717,9 @@ TTT;
 				$result = [];
 				$name = ltrim($data['schema'] . '.' . $data['name'], '.');
 				$result[] = "CREATE OR REPLACE VIEW {$name} AS {$data['data']['definition']}";
-				$result[] = "ALTER VIEW {$name} OWNER TO {$data['data']['owner']};";
 				break;
 			case 'view_delete':
 				$result = "DROP VIEW {$data['name']};";
-				break;
-			case 'view_owner':
-				$name = ltrim($data['schema'] . '.' . $data['name'], '.');
-				$result = "ALTER VIEW {$name} OWNER TO {$data['data']['owner']};";
 				break;
 			// foreign key/unique/primary key
 			case 'constraint_new':
@@ -770,7 +757,6 @@ TTT;
 				$result = [];
 				if (empty($data['data']['full_table_name'])) {
 					$result[]= "CREATE SEQUENCE {$data['data']['full_sequence_name']} START 1;";
-					$result[]= "ALTER SEQUENCE {$data['data']['full_sequence_name']} OWNER TO {$data['data']['owner']};";
 				}
 				// insert entry into sequences table
 				$model = new \Numbers\Backend\Db\Common\Model\Sequences();
@@ -804,21 +790,12 @@ TTT;
 					$result[]= "DELETE FROM {$model->full_table_name} WHERE sm_sequence_name = '{$data['data']['full_sequence_name']}'";
 				}
 				break;
-			case 'sequence_owner':
-				$name = ltrim($data['schema'] . '.' . $data['name'], '.');
-				$result = "ALTER SEQUENCE {$name} OWNER TO {$data['owner']};";
-				break;
 			// functions
 			case 'function_new':
-				$result = [];
-				$result[]= $data['data']['definition'] . ";";
-				$result[]= "ALTER FUNCTION {$data['data']['header']} OWNER TO {$data['data']['owner']};";
+				$result = $data['data']['definition'] . ";";
 				break;
 			case 'function_delete':
 				$result = "DROP FUNCTION {$data['data']['header']};";
-				break;
-			case 'function_owner':
-				$result = "ALTER FUNCTION {$data['header']} OWNER TO {$data['owner']};";
 				break;
 			// trigger
 			case 'trigger_new':

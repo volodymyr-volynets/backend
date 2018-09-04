@@ -613,7 +613,6 @@ TTT;
 			case 'table_delete':
 				$result = "DROP TABLE {$data['data']['full_table_name']} CASCADE;";
 				break;
-			case 'table_owner': /* nothing */ break;
 			// view
 			case 'view_new':
 				$result = "CREATE OR REPLACE VIEW {$data['data']['full_view_name']} AS {$data['data']['definition']};";
@@ -621,7 +620,6 @@ TTT;
 			case 'view_delete':
 				$result = "DROP VIEW {$data['name']};";
 				break;
-			case 'view_owner': /* nothing */ break;
 			// foreign key/unique/primary key
 			case 'constraint_new':
 				switch ($data['data']['type']) {
@@ -697,7 +695,6 @@ TTT;
 					$result[]= "DELETE FROM {$model->full_table_name} WHERE sm_sequence_name = '{$data['data']['full_sequence_name']}'";
 				}
 				break;
-			case 'sequence_owner': /* nothing */ break;
 			// functions
 			case 'function_new':
 				$result = $data['data']['definition'] . ";";
@@ -705,7 +702,6 @@ TTT;
 			case 'function_delete':
 				$result = "DROP FUNCTION {$data['data']['full_function_name']};";
 				break;
-			case 'function_owner': /* nothing */ break;
 			// trigger
 			case 'trigger_new':
 				$result = trim($data['data']['definition']);

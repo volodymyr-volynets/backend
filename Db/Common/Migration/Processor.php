@@ -264,12 +264,6 @@ class Processor {
 				}
 				$ddl->objectRemove($object, $options['db_link']);
 				break;
-			case 'table_owner':
-			case 'sequence_owner':
-			case 'schema_owner':
-			case 'function_owner':
-				$ddl->objectAdd($object, $options['db_link']);
-				break;
 			default:
 				Throw new \Exception("Migration object type {$object['type']} ?");
 		}

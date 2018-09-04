@@ -39,15 +39,6 @@ class DDL {
 			$this->objects[$db_link][$object['type']][$object['schema']][$object['table']][$object['name']] = $object;
 		} else if (in_array($object['type'], ['column_new', 'column_change'])) {
 			$this->objects[$db_link]['table'][$object['schema']][$object['table']]['data']['columns'][$object['name']] = $object['data'];
-		} else if (in_array($object['type'], ['table_owner', 'sequence_owner'])) {
-			$temp = str_replace('_owner', '', $object['type']);
-			$this->objects[$db_link][$temp][$object['schema']][$object['name']]['data']['owner'] = $object['owner'];
-		} else if ($object['type'] == 'schema_owner') {
-			$temp = str_replace('_owner', '', $object['type']);
-			$this->objects[$db_link][$temp][$object['schema']]['data']['owner'] = $object['owner'];
-		} else if ($object['type'] == 'function_owner') {
-			$temp = str_replace('_owner', '', $object['type']);
-			$this->objects[$db_link][$temp][$object['backend']][$object['schema']][$object['name']]['data']['owner'] = $object['owner'];
 		} else if (in_array($object['type'], ['function', 'extension', 'trigger', 'view'])) { // backend specific objects
 			$this->objects[$db_link][$object['type']][$object['backend']][$object['schema']][$object['name']] = $object;
 		}
@@ -279,6 +270,7 @@ class DDL {
 	 * @param string $model_class
 	 * @param array $options
 	 *		db_link
+	 *		db_schema_owner
 	 * @return array
 	 */
 	public function processSequenceModel($model_class, $options = []) {
@@ -321,6 +313,7 @@ class DDL {
 	 * @param string $model_class
 	 * @param array $options
 	 *		db_link
+	 *		db_schema_owner
 	 * @return array
 	 */
 	public function processFunctionModel($model_class, $options = []) {
@@ -402,6 +395,7 @@ class DDL {
 	 * @param string $model_class
 	 * @param array $options
 	 *		db_link
+	 *		db_schema_owner
 	 * @return array
 	 */
 	public function processViewModel($model_class, $options = []) {
@@ -447,6 +441,7 @@ class DDL {
 	 * @param string $model_class
 	 * @param array $options
 	 *		db_link
+	 *		db_schema_owner
 	 * @return array
 	 */
 	public function processExtensionModel($model_class, $options = []) {
@@ -492,6 +487,7 @@ class DDL {
 	 * @param string $model_class
 	 * @param array $options
 	 *		db_link
+	 *		db_schema_owner
 	 * @return array
 	 */
 	public function processSchemaModel($model_class, $options = []) {
@@ -564,20 +560,16 @@ class DDL {
 		$result['up']['delete_schemas'] = []; // last
 		// new/change second
 		$result['up']['new_schemas'] = []; // first
-		$result['up']['new_schema_owners'] = [];
 		$result['up']['new_extensions'] = []; // after schema
 		$result['up']['new_tables'] = []; // after schemas
-		$result['up']['new_table_owners'] = [];
 		$result['up']['new_table_engines'] = []; // todo
 		$result['up']['new_columns'] = [];
 		$result['up']['change_columns'] = [];
 		$result['up']['new_sequences'] = []; // after tables
-		$result['up']['new_sequence_owners'] = [];
 		$result['up']['new_constraints'] = [];
 		$result['up']['new_indexes'] = [];
 		$result['up']['new_views'] = [];
 		$result['up']['new_functions'] = [];
-		$result['up']['new_function_owners'] = [];
 		$result['up']['new_triggers'] = []; // after functions
 		// preset reverse array
 		$result['down'] = $result['up'];
@@ -594,25 +586,6 @@ class DDL {
 					// down
 					$v['type'] = 'schema_delete';
 					$result['down']['delete_schemas'][$k] = $v;
-					// count
-					$result['count']++;
-				} else if ($v['data']['owner'] != $obj_slave['schema'][$k]['data']['owner']) { // owner
-					// up
-					$result['up']['new_schema_owners'][$k] = [
-						'type' => 'schema_owner',
-						'schema' => $k,
-						'name' => null,
-						'owner' => $v['data']['owner'],
-						'migration_id' => $result['count'] + 1
-					];
-					// down
-					$result['down']['new_schema_owners'][$k] = [
-						'type' => 'schema_owner',
-						'schema' => $k,
-						'name' => null,
-						'owner' => $obj_slave['schema'][$k]['data']['owner'],
-						'migration_id' => $result['count'] + 1
-					];
 					// count
 					$result['count']++;
 				}
@@ -696,25 +669,6 @@ class DDL {
 						// down
 						$v2['type'] = 'table_delete';
 						$result['down']['delete_tables'][$v2['data']['full_table_name']] = $v2;
-						// count
-						$result['count']++;
-					} else if ($v2['data']['owner'] != $obj_slave['table'][$k][$k2]['data']['owner']) { // owner
-						// up
-						$result['up']['new_table_owners'][$v2['data']['full_table_name']] = [
-							'type' => 'table_owner',
-							'schema' => $k,
-							'name' => $k2,
-							'owner' => $v2['data']['owner'],
-							'migration_id' => $result['count'] + 1
-						];
-						// down
-						$result['down']['new_table_owners'][$v2['data']['full_table_name']] = [
-							'type' => 'table_owner',
-							'schema' => $k,
-							'name' => $k2,
-							'owner' => $obj_slave['table'][$k][$k2]['data']['owner'],
-							'migration_id' => $result['count'] + 1
-						];
 						// count
 						$result['count']++;
 					}
@@ -1045,25 +999,6 @@ class DDL {
 						$result['down']['delete_sequences'][$name] = $v2;
 						// count
 						$result['count']++;
-					} else if ($v2['data']['owner'] != $obj_slave['sequence'][$k][$k2]['data']['owner']) { // owner
-						// up
-						$result['up']['new_sequence_owners'][$name] = [
-							'type' => 'sequence_owner',
-							'schema' => $k,
-							'name' => $k2,
-							'owner' => $v2['data']['owner'],
-							'migration_id' => $result['count'] + 1
-						];
-						// down
-						$result['down']['new_sequence_owners'][$name] = [
-							'type' => 'sequence_owner',
-							'schema' => $k,
-							'name' => $k2,
-							'owner' => $obj_slave['sequence'][$k][$k2]['data']['owner'],
-							'migration_id' => $result['count'] + 1
-						];
-						// count
-						$result['count']++;
 					}
 				}
 			}
@@ -1123,29 +1058,6 @@ class DDL {
 								$result['down']['delete_functions'][$k . '.' . $k2 . '.' . $k3] = $v3;
 								$v3_old['type'] = 'function_new';
 								$result['down']['new_functions'][$k . '.' . $k2 . '.' . $k3] = $v3_old;
-								// count
-								$result['count']++;
-							} else if ($v3['data']['owner'] != $v3_old['data']['owner']) {
-								// up
-								$result['up']['new_function_owners'][$k . '.' . $k2 . '.' . $k3] = [
-									'type' => 'function_owner',
-									'backend' => $k,
-									'schema' => $k2,
-									'name' => $k3,
-									'header' => $v3['data']['header'],
-									'owner' => $v3['data']['owner'],
-									'migration_id' => $result['count'] + 1
-								];
-								// down
-								$result['down']['new_function_owners'][$k . '.' . $k2 . '.' . $k3] = [
-									'type' => 'function_owner',
-									'backend' => $k,
-									'schema' => $k2,
-									'name' => $k3,
-									'header' => $v3_old['data']['header'],
-									'owner' => $v3_old['data']['owner'],
-									'migration_id' => $result['count'] + 1
-								];
 								// count
 								$result['count']++;
 							}

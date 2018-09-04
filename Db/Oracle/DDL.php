@@ -708,7 +708,6 @@ TTT;
 				$result[]= "GRANT CREATE JOB TO {$data['data']['name']}";
 				$result[]= "GRANT CREATE TABLE TO {$data['data']['name']}";
 				break;
-			case 'schema_owner': /* nothing */ break;
 			case 'schema_delete':
 				$result = [];
 				$result[]= "ALTER SESSION SET \"_ORACLE_SCRIPT\"=true";
@@ -789,7 +788,6 @@ TTT;
 					$result = array_merge($result, $comments);
 				}
 				break;
-			case 'table_owner': /* nothing */ break;
 			case 'table_delete':
 				$result = "DROP TABLE {$data['data']['full_table_name']} CASCADE CONSTRAINTS";
 				break;
@@ -800,7 +798,6 @@ TTT;
 			case 'view_delete':
 				$result = "DROP VIEW {$data['schema']}.{$data['name']}";
 				break;
-			case 'view_owner': /* nothing */ break;
 			// foreign key/unique/primary key
 			case 'constraint_new':
 				switch ($data['data']['type']) {
@@ -905,7 +902,6 @@ TTT;
 					$result[]= "DELETE FROM {$model->full_table_name} WHERE sm_sequence_name = '{$data['data']['full_sequence_name']}'";
 				}
 				break;
-			case 'sequence_owner': /* nothing */ break;
 			// functions
 			case 'function_new':
 				$result = $data['data']['definition'];
@@ -913,7 +909,6 @@ TTT;
 			case 'function_delete':
 				$result = "DROP FUNCTION {$data['schema']}.{$data['name']}";
 				break;
-			case 'function_owner': /* nothing */ break;
 			// trigger
 			case 'trigger_new':
 				$result = $data['data']['definition'];
