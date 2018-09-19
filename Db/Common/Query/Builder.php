@@ -139,6 +139,16 @@ class Builder {
 	}
 
 	/**
+	 * Check
+	 *
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function check() : \Numbers\Backend\Db\Common\Query\Builder {
+		$this->data['operator'] = 'check';
+		return $this;
+	}
+
+	/**
 	 * Truncate
 	 *
 	 * @return \Numbers\Backend\Db\Common\Query\Builder

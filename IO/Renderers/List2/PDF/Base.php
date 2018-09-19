@@ -54,8 +54,7 @@ class Base {
 			unset($object->misc_settings['list']['rows'][$k]);
 		}
 		// add number of rows
-		$report->addSeparator(DEF);
-		$report->addLegend(DEF, i18n(null, \Object\Content\Messages::REPORT_ROWS_NUMBER, ['replace' => ['[Number]' => \Format::id($object->misc_settings['list']['num_rows'])]]));
+		$report->addNumberOfRows(DEF, $object->misc_settings['list']['num_rows']);
 		// render CSV through report renderer
 		$renderer = new \Numbers\Backend\IO\Renderers\Report\PDF\Base();
 		return $renderer->render($report);

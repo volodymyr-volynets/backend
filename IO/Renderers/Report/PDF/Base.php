@@ -104,7 +104,7 @@ class Base {
 						}
 						*/
 						if ($prev_odd_even != $row_data[1]) {
-							$pdf->SetLineStyle(['width' => 0, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => hex2rgb('#d9d9d9')]);
+							$pdf->SetLineStyle(['width' => 0, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => hex2rgb('#d0d0d0')]);
 							$pdf->Line($v2['__start'], $page_y + 2.5, $v2['__start'] + $v2['__mm'], $page_y + 2.5);
 						}
 						// inner odd/even
@@ -143,7 +143,7 @@ class Base {
 						}
 						if ($as_header) {
 							$pdf->SetFont($pdf->__options['font']['family'], 'I', $pdf->__options['font']['size']);
-							$pdf->SetLineStyle(['width' => 0, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => hex2rgb('#000000')]);
+							$pdf->SetLineStyle(['width' => 0, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => hex2rgb('#d0d0d0')]);
 							$pdf->Line($v2['__start'], $page_y + 7.5, $v2['__start'] + $v2['__mm'], $page_y + 7.5);
 						}
 						// render cell

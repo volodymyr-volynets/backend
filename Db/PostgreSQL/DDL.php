@@ -63,7 +63,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 			'count' => []
 		];
 		// getting information
-		foreach (['extensions', 'schemas', 'columns', 'constraints', 'sequences', 'functions', 'triggers', 'views'] as $v) {
+		foreach (['extensions', 'schemas', 'columns', 'constraints', 'sequences', 'functions', 'triggers', 'views', 'checks'] as $v) {
 			$temp = $this->loadSchemaDetails($v, $db_link);
 			if (!$temp['success']) {
 				$result['error'] = array_merge($result['error'], $temp['error']);
@@ -328,7 +328,27 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 										'owner' => $v3['view_owner'],
 										'full_view_name' => $v3['full_view_name'],
 										'definition' => $v3['routine_definition'],
+										'sql_version' => $v3['sql_version'],
 										'grant_tables' => []
+									]
+								], $db_link);
+							}
+						}
+						break;
+					case 'checks':
+						foreach ($temp['data'] as $k2 => $v2) {
+							foreach ($v2 as $k3 => $v3) {
+								// add object
+								$this->objectAdd([
+									'type' => 'check',
+									'schema' => $k2,
+									'name' => $k3,
+									'backend' => 'PostgreSQL',
+									'data' => [
+										'full_check_name' => $v3['full_check_name'],
+										'full_table_name' => $v3['full_table_name'],
+										'definition' => trim2($v3['check_definition'], '^CHECK ', ''),
+										'sql_version' => $v3['sql_version']
 									]
 								], $db_link);
 							}
@@ -362,7 +382,9 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 			'error' => array(),
 			'data' => array()
 		);
-
+		// check for metadata table
+		$metadata_model = new \Numbers\Backend\Db\Common\Model\Metadata();
+		$metadata_exists = $metadata_model->dbPresent();
 		// getting proper query
 		switch($type) {
 			case 'schemas':
@@ -600,16 +622,51 @@ TTT;
 				break;
 			case 'views':
 				$key = array('schema_name', 'view_name');
+				if ($metadata_exists) {
+					$sql_version = "COALESCE(mdata.sm_metadata_sql_version, '')";
+					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'view' AND mdata.sm_metadata_name = (a.schemaname || '.' || a.viewname)";
+				} else {
+					$sql_version = "''";
+					$sql_join = '';
+				}
 				$sql = <<<TTT
 					SELECT
 						a.schemaname schema_name,
 						a.viewname view_name,
 						a.schemaname || '.' || a.viewname full_view_name,
 						a.definition routine_definition,
-						a.viewowner view_owner
+						a.viewowner view_owner,
+						{$sql_version} sql_version
 					FROM pg_views a
+					{$sql_join}
 					WHERE a.schemaname !~ 'pg_'
 						AND a.schemaname NOT IN ('extensions', 'information_schema')
+TTT;
+				break;
+			case 'checks':
+				$key = ['schema_name', 'check_name'];
+				if ($metadata_exists) {
+					$sql_version = "COALESCE(mdata.sm_metadata_sql_version, '')";
+					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'check' AND mdata.sm_metadata_name = (n.nspname || '.' || c.conname)";
+				} else {
+					$sql_version = "''";
+					$sql_join = '';
+				}
+				$sql = <<<TTT
+					SELECT
+						n.nspname schema_name,
+						c.conname check_name,
+						n.nspname || '.' || c.conname full_check_name,
+						n.nspname || '.' || c.conrelid::regclass full_table_name,
+						pg_get_constraintdef(c.oid) check_definition,
+						{$sql_version} sql_version
+					FROM pg_constraint c
+					INNER JOIN pg_namespace n ON n.oid = c.connamespace
+					{$sql_join}
+					WHERE 1=1
+						AND c.contype = 'c'
+						AND c.conname LIKE '%_check'
+						AND n.nspname NOT IN ('extensions', 'information_schema')
 TTT;
 				break;
 			default:
@@ -715,11 +772,13 @@ TTT;
 			// view
 			case 'view_new':
 				$result = [];
-				$name = ltrim($data['schema'] . '.' . $data['name'], '.');
-				$result[] = "CREATE OR REPLACE VIEW {$name} AS {$data['data']['definition']}";
+				$result[] = "CREATE OR REPLACE VIEW {$data['data']['full_view_name']} AS {$data['data']['definition']}";
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'view', $data['data']['full_view_name'], $data['data']['sql_version'], false));
 				break;
 			case 'view_delete':
-				$result = "DROP VIEW {$data['name']};";
+				$result = [];
+				$result[]= "DROP VIEW {$data['data']['full_view_name']};";
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'view', $data['data']['full_view_name'], '', true));
 				break;
 			// foreign key/unique/primary key
 			case 'constraint_new':
@@ -806,6 +865,17 @@ TTT;
 				break;
 			case 'trigger_delete':
 				$result = "DROP TRIGGER {$data['name']} ON {$data['data']['full_table_name']};";
+				break;
+			// check
+			case 'check_new':
+				$result = [];
+				$result[]= "ALTER TABLE {$data['data']['full_table_name']} ADD CONSTRAINT {$data['name']} CHECK {$data['data']['definition']};";
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'check', $data['data']['full_check_name'], $data['data']['sql_version'], false));
+				break;
+			case 'check_delete':
+				$result = [];
+				$result[] = "ALTER TABLE {$data['data']['full_table_name']} DROP CONSTRAINT {$data['name']};";
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'check', $data['data']['full_check_name'], '', true));
 				break;
 			// permissions
 			case 'permission_grant_database':

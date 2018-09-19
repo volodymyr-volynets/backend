@@ -196,6 +196,11 @@ run_again:
 					if (!$temp_result['success']) {
 						array_merge3($result['error'], $temp_result['error']);
 					}
+				} else if ($v == '\Object\Check') {
+					$temp_result = $ddl->processCheckModel($k2, $options);
+					if (!$temp_result['success']) {
+						array_merge3($result['error'], $temp_result['error']);
+					}
 				} else if ($v == '\Object\Extension') {
 					$temp_result = $ddl->processExtensionModel($k2, $options);
 					if (!$temp_result['success']) {

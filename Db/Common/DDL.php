@@ -39,7 +39,7 @@ class DDL {
 			$this->objects[$db_link][$object['type']][$object['schema']][$object['table']][$object['name']] = $object;
 		} else if (in_array($object['type'], ['column_new', 'column_change'])) {
 			$this->objects[$db_link]['table'][$object['schema']][$object['table']]['data']['columns'][$object['name']] = $object['data'];
-		} else if (in_array($object['type'], ['function', 'extension', 'trigger', 'view'])) { // backend specific objects
+		} else if (in_array($object['type'], ['function', 'extension', 'trigger', 'view', 'check'])) { // backend specific objects
 			$this->objects[$db_link][$object['type']][$object['backend']][$object['schema']][$object['name']] = $object;
 		}
 		$this->count[$db_link]['Total']++;
@@ -69,7 +69,7 @@ class DDL {
 			foreach (['constraint', 'index'] as $v) {
 				unset($this->objects[$db_link][$v][$object['schema']][$object['name']]);
 			}
-		} else if (in_array($object['type'], ['function', 'extension', 'trigger', 'view'])) {
+		} else if (in_array($object['type'], ['function', 'extension', 'trigger', 'view', 'check'])) {
 			unset($this->objects[$db_link][$object['type']][$object['backend']][$object['schema']][$object['name']]);
 		} else if ($object['type'] == 'schema') {
 			unset($this->objects[$db_link][$object['type']][$object['name']]);
@@ -425,7 +425,53 @@ class DDL {
 						'owner' => $options['db_schema_owner'] ?? null,
 						'full_view_name' => $model->full_view_name,
 						'definition' => $model->definition,
+						'sql_version' => $model->sql_version,
 						'grant_tables' => $model->grant_tables
+					]
+				], $model->db_link);
+			}
+			// if we got here - we are ok
+			$result['success'] = true;
+		} while(0);
+		return $result;
+	}
+
+	/**
+	 * Process check model
+	 *
+	 * @param string $model_class
+	 * @param array $options
+	 *		db_link
+	 * @return array
+	 */
+	public function processCheckModel($model_class, $options = []) {
+		$result = [
+			'success' => false,
+			'error' => []
+		];
+		do {
+			// model
+			$model = \Factory::model($model_class, false);
+			// skip tables with different db_link
+			if ($model->db_link != ($options['db_link'] ?? 'default')) {
+				$result['success'] = true;
+				break;
+			}
+			if (!is_array($model->backend)) {
+				$model->backend = [$model->backend];
+			}
+			foreach ($model->backend as $v) {
+				// add object
+				$this->objectAdd([
+					'type' => 'check',
+					'schema' => $model->schema,
+					'name' => $model->name,
+					'backend' => $v,
+					'data' => [
+						'full_check_name' => $model->full_check_name,
+						'full_table_name' => $model->full_table_name,
+						'definition' => $model->definition,
+						'sql_version' => $model->sql_version
 					]
 				], $model->db_link);
 			}
@@ -548,6 +594,7 @@ class DDL {
 		// before execution
 		$result['up']['before_execution'] = [];
 		// delete first
+		$result['up']['delete_checks'] = [];
 		$result['up']['delete_triggers'] = [];
 		$result['up']['delete_views'] = [];
 		$result['up']['delete_constraints'] = [];
@@ -571,6 +618,7 @@ class DDL {
 		$result['up']['new_views'] = [];
 		$result['up']['new_functions'] = [];
 		$result['up']['new_triggers'] = []; // after functions
+		$result['up']['new_checks'] = [];
 		// preset reverse array
 		$result['down'] = $result['up'];
 
@@ -1176,7 +1224,7 @@ class DDL {
 							$result['count']++;
 						} else { // view changed
 							$v3_old = $obj_slave['view'][$k][$k2][$k3];
-							if (\Helper\Parser::match($v3['data']['definition'], '[[[', ']]]') !== \Helper\Parser::match($v3_old['data']['definition'], '[[[', ']]]')) {
+							if ($v3['data']['sql_version'] !== $v3_old['data']['sql_version']) {
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_old['migration_id'] = $result['count'] + 1;
 								// up
@@ -1221,6 +1269,71 @@ class DDL {
 			}
 		}
 
+		// new/change check
+		if (!empty($obj_master['check'])) {
+			foreach ($obj_master['check'] as $k => $v) {
+				// in schema mode we skip not related functions
+				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
+				foreach ($v as $k2 => $v2) {
+					foreach ($v2 as $k3 => $v3) {
+						// function must be present
+						if (empty($obj_slave['check'][$k][$k2][$k3])) {
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'check_new';
+							$result['up']['new_checks'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// down
+							$v3['type'] = 'check_delete';
+							$result['down']['delete_checks'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// count
+							$result['count']++;
+						} else { // check changed
+							$v3_old = $obj_slave['check'][$k][$k2][$k3];
+							if ($v3['data']['sql_version'] !== $v3_old['data']['sql_version']) {
+								$v3['migration_id'] = $result['count'] + 1;
+								$v3_old['migration_id'] = $result['count'] + 1;
+								// up
+								$v3_old['type'] = 'check_delete';
+								$result['up']['delete_checks'][$k . '.' . $k2 . '.' . $k3] = $v3_old;
+								$v3['type'] = 'check_new';
+								$result['up']['new_checks'][$k . '.' . $k2 . '.' . $k3] = $v3;
+								// down
+								$v3['type'] = 'check_delete';
+								$result['down']['delete_checks'][$k . '.' . $k2 . '.' . $k3] = $v3;
+								$v3_old['type'] = 'check_new';
+								$result['down']['new_checks'][$k . '.' . $k2 . '.' . $k3] = $v3_old;
+								// count
+								$result['count']++;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// delete check
+		if (!empty($obj_slave['check'])) {
+			foreach ($obj_slave['check'] as $k => $v) {
+				// in schema mode we skip not related functions
+				if ($options['type'] == 'schema' && $k != $options['backend']) continue;
+				foreach ($v as $k2 => $v2) {
+					foreach ($v2 as $k3 => $v3) {
+						if (empty($obj_master['check'][$k][$k2][$k3])) {
+							$v3['migration_id'] = $result['count'] + 1;
+							// up
+							$v3['type'] = 'check_delete';
+							$result['up']['delete_checks'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// down
+							$v3['type'] = 'check_new';
+							$result['down']['new_checks'][$k . '.' . $k2 . '.' . $k3] = $v3;
+							// count
+							$result['count']++;
+						}
+					}
+				}
+			}
+		}
+
 		// if we delete tables there's no need to delete constrants and/or indexes
 		foreach (['up', 'down'] as $k0) {
 			foreach ($result[$k0]['delete_tables'] as $k => $v) {
@@ -1236,6 +1349,13 @@ class DDL {
 						unset($result[$k0]['delete_indexes'][$k2]);
 					}
 				}
+			}
+		}
+
+		// we need to reverse order for delete extensions
+		foreach (['up', 'down'] as $k0) {
+			if (!empty($result[$k0]['delete_extensions'])) {
+				$result[$k0]['delete_extensions'] = array_reverse($result[$k0]['delete_extensions'], true);
 			}
 		}
 
