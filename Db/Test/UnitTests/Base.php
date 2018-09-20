@@ -190,6 +190,24 @@ class Base extends \PHPUnit\Framework\TestCase {
 	/**
      * @depends testConnect
      */
+	public function testTableAndViewGet($db_object) {
+		$result = \Numbers\Backend\Db\Test\Model\Employees::getStatic([
+			'where' => [
+				'id;>=' => 1
+			]
+		]);
+		$this->assertEquals(true, !empty($result), 'getStatic failed, iteration 1!');
+		$result = \Numbers\Backend\Db\Test\Model\View\Employees::getStatic([
+			'where' => [
+				'id;>=' => 1
+			]
+		]);
+		$this->assertEquals(true, !empty($result), 'getStatic failed, iteration 2!');
+	}
+
+	/**
+     * @depends testConnect
+     */
 	public function testQueryBuilder($db_object) {
 		$model = new \Numbers\Backend\Db\Test\Model\Employees();
 		$model2 = new \Numbers\Backend\Db\Test\Model\Employee\Audits();
