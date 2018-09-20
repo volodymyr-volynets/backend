@@ -205,7 +205,7 @@ another_fix:
 					$message[]= $k . ":\n" . implode("\n", $v);
 					$changes[$k] = '<li>' . implode('</li><li>', $v) . '</li>';
 				}
-				$message = implode(', ', $short) . "\n\n" . implode("\n", $message);
+				$message = implode(', ', $short) . "\n\n --- \n\n" . implode("\n", $message);
 				$changes_formatted = '<ul>';
 				foreach ($changes as $k => $v) {
 					$changes_formatted.= '<li>';
@@ -265,11 +265,11 @@ another_fix:
 					}
 				}
 				$replaces = [
-				    '[version]' => $repository_version,
+					'[version]' => $repository_version,
 					'[developer]' => $git_params['user.name'],
-				    '[date_commit]' => date('Y-m-d'),
-				    '[changes]' => $changes_formatted,
-				    '[affected_files]' => implode("\n", $stats)
+					'[date_commit]' => date('Y-m-d'),
+					'[changes]' => $changes_formatted,
+					'[affected_files]' => implode("\n", $stats)
 				];
 				$template = \Helper\File::read($working_directory . '.numbers' . DIRECTORY_SEPARATOR . 'Framework' . DIRECTORY_SEPARATOR . 'Template' . DIRECTORY_SEPARATOR . 'ChangeLog.html');
 				$template = str_replace(array_keys($replaces), array_values($replaces), $template);
