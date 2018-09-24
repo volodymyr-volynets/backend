@@ -48,6 +48,13 @@ class Base {
 	public $sql_keywords_overrides = [];
 
 	/**
+	 * Prefix for columns in check constraint
+	 *
+	 * @var string
+	 */
+	public $check_constraint_column_prefix = '[NEW].';
+
+	/**
 	 * Constructor
 	 *
 	 * @param string $db_link

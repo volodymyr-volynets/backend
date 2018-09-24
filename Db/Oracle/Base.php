@@ -697,7 +697,6 @@ TTT;
 				}
 				break;
 			case 'select':
-			default:
 				// temporary table first
 				if (!empty($object->data['temporary_table'])) {
 					$sql.= "CREATE TEMPORARY TABLE {$object->data['temporary_table']} AS\n";
@@ -796,6 +795,8 @@ TTT;
 						$sql.= $v['select'];
 					}
 				}
+			default:
+				/* nothing */
 		}
 		// final processing
 		if (empty($result['error'])) {

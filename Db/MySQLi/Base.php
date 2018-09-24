@@ -657,8 +657,31 @@ TTT;
 					$sql.= "TRUNCATE TABLE " . current($object->data['from']);
 				}
 				break;
+			case 'check':
+				// where
+				if (empty($object->data['where'])) {
+					$result['error'][] = 'Where?';
+				} else {
+					$sql = [];
+					$sql2 = "CREATE TRIGGER {$object->data['from']['check_name']}_insert BEFORE INSERT ON {$object->data['from']['table_name']} FOR EACH ROW ";
+					$sql2.= "\nBEGIN";
+						$where = str_replace($this->check_constraint_column_prefix, 'NEW.', $object->renderWhere($object->data['where']));
+						$sql2.= "\n\tIF NOT (" . $where . ") THEN";
+						$sql2.= "\n\t\tSIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Check constraint failed: {$object->data['from']['check_name']}.';";
+						$sql2.= "\nEND IF;";
+					$sql2.= "\nEND;";
+					$sql[] = $sql2;
+					$sql2 = "CREATE TRIGGER {$object->data['from']['check_name']}_update BEFORE UPDATE ON {$object->data['from']['table_name']} FOR EACH ROW ";
+					$sql2.= "\nBEGIN";
+						$where = str_replace($this->check_constraint_column_prefix, 'NEW.', $object->renderWhere($object->data['where']));
+						$sql2.= "\n\tIF NOT (" . $where . ") THEN";
+						$sql2.= "\n\t\tSIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Check constraint failed: {$object->data['from']['check_name']}.';";
+						$sql2.= "\nEND IF;";
+					$sql2.= "\nEND;";
+					$sql[] = $sql2;
+				}
+				break;
 			case 'select':
-			default:
 				// temporary table first
 				if (!empty($object->data['temporary_table'])) {
 					$sql.= "CREATE TEMPORARY TABLE {$object->data['temporary_table']}\n";
@@ -751,6 +774,8 @@ TTT;
 						$sql.= $v['select'];
 					}
 				}
+			default:
+				/* nothing */
 		}
 		// final processing
 		if (empty($result['error'])) {

@@ -13,7 +13,6 @@ class Nextval extends \Object\Function2 {
 READS SQL DATA
 DETERMINISTIC
 BEGIN
-	/* version */
 	UPDATE sm_sequences SET sm_sequence_counter = last_insert_id(sm_sequence_counter + 1) WHERE sm_sequence_name = sequence_name;
 	RETURN last_insert_id();
 END;';

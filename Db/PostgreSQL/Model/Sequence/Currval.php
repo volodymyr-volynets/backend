@@ -17,7 +17,6 @@ AS $function$
 DECLARE
     result bigint;
 BEGIN
-	/* version */
 	SELECT sm_sequence_counter INTO result FROM sm_sequence_extended WHERE sm_sequence_name = sequence_name AND sm_sequence_tenant_id = tenant_id AND sm_sequence_module_id = module_id;
 	RETURN result;
 END;

@@ -339,7 +339,8 @@ class DDL {
 					'owner' => $options['db_schema_owner'] ?? null,
 					'full_function_name' => $model->full_function_name,
 					'header' => $model->header,
-					'definition' => $model->definition
+					'definition' => $model->definition,
+					'sql_version' => $model->sql_version
 				]
 			], $model->db_link);
 			// if we got here - we are ok
@@ -380,7 +381,7 @@ class DDL {
 					'full_table_name' => $model->full_table_name,
 					'header' => $model->header,
 					'definition' => $model->definition,
-					'sql_version' => '/* [[[SQL Version: ' . $model->sql_version . ']]] */'
+					'sql_version' => $model->sql_version
 				]
 			], $model->db_link);
 			// if we got here - we are ok
@@ -1093,7 +1094,7 @@ class DDL {
 						} else { // function changed
 							// body
 							$v3_old = $obj_slave['function'][$k][$k2][$k3];
-							if (\Helper\Parser::match($v3['data']['definition'], '[[[', ']]]') !== \Helper\Parser::match($v3_old['data']['definition'], '[[[', ']]]')) {
+							if ($v3['data']['sql_version'] !== $v3_old['data']['sql_version']) {
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_old['migration_id'] = $result['count'] + 1;
 								// up
@@ -1159,7 +1160,7 @@ class DDL {
 						} else { // trigger changed
 							// body
 							$v3_old = $obj_slave['trigger'][$k][$k2][$k3];
-							if (\Helper\Parser::match($v3['data']['definition'], '[[[', ']]]') !== \Helper\Parser::match($v3_old['data']['definition'], '[[[', ']]]')) {
+							if ($v3['data']['sql_version'] !== $v3_old['data']['sql_version']) {
 								$v3['migration_id'] = $result['count'] + 1;
 								$v3_old['migration_id'] = $result['count'] + 1;
 								// up

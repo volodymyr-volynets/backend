@@ -13,7 +13,6 @@ class Currval extends \Object\Function2 {
 READS SQL DATA
 DETERMINISTIC
 BEGIN
-	/* version */
 	DECLARE result BIGINT;
 	SELECT sm_sequence_counter INTO result FROM sm_sequences WHERE sm_sequence_name = sequence_name;
 	RETURN result;

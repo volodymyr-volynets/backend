@@ -62,6 +62,7 @@ class Builder {
 	public function __construct(string $db_link, array $options = []) {
 		$this->db_link = $db_link;
 		$this->options = $options;
+		$this->options['parent_operator'] = $options['parent_operator'] ?? null;
 		if (!empty($options['cache_tags'])) {
 			$this->cache_tags = array_merge($this->cache_tags, $options['cache_tags']);
 		}
@@ -378,6 +379,10 @@ class Builder {
 		}
 		// process conditions
 		if (is_string($condition)) {
+			// exceptions
+			if ($this->data['operator'] == 'check' || $this->options['parent_operator'] == 'check') {
+				Throw new \Exception('String conditions are not allowed in check constraints!');
+			}
 			return [$operator, $exists, $condition, false];
 		} else if (is_array($condition)) {
 			// see if we have an object
@@ -651,7 +656,10 @@ class Builder {
 	 * @return string
 	 */
 	private function whereInner($function) {
-		$subquery = new \Numbers\Backend\Db\Common\Query\Builder($this->db_link, ['subquery' => true]);
+		$subquery = new \Numbers\Backend\Db\Common\Query\Builder($this->db_link, [
+			'subquery' => true,
+			'parent_operator' => $this->options['parent_operator'] ?? $this->data['operator']
+		]);
 		$function($subquery);
 		$this->cache_tags = array_merge($this->cache_tags, $subquery->cache_tags);
 		return "( " . trim($this->wrapSqlIntoTabs($subquery->renderWhere($subquery->data['where']) . "\n)"));
@@ -685,9 +693,9 @@ class Builder {
 	/**
 	 * SQL
 	 *
-	 * @return string
+	 * @return string|array
 	 */
-	public function sql() : string {
+	public function sql() {
 		$result = $this->render();
 		return $result['sql'];
 	}

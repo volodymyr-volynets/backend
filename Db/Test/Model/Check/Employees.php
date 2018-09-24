@@ -12,7 +12,7 @@ class Employees extends \Object\Check {
 
 	public function definition() {
 		$this->query->where('AND', function (& $query) {
-			$query->where('OR', ['first_name', '<>', 'last_name', true]);
+			$query->where('OR', ['[NEW].first_name', '<>', '[NEW].last_name', true]);
 		});
 	}
 }

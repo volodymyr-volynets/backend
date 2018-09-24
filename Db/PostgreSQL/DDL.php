@@ -201,9 +201,6 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 												'name' => $v5['constraint_name'],
 												'full_table_name' => $full_table_name
 											];
-										} else {
-											print_r2($v5);
-											exit;
 										}
 										// add constraint
 										$this->objectAdd([

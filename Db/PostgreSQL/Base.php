@@ -719,11 +719,11 @@ TTT;
 				if (empty($object->data['where'])) {
 					$result['error'][] = 'Where?';
 				} else {
-					$sql.= '(' . $object->renderWhere($object->data['where']) . ')';
+					$where = str_replace($this->check_constraint_column_prefix, '', $object->renderWhere($object->data['where']));
+					$sql.= '(' . $where . ')';
 				}
 				break;
 			case 'select':
-			default:
 				// temporary table first
 				if (!empty($object->data['temporary_table'])) {
 					$sql.= "CREATE TEMP TABLE {$object->data['temporary_table']} AS\n";
@@ -816,6 +816,8 @@ TTT;
 						$sql.= $v['select'];
 					}
 				}
+			default:
+				/* nothing */
 		}
 		// final processing
 		if (empty($result['error'])) {

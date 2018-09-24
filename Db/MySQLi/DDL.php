@@ -81,7 +81,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 		$sequence_model = \Factory::model('\Numbers\Backend\Db\Common\Model\Sequences');
 		$db_object = new \Db($db_link);
 		// getting information
-		foreach (['schemas', 'sequences', 'columns', 'constraints', 'functions', 'triggers', 'views'] as $v) {
+		foreach (['schemas', 'sequences', 'columns', 'constraints', 'functions', 'triggers', 'views', 'checks'] as $v) {
 			// we only load sequences if we have a sequence table
 			if ($v == 'sequences') {
 				if (!$sequence_model->dbPresent()) {
@@ -207,9 +207,6 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 												'name' => $v5['constraint_name'],
 												'full_table_name' => $full_table_name
 											];
-										} else {
-											print_r2($v5);
-											exit;
 										}
 										// add constraint
 										$this->objectAdd([
@@ -274,7 +271,8 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 										'owner' => $v3['function_owner'],
 										'full_function_name' => $full_function_name,
 										'header' => null,
-										'definition' => $v3['routine_definition']
+										'definition' => $v3['routine_definition'],
+										'sql_version' => $v3['sql_version']
 									]
 								], $db_link);
 							}
@@ -297,8 +295,9 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 									'data' => [
 										'full_function_name' => $full_function_name,
 										'full_table_name' => $v3['full_table_name'],
-										'header' => $v3['full_function_name'],
-										'definition' => $definition
+										'header' => $full_function_name,
+										'definition' => $definition,
+										'sql_version' => $v3['sql_version']
 									]
 								], $db_link);
 							}
@@ -314,8 +313,41 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 									'name' => $k3,
 									'backend' => 'MySQLi',
 									'data' => [
+										'owner' => $v3['view_owner'],
 										'full_view_name' => $v3['full_view_name'],
-										'definition' => $v3['routine_definition']
+										'definition' => $v3['routine_definition'],
+										'sql_version' => $v3['sql_version'],
+										'grant_tables' => []
+									]
+								], $db_link);
+							}
+						}
+						break;
+					case 'checks':
+						foreach ($temp['data'] as $k2 => $v2) {
+							foreach ($v2 as $k3 => $v3) {
+								$full_function_name = ltrim($v3['schema_name'] . '.' . $v3['function_name'], '.');
+								// get definitions
+								$definitions = [];
+								$definition = $db_object->query('SHOW CREATE TRIGGER ' . $full_function_name . '_insert');
+								$temp = explode(' TRIGGER ', $definition['rows'][0]['sql original statement']);
+								$definition = 'CREATE TRIGGER ' . $temp[1] . ';';
+								$definitions[] = $definition;
+								$definition = $db_object->query('SHOW CREATE TRIGGER ' . $full_function_name . '_update');
+								$temp = explode(' TRIGGER ', $definition['rows'][0]['sql original statement']);
+								$definition = 'CREATE TRIGGER ' . $temp[1] . ';';
+								$definitions[] = $definition;
+								// add object
+								$this->objectAdd([
+									'type' => 'check',
+									'schema' => $k2,
+									'name' => $k3,
+									'backend' => 'MySQLi',
+									'data' => [
+										'full_check_name' => $v3['full_check_name'],
+										'full_table_name' => $v3['full_table_name'],
+										'definition' => $definitions,
+										'sql_version' => $v3['sql_version']
 									]
 								], $db_link);
 							}
@@ -353,6 +385,9 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 		$db_object = new \Db($db_link);
 		$database_name = $db_object->object->connect_options['dbname'];
 		$owner = $db_object->object->connect_options['username'];
+		// check for metadata table
+		$metadata_model = new \Numbers\Backend\Db\Common\Model\Metadata();
+		$metadata_exists = $metadata_model->dbPresent();
 		// getting proper query
 		switch($type) {
 			case 'schemas':
@@ -478,38 +513,91 @@ TTT;
 				break;
 			case 'functions':
 				$key = ['schema_name', 'function_name'];
+				if ($metadata_exists) {
+					$sql_version = "COALESCE(mdata.sm_metadata_sql_version, '')";
+					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'function' AND (mdata.sm_metadata_name COLLATE utf8_bin) = CONCAT(a.routine_schema, '.', a.routine_name)";
+				} else {
+					$sql_version = "''";
+					$sql_join = '';
+				}
 				$sql = <<<TTT
 					SELECT
-						routine_schema schema_name,
-						routine_name function_name,
+						a.routine_schema schema_name,
+						a.routine_name function_name,
 						'{$owner}' function_owner,
-						routine_definition
-					FROM information_schema.routines
+						a.routine_definition,
+						{$sql_version} sql_version
+					FROM information_schema.routines a
+					{$sql_join}
 					WHERE 1=1
-						AND routine_type = 'FUNCTION'
-						AND routine_schema = '{$database_name}'
+						AND a.routine_type = 'FUNCTION'
+						AND a.routine_schema = '{$database_name}'
 TTT;
 				break;
 			case 'triggers':
 				$key = ['schema_name', 'function_name'];
+				if ($metadata_exists) {
+					$sql_version = "COALESCE(mdata.sm_metadata_sql_version, '')";
+					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'trigger' AND (mdata.sm_metadata_name COLLATE utf8_bin) = CONCAT(a.trigger_schema, '.', a.trigger_name)";
+				} else {
+					$sql_version = "''";
+					$sql_join = '';
+				}
 				$sql = <<<TTT
 					SELECT
-						trigger_schema schema_name,
-						trigger_name function_name
-					FROM information_schema.triggers
-					WHERE trigger_schema = '{$database_name}'
+						a.trigger_schema schema_name,
+						a.trigger_name function_name,
+						CONCAT(a.event_object_schema, '.', a.event_object_table) full_table_name,
+						{$sql_version} sql_version
+					FROM information_schema.triggers a
+					{$sql_join}
+					WHERE a.trigger_schema = '{$database_name}'
+						AND a.trigger_name NOT LIKE '%_check_insert'
+						AND a.trigger_name NOT LIKE '%_check_update'
+					COLLATE utf8_general_ci
 TTT;
 				break;
 			case 'views':
 				$key = ['schema_name', 'view_name'];
+				if ($metadata_exists) {
+					$sql_version = "COALESCE(mdata.sm_metadata_sql_version, '')";
+					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'view' AND mdata.sm_metadata_name = CONCAT(a.table_schema, '.', a.table_name)";
+				} else {
+					$sql_version = "''";
+					$sql_join = '';
+				}
 				$sql = <<<TTT
 					SELECT
 						a.table_schema schema_name,
 						a.table_name view_name,
 						a.table_name full_view_name,
-						a.view_definition routine_definition
+						'{$owner}' view_owner,
+						a.view_definition routine_definition,
+						{$sql_version} sql_version
 					FROM information_schema.views a
+					{$sql_join}
 					WHERE a.table_schema = '{$database_name}'
+TTT;
+				break;
+			case 'checks':
+				$key = ['schema_name', 'function_name'];
+				if ($metadata_exists) {
+					$sql_version = "COALESCE(mdata.sm_metadata_sql_version, '')";
+					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'check' AND mdata.sm_metadata_name = REPLACE(CONCAT(a.trigger_schema, '.', a.trigger_name), '_check_insert', '_check')";
+				} else {
+					$sql_version = "''";
+					$sql_join = '';
+				}
+				$sql = <<<TTT
+					SELECT
+						a.trigger_schema schema_name,
+						REPLACE(a.trigger_name, '_check_insert', '_check') function_name,
+						CONCAT(a.event_object_schema, '.', a.event_object_table) full_table_name,
+						{$sql_version} sql_version
+					FROM information_schema.triggers a
+					{$sql_join}
+					WHERE a.trigger_schema = '{$database_name}'
+						AND a.trigger_name LIKE '%_check_insert'
 TTT;
 				break;
 			default:
@@ -615,10 +703,14 @@ TTT;
 				break;
 			// view
 			case 'view_new':
-				$result = "CREATE OR REPLACE VIEW {$data['data']['full_view_name']} AS {$data['data']['definition']};";
+				$result = [];
+				$result[] = "CREATE OR REPLACE VIEW {$data['data']['full_view_name']} AS {$data['data']['definition']};";
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'view', $data['data']['full_view_name'], $data['data']['sql_version'], false));
 				break;
 			case 'view_delete':
-				$result = "DROP VIEW {$data['name']};";
+				$result = [];
+				$result[]= "DROP VIEW {$data['data']['full_view_name']};";
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'view', $data['data']['full_view_name'], '', true));
 				break;
 			// foreign key/unique/primary key
 			case 'constraint_new':
@@ -697,18 +789,37 @@ TTT;
 				break;
 			// functions
 			case 'function_new':
-				$result = $data['data']['definition'] . ";";
+				$result = [];
+				$result[]= $data['data']['definition'] . ";";
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'function', $data['data']['full_function_name'], $data['data']['sql_version'], false));
 				break;
 			case 'function_delete':
-				$result = "DROP FUNCTION {$data['data']['full_function_name']};";
+				$result = [];
+				$result[]= "DROP FUNCTION {$data['data']['full_function_name']};";
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'function', $data['data']['full_function_name'], '', true));
 				break;
 			// trigger
 			case 'trigger_new':
-				$result = trim($data['data']['definition']);
+				$result = [];
+				$result[]= trim($data['data']['definition']);
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'trigger', $data['data']['full_function_name'], $data['data']['sql_version'], false));
 				break;
 			case 'trigger_delete':
-				$full_function_name = ltrim($data['schema'] . '.' . $data['name'], '.');
-				$result = "DROP TRIGGER {$full_function_name};";
+				$result = [];
+				$result[]= "DROP TRIGGER {$data['data']['full_function_name']};";
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'trigger', $data['data']['full_function_name'], '', true));
+				break;
+			// check
+			case 'check_new':
+				$result = [];
+				$result = array_merge($result, $data['data']['definition']);
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'check', $data['data']['full_check_name'], $data['data']['sql_version'], false));
+				break;
+			case 'check_delete':
+				$result = [];
+				$result[]= "DROP TRIGGER {$data['data']['full_check_name']}_insert;";
+				$result[]= "DROP TRIGGER {$data['data']['full_check_name']}_update;";
+				$result = array_merge($result, \Numbers\Backend\Db\Common\Model\Metadata::makeSchemaChanges($options['db_link'], 'check', $data['data']['full_check_name'], '', true));
 				break;
 			case 'permission_grant_database':
 				$result = [];
