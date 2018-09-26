@@ -90,8 +90,8 @@ class Schemas {
 			'success' => false,
 			'error' => [],
 			'data' => [
-				'\Object\Import' => [],
 				'\Object\Models' => [],
+				'\Object\Import' => [],
 				'\Object\Forms' => []
 			],
 			'objects' => [],
@@ -144,14 +144,6 @@ run_again:
 					if (!$temp_result['success']) {
 						array_merge3($result['error'], $temp_result['error']);
 					}
-					// relation
-					$relation_domain = null;
-					$relation_type = null;
-					if (!empty($model->relation)) {
-						$relation_domain = $model->columns[$model->relation['field']]['domain'] ?? null;
-						if (!empty($relation_domain)) $relation_domain = str_replace('_sequence', '', $relation_domain);
-						$relation_type = $model->columns[$model->relation['field']]['type'];
-					}
 					$result['data']['\Object\Models'][$k2] = [
 						'sm_model_code' => $k2,
 						'sm_model_name' => $model->title,
@@ -161,11 +153,6 @@ run_again:
 						'sm_model_widget_attributes' => !empty($model->attributes) ? 1 : 0,
 						'sm_model_widget_audit' => !empty($model->audit) ? 1 : 0,
 						'sm_model_widget_addressees' => !empty($model->addresses) ? 1 : 0,
-						// relation
-						'sm_model_relation_enabled' => !empty($model->relation) ? 1 : 0,
-						'sm_model_relation_column' => $model->relation['field'] ?? null,
-						'sm_model_relation_domain' => $relation_domain,
-						'sm_model_relation_type' => $relation_type,
 						// data asset
 						'sm_model_da_classification' => $model->data_asset['classification'],
 						'sm_model_da_protection' => $model->data_asset['protection'],

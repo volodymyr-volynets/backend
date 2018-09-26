@@ -326,14 +326,14 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 					case 'checks':
 						foreach ($temp['data'] as $k2 => $v2) {
 							foreach ($v2 as $k3 => $v3) {
-								$full_function_name = ltrim($v3['schema_name'] . '.' . $v3['function_name'], '.');
+								$full_check_name = ltrim($v3['schema_name'] . '.' . $v3['function_name'], '.');
 								// get definitions
 								$definitions = [];
-								$definition = $db_object->query('SHOW CREATE TRIGGER ' . $full_function_name . '_insert');
+								$definition = $db_object->query('SHOW CREATE TRIGGER ' . $full_check_name . '_insert');
 								$temp = explode(' TRIGGER ', $definition['rows'][0]['sql original statement']);
 								$definition = 'CREATE TRIGGER ' . $temp[1] . ';';
 								$definitions[] = $definition;
-								$definition = $db_object->query('SHOW CREATE TRIGGER ' . $full_function_name . '_update');
+								$definition = $db_object->query('SHOW CREATE TRIGGER ' . $full_check_name . '_update');
 								$temp = explode(' TRIGGER ', $definition['rows'][0]['sql original statement']);
 								$definition = 'CREATE TRIGGER ' . $temp[1] . ';';
 								$definitions[] = $definition;
@@ -344,7 +344,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 									'name' => $k3,
 									'backend' => 'MySQLi',
 									'data' => [
-										'full_check_name' => $v3['full_check_name'],
+										'full_check_name' => $full_check_name,
 										'full_table_name' => $v3['full_table_name'],
 										'definition' => $definitions,
 										'sql_version' => $v3['sql_version']
