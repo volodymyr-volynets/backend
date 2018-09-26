@@ -538,7 +538,7 @@ TTT;
 				$key = ['schema_name', 'function_name'];
 				if ($metadata_exists) {
 					$sql_version = "COALESCE(mdata.sm_metadata_sql_version, '')";
-					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'trigger' AND (mdata.sm_metadata_name COLLATE utf8_bin) = CONCAT(a.trigger_schema, '.', a.trigger_name)";
+					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'trigger' AND (mdata.sm_metadata_name COLLATE utf8_bin) = CONCAT(a.trigger_schema COLLATE utf8_bin, '.' COLLATE utf8_bin, a.trigger_name COLLATE utf8_bin)";
 				} else {
 					$sql_version = "''";
 					$sql_join = '';
@@ -554,7 +554,6 @@ TTT;
 					WHERE a.trigger_schema = '{$database_name}'
 						AND a.trigger_name NOT LIKE '%_check_insert'
 						AND a.trigger_name NOT LIKE '%_check_update'
-					COLLATE utf8_general_ci
 TTT;
 				break;
 			case 'views':
@@ -583,7 +582,7 @@ TTT;
 				$key = ['schema_name', 'function_name'];
 				if ($metadata_exists) {
 					$sql_version = "COALESCE(mdata.sm_metadata_sql_version, '')";
-					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'check' AND mdata.sm_metadata_name = REPLACE(CONCAT(a.trigger_schema, '.', a.trigger_name), '_check_insert', '_check')";
+					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'check' AND (mdata.sm_metadata_name COLLATE utf8_bin) = REPLACE(CONCAT(a.trigger_schema, '.', a.trigger_name) COLLATE utf8_bin, '_check_insert' COLLATE utf8_bin, '_check' COLLATE utf8_bin)";
 				} else {
 					$sql_version = "''";
 					$sql_join = '';
@@ -592,7 +591,7 @@ TTT;
 					SELECT
 						a.trigger_schema schema_name,
 						REPLACE(a.trigger_name, '_check_insert', '_check') function_name,
-						CONCAT(a.event_object_schema, '.', a.event_object_table) full_table_name,
+						CONCAT(a.event_object_schema COLLATE utf8_bin, '.' COLLATE utf8_bin, a.event_object_table COLLATE utf8_bin) full_table_name,
 						{$sql_version} sql_version
 					FROM information_schema.triggers a
 					{$sql_join}

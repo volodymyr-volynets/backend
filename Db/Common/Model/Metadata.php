@@ -53,6 +53,11 @@ class Metadata extends \Object\Table {
 	 */
 	public static function makeSchemaChanges(string $db_link, string $type, string $name, string $sql_version = '', bool $drop_only = false) : array {
 		$result = [];
+		// we need to fix name
+		if (strpos($name, '.') === false) {
+			$model = new \Numbers\Backend\Db\Common\Model\Metadata();
+			$name = $model->schema . '.' . $name;
+		}
 		// delete first
 		$result[] = self::queryBuilderStatic()->delete()->whereMultiple('AND', [
 			'sm_metadata_db_link' => $db_link,
