@@ -18,6 +18,9 @@ class Attributes extends \Object\Table {
 		'sm_abacattr_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_abacattr_module_code' => ['name' => 'Module Code', 'domain' => 'module_code'], // no fk
 		'sm_abacattr_parent_abacattr_id' => ['name' => 'Parent Attribute #', 'domain' => 'attribute_id', 'null' => true],
+		// settings from models
+		'sm_abacattr_tenant' => ['name' => 'Tenant', 'type' => 'boolean'],
+		'sm_abacattr_module' => ['name' => 'Module', 'type' => 'boolean'],
 		// flags
 		'sm_abacattr_flag_abac' => ['name' => 'Flag ABAC', 'type' => 'boolean'],
 		'sm_abacattr_flag_assingment' => ['name' => 'Flag Assignment', 'type' => 'boolean'],

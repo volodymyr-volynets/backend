@@ -43,6 +43,13 @@ class Metadata extends \Object\Table {
 	];
 
 	/**
+	 * Database present flag
+	 *
+	 * @var bool
+	 */
+	private static $cached_model;
+
+	/**
 	 * Make schema changes
 	 *
 	 * @param string $db_link
@@ -53,10 +60,17 @@ class Metadata extends \Object\Table {
 	 */
 	public static function makeSchemaChanges(string $db_link, string $type, string $name, string $sql_version = '', bool $drop_only = false) : array {
 		$result = [];
+		// cache object
+		if (!isset(self::$cached_model)) {
+			self::$cached_model = new \Numbers\Backend\Db\Common\Model\Metadata();
+		}
+		// if we do not have a table, have to recheck everytime
+		if (!self::$cached_model->dbPresent()) {
+			return $result;
+		}
 		// we need to fix name
 		if (strpos($name, '.') === false) {
-			$model = new \Numbers\Backend\Db\Common\Model\Metadata();
-			$name = $model->schema . '.' . $name;
+			$name = self::$cached_model->schema . '.' . $name;
 		}
 		// delete first
 		$result[] = self::queryBuilderStatic()->delete()->whereMultiple('AND', [
