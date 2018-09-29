@@ -44,6 +44,7 @@ class Resources extends \Object\Table {
 		'sm_resource_menu_child_ordered' => ['name' => 'Child Ordered', 'type' => 'boolean'],
 		'sm_resource_menu_order' => ['name' => 'Order', 'type' => 'integer', 'default' => 0],
 		'sm_resource_menu_separator' => ['name' => 'Separator', 'type' => 'boolean'],
+		'sm_resource_menu_class' => ['name' => 'Class', 'type' => 'text', 'null' => true],
 		// other
 		'sm_resource_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
