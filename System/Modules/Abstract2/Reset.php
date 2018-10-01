@@ -18,6 +18,13 @@ abstract class Reset {
 	protected $module_code;
 
 	/**
+	 * Feature code
+	 *
+	 * @var string
+	 */
+	protected $feature_code;
+
+	/**
 	 * Module #
 	 *
 	 * @var int
@@ -41,6 +48,7 @@ abstract class Reset {
 	 */
 	public function __construct(string $db_link, int $module_id, array $options = []) {
 		$this->module_code = $options['module_code'] ?? null;
+		$this->feature_code = $options['feature_code'] ?? null;
 		$this->activation_model = $options['activation_model'] ?? null;
 		$this->module_id = $module_id;
 		$this->db_link = $db_link;
@@ -77,8 +85,7 @@ abstract class Reset {
 					$temp = $model->process();
 				}
 				if (!$temp['success']) {
-					print_r2($temp);
-					Throw new \Exception('Could not reactivate module!');
+					Throw new \Exception('Could not reactivate module/feature!');
 				}
 			}
 			$db_object->commit();
@@ -108,6 +115,12 @@ abstract class Reset {
 				$this->clearTable($widget_model);
 			}
 		}
+		// clear table sequences
+		foreach ($model->columns as $k => $v) {
+			if (!empty($v['sequence'])) {
+				$this->clearSequence($model->full_table_name . '_' . $k . '_seq', $v['sequence_type'], 0);
+			}
+		}
 		// delete from table
 		$query = $model->queryBuilder()->delete();
 		if (!empty($where)) {
@@ -120,53 +133,30 @@ abstract class Reset {
 	}
 
 	/**
-	 * Clear sequences
+	 * Clear sequence
 	 *
-	 * @param array $where
+	 * @param string $name
+	 * @param string $type
+	 * @param int $value
+	 * @throws \Exception
 	 */
-	protected function clearSequences(array $where = []) {
-		$module_code = '%.' . strtolower($this->module_code) . '\_%';
-		$sequences_query = \Numbers\Backend\Db\Common\Model\Sequences::queryBuilderStatic()->select();
-		$sequences_query->where('AND', ['a.sm_sequence_name', 'LIKE', $module_code]);
-		$sequences_result = $sequences_query->query(['sm_sequence_name']);
-		// if we have sequences
-		if (!empty($sequences_result['rows'])) {
-			foreach ($sequences_result['rows'] as $k => $v) {
-				switch ($v['sm_sequence_type']) {
-					case 'tenant_simple':
-					case 'tenant_advanced':
-					case 'module_simple':
-					case 'module_advanced':
-						$extended_query = \Numbers\Backend\Db\Common\Model\Sequence\Extended::queryBuilderStatic()->update();
-						$extended_query->set([
-							'sm_sequence_counter' => 0
-						]);
-						$extended_query->where('AND', ['a.sm_sequence_tenant_id', '=', \Tenant::id()]);
-						// if we have sequence per modules
-						if ($v['sm_sequence_type'] == 'module_simple' || $v['sm_sequence_type'] == 'module_advanced') {
-							$extended_query->where('AND', ['a.sm_sequence_module_id', '=', $this->module_id]);
-						}
-						$extended_query->where('AND', ['a.sm_sequence_name', '=', $k]);
-						$extended_result = $extended_query->query();
-						if (!$extended_result['success']) {
-							Throw new \Exception(implode(', ', $extended_result['error']));
-						}
-						break;
-					case 'global_simple': // for these we need to execute setval command
-					case 'global_advanced':
-						$global_sequence_query = new \Object\Query\Builder($this->db_link);
-						$global_sequence_query->columns([
-							'counter' => "setval('{$k}', 0)"
-						]);
-						$global_sequence_result = $global_sequence_query->query();
-						if (!$global_sequence_result['success']) {
-							Throw new \Exception(implode(', ', $global_sequence_result['error']));
-						}
-						break;
-					default:
-						Throw new \Exception('Unknown sequence type!');
-				}
-			}
+	protected function clearSequence(string $name, string $type, int $value = 0) {
+		$model = new \Numbers\Backend\Db\Common\Model\Sequences();
+		switch ($type) {
+			case 'tenant_simple':
+			case 'tenant_advanced':
+				$model->db_object->setval($name, $value, \Tenant::id(), null);
+				break;
+			case 'module_simple':
+			case 'module_advanced':
+				$model->db_object->setval($name, $value, \Tenant::id(), $this->module_id);
+				break;
+			case 'global_simple': // for these we need to execute setval command
+			case 'global_advanced':
+				$model->db_object->setval($name, $value, null, null);
+				break;
+			default:
+				Throw new \Exception('Unknown sequence type!');
 		}
 	}
 }

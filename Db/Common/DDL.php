@@ -148,13 +148,6 @@ class DDL {
 				$columns[$k] = $temp;
 				// add sequence
 				if (!empty($temp['sequence'])) {
-					$sequence_type = 'global_simple';
-					if ($model->tenant) {
-						$sequence_type = 'tenant_simple';
-					}
-					if ($model->module) {
-						$sequence_type = 'module_simple';
-					}
 					$this->objectAdd([
 						'type' => 'sequence',
 						'schema' => $model->schema,
@@ -163,7 +156,7 @@ class DDL {
 							'owner' => $options['db_schema_owner'] ?? null,
 							'full_sequence_name' => $model->full_table_name . '_' . $k . '_seq',
 							'full_table_name' => $model->full_table_name, // a must
-							'type' => $sequence_type,
+							'type' => $temp['sequence_type'],
 							'prefix' => null,
 							'suffix' => null,
 							'length' => 0

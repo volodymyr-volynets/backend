@@ -497,4 +497,32 @@ class Base {
 		}
 		return $result;
 	}
+
+	/**
+	 * Set sequence value
+	 *
+	 * @param string $sequence_name
+	 * @param int $value
+	 * @param int|null $tenant
+	 * @param int|null $module
+	 * @return array
+	 */
+	public function setval(string $sequence_name, int $value, $tenant = null, $module = null) : array {
+		// extended sequence
+		if (isset($tenant) || isset($module)) {
+			$query = \Numbers\Backend\Db\Common\Model\Sequence\Extended::queryBuilderStatic()->update();
+			$query->set(['sm_sequence_counter' => $value]);
+			$query->whereMultiple('AND', [
+			    'sm_sequence_tenant_id' => (int) $tenant ?? 0,
+			    'sm_sequence_module_id' => (int) $module ?? 0,
+			]);
+		} else { // regular sequence
+			$query = new \Object\Query\Builder($this->db_link);
+			$query->select();
+			$query->columns([
+				'counter' => "{$type}('{$sequence_name}', {$value})"
+			]);
+		}
+		return $query->query();
+	}
 }

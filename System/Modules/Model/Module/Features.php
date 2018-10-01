@@ -19,6 +19,7 @@ class Features extends \Object\Table {
 		'sm_feature_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_feature_icon' => ['name' => 'Name', 'domain' => 'icon', 'null' => true],
 		'sm_feature_activation_model' => ['name' => 'Activation Model', 'domain' => 'code', 'null' => true],
+		'sm_feature_reset_model' => ['name' => 'Reset Model', 'domain' => 'code', 'null' => true],
 		'sm_feature_activated_by_default' => ['name' => 'Activated By Default', 'type' => 'boolean'],
 		'sm_feature_common_notification_feature_code' => ['name' => 'Common Notification Code', 'domain' => 'feature_code', 'null' => true],
 		'sm_feature_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
