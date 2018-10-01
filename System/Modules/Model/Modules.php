@@ -21,6 +21,7 @@ class Modules extends \Object\Table {
 		'sm_module_transactions' => ['name' => 'Transactions', 'type' => 'boolean'],
 		'sm_module_multiple' => ['name' => 'Multiple', 'type' => 'boolean'],
 		'sm_module_activation_model' => ['name' => 'Activation Model', 'domain' => 'code', 'null' => true],
+		'sm_module_reset_model' => ['name' => 'Reset Model', 'domain' => 'code', 'null' => true],
 		'sm_module_custom_activation' => ['name' => 'Custom Activation', 'type' => 'boolean'],
 		'sm_module_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
