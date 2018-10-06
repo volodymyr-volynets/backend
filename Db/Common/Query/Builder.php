@@ -31,6 +31,13 @@ class Builder {
 	 */
 	public $data = [
 		'operator' => 'select',
+			// select
+			// update
+			// insert
+			// delete
+			// check
+			// truncate
+			// tree
 		'columns' => [],
 		'from' => [],
 		'join' => [],
@@ -52,6 +59,20 @@ class Builder {
 	 * @var array
 	 */
 	public $cache_tags = [];
+
+	/**
+	 * Primary model
+	 *
+	 * @var object
+	 */
+	public $primary_model;
+
+	/**
+	 * Primary alias
+	 *
+	 * @var string
+	 */
+	public $primary_alias;
 
 	/**
 	 * Constructor
@@ -156,6 +177,16 @@ class Builder {
 	 */
 	public function truncate() : \Numbers\Backend\Db\Common\Query\Builder {
 		$this->data['operator'] = 'truncate';
+		return $this;
+	}
+
+	/**
+	 * Tree
+	 *
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function tree() : \Numbers\Backend\Db\Common\Query\Builder {
+		$this->data['operator'] = 'tree';
 		return $this;
 	}
 
@@ -304,6 +335,11 @@ class Builder {
 		} else if (is_object($table) && is_a($table, 'Object\DataSource')) { // datasource object
 			return $table->sql([], $this->cache_tags);
 		} else if (is_object($table) && is_a($table, 'Object\Table')) { // table object
+			// set primary model first table
+			if (!isset($this->primary_model)) {
+				$this->primary_model = $table;
+				$this->primary_alias = $alias;
+			}
 			// injecting tenant
 			if ($table->tenant && empty($table->options['skip_tenant'])) {
 				$conditions[] = ['AND', [ltrim($alias . '.' . $table->tenant_column), '=', \Tenant::id(), false], false];
