@@ -278,7 +278,7 @@ class Builder {
 	 * @param mixed $conditions
 	 * @return \Numbers\Backend\Db\Common\Query\Builder
 	 */
-	public function join(string $type, $table, $alias, string $on = 'ON', $conditions) : \Numbers\Backend\Db\Common\Query\Builder {
+	public function join(string $type, $table, $alias, string $on = 'ON', $conditions = null) : \Numbers\Backend\Db\Common\Query\Builder {
 		$join = [
 			'type' => $type,
 			'table' => null,
@@ -286,6 +286,11 @@ class Builder {
 			'on' => $on,
 			'conditions' => []
 		];
+		// cross join does not have parameters
+		if (strtolower($type) == 'cross') {
+			$join['on'] = null;
+			$conditions = null;
+		}
 		// add based on table type
 		$table_extra_conditions = [];
 		$join['table'] = $this->singleFromClause($table, $alias, $table_extra_conditions);

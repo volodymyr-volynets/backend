@@ -8,6 +8,11 @@ class Aliases {
 			'no_data_alias_model' => '\Numbers\Backend\System\Modules\Model\Resources',
 			'no_data_alias_column' => 'sm_resource_code'
 		],
+		'rsrsubres_id' => [
+			'no_data_alias_name' => 'Subresource #',
+			'no_data_alias_model' => '\Numbers\Backend\System\Modules\Model\Resource\Subresources',
+			'no_data_alias_column' => 'sm_rsrsubres_code'
+		],
 		'action_id' => [
 			'no_data_alias_name' => 'Action #',
 			'no_data_alias_model' => '\Numbers\Backend\System\Modules\Model\Resource\Actions',

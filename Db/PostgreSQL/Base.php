@@ -816,8 +816,9 @@ TTT;
 						$sql.= $v['select'];
 					}
 				}
+				break;
 			default:
-				/* nothing */
+				Throw new \Exception('Operator?');
 		}
 		// final processing
 		if (empty($result['error'])) {

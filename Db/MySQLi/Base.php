@@ -814,7 +814,7 @@ TTT;
 				$sql = $query->sql();
 				break;
 			default:
-				/* nothing */
+				Throw new \Exception('Operator?');
 		}
 		// final processing
 		if (empty($result['error'])) {
