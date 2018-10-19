@@ -104,6 +104,11 @@ abstract class Base {
 	public function hash($data) {
 		// serilializing array or object
 		if (is_array($data) || is_object($data)) {
+			// for array we need to sort by key
+			if (is_array($data)) {
+				ksort($data);
+			}
+			// serialize
 			$data = serialize($data);
 		}
 		if ($this->hash == 'md5' || $this->hash == 'sha1') {
