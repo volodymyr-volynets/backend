@@ -384,7 +384,7 @@ run_again:
 			$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
 			if ($migration_model->dbPresent()) {
 				$ts = \Format::now('timestamp');
-				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge([
+				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic(['skip_acl' => true])->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'schema',
 					'sm_migration_action' => 'up',
@@ -538,7 +538,7 @@ run_again:
 			$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
 			if ($migration_model->dbPresent()) {
 				$ts = \Format::now('timestamp');
-				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge([
+				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic(['skip_acl' => true])->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'permission',
 					'sm_migration_action' => 'update',
@@ -585,7 +585,7 @@ run_again:
 				case '\Object\Models':
 					$import_model = new \Numbers\Backend\Db\Common\Model\Models();
 					if ($import_model->dbPresent()) {
-						$import_result = $import_model->collection(['pk' => ['sm_model_code']])->mergeMultiple($v);
+						$import_result = $import_model->collection(['pk' => ['sm_model_code'], 'skip_acl' => true])->mergeMultiple($v);
 						if (!$import_result['success']) {
 							$result['error'] = array_merge($result['error'], $import_result['error']);
 							return $result;
@@ -609,7 +609,7 @@ run_again:
 				case '\Object\Form':
 					$form_model = new \Numbers\Backend\System\Modules\Model\Forms();
 					if ($form_model->dbPresent()) {
-						$form_collection = new \Numbers\Backend\System\Modules\Model\Collection\Forms();
+						$form_collection = new \Numbers\Backend\System\Modules\Model\Collection\Forms(['skip_acl' => true]);
 						$form_result = $form_collection->mergeMultiple($v);
 						if (!$form_result['success']) {
 							$result['error'] = array_merge($result['error'], $form_result['error']);
@@ -625,7 +625,7 @@ run_again:
 			$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
 			if ($migration_model->dbPresent()) {
 				$ts = \Format::now('timestamp');
-				$temp_result = $migration_model->collection()->merge([
+				$temp_result = $migration_model->collection(['skip_acl' => true])->merge([
 					'sm_migration_db_link' => $db_link,
 					'sm_migration_type' => 'import',
 					'sm_migration_action' => 'update',

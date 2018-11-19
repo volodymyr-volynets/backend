@@ -44,7 +44,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 	 * @param string $id
 	 */
 	public function read($id) {
-		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
+		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
 			->select()
 			->columns(['sm_session_data'])
 			->where('AND', ['sm_session_id', '=', $id])
@@ -69,7 +69,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 		} else {
 			$inc = 0;
 		}
-		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
+		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
 			->update()
 			->set([
 				'sm_session_expires' => \Format::now('timestamp', ['add_seconds' => \Session::$default_options['gc_maxlifetime']]),
@@ -83,7 +83,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 			->where('AND', ['sm_session_id', '=', $id])
 			->query();
 		if (empty($result['affected_rows'])) {
-			$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
+			$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
 				->insert()
 				->columns([
 					'sm_session_id',
@@ -119,7 +119,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 	 * @return boolean
 	 */
 	public function destroy($id) {
-		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
+		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
 			->update()
 			->set(['sm_session_expires' => \Format::now('timestamp', ['add_seconds' => -100])])
 			->where('AND', ['sm_session_id', '=', $id])
@@ -138,7 +138,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 		$object->db_object->begin();
 		// step 1: we need to move expired sessions to history table
 		$expire = \Format::now('timestamp');
-		$result = \Numbers\Backend\Session\Db\Model\Session\History::queryBuilderStatic(['skip_tenant' => true])
+		$result = \Numbers\Backend\Session\Db\Model\Session\History::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
 			->insert()
 			->columns([
 				'sm_sesshist_id',
@@ -150,7 +150,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				'sm_sesshist_tenant_id'
 			])
 			->values(function(& $subquery) use ($expire) {
-				$subquery = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
+				$subquery = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
 					->select()
 					->columns([
 						'sm_sesshist_id' => "nextval('sm_session_history_sm_sesshist_id_seq')",
@@ -169,7 +169,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 			return false;
 		}
 		// step 2: remove expired sessions
-		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true])
+		$result = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
 			->delete()
 			->where('AND', ['sm_session_expires', '<', $expire])
 			->query();

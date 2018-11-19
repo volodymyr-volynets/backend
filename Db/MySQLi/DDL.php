@@ -223,7 +223,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 						break;
 					case 'sequences':
 						// load sequence attributes
-						$sequence_attributes = $sequence_model->get();
+						$sequence_attributes = $sequence_model->get(['skip_acl' => true]);
 						// add sequences
 						foreach ($temp['data'] as $k2 => $v2) {
 							foreach ($v2 as $k3 => $v3) {

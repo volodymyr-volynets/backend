@@ -23,7 +23,7 @@ class Check extends \Object\Controller {
 			$token_data = $crypt->tokenValidate($input['token'], ['skip_time_validation' => true]);
 			if (!($token_data === false || $token_data['token'] !== 'general')) {
 				// quering database
-				$query = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic()->select();
+				$query = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_acl' => true])->select();
 				$query->columns([
 					'sm_session_expires',
 					'sm_session_user_id'

@@ -25,11 +25,16 @@ class Attributes extends \Object\Table {
 		'sm_abacattr_flag_abac' => ['name' => 'Flag ABAC', 'type' => 'boolean'],
 		'sm_abacattr_flag_assingment' => ['name' => 'Flag Assignment', 'type' => 'boolean'],
 		'sm_abacattr_flag_attribute' => ['name' => 'Flag Assignment', 'type' => 'boolean'],
+		'sm_abacattr_flag_link' => ['name' => 'Flag Link', 'type' => 'boolean'],
+		'sm_abacattr_flag_other_table' => ['name' => 'Flag Other Table', 'type' => 'boolean'],
 		// models
 		'sm_abacattr_model_id' => ['name' => 'Model #', 'domain' => 'model_id'],
+		'sm_abacattr_link_model_id' => ['name' => 'Link Model #', 'domain' => 'model_id', 'null' => true],
 		'sm_abacattr_domain' => ['name' => 'Domain', 'domain' => 'code', 'null' => true],
 		'sm_abacattr_type' => ['name' => 'Type', 'domain' => 'code'],
 		'sm_abacattr_is_numeric_key' => ['name' => 'Is Numeric Key', 'type' => 'boolean'],
+		// methods
+		'sm_abacattr_environment_method' => ['name' => 'Environment Method', 'domain' => 'code', 'null' => true],
 		// inactive
 		'sm_abacattr_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];

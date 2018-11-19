@@ -268,7 +268,7 @@ abstract class Base {
 			$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
 			if ($migration_model->dbPresent()) {
 				// insert new migration record
-				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge($this->executed_migration_stats);
+				$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic(['skip_acl' => true])->merge($this->executed_migration_stats);
 				if (!$temp_result['success']) {
 					Throw new \Exception(implode("\n", $temp_result['error']));
 				}
@@ -289,7 +289,7 @@ abstract class Base {
 					if (empty($temp)) {
 						Throw new \Exception('Could not find original up migration!');
 					}
-					$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->merge([
+					$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic(['skip_acl' => true])->merge([
 						'sm_migration_id' => key($temp),
 						'sm_migration_rolled_back' => 1
 					]);
@@ -318,7 +318,7 @@ abstract class Base {
 					$migration_model = new \Numbers\Backend\Db\Common\Model\Migrations();
 					if ($migration_model->dbPresent()) {
 						$old_stats['sm_migration_rolled_back'] = 1;
-						$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic()->mergeMultiple([$old_stats, $this->executed_migration_stats]);
+						$temp_result = \Numbers\Backend\Db\Common\Model\Migrations::collectionStatic(['skip_acl' => true])->mergeMultiple([$old_stats, $this->executed_migration_stats]);
 						if (!$temp_result['success']) {
 							Throw new \Exception(implode("\n", $temp_result['error']));
 						}

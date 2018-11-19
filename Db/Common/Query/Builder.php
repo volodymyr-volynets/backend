@@ -8,7 +8,7 @@ class Builder {
 	 *
 	 * @var string
 	 */
-	private $db_link;
+	public $db_link;
 
 	/**
 	 * Db object

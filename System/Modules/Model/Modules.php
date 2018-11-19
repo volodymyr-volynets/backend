@@ -33,9 +33,13 @@ class Modules extends \Object\Table {
 	public $audit = false;
 	public $optimistic_lock = false;
 	public $options_map = [
-		'sm_module_name' => 'name'
+		'sm_module_name' => 'name',
+		'sm_module_icon' => 'icon_class',
+		'sm_module_inactive' => 'inactive'
 	];
-	public $options_active = [];
+	public $options_active = [
+		'sm_module_inactive' => 0
+	];
 	public $engine = [
 		'MySQLi' => 'InnoDB'
 	];

@@ -82,7 +82,7 @@ class SessionLog extends \Object\Form\Wrapper\Report {
 		]);
 		// query the data
 		$model = new \Numbers\Backend\Session\Db\Model\Sessions();
-		$inner_query = $model->queryBuilder(['alias' => 'inner_a'])->select();
+		$inner_query = $model->queryBuilder(['alias' => 'inner_a', 'skip_acl' => true])->select();
 		$inner_query->columns([
 			'datetime' => 'sm_session_last_requested',
 			'user_id' => 'sm_session_user_id',

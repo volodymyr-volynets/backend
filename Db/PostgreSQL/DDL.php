@@ -248,7 +248,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 						$sequence_attributes = [];
 						$sequence_model = \Factory::model('\Numbers\Backend\Db\Common\Model\Sequences');
 						if ($sequence_model->dbPresent()) {
-							$sequence_attributes = $sequence_model->get();
+							$sequence_attributes = $sequence_model->get(['skip_acl' => true]);
 						}
 						// add sequences
 						foreach ($temp['data'] as $k2 => $v2) {

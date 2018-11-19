@@ -156,7 +156,7 @@ class DDL {
 							'owner' => $options['db_schema_owner'] ?? null,
 							'full_sequence_name' => $model->full_table_name . '_' . $k . '_seq',
 							'full_table_name' => $model->full_table_name, // a must
-							'type' => $temp['sequence_type'],
+							'type' => $temp['sequence_type'] ?? $processed_columns[$k]['sequence_type'],
 							'prefix' => null,
 							'suffix' => null,
 							'length' => 0
