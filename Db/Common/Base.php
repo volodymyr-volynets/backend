@@ -195,6 +195,11 @@ class Base {
 						$operator = 'IS';
 					}
 				}
+				if ($operator == '<>') {
+					if (is_null($v) && strpos($delimiter, ',') === false) {
+						$operator = 'IS NOT';
+					}
+				}
 				// processing per operator
 				$operator = strtoupper($operator);
 				switch ($operator) {

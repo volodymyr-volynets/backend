@@ -20,6 +20,7 @@ class Subresources extends \Object\Table {
 		'sm_rsrsubres_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_rsrsubres_icon' => ['name' => 'Icon', 'domain' => 'icon', 'null' => true],
 		'sm_rsrsubres_module_code' => ['name' => 'Module Code', 'domain' => 'module_code'],
+		'sm_rsrsubres_disabled' => ['name' => 'Disabled', 'type' => 'boolean'],
 		'sm_rsrsubres_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
 	];
 	public $constraints = [

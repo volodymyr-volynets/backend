@@ -209,11 +209,11 @@ abstract class Base {
 	 */
 	public function tokenVerify($token, $tokens) {
 		if (empty($token)) {
-			Throw new \Exception('Invalid token!');
+			Throw new \Object\Error\UserException(\Object\Content\Messages::TOKEN_EXPIRED);
 		} else {
 			$token_data = $this->tokenValidate($token);
 			if ($token_data === false || !in_array($token_data['token'], $tokens)) {
-				Throw new \Exception('Invalid token!');
+				Throw new \Object\Error\UserException(\Object\Content\Messages::TOKEN_EXPIRED);
 			}
 			return $token_data;
 		}

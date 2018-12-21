@@ -775,46 +775,8 @@ TTT;
 					}
 				}
 				break;
-			case 'tree':
-				// create a new object
-				$inner = clone $object;
-				$inner->select();
-				// we must sort by parent/id first
-				if (empty($inner->primary_model->tree)) {
-					Throw new \Exception('Tree in primary model?');
-				}
-				$inner_sort = [
-					ltrim($inner->primary_alias . '.' . $inner->primary_model->tree['parent_id'], '.') => SORT_ASC,
-					ltrim($inner->primary_alias . '.' . $inner->primary_model->tree['id'], '.') => SORT_ASC,
-				];
-				$inner->data['orderby'] = array_merge_hard($inner_sort, $inner->data['orderby']);
-				// create parent wrapper
-				$query = new \Object\Query\Builder($object->db_object->db_link);
-				$query->select();
-				$query->columns([
-					'outer_tree_' . $inner->primary_alias . '_main.*',
-					'__all_tree_ids' => '@outer_tree_init',
-					'__all_tree_names' => '@outer_tree_path',
-				]);
-				$query->from($inner, 'outer_tree_' . $inner->primary_alias . '_main');
-				$query->from('(SELECT @outer_tree_init := null)', 'outer_tree_' . $inner->primary_alias . '_init');
-				$query->from('(SELECT @outer_tree_path := null)', 'outer_tree_' . $inner->primary_alias . '_path');
-				$query->where('AND', function(& $query) use ($inner) {
-					$query->where('OR', function(& $query) use ($inner) {
-						$query->where('AND', ['@outer_tree_init', 'IS', null]);
-						$query->where('AND', ['length(@outer_tree_init := concat_ws(\',,,\', @outer_tree_init, ' . $inner->primary_model->tree['id'] . '))', '<>', 0]);
-						$query->where('AND', ['length(@outer_tree_path := concat_ws(\',,,\', @outer_tree_path, ' . $inner->primary_model->tree['name'] . '))', '<>', 0]);
-					});
-					$query->where('OR', function(& $query) use ($inner) {
-						$query->where('AND', 'find_in_set(' . $inner->primary_model->tree['parent_id'] . ', @outer_tree_init)');
-						$query->where('AND', ['length(@outer_tree_init := concat_ws(\',,,\', @outer_tree_init, ' . $inner->primary_model->tree['id'] . '))', '<>', 0]);
-						$query->where('AND', ['length(@outer_tree_path := concat_ws(\',,,\', @outer_tree_path, ' . $inner->primary_model->tree['name'] . '))', '<>', 0]);
-					});
-				});
-				$sql = $query->sql();
-				break;
 			default:
-				Throw new \Exception('Operator?');
+				Throw new \Exception('Operator: ' . $object->data['operator'] . '?');
 		}
 		// final processing
 		if (empty($result['error'])) {

@@ -115,99 +115,11 @@ class Import extends \Object\Import {
 					'sm_action_inactive' => 0
 				],
 				[
-					'sm_action_id' => 2100,
-					'sm_action_code' => 'Record_View_Comment',
-					'sm_action_name' => 'View Comments',
-					'sm_action_icon' => 'far fa-comment',
+					'sm_action_id' => 2060,
+					'sm_action_code' => 'Record_Approve',
+					'sm_action_name' => 'Approve Record',
+					'sm_action_icon' => 'far fa-handshake',
 					'sm_action_parent_action_id' => 2020,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2101,
-					'sm_action_code' => 'Record_Make_Comment',
-					'sm_action_name' => 'Make a Comment',
-					'sm_action_icon' => 'far fa-comment-alt',
-					'sm_action_parent_action_id' => 2100,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2110,
-					'sm_action_code' => 'Record_Audit',
-					'sm_action_name' => 'View Audit',
-					'sm_action_icon' => 'fab fa-linux',
-					'sm_action_parent_action_id' => 2020,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2120,
-					'sm_action_code' => 'Record_View_Document',
-					'sm_action_name' => 'View Documents',
-					'sm_action_icon' => 'far fa-file-alt',
-					'sm_action_parent_action_id' => 2020,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2121,
-					'sm_action_code' => 'Record_Add_Document',
-					'sm_action_name' => 'Add Documents',
-					'sm_action_icon' => 'far fa-file-code',
-					'sm_action_parent_action_id' => 2120,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2200,
-					'sm_action_code' => 'Record_View_Workflow',
-					'sm_action_name' => 'View Workflow',
-					'sm_action_icon' => 'fab fa-hubspot',
-					'sm_action_parent_action_id' => 2020,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2210,
-					'sm_action_code' => 'Record_Execute_Workflow',
-					'sm_action_name' => 'Execute Workflow',
-					'sm_action_icon' => 'fas fa-braille',
-					'sm_action_parent_action_id' => 2200,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2300,
-					'sm_action_code' => 'Record_View_Service_Script',
-					'sm_action_name' => 'View Service Script',
-					'sm_action_icon' => 'fas fa-question-circle',
-					'sm_action_parent_action_id' => 2020,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2310,
-					'sm_action_code' => 'Record_Execute_Service_Script',
-					'sm_action_name' => 'Execute Service Script',
-					'sm_action_icon' => 'fas fa-question-circle',
-					'sm_action_parent_action_id' => 2300,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2400,
-					'sm_action_code' => 'Record_View_Owners',
-					'sm_action_name' => 'View Owners',
-					'sm_action_icon' => 'far fa-user',
-					'sm_action_parent_action_id' => 2020,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2410,
-					'sm_action_code' => 'Record_Execute_Owners',
-					'sm_action_name' => 'Execute Owners',
-					'sm_action_icon' => 'far fa-user',
-					'sm_action_parent_action_id' => 2400,
-					'sm_action_inactive' => 0
-				],
-				[
-					'sm_action_id' => 2900,
-					'sm_action_code' => 'Record_TreeView',
-					'sm_action_name' => 'Tree View',
-					'sm_action_icon' => 'fas fa-sitemap',
-					'sm_action_parent_action_id' => null,
 					'sm_action_inactive' => 0
 				],
 				// import related items
@@ -227,7 +139,16 @@ class Import extends \Object\Import {
 					'sm_action_icon' => 'fas fa-table',
 					'sm_action_parent_action_id' => null,
 					'sm_action_inactive' => 0
-				]
+				],
+				// activate
+				[
+					'sm_action_id' => 5000,
+					'sm_action_code' => 'Activate_Data',
+					'sm_action_name' => 'Activate Data',
+					'sm_action_icon' => 'fas fa-link',
+					'sm_action_parent_action_id' => null,
+					'sm_action_inactive' => 0
+				],
 			]
 		],
 		'resource_methods' => [
@@ -256,7 +177,11 @@ class Import extends \Object\Import {
 				[
 					'sm_method_code' => 'TreeView',
 					'sm_method_name' => 'Tree View / Form'
-				]
+				],
+				[
+					'sm_method_code' => 'Activate',
+					'sm_method_name' => 'Other / Activate'
+				],
 			]
 		],
 	];

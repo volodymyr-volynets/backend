@@ -33,6 +33,7 @@ class Map extends \Object\DataSource {
 			'sm_action_icon' => 'b.sm_action_icon',
 			'sm_rsrcmp_method_code' => 'a.sm_rsrcmp_method_code',
 			'sm_method_name' => 'c.sm_method_name',
+			'disabled' => 'a.sm_rsrcmp_disabled',
 			'inactive' => 'a.sm_rsrcmp_inactive + b.sm_action_inactive'
 		]);
 		// joins
@@ -70,6 +71,7 @@ class Map extends \Object\DataSource {
 							'icon_class' => \HTML::icon(['type' => $v3['sm_action_icon'], 'class_only' => true]),
 							//'__selected_name' => i18n(null, $v3['sm_method_name']) . ': ' . i18n(null, $v3['sm_action_name']),
 							'parent' => null,
+							'disabled' => $v3['disabled'],
 							'inactive' => $v3['inactive']
 						];
 					} else {
@@ -89,6 +91,7 @@ class Map extends \Object\DataSource {
 							'icon_class' => \HTML::icon(['type' => $v3['sm_action_icon'], 'class_only' => true]),
 							'__selected_name' => i18n(null, $v3['sm_method_name']) . ': ' . i18n(null, $v3['sm_action_name']),
 							'parent' => $parent,
+							'disabled' => $v3['disabled'],
 							'inactive' => $v3['inactive']
 						];
 					}

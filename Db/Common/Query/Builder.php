@@ -37,7 +37,7 @@ class Builder {
 			// delete
 			// check
 			// truncate
-			// tree
+			// with
 		'columns' => [],
 		'from' => [],
 		'join' => [],
@@ -51,6 +51,7 @@ class Builder {
 		'union_orderby' => false, // indicator that previous
 		'primary_key' => null,
 		'comment' => '',
+		'with' => []
 	];
 
 	/**
@@ -80,7 +81,7 @@ class Builder {
 	 * @param string $db_link
 	 * @param array $options
 	 */
-	public function __construct(string $db_link, array $options = []) {
+	public function __construct(string $db_link = 'default', array $options = []) {
 		$this->db_link = $db_link;
 		$this->options = $options;
 		$this->options['parent_operator'] = $options['parent_operator'] ?? null;
@@ -100,7 +101,10 @@ class Builder {
 	 * @param array $options
 	 * @return \Numbers\Backend\Db\Common\Query\Builder
 	 */
-	public static function quick(string $db_link, array $options = []) : \Numbers\Backend\Db\Common\Query\Builder {
+	public static function quick(string $db_link = '', array $options = []) : \Numbers\Backend\Db\Common\Query\Builder {
+		if (empty($db_link)) {
+			$db_link = \Application::get('flag.global.default_db_link');
+		}
 		$object = new Builder($db_link, $options);
 		return $object;
 	}
@@ -181,12 +185,21 @@ class Builder {
 	}
 
 	/**
-	 * Tree
+	 * With (recursive)
 	 *
+	 * @param string $name
+	 * @param array $columns
+	 * @param callable $function
 	 * @return \Numbers\Backend\Db\Common\Query\Builder
 	 */
-	public function tree() : \Numbers\Backend\Db\Common\Query\Builder {
-		$this->data['operator'] = 'tree';
+	public function withRecursive(string $name, array $columns, $function) : \Numbers\Backend\Db\Common\Query\Builder {
+		$this->data['operator'] = 'with_recursive';
+		$this->data['with'] = [
+			'name' => $name,
+			'columns' => $columns,
+			'sql' => $this->subquery($function),
+		];
+		$this->from($name, $name);
 		return $this;
 	}
 

@@ -29,6 +29,7 @@ class Actions extends \Object\DataSource {
 			'parent_id' => 'b.sm_action_parent_action_id',
 			'name' => 'b.sm_action_name',
 			'icon' => 'b.sm_action_icon',
+			'disabled' => 'a.sm_rsrsubmap_disabled',
 			'inactive' => 'a.sm_rsrsubmap_inactive + b.sm_action_inactive'
 		]);
 		// join
@@ -42,7 +43,7 @@ class Actions extends \Object\DataSource {
 	/**
 	 * @see $this->options();
 	 */
-	public function optionsGroupped(array $options = []) : array {
+	public function optionsGrouped($options = []) {
 		if (!is_array($options['existing_values'])) {
 			$options['existing_values'] = [$options['existing_values']];
 		}
@@ -56,6 +57,7 @@ class Actions extends \Object\DataSource {
 				'name' => $v['name'],
 				'icon_class' => \HTML::icon(['type' => $v['icon'] ?? 'fas fa-cubes', 'class_only' => true]),
 				'parent' => $v['parent_id'],
+				'disabled' => $v['disabled'],
 				'inactive' => $v['inactive'],
 			];
 		}

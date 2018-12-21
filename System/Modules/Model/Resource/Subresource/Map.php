@@ -15,6 +15,7 @@ class Map extends \Object\Table {
 	public $columns = [
 		'sm_rsrsubmap_rsrsubres_id' => ['name' => 'Subresource #', 'domain' => 'resource_id'],
 		'sm_rsrsubmap_action_id' => ['name' => 'Action #', 'domain' => 'action_id'],
+		'sm_rsrsubmap_disabled' => ['name' => 'Disabled', 'type' => 'boolean'],
 		'sm_rsrsubmap_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
 	];
 	public $constraints = [

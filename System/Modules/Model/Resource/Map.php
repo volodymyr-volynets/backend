@@ -16,6 +16,7 @@ class Map extends \Object\Table {
 		'sm_rsrcmp_resource_id' => ['name' => 'Resource #', 'domain' => 'resource_id'],
 		'sm_rsrcmp_method_code' => ['name' => 'Method Code', 'domain' => 'code'], // controlls access to controller's action in the code
 		'sm_rsrcmp_action_id' => ['name' => 'Action #', 'domain' => 'action_id'],
+		'sm_rsrcmp_disabled' => ['name' => 'Disabled', 'type' => 'boolean'],
 		'sm_rsrcmp_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
 	];
 	public $constraints = [

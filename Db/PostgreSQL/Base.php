@@ -817,6 +817,13 @@ TTT;
 					}
 				}
 				break;
+			case 'with_recursive':
+				$columns = implode(', ', $object->data['with']['columns']);
+				$sql.= "WITH RECURSIVE {$object->data['with']['name']}({$columns}) AS (\n{$object->data['with']['sql']}\n)";
+				$object->data['operator'] = 'select';
+				$temp = $this->queryBuilderRender($object);
+				$sql.= "\n" . $temp['sql'];
+				break;
 			default:
 				Throw new \Exception('Operator?');
 		}
