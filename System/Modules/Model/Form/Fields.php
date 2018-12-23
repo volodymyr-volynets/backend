@@ -55,7 +55,7 @@ class Fields extends \Object\Table {
 	/**
 	 * @see $this->options()
 	 */
-	public function optionsGrouped(array $options = []) {
+	public function optionsGrouped($options = []) {
 		$options['options_map'] = [
 			'sm_frmfield_name' => 'name',
 			'sm_frmfield_type' => 'parent'
