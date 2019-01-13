@@ -43,8 +43,12 @@ class Subresources extends \Object\Table {
 	public $history = false;
 	public $audit = false;
 	public $optimistic_lock = false;
-	public $options_map = [];
-	public $options_active = [];
+	public $options_map = [
+		'sm_rsrsubres_name' => 'name',
+	];
+	public $options_active = [
+		'sm_rsrsubres_inactive' => 0
+	];
 	public $engine = [
 		'MySQLi' => 'InnoDB'
 	];

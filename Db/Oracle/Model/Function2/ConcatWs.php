@@ -29,7 +29,17 @@ class ConcatWs extends \Object\Function2 {
     s17 in varchar2 default NULL,
     s18 in varchar2 default NULL,
     s19 in varchar2 default NULL,
-    s20 in varchar2 default NULL
+    s20 in varchar2 default NULL,
+	s21 in varchar2 default NULL,
+	s22 in varchar2 default NULL,
+	s23 in varchar2 default NULL,
+	s24 in varchar2 default NULL,
+	s25 in varchar2 default NULL,
+	s26 in varchar2 default NULL,
+	s27 in varchar2 default NULL,
+	s28 in varchar2 default NULL,
+	s29 in varchar2 default NULL,
+	s30 in varchar2 default NULL
 )  RETURN varchar2 IS
    result varchar2(32767) := s1;
 BEGIN
@@ -53,6 +63,16 @@ BEGIN
     IF s18 IS NOT NULL THEN result:= result || separator || s18; END IF;
     IF s19 IS NOT NULL THEN result:= result || separator || s19; END IF;
     IF s20 IS NOT NULL THEN result:= result || separator || s20; END IF;
+	IF s21 IS NOT NULL THEN result:= result || separator || s21; END IF;
+	IF s22 IS NOT NULL THEN result:= result || separator || s22; END IF;
+	IF s23 IS NOT NULL THEN result:= result || separator || s23; END IF;
+	IF s24 IS NOT NULL THEN result:= result || separator || s24; END IF;
+	IF s25 IS NOT NULL THEN result:= result || separator || s25; END IF;
+	IF s26 IS NOT NULL THEN result:= result || separator || s26; END IF;
+	IF s27 IS NOT NULL THEN result:= result || separator || s27; END IF;
+	IF s28 IS NOT NULL THEN result:= result || separator || s28; END IF;
+	IF s29 IS NOT NULL THEN result:= result || separator || s29; END IF;
+	IF s30 IS NOT NULL THEN result:= result || separator || s30; END IF;
     RETURN result;
 END;";
 }

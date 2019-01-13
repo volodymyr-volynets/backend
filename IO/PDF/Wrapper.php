@@ -27,6 +27,8 @@ class Wrapper extends \TCPDF {
 		$this->__options['unit'] = 'mm';
 		$this->__options['format'] = $options['format'] ?? \I18n::$options['print_format'] ?? 'LETTER';
 		$this->__options['font'] = ['family' => $options['font'] ?? \I18n::$options['print_font'] ?? 'helvetica', 'style' => '', 'size' => 8];
+		$this->__options['title'] = $options['title'] ?? null;
+		$this->__options['skip_header_time'] = $options['skip_header_time'] ?? false;
 		// call parent constructor
 		parent::__construct(
 			$this->__options['orientation'],
@@ -60,10 +62,14 @@ class Wrapper extends \TCPDF {
     public function Header() {
         $this->SetFont($this->__options['font']['family'], 'B', 8);
 		$this->SetXY(15, 10);
-		$this->Cell(0, 10, i18n(null, \Application::$controller->title), 0, false, 'L', 0, '', 0, false, 'T', 'M');
-		$this->SetXY(15, 15);
-		$this->SetFont($this->__options['font']['family'], '', 8);
-		$this->Cell(0, 10, \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
+		$title = $this->__options['title'] ?? i18n(null, \Application::$controller->title);
+		$this->Cell(0, 10, $title, 0, false, 'L', 0, '', 0, false, 'T', 'M');
+		// timestamp
+		if (!$this->__options['skip_header_time']) {
+			$this->SetXY(15, 15);
+			$this->SetFont($this->__options['font']['family'], '', 8);
+			$this->Cell(0, 10, \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
+		}
     }
 
 	/**
