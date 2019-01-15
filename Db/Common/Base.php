@@ -310,6 +310,10 @@ class Base {
 		} else {
 			$where = pk($keys, $data, true);
 		}
+		// if we do not have primary keys
+		if (!isset($options['primary_key']) && !empty($keys)) {
+			$options['primary_key'] = $keys;
+		}
 		// build a query
 		$query = \Numbers\Backend\Db\Common\Query\Builder::quick($this->db_link, ['primary_key' => $options['primary_key']])
 			->delete()
@@ -336,6 +340,10 @@ class Base {
 			$where = $options['where'];
 		} else {
 			$where = pk($keys, $data, true);
+		}
+		// if we do not have primary keys
+		if (!isset($options['primary_key']) && !empty($keys)) {
+			$options['primary_key'] = $keys;
 		}
 		// build a query
 		$query = \Numbers\Backend\Db\Common\Query\Builder::quick($this->db_link, ['primary_key' => $options['primary_key']])
