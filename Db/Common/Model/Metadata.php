@@ -64,8 +64,13 @@ class Metadata extends \Object\Table {
 		if (!isset(self::$cached_model)) {
 			self::$cached_model = new \Numbers\Backend\Db\Common\Model\Metadata();
 		}
-		// if we do not have a table, have to recheck everytime
-		if (!self::$cached_model->dbPresent()) {
+		// if we invocking via make command
+		$command = \Application::get('manager.command.full');
+		if (!empty($command)) {
+			if (!($command == 'schema_commit' || $command == 'migration_db_commit')) {
+				return $result;
+			}
+		} else if (!self::$cached_model->dbPresent()) { // if we do not have a table, have to recheck everytime
 			return $result;
 		}
 		// we need to fix name

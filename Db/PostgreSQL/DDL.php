@@ -588,7 +588,6 @@ TTT;
 					{$sql_join}
 					WHERE 1=1
 						AND n.nspname NOT IN ('pg_catalog', 'information_schema', 'extensions')
-						AND p.proisagg = 'f'
 TTT;
 				break;
 			case 'triggers':
