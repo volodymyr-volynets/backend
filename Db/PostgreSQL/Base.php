@@ -68,6 +68,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			$result['status'] = pg_connection_status($connection) === PGSQL_CONNECTION_OK ? 1 : 0;
 			// set settings
 			$this->query("SET TIME ZONE '" . \Application::get('php.date.timezone') . "';");
+			$this->query('SET search_path = "$user",public,extensions;');
 			// success
 			$result['success'] = true;
 		} else {

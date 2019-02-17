@@ -10,7 +10,7 @@ class Map extends \Object\DataSource {
 	public $limit;
 	public $single_row;
 	public $single_value;
-	public $options_map =[];
+	public $options_map = [];
 	public $column_prefix;
 
 	public $cache = true;
