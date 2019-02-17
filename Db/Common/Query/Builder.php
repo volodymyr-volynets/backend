@@ -51,7 +51,8 @@ class Builder {
 		'union_orderby' => false, // indicator that previous
 		'primary_key' => null,
 		'comment' => '',
-		'with' => []
+		'with' => [],
+		'cascade' => false,
 	];
 
 	/**
@@ -181,6 +182,16 @@ class Builder {
 	 */
 	public function truncate() : \Numbers\Backend\Db\Common\Query\Builder {
 		$this->data['operator'] = 'truncate';
+		return $this;
+	}
+
+	/**
+	 * Cascade
+	 *
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function cascade() : \Numbers\Backend\Db\Common\Query\Builder {
+		$this->data['cascade'] = true;
 		return $this;
 	}
 

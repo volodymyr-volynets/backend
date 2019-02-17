@@ -103,8 +103,10 @@ abstract class Reset {
 	 *
 	 * @param \Object\Table $model
 	 * @param array $where
+	 * @param array $options
+	 *	boolean truncate
 	 */
-	protected function clearTable(\Object\Table $model, array $where = []) {
+	protected function clearTable(\Object\Table $model, array $where = [], array $options = []) {
 		if (!empty($model->module_column)) {
 			$where[$model->module_column] = $this->module_id;
 		}
@@ -122,9 +124,13 @@ abstract class Reset {
 			}
 		}
 		// delete from table
-		$query = $model->queryBuilder()->delete();
-		if (!empty($where)) {
-			$query->whereMultiple('AND', $where);
+		if (empty($options['truncate'])) {
+			$query = $model->queryBuilder()->delete();
+			if (!empty($where)) {
+				$query->whereMultiple('AND', $where);
+			}
+		} else {
+			$query = $model->queryBuilder()->truncate()->cascade();
 		}
 		$result = $query->query();
 		if (!$result['success']) {

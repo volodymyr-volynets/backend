@@ -713,6 +713,9 @@ TTT;
 					$result['error'][] = 'From?';
 				} else {
 					$sql.= "TRUNCATE TABLE " . current($object->data['from']);
+					if ($object->data['cascade']) {
+						$sql.= " CASCADE";
+					}
 				}
 				break;
 			case 'check':
