@@ -523,20 +523,26 @@ class Base {
 	public function setval(string $sequence_name, int $value, $tenant = null, $module = null) : array {
 		// extended sequence
 		if (isset($tenant) || isset($module)) {
-			$query = \Numbers\Backend\Db\Common\Model\Sequence\Extended::queryBuilderStatic()->update();
-			$query->set(['sm_sequence_counter' => $value]);
-			$query->whereMultiple('AND', [
-			    'sm_sequence_name' => $sequence_name,
-			    'sm_sequence_tenant_id' => (int) $tenant ?? 0,
-			    'sm_sequence_module_id' => (int) $module ?? 0,
-			]);
+			$regular_query = \Numbers\Backend\Db\Common\Model\Sequences::queryBuilderStatic()->select()->where('AND', ['sm_sequence_name', '=', $sequence_name])->query(null);
+			$model = new \Numbers\Backend\Db\Common\Model\Sequence\Extended();
+			return $this->save($model->full_table_name, [
+				'sm_sequence_name' => $sequence_name,
+				'sm_sequence_tenant_id' => (int) $tenant ?? 0,
+				'sm_sequence_module_id' => (int) $module ?? 0,
+				'sm_sequence_counter' => $value,
+				// copy columns from sequences
+				'sm_sequence_type' => $regular_query['rows'][0]['sm_sequence_type'],
+				'sm_sequence_prefix' => $regular_query['rows'][0]['sm_sequence_prefix'],
+				'sm_sequence_length' => $regular_query['rows'][0]['sm_sequence_length'],
+				'sm_sequence_suffix' => $regular_query['rows'][0]['sm_sequence_suffix'],
+			], ['sm_sequence_name']);
 		} else { // regular sequence
 			$query = new \Object\Query\Builder($this->db_link);
 			$query->select();
 			$query->columns([
 				'counter' => "setval('{$sequence_name}', {$value})"
 			]);
+			return $query->query();
 		}
-		return $query->query();
 	}
 }
