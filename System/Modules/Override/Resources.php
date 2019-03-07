@@ -7,6 +7,11 @@ class Resources {
 			'primary' => [
 				'datasource' => '\Numbers\Backend\System\Modules\DataSource\Resource\Actions'
 			]
+		],
+		'flags' => [
+			'primary' => [
+				'datasource' => '\Numbers\Backend\System\Modules\DataSource\Flags'
+			]
 		]
 	];
 }

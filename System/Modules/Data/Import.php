@@ -151,6 +151,31 @@ class Import extends \Object\Import {
 				],
 			]
 		],
+		'resource_action_flags' => [
+			'options' => [
+				'pk' => ['sm_action_id'],
+				'model' => '\Numbers\Backend\System\Modules\Model\Resource\Actions',
+				'method' => 'save'
+			],
+			'data' => [
+				[
+					'sm_action_id' => 25000,
+					'sm_action_code' => 'Filter_Hide',
+					'sm_action_name' => 'Hide Filter',
+					'sm_action_icon' => 'far fa-eye-slash',
+					'sm_action_parent_action_id' => null,
+					'sm_action_inactive' => 0
+				],
+				[
+					'sm_action_id' => 25001,
+					'sm_action_code' => 'Filter_Self',
+					'sm_action_name' => 'Self Filter',
+					'sm_action_icon' => 'far fa-user',
+					'sm_action_parent_action_id' => null,
+					'sm_action_inactive' => 0
+				],
+			]
+		],
 		'resource_methods' => [
 			'options' => [
 				'pk' => ['sm_method_code'],

@@ -362,7 +362,7 @@ class Builder {
 			$this->cache_tags = array_merge($this->cache_tags, $table->cache_tags);
 			return "(\n" . $this->wrapSqlIntoTabs($table->sql()) . "\n)";
 		} else if (is_object($table) && is_a($table, 'Object\DataSource')) { // datasource object
-			return $table->sql([], $this->cache_tags);
+			return $table->sql($this->options['where'] ?? [], $this->cache_tags);
 		} else if (is_object($table) && is_a($table, 'Object\Table')) { // table object
 			// set primary model first table
 			if (!isset($this->primary_model)) {

@@ -23,5 +23,10 @@ class Aliases {
 			'no_data_alias_model' => '\Numbers\Backend\System\Modules\Model\Forms',
 			'no_data_alias_column' => 'sm_form_code'
 		],
+		'sysflag_id' => [
+			'no_data_alias_name' => 'System Flag #',
+			'no_data_alias_model' => '\Numbers\Backend\System\Modules\Model\System\Flags',
+			'no_data_alias_column' => 'sm_sysflag_code'
+		]
 	];
 }
