@@ -174,6 +174,14 @@ class Import extends \Object\Import {
 					'sm_action_parent_action_id' => null,
 					'sm_action_inactive' => 0
 				],
+				[
+					'sm_action_id' => 25002,
+					'sm_action_code' => 'Assignment_Self',
+					'sm_action_name' => 'Enforce User Assignment',
+					'sm_action_icon' => 'far fa-user',
+					'sm_action_parent_action_id' => null,
+					'sm_action_inactive' => 0
+				],
 			]
 		],
 		'resource_methods' => [

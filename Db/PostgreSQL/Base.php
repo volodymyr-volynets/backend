@@ -134,6 +134,8 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	 * @param string $sql
 	 * @param mixed $key
 	 * @param array $options
+	 *	boolean cache
+	 *	boolean cache_memory
 	 * @return array
 	 */
 	public function query(string $sql, $key = null, array $options = []) : array {
@@ -158,6 +160,11 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'Db_Query_' . trim(sha1($sql . serialize($key)));
 			// if we cache this query
 			if (!empty($options['cache'])) {
+				// memory caching
+				if (!empty($options['cache_memory']) && isset(\Cache::$memory_storage[$cache_id])) {
+					return \Cache::$memory_storage[$cache_id];
+				}
+				// regular cache
 				$cache_object = new \Cache($this->options['cache_link']);
 				$cached_result = $cache_object->get($cache_id, true);
 				if ($cached_result !== false) {
@@ -236,6 +243,10 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		if (!empty($options['cache']) && empty($result['error'])) {
 			$result['cache'] = true;
 			$cache_object->set($cache_id, $result, null, $options['cache_tags'] ?? []);
+			// memory caching
+			if (!empty($options['cache_memory'])) {
+				\Cache::$memory_storage[$cache_id] = & $result;
+			}
 		}
 		// if we are debugging
 		if (\Debug::$debug) {
@@ -824,8 +835,9 @@ TTT;
 			case 'with_recursive':
 				$columns = implode(', ', $object->data['with']['columns']);
 				$sql.= "WITH RECURSIVE {$object->data['with']['name']}({$columns}) AS (\n{$object->data['with']['sql']}\n)";
-				$object->data['operator'] = 'select';
-				$temp = $this->queryBuilderRender($object);
+				$object2 = clone $object;
+				$object2->data['operator'] = 'select';
+				$temp = $this->queryBuilderRender($object2);
 				$sql.= "\n" . $temp['sql'];
 				break;
 			default:
