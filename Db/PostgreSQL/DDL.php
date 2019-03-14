@@ -707,7 +707,7 @@ TTT;
 		switch ($type) {
 			// extension
 			case 'extension_new':
-				$result = "CREATE EXTENSION {$data['name']}";
+				$result = "CREATE EXTENSION IF NOT EXISTS {$data['name']}";
 				if (!empty($data['schema'])) {
 					$result.= " SCHEMA {$data['schema']};";
 				} else {
@@ -719,7 +719,7 @@ TTT;
 				break;
 			// schema
 			case 'schema_new':
-				$result = "CREATE SCHEMA {$data['data']['name']} AUTHORIZATION {$data['data']['owner']};";
+				$result = "CREATE SCHEMA IF NOT EXISTS {$data['data']['name']};";
 				break;
 			case 'schema_delete':
 				$result = "DROP SCHEMA {$data['data']['name']};";
