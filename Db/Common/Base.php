@@ -228,7 +228,7 @@ class Base {
 					case 'FTS':
 						$temp2 = $this->fullTextSearchQuery($v['fields'], $v['str']);
 						if (empty($temp2['where'])) {
-							continue;
+							continue 2;
 						}
 						$string = $temp2['where'];
 						break;
