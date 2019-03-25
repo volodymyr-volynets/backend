@@ -314,6 +314,16 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	}
 
 	/**
+	 * Escape bytea
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	public function escapeBytea($value) {
+		return pg_escape_bytea($this->db_resource, $value);
+	}
+
+	/**
 	 * Parsing pg array string into array
 	 *
 	 * @param string $arraystring

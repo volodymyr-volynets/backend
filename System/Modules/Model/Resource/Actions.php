@@ -18,6 +18,7 @@ class Actions extends \Object\Table {
 		'sm_action_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_action_icon' => ['name' => 'Icon', 'domain' => 'icon'],
 		'sm_action_parent_action_id' => ['name' => 'Parent #', 'domain' => 'action_id', 'null' => true],
+		'sm_action_prohibitive' => ['name' => 'Prohibitive', 'type' => 'boolean'],
 		'sm_action_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
 	];
 	public $constraints = [

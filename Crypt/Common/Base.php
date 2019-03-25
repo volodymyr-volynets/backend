@@ -99,6 +99,16 @@ abstract class Base {
 	abstract public function decrypt(string $data) : string;
 
 	/**
+	 * @see Crypt::compress();
+	 */
+	abstract public function compress(string $data);
+
+	/**
+	 * @see Crypt::uncompress();
+	 */
+	abstract public function uncompress(string $data);
+
+	/**
 	 * @see Crypt::hash();
 	 */
 	public function hash($data) {

@@ -47,4 +47,18 @@ class Base extends \Numbers\Backend\Crypt\Common\Base {
 		}
 		return openssl_decrypt($decoded, $this->cipher, $this->key);
 	}
+
+	/**
+	 * @see Crypt::compress();
+	 */
+	public function compress(string $data) {
+		return gzcompress($data, 9);
+	}
+
+	/**
+	 * @see Crypt::uncompress();
+	 */
+	public function uncompress(string $data) {
+		return gzuncompress($data);
+	}
 }

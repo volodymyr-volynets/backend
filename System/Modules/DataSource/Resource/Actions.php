@@ -27,6 +27,7 @@ class Actions extends \Object\DataSource {
 			'code' => 'a.sm_action_code',
 			'name' => 'a.sm_action_name',
 			'parent_action_id' => 'a.sm_action_parent_action_id',
+			'prohibitive' => 'a.sm_action_prohibitive',
 			'inactive' => 'a.sm_action_inactive'
 		]);
 		// where

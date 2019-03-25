@@ -120,7 +120,10 @@ class Base {
 			$key = $temp[0];
 			$operator = !empty($temp[1]) ? $temp[1] : '=';
 			$as_is = !empty($temp[2]) && $temp[2] == '~~';
-			if (is_string($v) && !$as_is) {
+			$bytea = !empty($temp[2]) && $temp[2] == 'bytea';
+			if ($bytea) {
+				$result[] = "'" . $this->escapeBytea($v) . "'";
+			} else if (is_string($v) && !$as_is) {
 				// geometry
 				if (stripos($v, 'ST_GeomFromText') === 0) {
 					$result[] = $v;
@@ -535,7 +538,7 @@ class Base {
 				'sm_sequence_prefix' => $regular_query['rows'][0]['sm_sequence_prefix'],
 				'sm_sequence_length' => $regular_query['rows'][0]['sm_sequence_length'],
 				'sm_sequence_suffix' => $regular_query['rows'][0]['sm_sequence_suffix'],
-			], ['sm_sequence_name']);
+			], ['sm_sequence_name', 'sm_sequence_tenant_id', 'sm_sequence_module_id']);
 		} else { // regular sequence
 			$query = new \Object\Query\Builder($this->db_link);
 			$query->select();

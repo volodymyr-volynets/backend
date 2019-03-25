@@ -75,6 +75,15 @@ class Import extends \Object\Import {
 					'sm_action_inactive' => 0
 				],
 				[
+					'sm_action_id' => 2001,
+					'sm_action_code' => 'Record_Public',
+					'sm_action_name' => 'View Public',
+					'sm_action_icon' => 'fas fa-users-cog',
+					'sm_action_parent_action_id' => 2000,
+					'sm_action_prohibitive' => 1,
+					'sm_action_inactive' => 0
+				],
+				[
 					'sm_action_id' => 2010,
 					'sm_action_code' => 'Record_New',
 					'sm_action_name' => 'New Record',
