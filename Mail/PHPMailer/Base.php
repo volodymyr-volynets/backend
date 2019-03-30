@@ -43,6 +43,7 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 		// create PHPMailer object and prepare for sending
 		require \Application::get('application.path_full') . '../libraries/vendor/autoload.php';
 		$mail = new \PHPMailer\PHPMailer\PHPMailer();
+		$mail->CharSet = $options['charset'] ?? 'UTF-8';
 		// overrides for non production environments
 		$environment = \Application::get('environment');
 		$debug = \Application::get('debug.debug');
