@@ -17,6 +17,8 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 			'error' => [],
 			'unique_id' => null
 		];
+		$calendar_invite = !empty($options['calendar_invite']);
+		$calendar_message = $options['calendar_message'] ?? '';
 		// see if we need to validate
 		if (empty($options['validated'])) {
 			$temp = $this->validate($options);
@@ -95,12 +97,21 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 			$mail->Priority = 1;
 		}
 		// body
-		$mail->WordWrap = 50;
-		if (!empty($options['is_html'])) {
+		if ($calendar_invite) {
+			$mail->Body = $calendar_message;
+			$mail->ContentType = 'text/calendar; charset=UTF-8';
+			$mail->addCustomHeader('MIME-version', '1.0');
+			$mail->addCustomHeader('Content-type', 'text/calendar; name=event.ics; method=REQUEST; charset=UTF-8');
+			$mail->addCustomHeader('Content-Transfer-Encoding', '7bit');
+			$mail->addCustomHeader('X-Mailer', 'Microsoft Office Outlook 12.0');
+			$mail->addCustomHeader('Content-class: urn:content-classes:calendarmessage');
+		} else if (!empty($options['is_html'])) {
+			$mail->WordWrap = 50;
 			$mail->isHTML(true);
 			$mail->AltBody = $options['message'][0]['data'];
 			$mail->Body = $options['message'][1]['data'];
 		} else {
+			$mail->WordWrap = 50;
 			$mail->Body = $options['message'][0]['data'];
 		}
 		// attachments
