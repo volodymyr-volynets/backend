@@ -242,7 +242,9 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		// caching if no error
 		if (!empty($options['cache']) && empty($result['error'])) {
 			$result['cache'] = true;
-			$cache_object->set($cache_id, $result, null, $options['cache_tags'] ?? []);
+			//$cache_object->set($cache_id, $result, null, $options['cache_tags'] ?? []);
+			// we try cachng in postponed mode
+			\Factory::postponedExecution([& $cache_object, 'set'], [$cache_id, $result, null, $options['cache_tags'] ?? []]);
 			// memory caching
 			if (!empty($options['cache_memory'])) {
 				\Cache::$memory_storage[$cache_id] = & $result;
