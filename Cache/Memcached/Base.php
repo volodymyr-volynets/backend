@@ -126,28 +126,13 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 	 */
 	private function setTags() {
 		if (empty($this->set_tags)) return;
-		$model = new \Numbers\Backend\Cache\Memcached\Model\Tags();
-		// begin transaction
-		$model->db_object->begin();
-		// delete existing tags
-		$delete_query = $model->queryBuilder()->delete();
-		foreach ($this->set_tags as $k => $v) {
-			$delete_query->where('OR', function (& $query) use ($k, $v) {
-				$query->where('AND', ['a.sm_memcached_cache_link', '=', $k]);
-				$query->where('AND', ['a.sm_memcached_cache_id', 'IN', array_keys($v)]);
-			});
-		}
-		$delete_result = $delete_query->query(null, ['cache' => false]);
-		// insert new tags
+		// merge new tags
 		$values = [];
-		$hash = [];
 		foreach ($this->set_tags as $k => $v) {
 			foreach ($v as $k2 => $v2) {
 				$v2 = array_unique($v2);
 				foreach ($v2 as $v3) {
-					if (!empty($hash[$k . '::' . $k2 . '::' . $v3])) continue;
-					$hash[$k . '::' . $k2 . '::' . $v3] = 1;
-					$values[] = [
+					$values[$k . '::' . $k2 . '::' . $v3] = [
 						'sm_memcached_cache_link' => $k,
 						'sm_memcached_cache_id' => $k2,
 						'sm_memcached_tag' => $v3
@@ -155,16 +140,7 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 				}
 			}
 		}
-		$insert_query = $model->queryBuilder()->insert();
-		$insert_query->columns([
-			'sm_memcached_cache_link',
-			'sm_memcached_cache_id',
-			'sm_memcached_tag'
-		]);
-		$insert_query->values($values);
-		$insert_result = $insert_query->query(null, ['cache' => false]);
-		// commit
-		$model->db_object->commit();
+		\Numbers\Backend\Cache\Memcached\Model\Tags::collectionStatic()->mergeMultiple($values);
 		// a must to zero out
 		$this->set_tags = [];
 	}
@@ -227,8 +203,8 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 				$this->memcached->deleteMulti($to_delete_caches);
 				// delete ids from database
 				$delete_query = $model->queryBuilder()->delete();
-				$delete_query->where('AND', ['a.sm_memcached_cache_link', '=', $this->cache_link, false]);
-				$delete_query->where('AND', ['a.sm_memcached_cache_id', 'IN', $to_delete_caches]);
+				$delete_query->where('AND', ['sm_memcached_cache_link', '=', $this->cache_link, false]);
+				$delete_query->where('AND', ['sm_memcached_cache_id', 'IN', $to_delete_caches]);
 				$delete_query->query();
 			}
 		}

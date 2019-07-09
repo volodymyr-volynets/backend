@@ -7,25 +7,9 @@ class Base extends \PHPUnit\Framework\TestCase {
 	 * test all cache operations
 	 */
 	public function testAll() {
-		// initialize database
-		$db = \Application::get('db.default_phpunit');
-		if (empty($db)) {
-			$db = \Application::get('db.default');
-		}
-		$db_object = new \Db('default', $db['submodule'], $db);
-		$db_object->connect($db['servers'][1]);
-		// initialize cache
-		$object = new \Numbers\Backend\Cache\Memcached\Base('PHPUnit', [
-			'cache_key' => 'test_key',
-			'storage' => 'json',
-			'expire' => 7200
-		]);
-		$result = $object->connect([
-			'host' => 'localhost',
-			'port' => 11211
-		]);
-		// validate if object returned success
-		$this->assertEquals(true, $result['success']);
+		// db and cache objects
+		\Bootstrap::init();
+		$object = new \Cache('default');
 		// flush all caches
 		$result = $object->gc(2);
 		// generate 25 caches, test get and set
@@ -85,7 +69,5 @@ class Base extends \PHPUnit\Framework\TestCase {
 		// close the object
 		$result = $object->close();
 		$this->assertEquals(true, $result['success']);
-		// close database connection
-		$db_object->close();
 	}
 }
