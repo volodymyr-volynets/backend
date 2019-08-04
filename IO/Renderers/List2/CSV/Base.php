@@ -15,14 +15,17 @@ class Base {
 		$report->addReport(DEF, $object);
 		// add header
 		$header = [];
+		$temp = [];
 		foreach ($object->misc_settings['list']['columns'] as $k => $v) {
-			$temp = [];
 			foreach ($v['elements'] as $k2 => $v2) {
+				if (empty($v2['options']['label_name'])) {
+					continue;
+				}
 				$temp[$k2] = $v2['options'];
 			}
-			$report->addHeader(DEF, $k, $temp);
 			$header[$k] = $k;
 		}
+		$report->addHeader(DEF, 'test', $temp);
 		// add data
 		foreach ($object->misc_settings['list']['rows'] as $k => $v) {
 			$v_original = $v;
@@ -44,8 +47,8 @@ class Base {
 						}
 					}
 				}
-				$report->addData(DEF, $v2, 0, $v);
 			}
+			$report->addData(DEF, 'test', 0, $v);
 			// gc
 			unset($object->misc_settings['list']['rows'][$k]);
 		}

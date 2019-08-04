@@ -191,6 +191,14 @@ class Import extends \Object\Import {
 					'sm_action_parent_action_id' => null,
 					'sm_action_inactive' => 0
 				],
+				[
+					'sm_action_id' => 25003,
+					'sm_action_code' => 'Filter_PresetSelf',
+					'sm_action_name' => 'Preset Self Filter',
+					'sm_action_icon' => 'far fa-user',
+					'sm_action_parent_action_id' => null,
+					'sm_action_inactive' => 0
+				],
 			]
 		],
 		'resource_methods' => [

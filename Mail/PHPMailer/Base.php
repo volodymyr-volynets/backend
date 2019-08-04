@@ -117,7 +117,9 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 		// attachments
 		if (!empty($options['attachments'])) {
 			foreach ($options['attachments'] as $k => $v) {
-				$mail->addStringAttachment($v['data'], $v['name']);
+				if (!empty($v['data'])) {
+					$mail->addStringAttachment($v['data'], $v['name'], $mail::ENCODING_BASE64, $v['type']);
+				}
 			}
 		}
 		// trying to deliver

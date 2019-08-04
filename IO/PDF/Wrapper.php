@@ -59,8 +59,8 @@ class Wrapper extends \TCPDF {
 	/**
 	 * Header
 	 */
-    public function Header() {
-        $this->SetFont($this->__options['font']['family'], 'B', 8);
+	public function Header() {
+		$this->SetFont($this->__options['font']['family'], 'B', 8);
 		$this->SetXY(15, 10);
 		$title = $this->__options['title'] ?? i18n(null, \Application::$controller->title);
 		$this->Cell(0, 10, $title, 0, false, 'L', 0, '', 0, false, 'T', 'M');
@@ -70,12 +70,12 @@ class Wrapper extends \TCPDF {
 			$this->SetFont($this->__options['font']['family'], '', 8);
 			$this->Cell(0, 10, \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
 		}
-    }
+	}
 
 	/**
 	 * Footer
 	 */
-    public function Footer() {
+	public function Footer() {
 		$this->SetFont($this->__options['font']['family'], '', 8);
 		$page_number = i18n(null, 'Page [number]/[total]', [
 			'replace' => [
@@ -88,6 +88,7 @@ class Wrapper extends \TCPDF {
 		$this->SetXY(15, -20);
 		$this->Cell(0, 10, i18n(null, \Application::$controller->title) . ' (#' . \Format::id(\Application::$controller->controller_id) . ')', 0, false, 'L', 0, '', 0, false, 'T', 'M');
 		$this->SetXY(15, -15);
-		$this->Cell(0, 10, i18n(null, 'By:') .  ' ' . \User::get('name') . ', ' . i18n(null, ' On:') . ' ' . \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
-    }
+		$this->Cell(0, 10, i18n(null, 'By:') . ' ' . \User::get('name') . ', ' . i18n(null, ' On:') . ' ' . \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
+	}
+
 }

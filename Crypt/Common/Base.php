@@ -197,7 +197,7 @@ abstract class Base {
 		$rebuilt = self::tokenCreate($result['id'], $result['token'], $result['data'], ['time' => $result['time'], 'ip' => $result['ip']]);
 		if (urldecode($rebuilt) != $token) {
 			return false;
-		} else {
+		} else if (empty($options['skip_time_validation'])) {
 			// expiration
 			if ($this->valid_hours > 0) {
 				$hours = (time() - $result['time']) / 60 / 60;
@@ -205,23 +205,18 @@ abstract class Base {
 					return false;
 				}
 			}
-			return $result;
 		}
+		return $result;
 	}
 
 	/**
-	 * Verify token with tokens
-	 *
-	 * @param string $token
-	 * @param array $tokens
-	 * @return array
-	 * @throws \Exception
+	 * @see Crypt::tokenVerify();
 	 */
-	public function tokenVerify($token, $tokens) {
+	public function tokenVerify($token, $tokens, $options = []) {
 		if (empty($token)) {
 			Throw new \Object\Error\UserException(\Object\Content\Messages::TOKEN_EXPIRED);
 		} else {
-			$token_data = $this->tokenValidate($token);
+			$token_data = $this->tokenValidate($token, $options);
 			if ($token_data === false || !in_array($token_data['token'], $tokens)) {
 				Throw new \Object\Error\UserException(\Object\Content\Messages::TOKEN_EXPIRED);
 			}

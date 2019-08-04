@@ -42,6 +42,7 @@ class Base {
 				$pdf->Line(15, $page_y + 2.5, $pdf->getPageWidth() - 15, $page_y + 2.5);
 				foreach ($object->data[$report_name]['header'] as $header_name => $header_data) {
 					$start = 15;
+					$max_cells = 1;
 					foreach ($header_data as $k2 => $v2) {
 						$object->data[$report_name]['header'][$header_name][$k2]['__label_name'] = strip_tags2($v2['label_name']);
 						$object->data[$report_name]['header'][$header_name][$k2]['__mm'] = round(($pdf->getPageWidth() - 30) * ($v2['percent'] / 100), 2);
@@ -51,12 +52,15 @@ class Base {
 							$align = str_replace(['left', 'right', 'center'], ['L', 'R', 'C'], $v2['align'] ?? 'left');
 							$pdf->SetXY($start, $page_y + 2.5);
 							$temp = $pdf->MultiCell($object->data[$report_name]['header'][$header_name][$k2]['__mm'], 10, strip_tags2($object->data[$report_name]['header'][$header_name][$k2]['__label_name']), 0, $align, false, 1, '', '', true, 0, false, true, 0, 'T', false);
+							if ($temp > $max_cells) {
+								$max_cells = $temp;
+							}
 						}
 						// increment start
 						$start+= $object->data[$report_name]['header'][$header_name][$k2]['__mm'];
 					}
 					if (empty($object->data[$report_name]['header_options'][$header_name]['skip_rendering'])) {
-						$page_y+= 5;
+						$page_y+= 5 * $max_cells;
 					}
 				}
 				$pdf->Line(15, $page_y + 2.5, $pdf->getPageWidth() - 15, $page_y + 2.5);
