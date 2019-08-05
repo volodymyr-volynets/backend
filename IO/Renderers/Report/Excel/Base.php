@@ -1,6 +1,6 @@
 <?php
 
-namespace Numbers\Backend\IO\Renderers\Report\CSV;
+namespace Numbers\Backend\IO\Renderers\Report\Excel;
 class Base {
 
 	/**
@@ -10,21 +10,27 @@ class Base {
 	 * @return string
 	 */
 	public function render(\Object\Form\Builder\Report & $object) : string {
-		$result = [];
-		$result[] = [i18n(null, \Application::$controller->title) . ' (#' . \Format::id(\Application::$controller->controller_id) . ')'];
-		$result[] = [i18n(null, 'By:') . ' ' . \User::get('name'), i18n(null, ' On:') . ' ' . \Format::id(\Format::datetime(\Format::now('datetime')))];
-		$report_counter = 1;
+		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+		$spreadsheet->removeSheetByIndex($spreadsheet->getActiveSheetIndex());
+		$report_counter = 0;
 		foreach (array_keys($object->data) as $report_name) {
+			$worksheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, $object->data[$report_name]['form_name']);
+			// title
+			$worksheet->setCellValue('A1', i18n(null, \Application::$controller->title) . ' (#' . \Format::id(\Application::$controller->controller_id) . ')');
+			$worksheet->setCellValue('A2', i18n(null, 'By:') . ' ' . \User::get('name') . ', ' . i18n(null, ' On:') . ' ' . \Format::id(\Format::datetime(\Format::now('datetime'))));
 			// render filter
 			if (!empty($object->data[$report_name]['filter'])) {
-				$result[] = [' '];
+				$filter_counter = 4;
 				foreach ($object->data[$report_name]['filter'] as $k => $v) {
-					$result[] = [$k, $v];
+					$worksheet->setCellValue('A' . $filter_counter, $k);
+					$worksheet->setCellValue('B' . $filter_counter, $v);
+					$filter_counter++;
 				}
-				$result[] = [' '];
 			}
 			// render headers
+			$filter_counter++;
 			$new_headers = [];
+			$result = [];
 			foreach ($object->data[$report_name]['header'] as $header_name => $header_data) {
 				if (!empty($object->data[$report_name]['header_options'][$header_name]['skip_rendering'])) continue;
 				$new_headers[$header_name] = $header_data;
@@ -56,17 +62,28 @@ class Base {
 				}
 				$result[] = $row;
 			}
-			// add separator
-			if ($report_counter != 1) {
-				$result[] = [' '];
-				$result[] = [' '];
-				$result[] = [' '];
-			}
+			// add data as array
+			$worksheet->fromArray(
+				$result,
+				NULL,
+				'A' . $filter_counter
+			);
+			// add sheet to the document
+			$spreadsheet->addSheet($worksheet, $report_counter);
 			$report_counter++;
 		}
-		// render csv
-		$export_model = new \Numbers\Backend\IO\Common\Base();
-		$export_model->export('csv', ['Main Sheet' => $result], ['output_file_name' => str_replace(' ', '_', \Application::$controller->title) . '.csv']);
+		// generate temp excel and save
+		$filename = \Helper\File::tempDirectory(\Helper\File::generateTempFileName('xlsx'));
+		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+		$writer->save($filename);
+		// render
+		\Layout::renderAs(
+			file_get_contents($filename),
+			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			[
+				'output_file_name' => str_replace([' ', '/'], ['_', ''], \Application::$controller->title) . '.xlsx',
+			]
+		);
 		return '';
 	}
 }
