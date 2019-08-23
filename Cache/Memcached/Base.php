@@ -40,8 +40,8 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 		// determine cache key prefix, used to deferentiate between systems on
 		// a shared memcached server
 		$this->cache_key_prefix = $options['cache_key'] ?? 'N.A.';
-		if (!empty($this->cache_key_prefix)) $this->cache_key_prefix.= '::';
-		$this->cache_key_prefix.= $cache_link . '::';
+		if (!empty($this->cache_key_prefix)) $this->cache_key_prefix.= '_';
+		$this->cache_key_prefix.= $cache_link . '_';
 	}
 
 	/**
