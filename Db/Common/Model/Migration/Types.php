@@ -1,7 +1,9 @@
 <?php
 
-namespace Numbers\Backend\Db\Common\Migration;
+namespace Numbers\Backend\Db\Common\Model\Migration;
 class Types extends \Object\Data {
+	public $module_code = 'SM';
+	public $title = 'S/M Migration Types';
 	public $column_key = 'sm_migrtype_code';
 	public $column_prefix = 'sm_migrtype_';
 	public $columns = [

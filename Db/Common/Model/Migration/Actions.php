@@ -1,7 +1,9 @@
 <?php
 
-namespace Numbers\Backend\Db\Common\Migration;
+namespace Numbers\Backend\Db\Common\Model\Migration;
 class Actions extends \Object\Data {
+	public $module_code = 'SM';
+	public $title = 'S/M Migration Actions';
 	public $column_key = 'sm_migraction_code';
 	public $column_prefix = 'sm_migraction_';
 	public $columns = [

@@ -18,7 +18,7 @@ class Extended extends \Object\Table {
 		'sm_sequence_module_id' => ['name' => 'Module #', 'domain' => 'module_id'],
 		'sm_sequence_description' => ['name' => 'Description', 'domain' => 'description', 'null' => true],
 		// common attributes
-		'sm_sequence_type' => ['name' => 'Type', 'domain' => 'type_code', 'options_model' => 'numbers_backend_db_class_model_sequence_types'],
+		'sm_sequence_type' => ['name' => 'Type', 'domain' => 'type_code', 'options_model' => '\Numbers\Backend\Db\Common\Model\Sequence\Types'],
 		'sm_sequence_prefix' => ['name' => 'Prefix', 'type' => 'varchar', 'length' => 15, 'null' => true],
 		'sm_sequence_length' => ['name' => 'Length', 'type' => 'smallint', 'default' => 0],
 		'sm_sequence_suffix' => ['name' => 'Suffix', 'type' => 'varchar', 'length' => 15, 'null' => true],

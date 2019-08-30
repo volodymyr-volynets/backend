@@ -5,6 +5,8 @@ class Currval extends \Object\Function2 {
 	public $db_link;
 	public $db_link_flag;
 	public $schema;
+	public $module_code = 'SM';
+	public $title = 'Get current value';
 	public $name = 'currval_extended';
 	public $backend = 'PostgreSQL';
 	public $header = 'currval_extended(sequence_name character varying, tenant_id integer, module_id integer)';

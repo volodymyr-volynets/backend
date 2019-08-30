@@ -17,8 +17,8 @@ class Migrations extends \Object\Table {
 	public $columns = [
 		'sm_migration_id' => ['name' => 'Migration #', 'type' => 'serial'],
 		'sm_migration_db_link' => ['name' => 'Db Link', 'domain' => 'code'],
-		'sm_migration_type' => ['name' => 'Type', 'domain' => 'type_code', 'options_model' => 'numbers_backend_db_class_model_migration_types'],
-		'sm_migration_action' => ['name' => 'Action', 'domain' => 'type_code', 'options_model' => 'numbers_backend_db_class_model_migration_actions'],
+		'sm_migration_type' => ['name' => 'Type', 'domain' => 'type_code', 'options_model' => '\Numbers\Backend\Db\Common\Model\Migration\Types'],
+		'sm_migration_action' => ['name' => 'Action', 'domain' => 'type_code', 'options_model' => '\Numbers\Backend\Db\Common\Model\Migration\Actions'],
 		'sm_migration_name' => ['name' => 'Name', 'domain' => 'code'],
 		'sm_migration_developer' => ['name' => 'Developer', 'domain' => 'name'],
 		'sm_migration_inserted' => ['name' => 'Inserted', 'type' => 'timestamp'],

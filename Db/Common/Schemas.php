@@ -201,6 +201,8 @@ run_again:
 					}
 				} else if ($v == '\Object\Import') {
 					$result['data']['\Object\Import'][$k2] = $k2;
+				} else if ($v == '\Object\Data') {
+					// nothing
 				} else {
 					Throw new \Exception('Unknown type: ' . $v);
 				}

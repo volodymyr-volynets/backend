@@ -1,7 +1,9 @@
 <?php
 
-namespace Numbers\Backend\Db\Common\Sequence;
+namespace Numbers\Backend\Db\Common\Model\Sequence;
 class Types extends \Object\Data {
+	public $module_code = 'SM';
+	public $title = 'S/M Sequence Types';
 	public $column_key = 'sm_seqtype_code';
 	public $column_prefix = 'sm_seqtype_';
 	public $columns = [

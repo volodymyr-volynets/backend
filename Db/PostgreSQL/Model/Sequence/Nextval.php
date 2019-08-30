@@ -5,6 +5,8 @@ class Nextval extends \Object\Function2 {
 	public $db_link;
 	public $db_link_flag;
 	public $schema;
+	public $module_code = 'SM';
+	public $title = 'Get next value';
 	public $name = 'nextval_extended';
 	public $backend = 'PostgreSQL';
 	public $header = 'nextval_extended(sequence_name character varying, tenant_id integer, module_id integer)';
