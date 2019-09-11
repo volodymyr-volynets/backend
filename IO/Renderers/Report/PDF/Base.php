@@ -51,7 +51,7 @@ class Base {
 						if (empty($object->data[$report_name]['header_options'][$header_name]['skip_rendering'])) {
 							$align = str_replace(['left', 'right', 'center'], ['L', 'R', 'C'], $v2['align'] ?? 'left');
 							$pdf->SetXY($start, $page_y + 2.5);
-							$temp = $pdf->MultiCell($object->data[$report_name]['header'][$header_name][$k2]['__mm'] + 5, 10, strip_tags2($object->data[$report_name]['header'][$header_name][$k2]['__label_name']), 0, $align, false, 1, '', '', true, 0, false, true, 0, 'T', false);
+							$temp = $pdf->MultiCell($object->data[$report_name]['header'][$header_name][$k2]['__mm'] + 2, 10, strip_tags2($object->data[$report_name]['header'][$header_name][$k2]['__label_name']), 0, $align, false, 1, '', '', true, 0, false, true, 0, 'T', false);
 							if ($temp > $max_cells) {
 								$max_cells = $temp;
 							}

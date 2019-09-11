@@ -8,7 +8,7 @@ class Nextval extends \Object\Function2 {
 	public $name = 'nextval_extended';
 	public $backend = 'PostgreSQL';
 	public $header = 'nextval_extended(sequence_name character varying, tenant_id integer, module_id integer)';
-	public $sql_version = '1.0.0';
+	public $sql_version = '1.0.1';
 	public $definition = 'CREATE OR REPLACE FUNCTION public.nextval_extended(sequence_name character varying, tenant_id integer, module_id integer)
  RETURNS bigint
  LANGUAGE plpgsql
@@ -17,7 +17,7 @@ AS $function$
 DECLARE
 	result bigint;
 BEGIN
-	SELECT sm_sequence_counter INTO result FROM sm_sequence_extended WHERE sm_sequence_name = sequence_name AND sm_sequence_tenant_id = tenant_id AND sm_sequence_module_id = module_id;
+	SELECT sm_sequence_counter INTO result FROM sm_sequence_extended WHERE sm_sequence_name = sequence_name AND sm_sequence_tenant_id = tenant_id AND sm_sequence_module_id = module_id FOR UPDATE;
 	IF FOUND THEN
 		result:= result + 1;
 		UPDATE sm_sequence_extended SET sm_sequence_counter = result WHERE sm_sequence_name = sequence_name AND sm_sequence_tenant_id = tenant_id AND sm_sequence_module_id = module_id;
