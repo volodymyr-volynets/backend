@@ -506,7 +506,8 @@ TTT;
 		$result = [
 			'where' => '',
 			'orderby' => '',
-			'rank' => ''
+			'rank' => '',
+			'rank_simple' => '',
 		];
 		$str = trim($str);
 		$str_escaped = $this->escape($str);
@@ -538,10 +539,12 @@ TTT;
 				$result['where'] = "($sql @@ to_tsquery('simple', '" . $escaped . "') $sql2)";
 				$result['orderby'] = "ts_rank";
 				$result['rank'] = "(ts_rank_cd($sql, to_tsquery('simple', '" . $escaped . "'))) ts_rank";
+				$result['rank_simple'] = "(ts_rank_cd($sql, to_tsquery('simple', '" . $escaped . "')))";
 			} else {
 				$result['where'] = "(to_tsvector('simple', $sql) @@ to_tsquery('simple', '" . $escaped . "') $sql2)";
 				$result['orderby'] = "ts_rank";
 				$result['rank'] = "(ts_rank_cd(to_tsvector($sql), to_tsquery('simple', '" . $escaped . "'))) ts_rank";
+				$result['rank_simple'] = "(ts_rank_cd(to_tsvector($sql), to_tsquery('simple', '" . $escaped . "')))";
 			}
 		}
 		return $result;

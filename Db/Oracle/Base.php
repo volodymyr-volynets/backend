@@ -488,8 +488,12 @@ TTT;
 		$result = [
 			'where' => '',
 			'orderby' => '',
-			'rank' => ''
+			'rank' => '',
+			'rank_simple' => ''
 		];
+		// todo
+		Throw new \Exception('Oracle Db::fullTextSearchQuery() needs to be implemented!');
+		/*
 		$str = trim($str);
 		$str_escaped = $this->escape($str);
 		$flag_do_not_escape = false;
@@ -525,6 +529,7 @@ TTT;
 				$result['rank'] = "(ts_rank_cd(to_tsvector($sql), to_tsquery('simple', '" . $escaped . "'))) ts_rank";
 			}
 		}
+		*/
 		return $result;
 	}
 

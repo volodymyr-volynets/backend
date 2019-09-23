@@ -474,7 +474,8 @@ TTT;
 		$result = [
 			'where' => '',
 			'orderby' => '',
-			'rank' => ''
+			'rank' => '',
+			'rank_simple' => '',
 		];
 		$mode = $options['mode'] ?? 'IN BOOLEAN MODE'; // 'IN NATURAL LANGUAGE MODE';
 		$str = trim($str);
@@ -502,6 +503,7 @@ TTT;
 			$result['where'] = "(" . $where . $sql2 . ")";
 			$result['orderby'] = 'ts_rank';
 			$result['rank'] = '(' . $where . ') ts_rank';
+			$result['rank_simple'] = '(' . $where . ')';
 		}
 		return $result;
 	}
