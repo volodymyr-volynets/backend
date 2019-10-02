@@ -24,7 +24,7 @@ class Attributes extends \Object\Table {
 		// flags
 		'sm_abacattr_flag_abac' => ['name' => 'Flag ABAC', 'type' => 'boolean'],
 		'sm_abacattr_flag_assingment' => ['name' => 'Flag Assignment', 'type' => 'boolean'],
-		'sm_abacattr_flag_attribute' => ['name' => 'Flag Assignment', 'type' => 'boolean'],
+		'sm_abacattr_flag_attribute' => ['name' => 'Flag Attribute', 'type' => 'boolean'],
 		'sm_abacattr_flag_link' => ['name' => 'Flag Link', 'type' => 'boolean'],
 		'sm_abacattr_flag_other_table' => ['name' => 'Flag Other Table', 'type' => 'boolean'],
 		// models
@@ -53,8 +53,13 @@ class Attributes extends \Object\Table {
 	];
 	public $history = false;
 	public $audit = false;
-	public $options_map = [];
-	public $options_active = [];
+	public $options_map = [
+		'sm_abacattr_name' => 'name',
+		'sm_abacattr_inactive' => 'inactive',
+	];
+	public $options_active = [
+		'sm_abacattr_inactive' => 0
+	];
 	public $engine = [
 		'MySQLi' => 'InnoDB'
 	];

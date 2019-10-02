@@ -20,8 +20,8 @@
 		}
 	},
 	"autoload": {
-        "psr-4": {
-            "Numbers\\Backend\\": ""
-        }
-    }
+		"psr-4": {
+			"Numbers\\Backend\\": ""
+		}
+	}
 }
