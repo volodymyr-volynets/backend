@@ -182,8 +182,9 @@ class Base {
 			foreach ($options as $k => $v) {
 				$par = explode(';', $k);
 				// todo: handle type casts (::)
-				$operator = $par[1] ?? '=';
+				$operator = !empty($par[1]) ? $par[1] : '=';
 				$as_is = (isset($par[2]) && $par[2] == '~~') ? true : false;
+				$bytea = !empty($par[2]) && $par[2] == 'bytea';
 				$string = $par[0];
 				// cast
 				if (strpos($string, '::') !== false && strpos($string, '\'::\'') === false) {
@@ -236,7 +237,9 @@ class Base {
 						$string = $temp2['where'];
 						break;
 					default:
-						if ($as_is) {
+						if ($bytea) {
+							$v = "'" . $this->escapeBytea($v) . "'";
+						} else if ($as_is) {
 							// do not remove it !!!
 						} else if (is_string($v)) {
 							// geometry

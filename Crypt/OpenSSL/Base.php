@@ -28,7 +28,9 @@ class Base extends \Numbers\Backend\Crypt\Common\Base {
 	 * @see Crypt::encrypt();
 	 */
 	public function encrypt(string $data) : string {
-		$encrypted = openssl_encrypt($data, $this->cipher, $this->key);
+		$ivlen = openssl_cipher_iv_length($this->cipher);
+		$iv = openssl_random_pseudo_bytes($ivlen);
+		$encrypted = $iv . openssl_encrypt($data, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
 		if ($this->base64) {
 			return base64_encode($encrypted);
 		} else {
@@ -45,7 +47,10 @@ class Base extends \Numbers\Backend\Crypt\Common\Base {
 		} else {
 			$decoded = $data;
 		}
-		return openssl_decrypt($decoded, $this->cipher, $this->key);
+		$ivlen = openssl_cipher_iv_length($this->cipher);
+		$iv = substr($decoded, 0, $ivlen);
+		$decoded = substr($decoded, $ivlen);
+		return openssl_decrypt($decoded, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
 	}
 
 	/**
