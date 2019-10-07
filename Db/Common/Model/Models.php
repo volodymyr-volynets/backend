@@ -39,8 +39,13 @@ class Models extends \Object\Table {
 	public $history = false;
 	public $audit = false;
 	public $optimistic_lock = false;
-	public $options_map = [];
-	public $options_active = [];
+	public $options_map = [
+		'sm_model_name' => 'name',
+		'sm_model_inactive' => 'inactive'
+	];
+	public $options_active = [
+		'sm_model_inactive' => 0
+	];
 	public $engine = [
 		'MySQLi' => 'InnoDB'
 	];
