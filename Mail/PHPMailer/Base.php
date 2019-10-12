@@ -57,7 +57,7 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 				}
 			}
 			unset($recepients);
-			$recepients['to'] = \Application::get('debug.email');
+			$recepients['to'] = \Application::get('debug.override_email') ?? \Application::get('debug.email');
 			$options['subject'] = '[' . $environment . '] ' . $options['subject'];
 		}
 		// smtp

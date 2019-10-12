@@ -49,7 +49,7 @@ class Base {
 						$object->data[$report_name]['header'][$header_name][$k2]['__start'] = $start;
 						// render cell if not skipping
 						if (empty($object->data[$report_name]['header_options'][$header_name]['skip_rendering'])) {
-							$align = str_replace(['left', 'right', 'center'], ['L', 'R', 'C'], $v2['align'] ?? 'left');
+							$align = 'left';
 							$pdf->SetXY($start, $page_y + 2.5);
 							$temp = $pdf->MultiCell($object->data[$report_name]['header'][$header_name][$k2]['__mm'] + 2, 10, strip_tags2($object->data[$report_name]['header'][$header_name][$k2]['__label_name']), 0, $align, false, 1, '', '', true, 0, false, true, 0, 'T', false);
 							if ($temp > $max_cells) {
@@ -64,6 +64,48 @@ class Base {
 					}
 				}
 				$pdf->Line(15, $page_y + 2.5, $pdf->getPageWidth() - 15, $page_y + 2.5);
+			}
+			// summary
+			if (!empty($object->data[$report_name]['header_summary'])) {
+				$object->calculateSummary($report_name);
+				$counter = 1;
+				foreach ($new_headers as $header_name => $header_data) {
+					if (empty($object->data[$report_name]['header_summary_calculated'][$header_name])) {
+						continue;
+					}
+					$start = 15;
+					$max_cells = 1;
+					foreach ($header_data as $k2 => $v2) {
+						$object->data[$report_name]['header'][$header_name][$k2]['__label_name'] = strip_tags2($v2['label_name']);
+						$object->data[$report_name]['header'][$header_name][$k2]['__mm'] = round(($pdf->getPageWidth() - 30) * ($v2['percent'] / 100), 2);
+						$object->data[$report_name]['header'][$header_name][$k2]['__start'] = $start;
+						// render cell if not skipping
+						if (isset($object->data[$report_name]['header_summary_calculated'][$header_name][$v2['__index']])) {
+							$value = $object->data[$report_name]['header_summary_calculated'][$header_name][$v2['__index']]['final'];
+							if (!empty($object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format'])) {
+								$method = \Factory::method($object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format'], 'Format');
+								$value = call_user_func_array([$method[0], $method[1]], [$value, $object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format_options'] ?? []]);
+							}
+						} else {
+							$value = '';
+						}
+						$align = str_replace(['left', 'right', 'center'], ['L', 'R', 'C'], $v2['align'] ?? 'left');
+						$pdf->SetXY($start, $page_y + 2.5);
+						$pdf->SetFillColor(255, 255, 0);
+						$temp = $pdf->MultiCell($object->data[$report_name]['header'][$header_name][$k2]['__mm'] + 0, 5, $value, 0, $align, true, 1, '', '', true, 0, false, true, 0, 'T', false);
+						$pdf->SetFillColor(255, 255, 255);
+						if ($temp > $max_cells) {
+							$max_cells = $temp;
+						}
+						// increment start
+						$start+= $object->data[$report_name]['header'][$header_name][$k2]['__mm'];
+					}
+					$page_y+= 5 * $max_cells;
+					$counter++;
+				}
+				$pdf->SetLineStyle(array('width' => 0, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
+				$pdf->Line(15, $page_y + 2.1, $pdf->getPageWidth() - 15, $page_y + 2.1);
+				$pdf->Line(15, $page_y + 2.6, $pdf->getPageWidth() - 15, $page_y + 2.6);
 			}
 			// render data
 			$page_y+= 0.25;
@@ -86,7 +128,7 @@ class Base {
 					$row = [];
 					foreach ($header as $k2 => $v2) {
 						$value = $row_data[0][$v2['__index']] ?? '';
-						$align = $v2['data_align'] ?? 'left';
+						$align = $v2['data_align'] ?? $v2['align'] ?? 'left';
 						$bold = $v2['data_bold'] ?? false;
 						$total = $v2['data_total'] ?? false;
 						$subtotal = $v2['data_subtotal'] ?? false;
@@ -175,6 +217,74 @@ class Base {
 					$pdf->AddPage();
 				}
 				$prev_odd_even = $row_data[1] ?? null;
+			}
+			// summary
+			if (!empty($object->data[$report_name]['header_summary'])) {
+				$counter = 1;
+				$pdf->SetFont($pdf->__options['font']['family'], 'B', $pdf->__options['font']['size']);
+				foreach ($new_headers as $header_name => $header_data) {
+					if (empty($object->data[$report_name]['header_summary_calculated'][$header_name])) {
+						continue;
+					}
+					$start = 15;
+					$max_cells = 1;
+					foreach ($header_data as $k2 => $v2) {
+						$object->data[$report_name]['header'][$header_name][$k2]['__label_name'] = strip_tags2($v2['label_name']);
+						$object->data[$report_name]['header'][$header_name][$k2]['__mm'] = round(($pdf->getPageWidth() - 30) * ($v2['percent'] / 100), 2);
+						$object->data[$report_name]['header'][$header_name][$k2]['__start'] = $start;
+						// render cell if not skipping
+						if (isset($object->data[$report_name]['header_summary_calculated'][$header_name][$v2['__index']])) {
+							$value = $object->data[$report_name]['header_summary_calculated'][$header_name][$v2['__index']]['final'];
+							if (!empty($object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format'])) {
+								$method = \Factory::method($object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format'], 'Format');
+								$value = call_user_func_array([$method[0], $method[1]], [$value, $object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format_options'] ?? []]);
+							}
+						} else {
+							$value = '';
+						}
+						$align = str_replace(['left', 'right', 'center'], ['L', 'R', 'C'], $v2['align'] ?? 'left');
+						$pdf->SetXY($start, $page_y + 2.5);
+						$pdf->SetFillColor(255, 255, 0);
+						$temp = $pdf->MultiCell($object->data[$report_name]['header'][$header_name][$k2]['__mm'] + 0, 5, $value, 0, $align, true, 1, '', '', true, 0, false, true, 0, 'T', false);
+						$pdf->SetFillColor(255, 255, 255);
+						if ($temp > $max_cells) {
+							$max_cells = $temp;
+						}
+						// increment start
+						$start+= $object->data[$report_name]['header'][$header_name][$k2]['__mm'];
+					}
+					$page_y+= 5 * $max_cells;
+					$counter++;
+				}
+				$pdf->SetLineStyle(array('width' => 0, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
+				$pdf->Line(15, $page_y - 2.5, $pdf->getPageWidth() - 15, $page_y - 2.5);
+				$pdf->Line(15, $page_y + 2.1, $pdf->getPageWidth() - 15, $page_y + 2.1);
+				$pdf->Line(15, $page_y + 2.6, $pdf->getPageWidth() - 15, $page_y + 2.6);
+			}
+			// legends after
+			if (!empty($object->data[$report_name]['data_legend'])) {
+				$row_number = PHP_INT_MAX - 1000;
+				$page_y+= 0.25;
+				$cell_counter = 1;
+				foreach ($object->data[$report_name]['data_legend'] as $row_number2 => $row_data) {
+					if (!empty($row_data[2])) { // separator
+						$page_y+= 5;
+					} else if (!empty($row_data[4])) { // legend
+						$pdf->SetFont($pdf->__options['font']['family'], '', $pdf->__options['font']['size']);
+						$pdf->SetTextColorArray(hex2rgb('#000000'));
+						$pdf->SetXY(15, $page_y + 2.5);
+						$temp = $pdf->MultiCell(0, 10, strip_tags2($row_data[4]), 0, 'L', false, 1, '', '', true, 0, false, true, 0, 'T', false);
+						if ($temp > $cell_counter) {
+							$cell_counter = $temp;
+						}
+					}
+					$page_y+= $cell_counter * 5;
+					if ($page_y >= ($pdf->getPageHeight() - 25)) {
+						$page_y = 25;
+						$pdf->AddPage();
+					}
+					$row_number++;
+				}
 			}
 			$report_counter++;
 		}

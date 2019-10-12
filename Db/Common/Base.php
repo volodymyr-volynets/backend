@@ -199,7 +199,9 @@ class Base {
 					}
 				}
 				if ($operator == '<>') {
-					if (is_null($v) && strpos($delimiter, ',') === false) {
+					if (is_array($v)) {
+						$operator = 'NOT IN';
+					} else if (is_null($v) && strpos($delimiter, ',') === false) {
 						$operator = 'IS NOT';
 					}
 				}
@@ -212,12 +214,13 @@ class Base {
 						$string = $v . ' = ' . $operator . '(' . $key . ')';
 					}
 					*/
+					case 'NOT IN':
 					case 'IN':
 						// we can pass SQL queries into IN
 						if (is_string($v)) {
-							$string.= ' IN(' . $v . ')';
+							$string.= ' ' . $operator . '(' . $v . ')';
 						} else {
-							$string.= ' IN(' . implode(', ', $this->escapeArray($v, ['quotes' => true])) . ')';
+							$string.= ' ' . $operator . '(' . implode(', ', $this->escapeArray($v, ['quotes' => true])) . ')';
 						}
 						break;
 					case 'LIKE%':
