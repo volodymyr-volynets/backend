@@ -26,7 +26,7 @@ class Wrapper extends \TCPDF {
 		$this->__options['encoding'] = 'UTF-8';
 		$this->__options['unit'] = 'mm';
 		$this->__options['format'] = $options['format'] ?? \I18n::$options['print_format'] ?? 'LETTER';
-		$this->__options['font'] = ['family' => $options['font'] ?? \I18n::$options['print_font'] ?? 'helvetica', 'style' => '', 'size' => 8];
+		$this->__options['font'] = ['family' => $options['font'] ?? \I18n::$options['print_font'] ?? 'helvetica', 'style' => '', 'size' => 7];
 		$this->__options['title'] = $options['title'] ?? null;
 		$this->__options['skip_header_time'] = $options['skip_header_time'] ?? false;
 		// call parent constructor

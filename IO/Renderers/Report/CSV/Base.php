@@ -37,6 +37,30 @@ class Base {
 				}
 				$result[] = $row;
 			}
+			// summary
+			if (!empty($object->data[$report_name]['header_summary'])) {
+				$object->calculateSummary($report_name);
+				foreach ($new_headers as $header_name => $header_data) {
+					if (empty($object->data[$report_name]['header_summary_calculated'][$header_name])) {
+						continue;
+					}
+					$row = [];
+					foreach ($header_data as $k2 => $v2) {
+						// render cell if not skipping
+						if (isset($object->data[$report_name]['header_summary_calculated'][$header_name][$v2['__index']])) {
+							$value = $object->data[$report_name]['header_summary_calculated'][$header_name][$v2['__index']]['final'];
+							if (!empty($object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format'])) {
+								$method = \Factory::method($object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format'], 'Format');
+								$value = call_user_func_array([$method[0], $method[1]], [$value, $object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format_options'] ?? []]);
+							}
+						} else {
+							$value = '';
+						}
+						$row[] = strip_tags2($value);
+					}
+					$result[] = $row;
+				}
+			}
 			// render data
 			foreach ($object->data[$report_name]['data'] as $row_number => $row_data) {
 				if (!empty($row_data[2])) { // separator
@@ -55,6 +79,29 @@ class Base {
 					}
 				}
 				$result[] = $row;
+			}
+			// summary
+			if (!empty($object->data[$report_name]['header_summary'])) {
+				foreach ($new_headers as $header_name => $header_data) {
+					if (empty($object->data[$report_name]['header_summary_calculated'][$header_name])) {
+						continue;
+					}
+					$row = [];
+					foreach ($header_data as $k2 => $v2) {
+						// render cell if not skipping
+						if (isset($object->data[$report_name]['header_summary_calculated'][$header_name][$v2['__index']])) {
+							$value = $object->data[$report_name]['header_summary_calculated'][$header_name][$v2['__index']]['final'];
+							if (!empty($object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format'])) {
+								$method = \Factory::method($object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format'], 'Format');
+								$value = call_user_func_array([$method[0], $method[1]], [$value, $object->data[$report_name]['header_summary'][$header_name][$v2['__index']]['format_options'] ?? []]);
+							}
+						} else {
+							$value = '';
+						}
+						$row[] = strip_tags2($value);
+					}
+					$result[] = $row;
+				}
 			}
 			// add separator
 			if ($report_counter != 1) {
