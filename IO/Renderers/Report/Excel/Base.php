@@ -14,6 +14,10 @@ class Base {
 		$spreadsheet->removeSheetByIndex($spreadsheet->getActiveSheetIndex());
 		$report_counter = 0;
 		foreach (array_keys($object->data) as $report_name) {
+			// chart
+			if ($object->data[$report_name]['options']['type'] == CHART) {
+				continue;
+			}
 			$worksheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, $object->data[$report_name]['form_name']);
 			// title
 			$worksheet->setCellValue('A1', i18n(null, \Application::$controller->title) . ' (#' . \Format::id(\Application::$controller->controller_id) . ')');

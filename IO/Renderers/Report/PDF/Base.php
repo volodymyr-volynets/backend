@@ -18,6 +18,10 @@ class Base {
 		// render results
 		$report_counter = 1;
 		foreach (array_keys($object->data) as $report_name) {
+			// chart
+			if ($object->data[$report_name]['options']['type'] == CHART) {
+				continue;
+			}
 			// render filter
 			if (!empty($object->data[$report_name]['filter'])) {
 				$pdf->SetFont($pdf->__options['font']['family'], '', $pdf->__options['font']['size']);

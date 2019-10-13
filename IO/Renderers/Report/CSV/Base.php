@@ -15,6 +15,10 @@ class Base {
 		$result[] = [i18n(null, 'By:') . ' ' . \User::get('name'), i18n(null, ' On:') . ' ' . \Format::id(\Format::datetime(\Format::now('datetime')))];
 		$report_counter = 1;
 		foreach (array_keys($object->data) as $report_name) {
+			// chart
+			if ($object->data[$report_name]['options']['type'] == CHART) {
+				continue;
+			}
 			// render filter
 			if (!empty($object->data[$report_name]['filter'])) {
 				$result[] = [' '];
