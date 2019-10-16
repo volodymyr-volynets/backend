@@ -29,6 +29,8 @@ class Wrapper extends \TCPDF {
 		$this->__options['font'] = ['family' => $options['font'] ?? \I18n::$options['print_font'] ?? 'helvetica', 'style' => '', 'size' => 7];
 		$this->__options['title'] = $options['title'] ?? null;
 		$this->__options['skip_header_time'] = $options['skip_header_time'] ?? false;
+		$this->__options['skip_header'] = $options['skip_header'] ?? false;
+		$this->__options['skip_footer'] = $options['skip_footer'] ?? false;
 		// call parent constructor
 		parent::__construct(
 			$this->__options['orientation'],
@@ -60,15 +62,17 @@ class Wrapper extends \TCPDF {
 	 * Header
 	 */
 	public function Header() {
-		$this->SetFont($this->__options['font']['family'], 'B', 8);
-		$this->SetXY(15, 10);
-		$title = $this->__options['title'] ?? i18n(null, \Application::$controller->title);
-		$this->Cell(0, 10, $title, 0, false, 'L', 0, '', 0, false, 'T', 'M');
-		// timestamp
-		if (!$this->__options['skip_header_time']) {
-			$this->SetXY(15, 15);
-			$this->SetFont($this->__options['font']['family'], '', 8);
-			$this->Cell(0, 10, \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
+		if (empty($this->__options['skip_header'])) {
+			$this->SetFont($this->__options['font']['family'], 'B', 8);
+			$this->SetXY(15, 10);
+			$title = $this->__options['title'] ?? i18n(null, \Application::$controller->title);
+			$this->Cell(0, 10, $title, 0, false, 'L', 0, '', 0, false, 'T', 'M');
+			// timestamp
+			if (!$this->__options['skip_header_time']) {
+				$this->SetXY(15, 15);
+				$this->SetFont($this->__options['font']['family'], '', 8);
+				$this->Cell(0, 10, \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
+			}
 		}
 	}
 
@@ -85,10 +89,11 @@ class Wrapper extends \TCPDF {
 		]);
 		$this->SetXY(15, -15);
 		$this->Cell(0, 10, $page_number, 0, false, 'R', 0, '', 0, false, 'T', 'M');
-		$this->SetXY(15, -20);
-		$this->Cell(0, 10, i18n(null, \Application::$controller->title) . ' (#' . \Format::id(\Application::$controller->controller_id) . ')', 0, false, 'L', 0, '', 0, false, 'T', 'M');
-		$this->SetXY(15, -15);
-		$this->Cell(0, 10, i18n(null, 'By:') . ' ' . \User::get('name') . ', ' . i18n(null, ' On:') . ' ' . \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
+		if (empty($this->__options['skip_footer'])) {
+			$this->SetXY(15, -20);
+			$this->Cell(0, 10, i18n(null, \Application::$controller->title) . ' (#' . \Format::id(\Application::$controller->controller_id) . ')', 0, false, 'L', 0, '', 0, false, 'T', 'M');
+			$this->SetXY(15, -15);
+			$this->Cell(0, 10, i18n(null, 'By:') . ' ' . \User::get('name') . ', ' . i18n(null, ' On:') . ' ' . \Format::id(\Format::datetime(\Format::now('datetime'))), 0, false, 'L', 0, '', 0, false, 'T', 'M');
+		}
 	}
-
 }
