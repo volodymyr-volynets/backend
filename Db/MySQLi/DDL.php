@@ -515,7 +515,7 @@ TTT;
 				$key = ['schema_name', 'function_name'];
 				if ($metadata_exists) {
 					$sql_version = "COALESCE(mdata.sm_metadata_sql_version, '')";
-					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'function' AND (mdata.sm_metadata_name COLLATE utf8_bin) = CONCAT(a.routine_schema, '.', a.routine_name)";
+					$sql_join = "LEFT JOIN {$metadata_model->full_table_name} mdata ON mdata.sm_metadata_db_link = '{$db_link}' AND mdata.sm_metadata_type = 'function' AND (mdata.sm_metadata_name COLLATE utf8_bin) = (CONCAT(a.routine_schema, '.', a.routine_name) COLLATE utf8_bin)";
 				} else {
 					$sql_version = "''";
 					$sql_join = '';
