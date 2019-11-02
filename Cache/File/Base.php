@@ -175,6 +175,9 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 		} else {
 			$time = time();
 			foreach ($cookies as $cookie) {
+				if (!file_exists($cookie)) {
+					continue;
+				}
 				// read cookie
 				$cookie_data = file_get_contents($cookie);
 				if ($cookie_data === false) {
