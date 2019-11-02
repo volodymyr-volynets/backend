@@ -200,8 +200,13 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 				// if we need to delete
 				if ($flag_delete) {
 delete:
-					unlink($cookie);
-					unlink($cookie_data['file']);
+					// just in case we need to check if files exists
+					if (file_exists($cookie)) {
+						unlink($cookie);
+					}
+					if (file_exists($cookie_data['file'])) {
+						unlink($cookie_data['file']);
+					}
 				}
 			}
 			// success if we got here
