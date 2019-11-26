@@ -15,6 +15,11 @@ class Resources extends \Object\Collection {
 				'pk' => ['sm_rsrcftr_resource_id', 'sm_rsrcftr_feature_code'],
 				'type' => '1M',
 				'map' => ['sm_resource_id' => 'sm_rsrcftr_resource_id'],
+			],
+			'\Numbers\Backend\System\Modules\Model\Resource\APIMethods' => [
+				'pk' => ['sm_rsrcapimeth_resource_id', 'sm_rsrcapimeth_method_code'],
+				'type' => '1M',
+				'map' => ['sm_resource_id' => 'sm_rsrcapimeth_resource_id'],
 			]
 		]
 	];
