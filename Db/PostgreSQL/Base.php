@@ -530,6 +530,7 @@ TTT;
 				$sql = $fields;
 				$sql2 = " OR $fields::text ILIKE '%" . $str_escaped . "%'";
 			}
+			$str = trim(str_replace(['(', ')'], ' ', $str));
 			$escaped = preg_replace('/\s\s+/', ' ', $str);
 			if ($escaped == '') {
 				$escaped = '*';

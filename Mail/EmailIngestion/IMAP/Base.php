@@ -96,6 +96,12 @@ class Base {
 				$result['body'] = imap_fetchbody($this->resource, $msgno, 1);
 			}
 		}
+		// see if content is base64 encoded
+		$decoded = imap_base64($result['body']);
+		if ($decoded !== false) {
+			$result['body'] = $decoded;
+			return $result;
+		}
 		$result['body'] = imap_qprint($result['body']);
 		return $result;
 	}
