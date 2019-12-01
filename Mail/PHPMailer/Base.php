@@ -58,7 +58,10 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 			}
 			unset($recepients);
 			$recepients['to'] = \Application::get('debug.override_email') ?? \Application::get('debug.email');
-			$options['subject'] = '[' . $environment . '] ' . $options['subject'];
+			// prepend environment to subject
+			if (strpos($options['subject'], '[' . $environment . ']') === false) {
+				$options['subject'] = '[' . $environment . '] ' . $options['subject'];
+			}
 		}
 		// smtp
 		$smtp = \Application::get('flag.global.mail.delivery.smtp');

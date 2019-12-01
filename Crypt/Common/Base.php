@@ -154,7 +154,7 @@ abstract class Base {
 		} else {
 			$packed = pack('NN', ip2long($ip), $time);
 		}
-		if ($data . '' != '') {
+		if (isset($data) && $data != '') {
 			$data = base64_encode(serialize($data));
 		} else {
 			$data = '';
@@ -179,17 +179,20 @@ abstract class Base {
 			'time' => null,
 			'ip' => \Request::ip()
 		];
-		if ($this->base64) {
+		if (is_base64($token)) {
 			$token2 = base64_decode($token);
 		}  else {
-			$token2 = $token;
+			$token2 = urldecode($token);
+			if (is_base64($token2)) {
+				$token2 = base64_decode($token2);
+			}
 		}
 		$digest = substr($token2, 0, 32);
 		$result['time'] = hexdec(substr($token2, 32, 8));
 		$temp = explode('!', substr($token2, 40, strlen($token2)));
 		$result['id'] = $temp[0];
-		$result['token'] = $temp[1];
-		if ($temp[2] . '' != '') {
+		$result['token'] = $temp[1] ?? '';
+		if (isset($temp[2]) && $temp[2] != '') {
 			$result['data'] = unserialize(base64_decode($temp[2]));
 		} else {
 			$result['data'] = null;

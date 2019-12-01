@@ -234,5 +234,26 @@ class Import extends \Object\Import {
 				],
 			]
 		],
+		'features' => [
+			'options' => [
+				'pk' => ['sm_feature_code'],
+				'model' => '\Numbers\Backend\System\Modules\Model\Collection\Module\Features',
+				'method' => 'save'
+			],
+			'data' => [
+				[
+					'sm_feature_module_code' => 'SM',
+					'sm_feature_code' => 'SM::OPEN_RECORD_IN_NEW_TAB',
+					'sm_feature_type' => 40,
+					'sm_feature_name' => 'S/M Open Record In New Tab',
+					'sm_feature_icon' => 'fas fa-pen-square',
+					'sm_feature_activation_model' => null,
+					'sm_feature_activated_by_default' => 1,
+					'sm_feature_inactive' => 0,
+					'sm_feature_prohibitive' => 1,
+					'\Numbers\Backend\System\Modules\Model\Module\Dependencies' => []
+				],
+			]
+		]
 	];
 }
