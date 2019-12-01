@@ -19,17 +19,18 @@ class Base extends \Numbers\Backend\IP\Common\Base {
 		$ip_long = ip2long($ip);
 		// fetch it from model
 		if (!empty($ip_long)) {
-			$model = new \Numbers\Backend\IP\Simple\Model\IPv4();
-			$data = $model->get([
+			$data = \Numbers\Backend\IP\Simple\Model\IPv4::getStatic([
 				'where' => [
-					'sm_ipver4_start;>=' => $ip_long,
-					'sm_ipver4_end;<=' => $ip_long
+					'sm_ipver4_start;<=' => $ip_long,
+					'sm_ipver4_end;>=' => $ip_long
 				],
-				'single_row' => 1
+				'pk' => null,
 			]);
-			if (!empty($data)) {
+			if (!empty($data[0])) {
 				foreach (['country_code', 'province', 'city', 'latitude', 'longitude'] as $v) {
-					$result['data'][$v] = $data['sm_ipver4_' . $v];
+					if (!empty($data[0]['sm_ipver4_' . $v])) {
+						$result['data'][$v] = $data[0]['sm_ipver4_' . $v];
+					}
 				}
 				$result['success'] = true;
 			}

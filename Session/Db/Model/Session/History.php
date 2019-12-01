@@ -20,7 +20,9 @@ class History extends \Object\Table {
 		'sm_sesshist_last_requested' => ['name' => 'Datetime Last Requested', 'type' => 'timestamp'],
 		'sm_sesshist_pages_count' => ['name' => 'Pages Count', 'domain' => 'counter'],
 		'sm_sesshist_user_id' => ['name' => 'User #', 'domain' => 'user_id', 'null' => true],
-		'sm_sesshist_user_ip' => ['name' => 'User IP', 'domain' => 'ip']
+		'sm_sesshist_user_ip' => ['name' => 'User IP', 'domain' => 'ip'],
+		'sm_sesshist_country_code' => ['name' => 'Country Code', 'domain' => 'country_code', 'null' => true],
+		'sm_sesshist_request_count' => ['name' => 'Request Count', 'domain' => 'counter', 'default' => 0],
 	];
 	public $constraints = [
 		'sm_session_history_pk' => ['type' => 'pk', 'columns' => ['sm_sesshist_id']],

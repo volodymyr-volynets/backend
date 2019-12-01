@@ -68,36 +68,41 @@ class SessionLog extends \Object\Form\Wrapper\Report {
 		// add header
 		$report->addHeader(DEF, 'row1', [
 			'user_id' => ['label_name' => 'User #', 'percent' => 10],
-			'user_name' => ['label_name' => 'User Name', 'percent' => 40],
-			'login_name' => ['label_name' => 'User Login', 'percent' => 15],
-			'active' => ['label_name' => 'Active', 'percent' => 5, 'data_align' => 'center'],
+			'user_name' => ['label_name' => 'User Name', 'percent' => 30],
+			'login_name' => ['label_name' => 'User Login', 'percent' => 25],
+			'active' => ['label_name' => 'Active', 'percent' => 5, 'data_align' => 'left'],
 			'session_count' => ['label_name' => '# of Sessions', 'percent' => 15, 'data_align' => 'right'],
 			'pages_count' => ['label_name' => '# of Pages', 'percent' => 15, 'data_align' => 'right'],
 		]);
 		$report->addHeader(DEF, 'row2', [
 			'blank' => ['label_name' => ' ', 'percent' => 10],
-			'user_ip' => ['label_name' => 'User IP', 'percent' => 40],
+			'user_ip' => ['label_name' => 'User IP / Country', 'percent' => 30],
 			'start_datetime' => ['label_name' => 'First Timestamp', 'percent' => 25],
-			'end_datetime' => ['label_name' => 'Last Timestamp', 'percent' => 25]
+			'end_datetime' => ['label_name' => 'Last Timestamp', 'percent' => 20],
+			'request_count' => ['label_name' => '# of Requests', 'percent' => 15, 'data_align' => 'right'],
 		]);
 		// query the data
 		$model = new \Numbers\Backend\Session\Db\Model\Sessions();
 		$inner_query = $model->queryBuilder(['alias' => 'inner_a', 'skip_acl' => true])->select();
 		$inner_query->columns([
-			'datetime' => 'sm_session_last_requested',
-			'user_id' => 'sm_session_user_id',
-			'user_ip' => 'sm_session_user_ip',
-			'pages_count' => 'sm_session_pages_count',
+			'datetime' => 'inner_a.sm_session_last_requested',
+			'user_id' => 'inner_a.sm_session_user_id',
+			'user_ip' => 'inner_a.sm_session_user_ip',
+			'pages_count' => 'inner_a.sm_session_pages_count',
+			'request_count' => 'inner_a.sm_session_request_count',
+			'country_code' => 'inner_a.sm_session_country_code',
 			'active' => 1
 		]);
 		$inner_query->union('UNION ALL', function (& $query) {
 			$query = \Numbers\Backend\Session\Db\Model\Session\History::queryBuilderStatic(['alias' => 'inner_b'])->select();
 			// columns
 			$query->columns([
-				'datetime' => 'sm_sesshist_last_requested',
-				'user_id' => 'sm_sesshist_user_id',
-				'user_ip' => 'sm_sesshist_user_ip',
-				'pages_count' => 'sm_sesshist_pages_count',
+				'datetime' => 'inner_b.sm_sesshist_last_requested',
+				'user_id' => 'inner_b.sm_sesshist_user_id',
+				'user_ip' => 'inner_b.sm_sesshist_user_ip',
+				'pages_count' => 'inner_b.sm_sesshist_pages_count',
+				'request_count' => 'inner_b.sm_sesshist_request_count',
+				'country_code' => 'inner_b.sm_sesshist_country_code',
 				'active' => 0
 			]);
 		});
@@ -110,6 +115,8 @@ class SessionLog extends \Object\Form\Wrapper\Report {
 			'start_datetime' => 'MIN(a.datetime)',
 			'end_datetime' => 'MAX(a.datetime)',
 			'pages_count' => 'SUM(a.pages_count)',
+			'request_count' => 'SUM(a.request_count)',
+			'country_code' => 'MAX(a.country_code)',
 			'session_count' => 'COUNT(*)',
 			'user_name' => 'MIN(b.um_user_name)',
 			'login_name' => 'MIN(COALESCE(b.um_user_login_username, b.um_user_email))'
@@ -128,6 +135,9 @@ class SessionLog extends \Object\Form\Wrapper\Report {
 			$v['user_id'] = $v['user_id'] ? $v['user_id'] : i18n(null, 'Unauthorized');
 			$v['start_datetime'] = \Format::datetime($v['start_datetime']);
 			$v['end_datetime'] = \Format::datetime($v['end_datetime']);
+			if (!empty($v['country_code'])) {
+				$v['user_ip'].= ' / ' . $v['country_code'];
+			}
 			$even = $counter % 2 ? ODD : EVEN;
 			$report->addData(DEF, 'row1', $even, $v);
 			$report->addData(DEF, 'row2', $even, $v);

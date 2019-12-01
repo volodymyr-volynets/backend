@@ -78,7 +78,9 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'] ?? \Request::ip(),
 				'sm_session_user_id' => \User::id() ?? 0,
 				'sm_session_tenant_id' => \Tenant::id(),
-				'sm_session_data' => $data
+				'sm_session_data' => $data,
+				'sm_session_country_code' => $_SESSION['numbers']['ip']['country_code'] ?? null,
+				'sm_session_request_count;=;~~' => 'sm_session_request_count + 1',
 			])
 			->where('AND', ['sm_session_id', '=', $id])
 			->query();
@@ -94,7 +96,9 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 					'sm_session_user_ip',
 					'sm_session_user_id',
 					'sm_session_tenant_id',
-					'sm_session_data'
+					'sm_session_data',
+					'sm_session_country_code',
+					'sm_session_request_count',
 				])
 				->values([[
 					'sm_session_id' => $id,
@@ -105,7 +109,9 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 					'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip']  ?? \Request::ip(),
 					'sm_session_user_id' => \User::id() ?? 0,
 					'sm_session_tenant_id' => \Tenant::id(),
-					'sm_session_data' => $data
+					'sm_session_data' => $data,
+					'sm_session_country_code' => $_SESSION['numbers']['ip']['country_code'] ?? null,
+					'sm_session_request_count' => 1,
 				]])
 				->query();
 		}
@@ -141,25 +147,27 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 		$result = \Numbers\Backend\Session\Db\Model\Session\History::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
 			->insert()
 			->columns([
-				'sm_sesshist_id',
 				'sm_sesshist_started',
 				'sm_sesshist_last_requested',
 				'sm_sesshist_pages_count',
 				'sm_sesshist_user_ip',
 				'sm_sesshist_user_id',
-				'sm_sesshist_tenant_id'
+				'sm_sesshist_tenant_id',
+				'sm_sesshist_country_code',
+				'sm_sesshist_request_count'
 			])
 			->values(function(& $subquery) use ($expire) {
 				$subquery = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
 					->select()
 					->columns([
-						'sm_sesshist_id' => "nextval('sm_session_history_sm_sesshist_id_seq')",
 						'sm_sesshist_started' => 'a.sm_session_started',
 						'sm_sesshist_last_requested' => 'a.sm_session_last_requested',
 						'sm_sesshist_pages_count' => 'a.sm_session_pages_count',
 						'sm_sesshist_user_ip' => 'a.sm_session_user_ip',
 						'sm_sesshist_user_id' => 'a.sm_session_user_id',
-						'sm_sesshist_tenant_id' => 'a.sm_session_tenant_id'
+						'sm_sesshist_tenant_id' => 'a.sm_session_tenant_id',
+						'sm_sesshist_country_code' => 'a.sm_session_country_code',
+						'sm_sesshist_request_count' => 'a.sm_session_request_count'
 					])
 					->where('AND', ['sm_session_expires', '<', $expire]);
 			})

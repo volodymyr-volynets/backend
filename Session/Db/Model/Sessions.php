@@ -22,7 +22,9 @@ class Sessions extends \Object\Table {
 		'sm_session_pages_count' => ['name' => 'Pages Count', 'domain' => 'counter'],
 		'sm_session_user_id' => ['name' => 'User #', 'domain' => 'user_id', 'null' => true],
 		'sm_session_user_ip' => ['name' => 'User IP', 'domain' => 'ip'],
-		'sm_session_data' => ['name' => 'Session Data', 'type' => 'text', 'null' => true]
+		'sm_session_data' => ['name' => 'Session Data', 'type' => 'text', 'null' => true],
+		'sm_session_country_code' => ['name' => 'Country Code', 'domain' => 'country_code', 'null' => true],
+		'sm_session_request_count' => ['name' => 'Request Count', 'domain' => 'counter', 'default' => 0],
 	];
 	public $constraints = [
 		'sm_sessions_pk' => ['type' => 'pk', 'columns' => ['sm_session_id']],
