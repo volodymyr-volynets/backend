@@ -49,7 +49,7 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 		// overrides for non production environments
 		$environment = \Application::get('environment');
 		$debug = \Application::get('debug.debug');
-		if (!empty($debug)) {
+		if (!empty($debug) || \Application::get('debug.override_email')) {
 			// special headers
 			foreach ($recepients as $k => $v) {
 				if (!empty($v)) {
