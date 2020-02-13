@@ -754,7 +754,11 @@ class DDL {
 						} else { // migration comparison
 							$master_compare = $this->columnSqlTypeBase($v3);
 							$compare_columns = ['type', 'null', 'default', 'length', 'precision', 'scale', 'sequence'];
-							$slave_compare = $this->columnSqlTypeBase($obj_slave['table'][$k][$k2]['data']['columns'][$k3]);
+							if (isset($obj_slave['table'][$k][$k2]['data']['columns'][$k3])) {
+								$slave_compare = $this->columnSqlTypeBase($obj_slave['table'][$k][$k2]['data']['columns'][$k3]);
+							} else {
+								$slave_compare = [];
+							}
 						}
 						// new columns
 						if (empty($obj_slave['table'][$k][$k2]['data']['columns'][$k3])) {

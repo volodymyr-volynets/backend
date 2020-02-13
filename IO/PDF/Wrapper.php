@@ -22,11 +22,14 @@ class Wrapper extends \TCPDF {
 	 */
 	public function __construct($options = []) {
 		// preset settings
+		if (!empty($options['ratio']) && $options['ratio'] != 1) {
+			$options['font_size'] = 5;
+		}
 		$this->__options['orientation'] = $options['orientation'] ?? 'P';
 		$this->__options['encoding'] = 'UTF-8';
 		$this->__options['unit'] = 'mm';
 		$this->__options['format'] = $options['format'] ?? \I18n::$options['print_format'] ?? 'LETTER';
-		$this->__options['font'] = ['family' => $options['font'] ?? \I18n::$options['print_font'] ?? 'helvetica', 'style' => '', 'size' => 7];
+		$this->__options['font'] = ['family' => $options['font'] ?? \I18n::$options['print_font'] ?? 'helvetica', 'style' => '', 'size' => $options['font_size'] ?? 7];
 		$this->__options['title'] = $options['title'] ?? null;
 		$this->__options['skip_header_time'] = $options['skip_header_time'] ?? false;
 		$this->__options['skip_header'] = $options['skip_header'] ?? false;

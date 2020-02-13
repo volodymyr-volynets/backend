@@ -15,14 +15,24 @@ class Base {
 		$report->addReport(DEF, $object);
 		// add header
 		$header = [];
+		$ratio = 1;
 		foreach ($object->misc_settings['list']['columns'] as $k => $v) {
 			$temp = [];
+			$percent_total = 0;
 			foreach ($v['elements'] as $k2 => $v2) {
 				$temp[$k2] = $v2['options'];
+				$percent_total+= $v2['options']['percent'];
+			}
+			if ($percent_total != 100) {
+				$ratio = 100 / $percent_total;
+				foreach ($temp as $k2 => $v2) {
+					$temp[$k2]['percent'] = round($temp[$k2]['percent'] * $ratio, 2);
+				}
 			}
 			$report->addHeader(DEF, $k, $temp);
 			$header[$k] = $k;
 		}
+		$report->options['pdf']['ratio'] = $ratio;
 		// add data
 		$counter = 1;
 		foreach ($object->misc_settings['list']['rows'] as $k => $v) {
@@ -37,8 +47,9 @@ class Base {
 					}
 					// custom renderer
 					if (!empty($v3['options']['custom_renderer'])) {
-						$method = \Factory::method($v3['options']['custom_renderer'], null, true);
-						$v[$k3] = call_user_func_array($method, [& $this->object, & $v3, & $v[$k3], & $v]);
+						$method = \Factory::method($v3['options']['custom_renderer'], $object->form_parent, true);
+						$v[$k3] = call_user_func_array($method, [& $object, & $v3, & $v[$k3], & $v]);
+						$v[$k3] = strip_tags2($v[$k3]);
 					} else {
 						// process options
 						if (!empty($v3['options']['options_model'])) {

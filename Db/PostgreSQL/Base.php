@@ -218,7 +218,11 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 							$rows[$k] = pg_unescape_bytea($v);
 						} else if ($result['structure'][$k]['type'] == 'jsonb') {
 							// we must get json vallues to PHP format
-							$rows[$k] = json_encode(json_decode($v, true));
+							if (is_null($v)) { // but not nulls
+								$rows[$k] = null;
+							} else {
+								$rows[$k] = json_encode(json_decode($v, true));
+							}
 						}
 					}
 					// assigning keys
