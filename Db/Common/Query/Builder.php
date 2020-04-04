@@ -740,9 +740,9 @@ class Builder {
 		$subquery = new \Numbers\Backend\Db\Common\Query\Builder($this->db_link, ['subquery' => true]);
 		$function($subquery);
 		// validation on addition clauses
-		if (!empty($this->data['union_orderby'])) {
-			Throw new \Exception('Previous queries have extra parameters in UNION');
-		}
+//		if (!empty($this->data['union_orderby'])) {
+//			Throw new \Exception('Previous queries have extra parameters in UNION');
+//		}
 		if (!empty($select->data['limit']) || !empty($select->data['offset']) || !empty($select->data['orderby'])) {
 			$this->data['union_orderby'] = true;
 		}
