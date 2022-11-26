@@ -91,10 +91,17 @@ class Base {
 		$result['udate'] = $header->udate;
 		$result['body'] = imap_fetchbody($this->resource, $msgno, 2);
 		if (empty($result['body'])) {
-			$result['body'] = imap_fetchbody($this->resource, $msgno, 1.1);
+			$result['body'] = imap_fetchbody($this->resource, $msgno, 1.2);
 			if (empty($result['body'])) {
-				$result['body'] = imap_fetchbody($this->resource, $msgno, 1);
+				$result['body'] = imap_fetchbody($this->resource, $msgno, 1.1);
+				if (empty($result['body'])) {
+					$result['body'] = imap_fetchbody($this->resource, $msgno, 1);
+				}
 			}
+		}
+		$result['body1'] = @imap_fetchbody($this->resource, $msgno, 1);
+		if (isset($result['body1'])) {
+			$result['body1'] = imap_qprint($result['body1']);
 		}
 		// see if content is base64 encoded
 		$decoded = imap_base64($result['body']);

@@ -37,6 +37,15 @@ class Base {
 				]
 			]
 		];
+		// scales
+		if (!empty($object->data[$report_name]['options']['chart_scales'])) {
+			$config['options']['scales'] = $object->data[$report_name]['options']['chart_scales'];
+		}
+		// skip legend
+		if (!empty($object->data[$report_name]['options']['chart_skip_legend'])) {
+			unset($config['options']['legend']);
+			$config['options']['legend'] = false;
+		}
 		$counter = 1;
 		$only_calculate = false;
 		$other_values = [];
@@ -71,11 +80,11 @@ class Base {
 					$config['data']['datasets'][$current_index] = [
 						'data' => [],
 						'backgroundColor' => [],
-						'label' => $last_label,
+						'label' => $v2['label_name'],
 					];
 				}
-				$config['data']['datasets'][$current_index]['data'][] = $row_data[0][$v2['__index']];
-				$config['data']['datasets'][$current_index]['backgroundColor'][] = \Numbers\Frontend\HTML\Renderers\Common\Colors::colorFromString($last_label);
+				$config['data']['datasets'][$current_index]['data'][] = $row_data[0][$v2['__index']] ?? 0;
+				$config['data']['datasets'][$current_index]['backgroundColor'][] = \Numbers\Frontend\HTML\Renderers\Common\Colors::colorFromString($config['data']['datasets'][$current_index]['label'] . ' - ' . $row_data[0][$v2['__index']]);
 			}
 			if (!empty($object->data[$report_name]['options']['chart_limit'])) {
 				if ($counter >= $object->data[$report_name]['options']['chart_limit']) {
