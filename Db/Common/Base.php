@@ -70,6 +70,18 @@ class Base {
 	}
 
 	/**
+	 * Serialize
+	 *
+	 * @return array
+	 */
+	public function __serialize(): array {
+	    return [
+	      'db_link' => $this->db_link,
+	      'options' => $this->options
+	    ];
+	}
+
+	/**
 	 * Error Overrides
 	 *
 	 * @var array

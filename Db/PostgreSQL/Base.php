@@ -326,7 +326,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	 * @return string
 	 */
 	public function escapeBytea($value) {
-		return pg_escape_bytea($this->db_resource, $value);
+		return pg_escape_bytea($this->db_resource, $value . '');
 	}
 
 	/**

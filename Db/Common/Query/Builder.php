@@ -432,7 +432,7 @@ class Builder {
 	 * @param boolean $exists
 	 * @return array
 	 */
-	private function singleConditionClause(string $operator = 'AND', $condition, bool $exists = false) {
+	private function singleConditionClause(string $operator = 'AND', $condition = '', bool $exists = false) {
 		$result = null;
 		// operator
 		$operator = strtoupper($operator);
