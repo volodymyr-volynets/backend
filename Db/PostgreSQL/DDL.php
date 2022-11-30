@@ -125,7 +125,7 @@ class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\
 												$temp3 = explode('::', $default);
 												$default = $temp3[0];
 											}
-											if ($default[0] == "'") {
+											if (is_string($default) && isset($default[0]) && $default[0] == "'") {
 												$default = trim($default, "'");
 											} else if (is_numeric($default)) {
 												$default = $default * 1;

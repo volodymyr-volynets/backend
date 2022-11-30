@@ -480,7 +480,7 @@ class Builder {
 	 * @param array $options
 	 * @return \Numbers\Backend\Db\Common\Query\Builder
 	 */
-	public function where(string $operator = 'AND', $condition, bool $exists = false, $options = []) : \Numbers\Backend\Db\Common\Query\Builder {
+	public function where(string $operator = 'AND', $condition = '', bool $exists = false, $options = []) : \Numbers\Backend\Db\Common\Query\Builder {
 		// add condition
 		if (!empty($options['for_delete'])) {
 			end($this->data['where']);
@@ -505,7 +505,7 @@ class Builder {
 	 * @param mixed $condition
 	 * @return \Numbers\Backend\Db\Common\Query\Builder
 	 */
-	public function having(string $operator = 'AND', $condition) : \Numbers\Backend\Db\Common\Query\Builder {
+	public function having(string $operator = 'AND', $condition = '') : \Numbers\Backend\Db\Common\Query\Builder {
 		array_push($this->data['having'], $this->singleConditionClause($operator, $condition, false));
 		return $this;
 	}
