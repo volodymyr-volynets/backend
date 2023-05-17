@@ -3,6 +3,7 @@
 namespace Numbers\Backend\Mail\PHPMailer;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend\Mail\Common\Interface2\Base {
 
 	/**
@@ -66,6 +67,7 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 		// smtp
 		$smtp = \Application::get('flag.global.mail.delivery.smtp');
 		if (!empty($smtp)) {
+			//$mail->SMTPDebug = SMTP::DEBUG_SERVER;
 			$mail->isSMTP();
 			$mail->Host = $smtp['host'];
 			$mail->Port = $smtp['port'];
@@ -74,7 +76,7 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 				$mail->Username = $smtp['username'];
 				$mail->Password = $smtp['password'];
 			}
-			$mail->SMTPSecure = $smtp['secure'] ?? 'tls';
+			$mail->SMTPSecure = $smtp['secure'] ?? PHPMailer::ENCRYPTION_STARTTLS;
 		}
 		// fetch mail settings
 		$options = array_merge_hard(\Application::get('flag.global.mail') ?? [], $options);
@@ -126,11 +128,12 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 			}
 		}
 		// trying to deliver
-		if ($mail->send()) {
+		try {
+			$mail->send();
 			$result['success'] = true;
-		} else {
-			$result['error'][] = 'Could not deliver mail!';
-			trigger_error('Mail: ' . $mail->ErrorInfo);
+		} catch (Exception $e) {
+			$result['error'][] = 'Could not deliver mail! ' . $mail->ErrorInfo;
+			error_log('PHPMailer error: ' . $mail->ErrorInfo, 0);
 		}
 		return $result;
 	}

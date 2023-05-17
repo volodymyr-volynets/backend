@@ -62,6 +62,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 	 * @return boolean
 	 */
 	public function write($id, $data) {
+		$timestamp = \Format::now('timestamp');
 		// we only count for presentational content types
 		$__ajax = \Request::input('__ajax');
 		if (!$__ajax && \Object\Content\Types::existsStatic(['where' => ['no_virtual_controller_code' => \Application::get('flag.global.__content_type'), 'no_content_type_presentation' => 1]])) {
@@ -73,7 +74,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 			->update()
 			->set([
 				'sm_session_expires' => \Format::now('timestamp', ['add_seconds' => \Session::$default_options['gc_maxlifetime']]),
-				'sm_session_last_requested' => \Format::now('timestamp'),
+				'sm_session_last_requested' => $timestamp,
 				'sm_session_pages_count;=;~~' => 'sm_session_pages_count + ' . $inc,
 				'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip'] ?? \Request::ip(),
 				'sm_session_user_id' => \User::id() ?? 0,
@@ -104,7 +105,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 					'sm_session_id' => $id,
 					'sm_session_started' => \Format::now('timestamp'),
 					'sm_session_expires' => \Format::now('timestamp', ['add_seconds' => \Session::$default_options['gc_maxlifetime']]),
-					'sm_session_last_requested' => \Format::now('timestamp'),
+					'sm_session_last_requested' => $timestamp,
 					'sm_session_pages_count' => $inc,
 					'sm_session_user_ip' => $_SESSION['numbers']['ip']['ip']  ?? \Request::ip(),
 					'sm_session_user_id' => \User::id() ?? 0,
@@ -115,6 +116,28 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				]])
 				->query();
 		}
+		// insert into another table.
+		\Numbers\Backend\Session\Db\Model\Session\IPs::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
+			->insert()
+			->columns([
+				'sm_sessips_tenant_id',
+				'sm_sessips_session_id',
+				'sm_sessips_last_requested',
+				'sm_sessips_user_id',
+				'sm_sessips_user_ip',
+				'sm_sessips_pages_count',
+				'sm_sessips_request_count'
+			])
+			->values([[
+				'sm_sessips_tenant_id' => \Tenant::id(),
+				'sm_sessips_session_id' => $id,
+				'sm_sessips_last_requested' => $timestamp,
+				'sm_sessips_user_id' => \User::id() ?? 0,
+				'sm_sessips_user_ip' => $_SESSION['numbers']['ip']['ip']  ?? \Request::ip(),
+				'sm_sessips_pages_count' => $inc,
+				'sm_sessips_request_count' => 1
+			]])
+			->query();
 		return $result['affected_rows'] ? true : false;
 	}
 
@@ -185,8 +208,65 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 			$object->db_object->rollback();
 			return false;
 		}
+		// step 3: remove IPs
+		$datetime = \Format::now('datetime');
+		$result = \Numbers\Backend\Session\Db\Model\Session\IPs::queryBuilderStatic(['skip_acl' => true])
+			->delete()
+			->where('AND', ["'$datetime'::timestamp - sm_sessips_last_requested", '>', "'2 min'::interval", true])
+			->query();
+		if (!$result['success']) {
+			$object->db_object->rollback();
+			return false;
+		}
 		$object->db_object->commit();
 		return true;
+	}
+
+	/**
+	 * Check for over usage.
+	 *
+	 * @param string $ip
+	 * @param array $rules
+	 */
+	public function checkOverUsage(string $ip, array $rules) {
+		$timestamp = \Format::now('timestamp');
+		$result = \Numbers\Backend\Session\Db\Model\Session\IPs::queryBuilderStatic(['alias' => 'a', 'skip_acl' => true])
+			->select()
+			->columns([
+				'sm_sessips_user_ip' => 'sm_sessips_user_ip',
+				'sm_sessips_pages_count' => 'SUM(sm_sessips_pages_count)',
+				'sm_sessips_request_count' => 'SUM(sm_sessips_request_count)'
+			])
+			->where('AND', ['sm_sessips_user_ip', '=', $ip])
+			->where('AND', ["'$timestamp'::timestamp - sm_sessips_last_requested", '<=', "'1 min'::interval", true])
+			->groupby(['sm_sessips_user_ip'])
+			->query();
+		// Final verification.
+		$error = [];
+		if (isset($result['rows'][0])) {
+			// we calculate # of requests per 1 minute for specificc IP address.
+			if (($result['rows'][0]['sm_sessips_pages_count'] / 60) > ((int) ($rules['pages'] ?? 5))) {
+				$error[] = 'Too Many Requests';
+			}
+			if (($result['rows'][0]['sm_sessips_request_count'] / 60) > ((int) ($rules['pages'] ?? 50))) {
+				$error[] = 'Too Many Requests';
+			}
+		}
+		// if we have an error we log in firewall.
+		if (!empty($error)) {
+			$error = array_unique($error);
+			// add data to firewall
+			$firewalls = \Object\ACL\Resources::getStatic('firewalls', 'primary');
+			if (!empty($firewalls)) {
+				if (!\Format::$initialized) {
+					\Format::init();
+				}
+				call_user_func_array($firewalls['method'], [$ip, $error]);
+			}
+			header('HTTP/1.1 429');
+			echo implode("\n", $error);
+			exit;
+		}
 	}
 
 	/**

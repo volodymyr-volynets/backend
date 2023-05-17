@@ -28,7 +28,7 @@ class Base {
 			'success' => false,
 			'error' => []
 		];
-		$this->resource = imap_open($options['server'], $options['username'], $options['password'], null, 3);
+		$this->resource = imap_open($options['server'], $options['username'], $options['password'], 0, 3);
 		if ($this->resource === false) {
 			$result['error'] = imap_errors();
 		} else {
@@ -83,10 +83,10 @@ class Base {
 	 */
 	function getMessage($msgno, $part = '1.2') : array {
 		$result = [];
-		$header = imap_header($this->resource, $msgno);
+		$header = imap_headerinfo($this->resource, $msgno);
 		$result['subject'] = imap_utf8($header->subject);
 		$result['fromaddress'] = $header->fromaddress;
-		$result['toaddress'] = $header->toaddress;
+		$result['toaddress'] = $header->toaddress ?? null;
 		$result['date'] = $header->date;
 		$result['udate'] = $header->udate;
 		$result['body'] = imap_fetchbody($this->resource, $msgno, 2);
