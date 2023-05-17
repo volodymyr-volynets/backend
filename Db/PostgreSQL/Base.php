@@ -184,7 +184,11 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		}
 		// quering
 		$resource = pg_query($this->db_resource, $sql);
-		$result['status'] = pg_result_status($resource);
+		if ($resource) {
+			$result['status'] = pg_result_status($resource);
+		} else {
+			$result['status'] = PGSQL_BAD_RESPONSE;
+		}
 		if (!$resource || $result['status'] > 4) {
 			$last_error = pg_last_error($this->db_resource);
 			if (empty($last_error)) {
