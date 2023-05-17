@@ -53,6 +53,7 @@ class Builder {
 		'comment' => '',
 		'with' => [],
 		'cascade' => false,
+		'dblink_as' => []
 	];
 
 	/**
@@ -607,6 +608,16 @@ class Builder {
 	 */
 	public function forUpdate() : \Numbers\Backend\Db\Common\Query\Builder {
 		$this->data['for_update'] = true;
+		return $this;
+	}
+
+	/**
+	 * Dblink
+	 *
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function dblink(array $as) : \Numbers\Backend\Db\Common\Query\Builder {
+		$this->data['dblink_as'] = $as;
 		return $this;
 	}
 
