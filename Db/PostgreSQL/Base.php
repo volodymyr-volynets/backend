@@ -69,6 +69,10 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			// set settings
 			$this->query("SET TIME ZONE '" . \Application::get('php.date.timezone') . "';");
 			$this->query('SET search_path = "$user",public,extensions;');
+			// db goes into options for future reuse
+			$this->options['connection'] = $options;
+			$this->options['connection']['string'] = $str;
+			$this->options['connection']['search_path'] = '"$user",public,extensions';
 			// success
 			$result['success'] = true;
 		} else {
@@ -416,6 +420,9 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			$query->columns([
 				'counter' => "{$type}_extended('{$sequence_name}'::character varying, {$tenant}, {$module})"
 			]);
+			$query->dblink([
+				'counter' => 'bigint'
+			]);
 		} else { // regular sequence
 			$query->columns([
 				'counter' => "{$type}('{$sequence_name}')"
@@ -670,7 +677,16 @@ TTT;
 				$sql2 = 'SELECT ' . implode(', ', $object->data['primary_key']) . ' FROM ' . current($object->data['from']);
 				// where
 				if (!empty($object->data['where'])) {
-					$sql2.= ' WHERE ' . $object->renderWhere($object->data['where']);
+					$where = $object->data['where'];
+					foreach ($where as $k => $v) {
+						if (!isset($v[2])) {
+							continue;
+						}
+						if (strpos($v[2], 'tenant_id') !== false) {
+							$where[$k][2] = str_replace('a.', '', $v[2]);
+						}
+					}
+					$sql2.= ' WHERE ' . $object->renderWhere($where);
 				}
 				// orderby
 				if (!empty($object->data['orderby'])) {
@@ -726,7 +742,16 @@ TTT;
 					$sql2 = 'SELECT ' . implode(', ', $object->data['primary_key']) . ' FROM ' . current($object->data['from']);
 					// where
 					if (!empty($object->data['where'])) {
-						$sql2.= ' WHERE ' . $object->renderWhere($object->data['where']);
+						$where = $object->data['where'];
+						foreach ($where as $k => $v) {
+							if (!isset($v[2])) {
+								continue;
+							}
+							if (strpos($v[2], 'tenant_id') !== false) {
+								$where[$k][2] = str_replace('a.', '', $v[2]);
+							}
+						}
+						$sql2.= ' WHERE ' . $object->renderWhere($where);
 					}
 					// orderby
 					if (!empty($object->data['orderby'])) {
@@ -850,6 +875,17 @@ TTT;
 						$sql.= "\n\n";
 						$sql.= $v['select'];
 					}
+				}
+				// dblink
+				if (!empty($object->data['dblink_as'])) {
+					$inner_sql = $sql;
+					$dblink_columns = [];
+					foreach ($object->data['dblink_as'] as $k => $v) {
+						$dblink_columns[] = $k . ' ' . $v;
+					}
+					$db_object = new \Db($this->db_link);
+					$sql = 'SELECT * FROM dblink(\'dbname=' . $db_object->object->options['connection']['string'] . ' options=-csearch_path=' . $db_object->object->options['connection']['search_path'] . '\',';
+					$sql.= '\'' . $db_object->escape($inner_sql) . '\') AS dblink_as_a(' . implode(', ', $dblink_columns) . ');';
 				}
 				break;
 			case 'with_recursive':
