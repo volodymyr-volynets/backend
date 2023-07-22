@@ -1,6 +1,8 @@
 <?php
 
 namespace Numbers\Backend\Db\PostgreSQL;
+
+#[\AllowDynamicProperties]
 class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\Db\Common\Interface2\Base {
 
 	/**
@@ -226,7 +228,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 							$rows[$k] = pg_unescape_bytea($v);
 						} else if ($result['structure'][$k]['type'] == 'jsonb') {
 							// we must get json vallues to PHP format
-							if (is_null($v)) { // but not nulls
+							if (is_null($v) || $v === '' || $v === 'null' || $v === '""' || $v === "''") { // but not nulls
 								$rows[$k] = null;
 							} else {
 								$rows[$k] = json_encode(json_decode($v, true));
@@ -265,6 +267,46 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 		// if we are debugging
 		if (\Debug::$debug) {
 			\Debug::$data['sql'][] = $result;
+		}
+		return $result;
+	}
+
+	/**
+	 * Queries
+	 *
+	 * @param string $sqls
+	 * @param array $options
+	 * @return array
+	 */
+	public function queries(string $sqls, array $options = []) : array {
+		$result = [
+			'success' => false,
+			'error' => [],
+			'data' => []
+		];
+		// check connection
+		if (pg_connection_status($this->db_resource) === PGSQL_CONNECTION_BAD) {
+			pg_connection_reset($this->db_resource);
+		}
+		// quering async
+		if (pg_send_query($this->db_resource, $sqls)) {
+			$index = 1;
+			while($result2 = pg_get_result($this->db_resource)) {
+				$result['data'][$index] = pg_fetch_all($result2);
+				$index++;
+			}
+			$result['success'] = true;
+		} else {
+			$last_error = pg_last_error($this->db_resource);
+			if (empty($last_error)) {
+				$errno = 1;
+				$error = 'DB Link ' . $this->db_link . ': ' . 'Unspecified error!';
+			} else {
+				preg_match("|ERROR:\s(.*?):|i", $last_error, $matches);
+				$errno = !empty($matches[1]) ? $matches[1] : 1;
+				$error = $last_error;
+			}
+			$this->errorOverrides($result, $errno, $error);
 		}
 		return $result;
 	}

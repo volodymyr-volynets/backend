@@ -45,6 +45,9 @@ class Resources extends \Object\Table {
 		'sm_resource_menu_order' => ['name' => 'Order', 'type' => 'integer', 'default' => 0],
 		'sm_resource_menu_separator' => ['name' => 'Separator', 'type' => 'boolean'],
 		'sm_resource_menu_class' => ['name' => 'Class', 'type' => 'text', 'null' => true],
+		// template
+		'sm_resource_template_name' => ['name' => 'Template Name', 'domain' => 'name', 'default' => 'default', 'null' => true],
+		'sm_resource_badge' => ['name' => 'Badge', 'domain' => 'name', 'null' => true],
 		// other
 		'sm_resource_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];

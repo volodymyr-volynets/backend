@@ -98,7 +98,11 @@ class Base {
 	protected function errorOverrides(& $result, $errno, $error) {
 		$result['errno'] = trim($errno . '');
 		if (!\Helper\Cmd::isCli() && isset($this->error_overrides[$result['errno']])) {
-			$result['error'][] = $this->error_overrides[$result['errno']];
+			if (\Application::get('environment') !== 'development') {
+				$result['error'][] = $this->error_overrides[$result['errno']];
+			} else {
+				$result['error'][] = $error;
+			}
 			$result['error_original'][] = $error;
 		} else {
 			$temp = 'Db Link ' . $this->db_link . ': Errno: ' . $result['errno'] . ': ' . $error;

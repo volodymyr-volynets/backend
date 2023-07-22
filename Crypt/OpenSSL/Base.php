@@ -1,6 +1,8 @@
 <?php
 
 namespace Numbers\Backend\Crypt\OpenSSL;
+
+#[\AllowDynamicProperties]
 class Base extends \Numbers\Backend\Crypt\Common\Base {
 
 	/**
