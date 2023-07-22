@@ -1,6 +1,8 @@
 <?php
 
 namespace Numbers\Backend\Db\PostgreSQL;
+
+#[\AllowDynamicProperties]
 class DDL extends \Numbers\Backend\Db\Common\DDL implements \Numbers\Backend\Db\Common\Interface2\DDL {
 
 	/**

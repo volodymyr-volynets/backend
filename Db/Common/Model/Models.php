@@ -59,4 +59,26 @@ class Models extends \Object\Table {
 		'protection' => 0,
 		'scope' => 'global'
 	];
+
+	/**
+	 * Option fields
+	 *
+	 * @param array $options
+	 */
+	public function optionsFields($options = []) {
+		if (empty($options['where']['sm_model_code'])) {
+			return [];
+		}
+		$model = new $options['where']['sm_model_code']();
+		$result = $model->columns;
+		if (!empty($options['where']['include_blank_columns'])) {
+			for ($i = 1; $i <= 10; $i++) {
+				$result['__blank_' . $i] = ['name' => 'Blank ' . $i];
+			}
+			for ($i = 1; $i <= 10; $i++) {
+				$result['__multiple_' . $i] = ['name' => 'Multiple ' . $i];
+			}
+		}
+		return $result;
+	}
 }
