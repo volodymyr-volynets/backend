@@ -20,6 +20,7 @@ class Models extends \Object\Table {
 		'sm_model_name' => ['name' => 'Name', 'domain' => 'name'],
 		'sm_model_module_code' => ['name' => 'Module Code', 'domain' => 'module_code'],
 		'sm_model_tenant' => ['name' => 'Tenant', 'type' => 'boolean'],
+		'sm_model_period' => ['name' => 'Period', 'type' => 'boolean'],
 		// widgets
 		'sm_model_widget_attributes' => ['name' => 'Widget Attributes', 'type' => 'boolean'],
 		'sm_model_widget_audit' => ['name' => 'Widget Audit', 'type' => 'boolean'],

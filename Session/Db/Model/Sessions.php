@@ -15,7 +15,7 @@ class Sessions extends \Object\Table {
 	public $column_prefix = 'sm_session_';
 	public $columns = [
 		'sm_session_tenant_id' => ['name' => 'Tenant #', 'domain' => 'tenant_id', 'null' => true],
-		'sm_session_id' => ['name' => 'Session #', 'type' => 'varchar', 'length' => 40],
+		'sm_session_id' => ['name' => 'Session #', 'domain' => 'session_id'],
 		'sm_session_started' => ['name' => 'Datetime Started', 'type' => 'timestamp'],
 		'sm_session_expires' => ['name' => 'Datetime Expires', 'type' => 'timestamp'],
 		'sm_session_last_requested' => ['name' => 'Datetime Last Requested', 'type' => 'timestamp'],
@@ -25,6 +25,7 @@ class Sessions extends \Object\Table {
 		'sm_session_data' => ['name' => 'Session Data', 'type' => 'text', 'null' => true],
 		'sm_session_country_code' => ['name' => 'Country Code', 'domain' => 'country_code', 'null' => true],
 		'sm_session_request_count' => ['name' => 'Request Count', 'domain' => 'counter', 'default' => 0],
+		'sm_session_bearer_token' => ['name' => 'Bearer Token', 'domain' => 'token', 'null' => true],
 	];
 	public $constraints = [
 		'sm_sessions_pk' => ['type' => 'pk', 'columns' => ['sm_session_id']],

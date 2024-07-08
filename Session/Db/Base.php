@@ -82,6 +82,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				'sm_session_data' => $data,
 				'sm_session_country_code' => $_SESSION['numbers']['ip']['country_code'] ?? null,
 				'sm_session_request_count;=;~~' => 'sm_session_request_count + 1',
+				'sm_session_bearer_token' => \Application::get('flag.global.__bearer_token') ?? null,
 			])
 			->where('AND', ['sm_session_id', '=', $id])
 			->query();
@@ -100,6 +101,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 					'sm_session_data',
 					'sm_session_country_code',
 					'sm_session_request_count',
+					'sm_session_bearer_token'
 				])
 				->values([[
 					'sm_session_id' => $id,
@@ -113,6 +115,7 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 					'sm_session_data' => $data,
 					'sm_session_country_code' => $_SESSION['numbers']['ip']['country_code'] ?? null,
 					'sm_session_request_count' => 1,
+					'sm_session_bearer_token' => \Application::get('flag.global.__bearer_token') ?? null,
 				]])
 				->query();
 		}
@@ -126,7 +129,8 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				'sm_sessips_user_id',
 				'sm_sessips_user_ip',
 				'sm_sessips_pages_count',
-				'sm_sessips_request_count'
+				'sm_sessips_request_count',
+				'sm_sessips_bearer_token',
 			])
 			->values([[
 				'sm_sessips_tenant_id' => \Tenant::id(),
@@ -135,7 +139,8 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				'sm_sessips_user_id' => \User::id() ?? 0,
 				'sm_sessips_user_ip' => $_SESSION['numbers']['ip']['ip']  ?? \Request::ip(),
 				'sm_sessips_pages_count' => $inc,
-				'sm_sessips_request_count' => 1
+				'sm_sessips_request_count' => 1,
+				'sm_sessips_bearer_token' => \Application::get('flag.global.__bearer_token') ?? null,
 			]])
 			->query();
 		return $result['affected_rows'] ? true : false;
@@ -177,7 +182,9 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 				'sm_sesshist_user_id',
 				'sm_sesshist_tenant_id',
 				'sm_sesshist_country_code',
-				'sm_sesshist_request_count'
+				'sm_sesshist_request_count',
+				'sm_sesshist_session_id',
+				'sm_sesshist_bearer_token',
 			])
 			->values(function(& $subquery) use ($expire) {
 				$subquery = \Numbers\Backend\Session\Db\Model\Sessions::queryBuilderStatic(['skip_tenant' => true, 'skip_acl' => true])
@@ -190,7 +197,9 @@ class Base implements \Numbers\Backend\Session\Interface2\Base {
 						'sm_sesshist_user_id' => 'a.sm_session_user_id',
 						'sm_sesshist_tenant_id' => 'a.sm_session_tenant_id',
 						'sm_sesshist_country_code' => 'a.sm_session_country_code',
-						'sm_sesshist_request_count' => 'a.sm_session_request_count'
+						'sm_sesshist_request_count' => 'a.sm_session_request_count',
+						'sm_sesshist_session_id' => 'a.sm_session_id',
+						'sm_sesshist_bearer_token' => 'a.sm_session_bearer_token',
 					])
 					->where('AND', ['sm_session_expires', '<', $expire]);
 			})

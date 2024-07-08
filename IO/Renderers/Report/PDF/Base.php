@@ -76,7 +76,7 @@ class Base {
 					}
 					$pdf->SetFont($v['options']['font_family'] ?? $pdf->__options['font']['family'], self::$style[$v['options']['font_style'] ?? ''], $v['options']['font_size'] ?? $pdf->__options['font']['size']);
 					$pdf->SetXY($v['x'], $v['y']);
-					$cells = $pdf->MultiCell($v['w'], $v['h'], $v['text'], $v['options']['border'] ?? 1, self::$aligns[$v['options']['align'] ?? 'left'], 1, 0, '', '', true);
+					$cells = $pdf->MultiCell($v['w'], $v['h'], $v['text'] . '', $v['options']['border'] ?? 1, self::$aligns[$v['options']['align'] ?? 'left'], 1, 0, '', '', true);
 					if (($v['y'] + $v['h']) > $page_y) {
 						$page_y = $v['y'] + $v['h'];
 					}
@@ -97,7 +97,7 @@ class Base {
 							$pdf->SetXY($options['margin_x'], $page_y);
 							$pdf->MultiCell(50, 10, $k8 . ':', 0, 'L', 1, 0, '', '', true, 0, false, false, 50, 'T');
 							$pdf->SetXY(60, $page_y);
-							$cell_number = $pdf->MultiCell($pdf->getPageWidth() - 75, 10, $v8, 0, 'L', 1, 0, '', '', true, 0, false, false, 50, 'T');
+							$cell_number = $pdf->MultiCell($pdf->getPageWidth() - 75, 10, $v8 . '', 0, 'L', 1, 0, '', '', true, 0, false, false, 50, 'T');
 							$page_y+= 5 * $cell_number;
 						}
 						$page_y+= 5;
@@ -149,7 +149,7 @@ class Base {
 					if (empty($object->data[$report_name]['header_options'][$header_name]['skip_rendering'])) {
 						$align = 'left';
 						$pdf->SetXY($start, $page_y + 2.5);
-						$temp = $pdf->MultiCell($object->data[$report_name]['header'][$header_name][$k2]['__mm'] + 2, 10, strip_tags2($object->data[$report_name]['header'][$header_name][$k2]['__label_name']), 0, $align, false, 1, '', '', true, 0, false, true, 0, 'T', false);
+						$temp = $pdf->MultiCell($object->data[$report_name]['header'][$header_name][$k2]['__mm'] + 2, 10, strip_tags2($object->data[$report_name]['header'][$header_name][$k2]['__label_name']) . '', 0, $align, false, 1, '', '', true, 0, false, true, 0, 'T', false);
 						if ($temp > $max_cells) {
 							$max_cells = $temp;
 						}
@@ -211,7 +211,7 @@ class Base {
 				$pdf->SetFont($pdf->__options['font']['family'], '', $pdf->__options['font']['size']);
 				$pdf->SetTextColorArray(hex2rgb('#000000'));
 				$pdf->SetXY($options['margin_x'], $page_y + 2.5);
-				$temp = $pdf->MultiCell(0, 10, strip_tags2($row_data[4]), 0, 'L', false, 1, '', '', true, 0, false, true, 0, 'T', false);
+				$temp = $pdf->MultiCell(0, 10, strip_tags2($row_data[4]) . '', 0, 'L', false, 1, '', '', true, 0, false, true, 0, 'T', false);
 				if ($temp > $cell_counter) {
 					$cell_counter = $temp;
 				}
@@ -347,13 +347,24 @@ class Base {
 							$border['L'] = ['width' => $pdf->pixelsToUnits(str_replace('px', '', $temp[0])), 'cap' => 'butt', 'join' => 'miter', 'dash' => $temp[1] == 'solid' ? 0 : 1, 'color' => \HTML::color2rgb($temp[2])];
 						}
 						// render cell
-						$temp = $pdf->MultiCell($v2['__mm'], 10, strip_tags2($value), $border ? $border : 0, $align, false, 1, '', '', true, 0, false, true, 0, 'T', false);
+						$temp = $pdf->MultiCell($v2['__mm'], 10, strip_tags2($value) ?? '', $border ? $border : 0, $align, false, 1, '', '', true, 0, false, true, 0, 'T', false);
 						if ($temp > $cell_counter) {
 							$cell_counter = $temp;
 						}
 						// reset cell padddings
 						$pdf->setCellPaddings(0, 0, 0, 0);
 					}
+					// render cell
+					/*
+					$pdf->SetXY($v2['__start'], $page_y + 2.5);
+					if (is_array($value)) {
+						$value = $value['value'] ?? '';
+					}
+					$temp = $pdf->MultiCell($v2['__mm'], 10, strip_tags2($value) . '', 0, $align, false, 1, '', '', true, 0, false, true, 0, 'T', false);
+					if ($temp > $cell_counter) {
+						$cell_counter = $temp;
+					}
+					*/
 				}
 				// left / right lines
 				foreach ($header as $k2 => $v2) {

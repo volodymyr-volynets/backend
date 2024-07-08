@@ -13,7 +13,9 @@ class Base extends \Numbers\Backend\Crypt\Common\Base {
 	 */
 	public function __construct(string $crypt_link, array $options = []) {
 		$this->crypt_link = $crypt_link;
-		$this->key = $options['key'] ?? sha1('key');
+		$this->token_key = $options['token_key'] ?? sha1('key');
+		$this->encryption_key = $options['encryption_key'] ?? sha1('key');
+		$this->bearer_key = $options['bearer_key'] ?? sha1('bearer');
 		$this->salt = $options['salt'] ?? 'salt';
 		$this->hash = $options['hash'] ?? 'sha1';
 		$this->cipher = $options['cipher'] ?? 'aes256'; // its a string encryption method for openssl
@@ -32,7 +34,7 @@ class Base extends \Numbers\Backend\Crypt\Common\Base {
 	public function encrypt(string $data) : string {
 		$ivlen = openssl_cipher_iv_length($this->cipher);
 		$iv = openssl_random_pseudo_bytes($ivlen);
-		$encrypted = $iv . openssl_encrypt($data, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
+		$encrypted = $iv . openssl_encrypt($data, $this->cipher, $this->encryption_key, OPENSSL_RAW_DATA, $iv);
 		if ($this->base64) {
 			return base64_encode($encrypted);
 		} else {
@@ -52,7 +54,7 @@ class Base extends \Numbers\Backend\Crypt\Common\Base {
 		$ivlen = openssl_cipher_iv_length($this->cipher);
 		$iv = substr($decoded, 0, $ivlen);
 		$decoded = substr($decoded, $ivlen);
-		return openssl_decrypt($decoded, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
+		return openssl_decrypt($decoded, $this->cipher, $this->encryption_key, OPENSSL_RAW_DATA, $iv);
 	}
 
 	/**

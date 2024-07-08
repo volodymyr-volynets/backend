@@ -78,7 +78,8 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 		$result = [
 			'success' => false,
 			'error' => [],
-			'data' => null
+			'data' => null,
+			'time' => microtime(true),
 		];
 		do {
 			// load cookie
@@ -93,8 +94,8 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 			$cookie_data = $this->storageConvert('get', $cookie_data);
 			// remove cookie files if expired
 			if ($cookie_data['expire'] < time()) {
-				@unlink($cookie_name);
-				@unlink($cookie_data['file']);
+				\Helper\File::delete($cookie_name);
+				\Helper\File::delete($cookie_data['file']);
 				break;
 			}
 			// load cache file
@@ -107,6 +108,18 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 			$result['data'] = $this->storageConvert('get', $cache_data);
 			$result['success'] = true;
 		} while(0);
+		// log
+		$error_message = $result['error'] ? (', error' . implode(', ', $result['error'])) : '';
+		\Log::add([
+			'type' => 'Cache',
+			'only_chanel' => 'default',
+			'message' => 'Getting item from cache: ' . $cache_id . $error_message,
+			'affected_rows' => isset($result['data']['rows']) ? count($result['data']['rows']) : 0,
+			'error_rows' => $result['error'] ? 1 : 0,
+			'trace' => $result['error'] ? \Object\Error\Base::debugBacktraceString(null, ['skip_params' => true]) : null,
+			'duration' => microtime(true) - $result['time'],
+			'operation' => 'GET',
+		]);
 		return $result;
 	}
 
@@ -151,6 +164,17 @@ class Base extends \Numbers\Backend\Cache\Common\Base {
 			// success if we got here
 			$result['success'] = true;
 		} while(0);
+		// log
+		$error_message = $result['error'] ? (', error' . implode(', ', $result['error'])) : '';
+		\Log::add([
+			'type' => 'Cache',
+			'only_chanel' => 'default',
+			'message' => 'Setting item in cache: ' . $cache_id . $error_message,
+			'affected_rows' => isset($data['rows']) && is_array($data['rows']) ? count($data['rows']) : 0,
+			'error_rows' => $result['error'] ? 1 : 0,
+			'trace' => $result['error'] ? \Object\Error\Base::debugBacktraceString(null, ['skip_params' => true]) : null,
+			'operation' => 'SET',
+		]);
 		return $result;
 	}
 
@@ -212,6 +236,13 @@ delete:
 			// success if we got here
 			$result['success'] = true;
 		}
+		// log
+		\Log::add([
+			'type' => 'Cache',
+			'only_chanel' => 'default',
+			'message' => 'Garbage collect in cache: ' . ($result['success'] ? 'success' : 'fail'),
+			'operation' => 'GC',
+		]);
 		return $result;
 	}
 }

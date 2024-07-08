@@ -69,8 +69,8 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			$result['version'] = pg_version($connection);
 			$result['status'] = pg_connection_status($connection) === PGSQL_CONNECTION_OK ? 1 : 0;
 			// set settings
-			$this->query("SET TIME ZONE '" . \Application::get('php.date.timezone') . "';");
-			$this->query('SET search_path = "$user",public,extensions;');
+			$this->query("SET TIME ZONE '" . \Application::get('php.date.timezone') . "';", null, ['cache' => false]);
+			$this->query('SET search_path = "$user",public,extensions;', null, ['cache' => false]);
 			// db goes into options for future reuse
 			$this->options['connection'] = $options;
 			$this->options['connection']['string'] = $str;
@@ -162,8 +162,9 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 			'backtrace' => null
 		];
 		// if query caching is enabled
-		if (!empty($this->options['cache_link'])) {
-			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'Db_Query_' . trim(sha1($sql . serialize($key)));
+		$query_id = 'Db_Query_' . trim(sha1($sql . serialize($key)));
+		if (!empty($this->options['cache_link']) && \Cache::initialized($this->options['cache_link'])) {
+			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : $query_id;
 			// if we cache this query
 			if (!empty($options['cache'])) {
 				// memory caching
@@ -264,6 +265,19 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 				\Cache::$memory_storage[$cache_id] = & $result;
 			}
 		}
+		// log
+		$error_message = $result['error'] ? (', error: ' . $result['errno'] . ' ' . implode(', ', $result['error'])) : '';
+		\Log::add([
+			'type' => 'Db Query',
+			'only_chanel' => 'default',
+			'message' => 'Executing query: ' . $query_id . $error_message,
+			'affected_rows' => $result['affected_rows'],
+			'error_rows' => $result['error'] ? 1 : 0,
+			'trace' => $result['error'] ? \Object\Error\Base::debugBacktraceString(null, ['skip_params' => true]) : null,
+			'operation' => str_assemble_until($sql),
+			'duration' => $result['time'],
+			'sql' => $sql,
+		]);
 		// if we are debugging
 		if (\Debug::$debug) {
 			\Debug::$data['sql'][] = $result;
@@ -515,6 +529,9 @@ TTT;
 				if (empty($options['min'])) $options['min'] = 1000;
 				if (empty($options['max'])) $options['max'] = 9999;
 				$result = "({$options['min']} + RANDOM() * ({$options['max']} - {$options['min']}))::integer";
+				break;
+			case 'rand':
+				$result = 'RANDOM()';
 				break;
 			// geo functions
 			case 'ST_Point':
@@ -830,6 +847,11 @@ TTT;
 				}
 				break;
 			case 'select':
+				// create view
+				if (!empty($object->data['view'])) {
+					$temporary = !empty($object->data['view']['temporary']) ? 'TEMPORARY' : '';
+					$sql.= "CREATE OR REPLACE {$temporary} VIEW {$object->data['view']['name']} AS\n";
+				}
 				// temporary table first
 				if (!empty($object->data['temporary_table'])) {
 					$sql.= "CREATE TEMP TABLE {$object->data['temporary_table']} AS\n";

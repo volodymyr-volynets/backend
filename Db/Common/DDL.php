@@ -95,7 +95,8 @@ class DDL {
 		$result = [
 			'success' => false,
 			'error' => [],
-			'hint' => []
+			'hint' => [],
+			'extra_models' => [],
 		];
 		do {
 			// model
@@ -187,6 +188,22 @@ class DDL {
 					'full_table_name' => $model->full_table_name
 				]
 			], $model->db_link);
+			// if we have generated tables like periods
+			if ($model->periods['type'] != 'none') {
+				$reflector = new \ReflectionClass($model);
+				$pathinfo = pathinfo($reflector->getFileName(), PATHINFO_ALL);
+				$generated_classes = \Helper\File::iterate($pathinfo['dirname'], [
+					'files_start_with' => $reflector->getShortName() . 'Generated',
+					'only_extensions' => ['php'],
+					'only_file_names' => true,
+					'strip_extension' => true,
+					'sort_files' => true,
+				]);
+				foreach ($generated_classes as $generated_short_name) {
+					$this->processTableModel('\\' . $reflector->getNamespaceName() . '\\' . $generated_short_name, [$options]);
+					$result['extra_models'][] = '\\' . $reflector->getNamespaceName() . '\\' . $generated_short_name;
+				}
+			}
 			// history
 			/* todo, refactor
 			if ($model->history) {
