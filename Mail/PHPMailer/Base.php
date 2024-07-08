@@ -67,7 +67,10 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 		// smtp
 		$smtp = \Application::get('flag.global.mail.delivery.smtp');
 		if (!empty($smtp)) {
-			//$mail->SMTPDebug = SMTP::DEBUG_SERVER;
+			// if we are debuging
+			if (\Application::get('debug.mail_smtp')) {
+				$mail->SMTPDebug = SMTP::DEBUG_SERVER;
+			}
 			$mail->isSMTP();
 			$mail->Host = $smtp['host'];
 			$mail->Port = $smtp['port'];
@@ -104,9 +107,9 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 		// body
 		if ($calendar_invite) {
 			$mail->Body = $calendar_message;
-			$mail->ContentType = 'text/calendar; charset=UTF-8';
-			$mail->addCustomHeader('MIME-version', '1.0');
-			$mail->addCustomHeader('Content-type', 'text/calendar; name=event.ics; method=REQUEST; charset=UTF-8');
+			$mail->ContentType = 'text/calendar; name=event.ics; method=REQUEST; charset=UTF-8';
+			//$mail->addCustomHeader('MIME-version', '1.0');
+			//$mail->addCustomHeader('Content-type', 'text/calendar; name=event.ics; method=REQUEST; charset=UTF-8');
 			$mail->addCustomHeader('Content-Transfer-Encoding', '7bit');
 			$mail->addCustomHeader('X-Mailer', 'Microsoft Office Outlook 12.0');
 			$mail->addCustomHeader('Content-class: urn:content-classes:calendarmessage');
@@ -131,7 +134,7 @@ class Base extends \Numbers\Backend\Mail\Common\Base implements \Numbers\Backend
 		try {
 			$mail->send();
 			$result['success'] = true;
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$result['error'][] = 'Could not deliver mail! ' . $mail->ErrorInfo;
 			error_log('PHPMailer error: ' . $mail->ErrorInfo, 0);
 		}

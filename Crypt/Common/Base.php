@@ -25,6 +25,13 @@ abstract class Base {
 	public $token_key;
 
 	/**
+	 * Key (Baerer)
+	 *
+	 * @var string
+	 */
+	public $bearer_key;
+
+	/**
 	 * Cipher
 	 *
 	 * @var string
@@ -246,5 +253,79 @@ abstract class Base {
 	 */
 	public function passwordVerify($password, $hash) {
 		return password_verify($password, $hash);
+	}
+
+	/**
+	 * Bearer authorization token create
+	 *
+	 * @param int|null $user_id
+	 * @param int|null $tenant_id
+	 * @param string|null $ip
+	 * @param string|null $session_id
+	 * @return string
+	 */
+	public function bearerAuthorizationTokenCreate(?int $user_id = null, ?int $tenant_id = null, ?string $ip = null, ?string $session_id = null) : string {
+		if ($tenant_id === null) {
+			$tenant_id = \Tenant::id() ?? 0;
+		}
+		if (!$ip) {
+			$ip = \Request::ip();
+		}
+		if ($user_id === null) {
+			$user_id = \User::id();
+		}
+		if ($session_id === null) {
+			$session_id = session_id();
+			if (empty($session_id)) {
+				$session_id = str_pad('', 32, '0', STR_PAD_LEFT);
+			}
+		}
+		$microtime = explode(" ", microtime());
+		$id = sprintf('%04x-%08s-%08s-%04s-%08s',
+			$tenant_id,
+			dechex(ip2long($ip)),
+			substr("00000000" . dechex($microtime[1]), -8),
+			substr("0000" . dechex(round($microtime[0] * 65536)), -4),
+			str_pad($user_id . '', 8, '0', STR_PAD_LEFT),
+		);
+		return $id . '!' . $session_id . '!' . self::hash($id . $session_id . $this->bearer_key);
+	}
+
+	/**
+	 * Bearer authorization token validate
+	 *
+	 * @param string $token
+	 * @return bool
+	 */
+	public function bearerAuthorizationTokenValidate(string $token) : bool {
+		$temp = explode('!', $token);
+		return self::hash($temp[0] . $temp[1] . $this->bearer_key) === ($temp[2] ?? '');
+	}
+
+	/**
+	 * Bearer authorization token decode
+	 *
+	 * @param string $token
+	 * @return array
+	 */
+	public function bearerAuthorizationTokenDecode(string $token) : array {
+		$result = [];
+		$token_parts = explode('!', $token);
+		$parts = explode('-', $token_parts[0]);
+		if (is_array($parts) && count($parts) == 5) {
+			$result = [
+				'tenant_id' => (int) $parts[0],
+				'ip' => long2ip(hexdec($parts[1])),
+				'unixtime' => hexdec($parts[2]),
+				'micro' => hexdec($parts[3]) / 65536,
+				'user_id' => (int) $parts[4],
+				// other
+				'id' => $token_parts[0],
+				'hash' => $token_parts[2] ?? null,
+				'valid' => $this->bearerAuthorizationTokenValidate($token),
+				'session_id' => $token_parts[1] ?? null,
+			];
+		}
+		return $result;
 	}
 }

@@ -30,6 +30,8 @@ class Resources extends \Object\Table {
 		'sm_resource_group7_name' => ['name' => 'Group 7', 'domain' => 'name', 'null' => true],
 		'sm_resource_group8_name' => ['name' => 'Group 8', 'domain' => 'name', 'null' => true],
 		'sm_resource_group9_name' => ['name' => 'Group 9', 'domain' => 'name', 'null' => true],
+		'sm_resource_version_code' => ['name' => 'Version Code', 'domain' => 'version_code', 'null' => true],
+		'sm_resource_api_method_counter' => ['name' => 'API Method Counter', 'domain' => 'counter', 'default' => 0],
 		// acl
 		'sm_resource_acl_public' => ['name' => 'Acl Public', 'type' => 'boolean'],
 		'sm_resource_acl_authorized' => ['name' => 'Acl Authorized', 'type' => 'boolean'],
@@ -88,4 +90,20 @@ class Resources extends \Object\Table {
 		'protection' => 1,
 		'scope' => 'global'
 	];
+
+	/**
+	 * @see $this->options()
+	 */
+	public function optionsColumnSettings($options) {
+		$query = $this->queryBuilder(['alias' => 'a'])
+			->select()
+			->columns([
+				'name' => $options['where']['__column']
+			])
+			->distinct()
+			->where('AND', [$options['where']['__column'], 'IS NOT', null])
+			->where('AND', ['sm_resource_type', '=', $options['where']['sm_resource_type']])
+			->orderby(['name' => SORT_ASC]);
+		return $query->query('name')['rows'];
+	}
 }

@@ -170,8 +170,9 @@ processError:
 			'backtrace' => null
 		];
 		// if query caching is enabled
+		$query_id = 'Db_Query_' . trim(sha1($sql . serialize($key)));
 		if (!empty($this->options['cache_link'])) {
-			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : 'Db_Query_' . trim(sha1($sql . serialize($key)));
+			$cache_id = !empty($options['cache_id']) ? $options['cache_id'] : $query_id;
 			// if we cache this query
 			if (!empty($options['cache'])) {
 				$cache_object = new \Cache($this->options['cache_link']);
@@ -269,6 +270,19 @@ processError:
 			$result['cache'] = true;
 			$cache_object->set($cache_id, $result, null, $options['cache_tags'] ?? []);
 		}
+		// log
+		$error_message = $result['error'] ? (', error: ' . $result['errno'] . ' ' . implode(',', $result['error'])) : '';
+		\Log::add([
+			'type' => 'Db Query',
+			'only_chanel' => 'default',
+			'message' => 'Executing query: ' . $query_id . $error_message,
+			'affected_rows' => $result['affected_rows'],
+			'error_rows' => $result['error'] ? 1 : 0,
+			'trace' => $result['error'] ? \Object\Error\Base::debugBacktraceString(null, ['skip_params' => true]) : null,
+			'duration' => $result['time'],
+			'operation' => str_assemble_until($sql),
+			'sql' => $sql,
+		]);
 		// if we are debugging
 		if (\Debug::$debug) {
 			\Debug::$data['sql'][] = $result;

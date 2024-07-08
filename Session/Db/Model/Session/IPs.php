@@ -15,12 +15,13 @@ class IPs extends \Object\Table {
 	public $column_prefix = 'sm_sessips_';
 	public $columns = [
 		'sm_sessips_tenant_id' => ['name' => 'Tenant #', 'domain' => 'tenant_id', 'null' => true],
-		'sm_sessips_session_id' => ['name' => 'Session #', 'type' => 'varchar', 'length' => 40],
+		'sm_sessips_session_id' => ['name' => 'Session #', 'domain' => 'session_id'],
 		'sm_sessips_last_requested' => ['name' => 'Datetime Last Requested', 'type' => 'timestamp'],
 		'sm_sessips_user_id' => ['name' => 'User #', 'domain' => 'user_id', 'null' => true],
 		'sm_sessips_user_ip' => ['name' => 'User IP', 'domain' => 'ip'],
 		'sm_sessips_pages_count' => ['name' => 'Pages Count', 'domain' => 'counter'],
 		'sm_sessips_request_count' => ['name' => 'Request Count', 'domain' => 'counter', 'default' => 0],
+		'sm_sessips_bearer_token' => ['name' => 'Bearer Token', 'domain' => 'token', 'null' => true],
 	];
 	public $constraints = [];
 	public $indexes = [

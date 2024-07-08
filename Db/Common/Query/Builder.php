@@ -52,8 +52,12 @@ class Builder {
 		'primary_key' => null,
 		'comment' => '',
 		'with' => [],
+		'relation' => [],
+		'scope' => [],
 		'cascade' => false,
-		'dblink_as' => []
+		'dblink_as' => [],
+		'pivot' => [],
+		'view' => [],
 	];
 
 	/**
@@ -187,12 +191,88 @@ class Builder {
 	}
 
 	/**
+	 * View, create new view from a query
+	 *
+	 * @param string $name
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function view(string $name, bool $temporary = false) : \Numbers\Backend\Db\Common\Query\Builder {
+		$this->data['operator'] = 'select';
+		$this->data['view'] = [
+			'name' => $name,
+			'temporary' => $temporary,
+		];
+		return $this;
+	}
+
+	/**
 	 * Cascade
 	 *
 	 * @return \Numbers\Backend\Db\Common\Query\Builder
 	 */
 	public function cascade() : \Numbers\Backend\Db\Common\Query\Builder {
 		$this->data['cascade'] = true;
+		return $this;
+	}
+
+	/**
+	 * With (relation)
+	 *
+	 * @param array|string $relations
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function withRelation(array|string $relations) : \Numbers\Backend\Db\Common\Query\Builder {
+		if (is_string($relations)) {
+			$relations = [$relations];
+		}
+		foreach ($relations as $k => $v) {
+			if (is_numeric($k)) {
+				$k = str_replace('.', '', $v);
+			}
+			$parts = explode('.', $v);
+			$assembled = [];
+			foreach ($parts as $part) {
+				$assembled[]= $part;
+				$this->data['relation'][$k . '::' . implode('.', $assembled)] = $assembled;
+			}
+		}
+		return $this;
+	}
+
+	public function withPivot(array $pivots) : \Numbers\Backend\Db\Common\Query\Builder {
+
+		return $this;
+	}
+
+	/**
+	 * With (scope)
+	 *
+	 * @param array $scopes
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function withScope(array|string $scopes) : \Numbers\Backend\Db\Common\Query\Builder {
+		$scopes = array_arguments(func_get_args());
+		foreach ($scopes as $k => $v) {
+			if (is_numeric($k)) {
+				$skip = $v[0] == '!';
+				if ($skip) {
+					$v = ltrim($v, '!');
+				}
+				$scope = ['name' => $v, 'skip' => $skip, 'options' => []];
+			} else {
+				$skip = $k[0] == '!';
+				if ($skip) {
+					$k = ltrim($k, '!');
+				}
+				$scope = ['name' => $k, 'options' => $v];
+			}
+			if (method_exists($this->primary_model, 'scope' . $scope['name'] . 'Global')) {
+				$scope['name'].= 'Global';
+			} else if (!method_exists($this->primary_model, 'scope' . $scope['name'])) {
+				Throw new \Exception("Scope {$scope['name']} does not exists!");
+			}
+			$this->data['scope'][$scope['name']] = $scope;
+		}
 		return $this;
 	}
 
@@ -231,6 +311,8 @@ class Builder {
 	 *
 	 * @param mixed $columns
 	 * @param array $options
+	 * 		empty_existing - if we neeed to empty column list
+	 * 		prefix - as prefix for column
 	 * @return \Numbers\Backend\Db\Common\Query\Builder
 	 */
 	public function columns($columns, array $options = []) : \Numbers\Backend\Db\Common\Query\Builder {
@@ -245,6 +327,9 @@ class Builder {
 				if (is_numeric($k)) {
 					array_push($this->data['columns'], $v);
 				} else {
+					if (isset($options['prefix']) && !str_starts_with($k, $options['prefix'])) {
+						$k = rtrim($options['prefix'], '_') . '_' . $k;
+					}
 					$this->data['columns'][$k] = $v;
 				}
 			}
@@ -282,7 +367,7 @@ class Builder {
 	public function from($table, $alias = null) : \Numbers\Backend\Db\Common\Query\Builder {
 		// add based on alias
 		if (!empty($alias)) {
-			$this->data['from'][$alias] = $this->singleFromClause($table);
+			$this->data['from'][$alias] = $this->singleFromClause($table, $alias);
 		} else {
 			array_push($this->data['from'], $this->singleFromClause($table));
 		}
@@ -340,6 +425,37 @@ class Builder {
 		} else {
 			array_push($this->data['join'], $join);
 		}
+		return $this;
+	}
+
+	/**
+	 * Pivot
+	 *
+	 * @param string $type
+	 * @param mixed $table
+	 * @param mixed $alias
+	 * @param string $on
+	 * @param mixed $conditions
+	 * @param string $name
+	 * @param array $columns
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function pivot(string $type, $table, $alias, string $on = 'ON', $conditions = null, string $name = 'Pivot', array $columns = []) : \Numbers\Backend\Db\Common\Query\Builder {
+		$this->join($type, $table, $alias, $on, $conditions);
+		if (empty($columns) && is_object($table) && is_a($table, 'Object\Table')) {
+			$columns = array_keys($table->columns);
+		}
+		if (is_numeric_key_array($columns)) {
+            $columns = array_combine($columns, $columns);
+        }
+		$prefix = 'pivot_' . strtolower($name) . '_';
+		array_key_prefix_and_suffix($columns, $prefix, null, false, true);
+		$this->columns($columns);
+		$this->data['pivot'][$name] = [
+			'table' => $table,
+			'prefix' => $prefix,
+			'columns' => $columns,
+		];
 		return $this;
 	}
 
@@ -673,6 +789,16 @@ class Builder {
 	}
 
 	/**
+	 * Order in random
+	 *
+	 * @return \Numbers\Backend\Db\Common\Query\Builder
+	 */
+	public function orderInRandom() : \Numbers\Backend\Db\Common\Query\Builder {
+		$random = $this->db_object->object->sqlHelper('rand');
+		return $this->orderby([$random => SORT_ASC]);
+	}
+
+	/**
 	 * Group by
 	 *
 	 * @param array $orderby
@@ -694,6 +820,16 @@ class Builder {
 	 * @return array
 	 */
 	private function render() : array {
+		// we need to proceess scopes last because we can disable global scopes in queries
+		if (count($this->data['scope'])) {
+			foreach ($this->data['scope'] as $scope) {
+				if ($scope['skip']) {
+					continue;
+				}
+				/** @var $this->primary_model \Object\Table */
+				$this->primary_model->{'scope' . $scope['name']}($this, $scope['options']);
+			}
+		}
 		return $this->db_object->object->queryBuilderRender($this);
 	}
 
@@ -769,11 +905,17 @@ class Builder {
 	/**
 	 * SQL
 	 *
-	 * @return string|array
+	 * @param bbool $return
+	 * @return mixed
 	 */
-	public function sql() {
+	public function sql(bool $return = true) {
 		$result = $this->render();
-		return $result['sql'];
+		if ($return) {
+			return $result['sql'];
+		} else {
+			print_r2($result['sql']);
+			return $this;
+		}
 	}
 
 	/**
@@ -786,10 +928,39 @@ class Builder {
 	public function query($pk = null, array $options = []) : array {
 		$result = $this->render();
 		if ($result['success']) {
-			return $this->db_object->query($result['sql'], $pk, $options);
+			$main_query = $this->db_object->query($result['sql'], $pk, $options);
+			if (!empty($main_query['rows']) && !empty($this->data['relation'])) {
+				foreach ($this->data['relation'] as $k => $v) {
+					$first_with = array_shift($v);
+					if (!method_exists($this->primary_model, 'relation' . $first_with)) {
+						Throw new \Exception("Relation $first_with does not exists!");
+					}
+					$relation_options = [
+						'alias' => 'relation_' . str_replace('.', '_', strtolower($first_with)),
+						'relation_name' => $first_with,
+						'relation_key' => explode('::', $k)[0],
+						'relation_children' => implode('.', $v),
+					];
+					/** @var \Object\Table */
+					$this->primary_model->{'relation' . $first_with}($main_query['rows'], $relation_options);
+				}
+			}
+			return $main_query;
 		} else {
 			Throw new \Exception(implode(', ', $result['error']));
 		}
+	}
+
+	/**
+	 * Array2
+	 *
+	 * @param array $options
+	 * @param mixed $pk
+	 * @return Array2
+	 */
+	public function array2($pk = null, array $options = []) : \Array2 {
+		$result = $this->query($pk, $options);
+		return new \Array2($result['rows']);
 	}
 
 	/**

@@ -134,6 +134,15 @@ run_again:
 				goto run_again; // some widgets have attributes
 			}
 			$dep['data']['model_processed'] = array_merge_hard($dep['data']['model_processed'], $virtual_models);
+			// override imports
+			$override_imports = \Helper\File::iterate('./Overrides/Imports', [
+				'only_extensions' => ['php'],
+				'only_file_names' => true,
+				'strip_extension' => true,
+			]);
+			foreach ($override_imports as $v) {
+				$dep['data']['model_processed']["\Overrides\Imports\\$v"] = '\Object\Import';
+			}
 			// run 2
 			foreach ($dep['data']['model_processed'] as $k => $v) {
 				$k2 = str_replace('.', '_', $k);
@@ -149,6 +158,7 @@ run_again:
 						'sm_model_name' => $model->title,
 						'sm_model_module_code' => $model->module_code,
 						'sm_model_tenant' => $model->tenant ?? 0,
+						'sm_model_period' => false,
 						// widgets
 						'sm_model_widget_attributes' => !empty($model->attributes) ? 1 : 0,
 						'sm_model_widget_audit' => !empty($model->audit) ? 1 : 0,
@@ -161,6 +171,30 @@ run_again:
 						'sm_model_optimistic_lock' => !empty($model->optimistic_lock) ? 1 : 0,
 						'sm_model_inactive' => 0
 					];
+					// additional models
+					if (!empty($temp_result['extra_models'])) {
+						foreach ($temp_result['extra_models'] as $k3) {
+							$extra_model = \Factory::model($k3, false, [$options]);
+							$result['data']['\Object\Models'][$k3] = [
+								'sm_model_code' => $k3,
+								'sm_model_name' => $extra_model->title,
+								'sm_model_module_code' => $extra_model->module_code,
+								'sm_model_tenant' => $extra_model->tenant ?? 0,
+								'sm_model_period' => $extra_model->is_period_table,
+								// widgets
+								'sm_model_widget_attributes' => !empty($extra_model->attributes) ? 1 : 0,
+								'sm_model_widget_audit' => !empty($extra_model->audit) ? 1 : 0,
+								'sm_model_widget_addressees' => !empty($extra_model->addresses) ? 1 : 0,
+								// data asset
+								'sm_model_da_classification' => $extra_model->data_asset['classification'],
+								'sm_model_da_protection' => $extra_model->data_asset['protection'],
+								'sm_model_da_scope' => $extra_model->data_asset['scope'],
+								// other
+								'sm_model_optimistic_lock' => !empty($extra_model->optimistic_lock) ? 1 : 0,
+								'sm_model_inactive' => 0
+							];
+						}
+					}
 					//$object_documentation[$v][$k2] = $k2;
 				} else if ($v == '\Object\Sequence') {
 					$temp_result = $ddl->processSequenceModel($k2, $options);
