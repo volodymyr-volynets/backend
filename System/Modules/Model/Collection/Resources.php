@@ -16,6 +16,11 @@ class Resources extends \Object\Collection {
 				'type' => '1M',
 				'map' => ['sm_resource_id' => 'sm_rsrcftr_resource_id'],
 			],
+			'\Numbers\Backend\System\Modules\Model\Resource\Tenants' => [
+				'pk' => ['sm_rsrctenant_resource_id', 'sm_rsrctenant_tenant_code'],
+				'type' => '1M',
+				'map' => ['sm_resource_id' => 'sm_rsrctenant_resource_id'],
+			],
 			'\Numbers\Backend\System\Modules\Model\Resource\APIMethods' => [
 				'pk' => ['sm_rsrcapimeth_resource_id', 'sm_rsrcapimeth_method_code'],
 				'type' => '1M',

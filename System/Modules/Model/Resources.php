@@ -49,6 +49,7 @@ class Resources extends \Object\Table {
 		'sm_resource_template_name' => ['name' => 'Template Name', 'domain' => 'name', 'default' => 'default', 'null' => true],
 		'sm_resource_badge' => ['name' => 'Badge', 'domain' => 'name', 'null' => true],
 		// other
+		'sm_resource_requires_tenants' => ['name' => 'Requires Tenants', 'type' => 'boolean'],
 		'sm_resource_inactive' => ['name' => 'Inactive', 'type' => 'boolean']
 	];
 	public $constraints = [

@@ -90,9 +90,15 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 	 * @return array
 	 */
 	public function close() {
-		if (!empty($this->db_resource)) {
+		// if we do not have connection string we exit
+		if (!isset($this->options['connection']['string'])) {
+			return ['success' => true, 'error' => []];
+		}
+		$hash = sha1($this->options['connection']['string']);
+		if (!empty($this->db_resource) && empty(self::$closed_connections[$hash])) {
 			pg_close($this->db_resource);
-			unset($this->db_resource);
+			$this->db_resource = null;
+			self::$closed_connections[$hash] = true;
 		}
 		return ['success' => true, 'error' => []];
 	}

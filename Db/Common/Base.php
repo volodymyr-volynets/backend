@@ -18,6 +18,13 @@ class Base {
 	private $db_resource;
 
 	/**
+	 * Closed connectionss
+	 *s
+	 * @var array
+	 */
+	protected static $closed_connections = [];
+
+	/**
 	 * Options
 	 *
 	 * @var array
@@ -240,6 +247,8 @@ class Base {
 							$string.= ' ' . $operator . '(' . implode(', ', $this->escapeArray($v, ['quotes' => true])) . ')';
 						}
 						break;
+					case 'STARTS%':
+						$v = $v . '%';
 					case 'LIKE%':
 						$v = '%' . $v . '%';
 					case 'LIKE':

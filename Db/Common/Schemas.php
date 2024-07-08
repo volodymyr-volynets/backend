@@ -24,7 +24,8 @@ class Schemas {
 			'db_query_owner' => null, // insert, update, delete owner
 			'db_query_password' => null,
 			'db_schema_owner' => null, // schema owner
-			'app_structure' => []
+			'app_structure' => [],
+			'tenant_list' => []
 		];
 		// gather credentials to primary master database server
 		$default = \Application::get('db.' . $result['db_link']);
@@ -72,6 +73,15 @@ class Schemas {
 		} else {
 			$result['db_list'] = [$result['db_settings']['dbname']];
 		}
+		// load list of tenants
+		if (isset($options['search_tenant_code'])) {
+			$query = new \Object\Query\Builder($result['db_link'] . '_temp');
+			$query->select();
+			$query->from('tm_tenants', 'a');
+			$query->where('AND', ['a.tm_tenant_code', '=', $options['search_tenant_code']]);
+			$result['tenant_list'] = $query->query('tm_tenant_code')['rows'] ?? [];
+		}
+		// success
 		$result['success'] = true;
 		return $result;
 	}
