@@ -2,152 +2,219 @@
 
 namespace Numbers\Backend\Session\Db\Model;
 class SessionsAR extends \Object\ActiveRecord {
-	/**
-	 * @var string
-	 */
-	public string $object_table_class = \Numbers\Backend\Session\Db\Model\Sessions::class;
 
-	/**
-	 * Constructing object
-	 *
-	 * @param array $options
-	 *		skip_db_object
-	 *		skip_table_object
-	 */
-	public function __construct($options = []) {
-		if (empty($options['skip_table_object'])) {
-			$this->object_table_object = new $this->object_table_class($options);
-		}
-	}
-	/**
-	 * Tenant #
-	 *
-	 *
-	 *
-	 * {domain{tenant_id}}
-	 *
-	 * @var int Domain: tenant_id Type: integer
-	 */
-	public ?int $sm_session_tenant_id = NULL;
 
-	/**
-	 * Session #
-	 *
-	 *
-	 *
-	 * {domain{session_id}}
-	 *
-	 * @var string Domain: session_id Type: varchar
-	 */
-	public ?string $sm_session_id = null;
 
-	/**
-	 * Datetime Started
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var string Type: timestamp
-	 */
-	public ?string $sm_session_started = null;
+    /**
+     * @var string
+     */
+    public string $object_table_class = \Numbers\Backend\Session\Db\Model\Sessions::class;
 
-	/**
-	 * Datetime Expires
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var string Type: timestamp
-	 */
-	public ?string $sm_session_expires = null;
+    /**
+     * @var array
+     */
+    public array $object_table_pk = ['sm_session_id'];
+    /**
+     * Tenant #
+     *
+     *
+     *
+     * {domain{tenant_id}}
+     *
+     * @var int|null Domain: tenant_id Type: integer
+     */
+    public int|null $sm_session_tenant_id = NULL {
+                        get => $this->sm_session_tenant_id;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_tenant_id', $value);
+                            $this->sm_session_tenant_id = $value;
+                        }
+                    }
 
-	/**
-	 * Datetime Last Requested
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var string Type: timestamp
-	 */
-	public ?string $sm_session_last_requested = null;
+    /**
+     * Session #
+     *
+     *
+     *
+     * {domain{session_id}}
+     *
+     * @var string|null Domain: session_id Type: varchar
+     */
+    public string|null $sm_session_id = null {
+                        get => $this->sm_session_id;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_id', $value);
+                            $this->sm_session_id = $value;
+                        }
+                    }
 
-	/**
-	 * Pages Count
-	 *
-	 *
-	 *
-	 * {domain{counter}}
-	 *
-	 * @var int Domain: counter Type: integer
-	 */
-	public ?int $sm_session_pages_count = 0;
+    /**
+     * Datetime Started
+     *
+     *
+     *
+     *
+     *
+     * @var string|null Type: timestamp
+     */
+    public string|null $sm_session_started = null {
+                        get => $this->sm_session_started;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_started', $value);
+                            $this->sm_session_started = $value;
+                        }
+                    }
 
-	/**
-	 * User #
-	 *
-	 *
-	 *
-	 * {domain{user_id}}
-	 *
-	 * @var int Domain: user_id Type: bigint
-	 */
-	public ?int $sm_session_user_id = NULL;
+    /**
+     * Datetime Expires
+     *
+     *
+     *
+     *
+     *
+     * @var string|null Type: timestamp
+     */
+    public string|null $sm_session_expires = null {
+                        get => $this->sm_session_expires;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_expires', $value);
+                            $this->sm_session_expires = $value;
+                        }
+                    }
 
-	/**
-	 * User IP
-	 *
-	 *
-	 *
-	 * {domain{ip}}
-	 *
-	 * @var string Domain: ip Type: varchar
-	 */
-	public ?string $sm_session_user_ip = null;
+    /**
+     * Datetime Last Requested
+     *
+     *
+     *
+     *
+     *
+     * @var string|null Type: timestamp
+     */
+    public string|null $sm_session_last_requested = null {
+                        get => $this->sm_session_last_requested;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_last_requested', $value);
+                            $this->sm_session_last_requested = $value;
+                        }
+                    }
 
-	/**
-	 * Session Data
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var string Type: text
-	 */
-	public ?string $sm_session_data = null;
+    /**
+     * Pages Count
+     *
+     *
+     *
+     * {domain{counter}}
+     *
+     * @var int|null Domain: counter Type: integer
+     */
+    public int|null $sm_session_pages_count = 0 {
+                        get => $this->sm_session_pages_count;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_pages_count', $value);
+                            $this->sm_session_pages_count = $value;
+                        }
+                    }
 
-	/**
-	 * Country Code
-	 *
-	 *
-	 *
-	 * {domain{country_code}}
-	 *
-	 * @var string Domain: country_code Type: char
-	 */
-	public ?string $sm_session_country_code = null;
+    /**
+     * User #
+     *
+     *
+     *
+     * {domain{user_id}}
+     *
+     * @var int|null Domain: user_id Type: bigint
+     */
+    public int|null $sm_session_user_id = NULL {
+                        get => $this->sm_session_user_id;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_user_id', $value);
+                            $this->sm_session_user_id = $value;
+                        }
+                    }
 
-	/**
-	 * Request Count
-	 *
-	 *
-	 *
-	 * {domain{counter}}
-	 *
-	 * @var int Domain: counter Type: integer
-	 */
-	public ?int $sm_session_request_count = 0;
+    /**
+     * User IP
+     *
+     *
+     *
+     * {domain{ip}}
+     *
+     * @var string|null Domain: ip Type: varchar
+     */
+    public string|null $sm_session_user_ip = null {
+                        get => $this->sm_session_user_ip;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_user_ip', $value);
+                            $this->sm_session_user_ip = $value;
+                        }
+                    }
 
-	/**
-	 * Bearer Token
-	 *
-	 *
-	 *
-	 * {domain{token}}
-	 *
-	 * @var string Domain: token Type: varchar
-	 */
-	public ?string $sm_session_bearer_token = null;
+    /**
+     * Session Data
+     *
+     *
+     *
+     *
+     *
+     * @var string|null Type: text
+     */
+    public string|null $sm_session_data = null {
+                        get => $this->sm_session_data;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_data', $value);
+                            $this->sm_session_data = $value;
+                        }
+                    }
+
+    /**
+     * Country Code
+     *
+     *
+     *
+     * {domain{country_code}}
+     *
+     * @var string|null Domain: country_code Type: char
+     */
+    public string|null $sm_session_country_code = null {
+                        get => $this->sm_session_country_code;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_country_code', $value);
+                            $this->sm_session_country_code = $value;
+                        }
+                    }
+
+    /**
+     * Request Count
+     *
+     *
+     *
+     * {domain{counter}}
+     *
+     * @var int|null Domain: counter Type: integer
+     */
+    public int|null $sm_session_request_count = 0 {
+                        get => $this->sm_session_request_count;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_request_count', $value);
+                            $this->sm_session_request_count = $value;
+                        }
+                    }
+
+    /**
+     * Bearer Token
+     *
+     *
+     *
+     * {domain{token}}
+     *
+     * @var string|null Domain: token Type: varchar
+     */
+    public string|null $sm_session_bearer_token = null {
+                        get => $this->sm_session_bearer_token;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_session_bearer_token', $value);
+                            $this->sm_session_bearer_token = $value;
+                        }
+                    }
 }

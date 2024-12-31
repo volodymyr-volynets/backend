@@ -1,43 +1,54 @@
 <?php
 
-namespace Numbers\Backend\Log\Db\Model;
-class LogsGeneratedYear2028 extends \Numbers\Backend\Log\Db\Model\Logs {
-	/**
-	 * Name
-	 *
-	 * @var string
-	 */
-	public $name = 'sm_logs_generated_year_2028';
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
 
-	/**
-	 * Constraints
-	 *
-	 * @var array
-	 */
-	public $constraints = array (
-  'sm_logs_generated_year_2028_pk' => 
-  array (
+namespace Numbers\Backend\Log\Db\Model;
+
+class LogsGeneratedYear2028 extends Logs
+{
+    /**
+     * Name
+     *
+     * @var string
+     */
+    public $name = 'sm_logs_generated_year_2028';
+
+    /**
+     * Constraints
+     *
+     * @var array
+     */
+    public $constraints = array(
+  'sm_logs_generated_year_2028_pk' =>
+  array(
     'type' => 'pk',
-    'columns' => 
-    array (
+    'columns' =>
+    array(
       0 => 'sm_log_id',
     ),
   ),
 );
 
-	/**
-	 * Is period table
-	 *
-	 * @var bool
-	 */
-	public bool $is_period_table = true;
+    /**
+     * Is period table
+     *
+     * @var bool
+     */
+    public bool $is_period_table = true;
 
-	/**
-	 * Filter
-	 *
-	 * @var array
-	 */
-	public array $filter = array (
+    /**
+     * Filter
+     *
+     * @var array
+     */
+    public array $filter = array(
   'sm_log_year' => 2028,
 );
 }

@@ -1,0 +1,7 @@
+{
+    "CallsSubscribersAsPerCronExpression": "Calls subscribers as per cron expression.",
+    "CallsSubscribersAtTheEndOfARequest": "Calls subscribers at the end of a request.",
+    "CallsSubscribersEvery5Seconds": "Calls subscribers every 5 seconds.",
+    "CallsSubscribersEveryMinuteOrSpecifiedInteeerval": "Calls subscribers every minute or specified inteeerval.",
+    "CallsSubscribersInRealtime": "Calls subscribers in realtime."
+}

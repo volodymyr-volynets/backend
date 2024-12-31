@@ -1,47 +1,60 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Modules\Model\Resource;
-class Features extends \Object\Table {
-	public $db_link;
-	public $db_link_flag;
-	public $module_code = 'SM';
-	public $title = 'S/M Resource Features';
-	public $name = 'sm_resource_features';
-	public $pk = ['sm_rsrcftr_resource_id', 'sm_rsrcftr_feature_code'];
-	public $tenant = false;
-	public $orderby;
-	public $limit;
-	public $column_prefix = 'sm_rsrcftr_';
-	public $columns = [
-		'sm_rsrcftr_resource_id' => ['name' => 'Resource #', 'domain' => 'resource_id'],
-		'sm_rsrcftr_feature_code' => ['name' => 'Feature Code', 'domain' => 'feature_code'],
-		'sm_rsrcftr_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
-	];
-	public $constraints = [
-		'sm_resource_features_pk' => ['type' => 'pk', 'columns' => ['sm_rsrcftr_resource_id', 'sm_rsrcftr_feature_code']],
-		'sm_rsrcftr_resource_id_fk' => [
-			'type' => 'fk',
-			'columns' => ['sm_rsrcftr_resource_id'],
-			'foreign_model' => '\Numbers\Backend\System\Modules\Model\Resources',
-			'foreign_columns' => ['sm_resource_id']
-		]
-	];
-	public $history = false;
-	public $audit = false;
-	public $optimistic_lock = false;
-	public $options_map = [];
-	public $options_active = [];
-	public $engine = [
-		'MySQLi' => 'InnoDB'
-	];
 
-	public $cache = false;
-	public $cache_tags = [];
-	public $cache_memory = false;
+use Object\Table;
 
-	public $data_asset = [
-		'classification' => 'public',
-		'protection' => 0,
-		'scope' => 'global'
-	];
+class Features extends Table
+{
+    public $db_link;
+    public $db_link_flag;
+    public $module_code = 'SM';
+    public $title = 'S/M Resource Features';
+    public $name = 'sm_resource_features';
+    public $pk = ['sm_rsrcftr_resource_id', 'sm_rsrcftr_feature_code'];
+    public $tenant = false;
+    public $orderby;
+    public $limit;
+    public $column_prefix = 'sm_rsrcftr_';
+    public $columns = [
+        'sm_rsrcftr_resource_id' => ['name' => 'Resource #', 'domain' => 'resource_id'],
+        'sm_rsrcftr_feature_code' => ['name' => 'Feature Code', 'domain' => 'feature_code'],
+        'sm_rsrcftr_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
+    ];
+    public $constraints = [
+        'sm_resource_features_pk' => ['type' => 'pk', 'columns' => ['sm_rsrcftr_resource_id', 'sm_rsrcftr_feature_code']],
+        'sm_rsrcftr_resource_id_fk' => [
+            'type' => 'fk',
+            'columns' => ['sm_rsrcftr_resource_id'],
+            'foreign_model' => '\Numbers\Backend\System\Modules\Model\Resources',
+            'foreign_columns' => ['sm_resource_id']
+        ]
+    ];
+    public $history = false;
+    public $audit = false;
+    public $optimistic_lock = false;
+    public $options_map = [];
+    public $options_active = [];
+    public $engine = [
+        'MySQLi' => 'InnoDB'
+    ];
+
+    public $cache = false;
+    public $cache_tags = [];
+    public $cache_memory = false;
+
+    public $data_asset = [
+        'classification' => 'public',
+        'protection' => 0,
+        'scope' => 'global'
+    ];
 }

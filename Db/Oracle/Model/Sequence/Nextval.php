@@ -1,14 +1,27 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Db\Oracle\Model\Sequence;
-class Nextval extends \Object\Function2 {
-	public $db_link;
-	public $db_link_flag;
-	public $schema;
-	public $name = 'nextval_extended';
-	public $backend = 'Oracle';
-	public $header = 'public2.nextval_extended(sequence_name in varchar2, tenant_id in number, module_id in number)';
-	public $definition = 'CREATE OR REPLACE NONEDITIONABLE FUNCTION public2.nextval_extended(
+
+use Object\Function2;
+
+class Nextval extends Function2
+{
+    public $db_link;
+    public $db_link_flag;
+    public $schema;
+    public $name = 'nextval_extended';
+    public $backend = 'Oracle';
+    public $header = 'public2.nextval_extended(sequence_name in varchar2, tenant_id in number, module_id in number)';
+    public $definition = 'CREATE OR REPLACE NONEDITIONABLE FUNCTION public2.nextval_extended(
     sequence_name in varchar2,
     tenant_id in number,
     module_id in number

@@ -2,141 +2,202 @@
 
 namespace Numbers\Backend\Session\Db\Model\Session;
 class HistoryAR extends \Object\ActiveRecord {
-	/**
-	 * @var string
-	 */
-	public string $object_table_class = \Numbers\Backend\Session\Db\Model\Session\History::class;
 
-	/**
-	 * Constructing object
-	 *
-	 * @param array $options
-	 *		skip_db_object
-	 *		skip_table_object
-	 */
-	public function __construct($options = []) {
-		if (empty($options['skip_table_object'])) {
-			$this->object_table_object = new $this->object_table_class($options);
-		}
-	}
-	/**
-	 * Tenant #
-	 *
-	 *
-	 *
-	 * {domain{tenant_id}}
-	 *
-	 * @var int Domain: tenant_id Type: integer
-	 */
-	public ?int $sm_sesshist_tenant_id = NULL;
 
-	/**
-	 * Login #
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var int Type: bigserial
-	 */
-	public ?int $sm_sesshist_id = null;
 
-	/**
-	 * Datetime Started
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var string Type: timestamp
-	 */
-	public ?string $sm_sesshist_started = null;
+    /**
+     * @var string
+     */
+    public string $object_table_class = \Numbers\Backend\Session\Db\Model\Session\History::class;
 
-	/**
-	 * Datetime Last Requested
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var string Type: timestamp
-	 */
-	public ?string $sm_sesshist_last_requested = null;
+    /**
+     * @var array
+     */
+    public array $object_table_pk = ['sm_sesshist_id'];
+    /**
+     * Tenant #
+     *
+     *
+     *
+     * {domain{tenant_id}}
+     *
+     * @var int|null Domain: tenant_id Type: integer
+     */
+    public int|null $sm_sesshist_tenant_id = NULL {
+                        get => $this->sm_sesshist_tenant_id;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_tenant_id', $value);
+                            $this->sm_sesshist_tenant_id = $value;
+                        }
+                    }
 
-	/**
-	 * Pages Count
-	 *
-	 *
-	 *
-	 * {domain{counter}}
-	 *
-	 * @var int Domain: counter Type: integer
-	 */
-	public ?int $sm_sesshist_pages_count = 0;
+    /**
+     * Login #
+     *
+     *
+     *
+     *
+     *
+     * @var int|null Type: bigserial
+     */
+    public int|null $sm_sesshist_id = null {
+                        get => $this->sm_sesshist_id;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_id', $value);
+                            $this->sm_sesshist_id = $value;
+                        }
+                    }
 
-	/**
-	 * User #
-	 *
-	 *
-	 *
-	 * {domain{user_id}}
-	 *
-	 * @var int Domain: user_id Type: bigint
-	 */
-	public ?int $sm_sesshist_user_id = NULL;
+    /**
+     * Datetime Started
+     *
+     *
+     *
+     *
+     *
+     * @var string|null Type: timestamp
+     */
+    public string|null $sm_sesshist_started = null {
+                        get => $this->sm_sesshist_started;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_started', $value);
+                            $this->sm_sesshist_started = $value;
+                        }
+                    }
 
-	/**
-	 * User IP
-	 *
-	 *
-	 *
-	 * {domain{ip}}
-	 *
-	 * @var string Domain: ip Type: varchar
-	 */
-	public ?string $sm_sesshist_user_ip = null;
+    /**
+     * Datetime Last Requested
+     *
+     *
+     *
+     *
+     *
+     * @var string|null Type: timestamp
+     */
+    public string|null $sm_sesshist_last_requested = null {
+                        get => $this->sm_sesshist_last_requested;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_last_requested', $value);
+                            $this->sm_sesshist_last_requested = $value;
+                        }
+                    }
 
-	/**
-	 * Country Code
-	 *
-	 *
-	 *
-	 * {domain{country_code}}
-	 *
-	 * @var string Domain: country_code Type: char
-	 */
-	public ?string $sm_sesshist_country_code = null;
+    /**
+     * Pages Count
+     *
+     *
+     *
+     * {domain{counter}}
+     *
+     * @var int|null Domain: counter Type: integer
+     */
+    public int|null $sm_sesshist_pages_count = 0 {
+                        get => $this->sm_sesshist_pages_count;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_pages_count', $value);
+                            $this->sm_sesshist_pages_count = $value;
+                        }
+                    }
 
-	/**
-	 * Request Count
-	 *
-	 *
-	 *
-	 * {domain{counter}}
-	 *
-	 * @var int Domain: counter Type: integer
-	 */
-	public ?int $sm_sesshist_request_count = 0;
+    /**
+     * User #
+     *
+     *
+     *
+     * {domain{user_id}}
+     *
+     * @var int|null Domain: user_id Type: bigint
+     */
+    public int|null $sm_sesshist_user_id = NULL {
+                        get => $this->sm_sesshist_user_id;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_user_id', $value);
+                            $this->sm_sesshist_user_id = $value;
+                        }
+                    }
 
-	/**
-	 * Session #
-	 *
-	 *
-	 *
-	 * {domain{session_id}}
-	 *
-	 * @var string Domain: session_id Type: varchar
-	 */
-	public ?string $sm_sesshist_session_id = null;
+    /**
+     * User IP
+     *
+     *
+     *
+     * {domain{ip}}
+     *
+     * @var string|null Domain: ip Type: varchar
+     */
+    public string|null $sm_sesshist_user_ip = null {
+                        get => $this->sm_sesshist_user_ip;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_user_ip', $value);
+                            $this->sm_sesshist_user_ip = $value;
+                        }
+                    }
 
-	/**
-	 * Bearer Token
-	 *
-	 *
-	 *
-	 * {domain{token}}
-	 *
-	 * @var string Domain: token Type: varchar
-	 */
-	public ?string $sm_sesshist_bearer_token = null;
+    /**
+     * Country Code
+     *
+     *
+     *
+     * {domain{country_code}}
+     *
+     * @var string|null Domain: country_code Type: char
+     */
+    public string|null $sm_sesshist_country_code = null {
+                        get => $this->sm_sesshist_country_code;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_country_code', $value);
+                            $this->sm_sesshist_country_code = $value;
+                        }
+                    }
+
+    /**
+     * Request Count
+     *
+     *
+     *
+     * {domain{counter}}
+     *
+     * @var int|null Domain: counter Type: integer
+     */
+    public int|null $sm_sesshist_request_count = 0 {
+                        get => $this->sm_sesshist_request_count;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_request_count', $value);
+                            $this->sm_sesshist_request_count = $value;
+                        }
+                    }
+
+    /**
+     * Session #
+     *
+     *
+     *
+     * {domain{session_id}}
+     *
+     * @var string|null Domain: session_id Type: varchar
+     */
+    public string|null $sm_sesshist_session_id = null {
+                        get => $this->sm_sesshist_session_id;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_session_id', $value);
+                            $this->sm_sesshist_session_id = $value;
+                        }
+                    }
+
+    /**
+     * Bearer Token
+     *
+     *
+     *
+     * {domain{token}}
+     *
+     * @var string|null Domain: token Type: varchar
+     */
+    public string|null $sm_sesshist_bearer_token = null {
+                        get => $this->sm_sesshist_bearer_token;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sesshist_bearer_token', $value);
+                            $this->sm_sesshist_bearer_token = $value;
+                        }
+                    }
 }

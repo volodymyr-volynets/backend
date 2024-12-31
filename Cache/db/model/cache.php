@@ -1,35 +1,47 @@
 <?php
 
-class numbers_backend_cache_db_model_cache extends \Object\Table {
-	public $db_link;
-	public $db_link_flag;
-	public $name = 'sm_cache';
-	public $pk = ['sm_cache_id'];
-	public $orderby;
-	public $limit;
-	public $column_prefix = 'sm_cache_';
-	public $columns = [
-		'sm_cache_id' => ['name' => 'Cache #', 'domain' => 'code'],
-		'sm_cache_time' => ['name' => 'Time', 'type' => 'timestamp'],
-		'sm_cache_expire' => ['name' => 'Expire', 'type' => 'timestamp'],
-		'sm_cache_data' => ['name' => 'Value', 'type' => 'json', 'null' => true],
-		'sm_cache_tags' => ['name' => 'Tags', 'type' => 'json', 'null' => true] // todo
-	];
-	public $constraints = [
-		'sm_cache_pk' => ['type' => 'pk', 'columns' => ['sm_cache_id']],
-	];
-	public $indexes = [
-		'sm_cache_expire_idx' => ['type' => 'btree', 'columns' => ['sm_cache_expire']]
-	];
-	public $history = false;
-	public $audit = false;
-	public $options_map = [];
-	public $options_active = [];
-	public $engine = [
-		'MySQLi' => 'InnoDB'
-	];
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
 
-	public $cache = false;
-	public $cache_tags = [];
-	public $cache_memory = false;
+use Object\Table;
+
+class numbers_backend_cache_db_model_cache extends Table
+{
+    public $db_link;
+    public $db_link_flag;
+    public $name = 'sm_cache';
+    public $pk = ['sm_cache_id'];
+    public $orderby;
+    public $limit;
+    public $column_prefix = 'sm_cache_';
+    public $columns = [
+        'sm_cache_id' => ['name' => 'Cache #', 'domain' => 'code'],
+        'sm_cache_time' => ['name' => 'Time', 'type' => 'timestamp'],
+        'sm_cache_expire' => ['name' => 'Expire', 'type' => 'timestamp'],
+        'sm_cache_data' => ['name' => 'Value', 'type' => 'json', 'null' => true],
+        'sm_cache_tags' => ['name' => 'Tags', 'type' => 'json', 'null' => true] // todo
+    ];
+    public $constraints = [
+        'sm_cache_pk' => ['type' => 'pk', 'columns' => ['sm_cache_id']],
+    ];
+    public $indexes = [
+        'sm_cache_expire_idx' => ['type' => 'btree', 'columns' => ['sm_cache_expire']]
+    ];
+    public $history = false;
+    public $audit = false;
+    public $options_map = [];
+    public $options_active = [];
+    public $engine = [
+        'MySQLi' => 'InnoDB'
+    ];
+
+    public $cache = false;
+    public $cache_tags = [];
+    public $cache_memory = false;
 }

@@ -1,0 +1,12 @@
+{
+    "Canceled": "Canceled",
+    "Completed": "Completed",
+    "Cron": "Cron",
+    "Daemon": "Daemon",
+    "Errored": "Errored",
+    "InProgress": "In Progress",
+    "New": "New",
+    "Realtime": "Realtime",
+    "RequestEnd": "Request End",
+    "Task": "Task"
+}

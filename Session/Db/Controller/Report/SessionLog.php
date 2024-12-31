@@ -1,11 +1,25 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Session\Db\Controller\Report;
-class SessionLog extends \Object\Controller\Permission {
-	public function actionIndex() {
-		$form = new \Numbers\Backend\Session\Db\Form\Report\SessionLog([
-			'input' => \Request::input()
-		]);
-		echo $form->render();
-	}
+
+use Object\Controller\Permission;
+
+class SessionLog extends Permission
+{
+    public function actionIndex()
+    {
+        $form = new \Numbers\Backend\Session\Db\Form\Report\SessionLog([
+            'input' => \Request::input()
+        ]);
+        echo $form->render();
+    }
 }

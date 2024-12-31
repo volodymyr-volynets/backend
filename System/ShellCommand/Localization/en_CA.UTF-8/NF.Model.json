@@ -1,0 +1,20 @@
+{
+    "Code": "Code",
+    "Command": "Command",
+    "Description": "Description",
+    "FinishTimestamp": "Finish Timestamp",
+    "Inactive": "Inactive",
+    "Model": "Model",
+    "ModuleCode": "Module Code",
+    "Name": "Name",
+    "OptimisticLock": "Optimistic Lock",
+    "PercentComplate": "Percent Complate",
+    "RunID": "Run #",
+    "SMShellCommandRuns": "S/M Shell Command Runs",
+    "SMShellCommands": "S/M Shell Commands",
+    "ShellOutput": "Shell Output",
+    "StartTimestamp": "Start Timestamp",
+    "Status": "Status",
+    "TenantID": "Tenant #",
+    "UserID": "User #"
+}

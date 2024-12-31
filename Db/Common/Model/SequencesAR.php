@@ -2,97 +2,134 @@
 
 namespace Numbers\Backend\Db\Common\Model;
 class SequencesAR extends \Object\ActiveRecord {
-	/**
-	 * @var string
-	 */
-	public string $object_table_class = \Numbers\Backend\Db\Common\Model\Sequences::class;
 
-	/**
-	 * Constructing object
-	 *
-	 * @param array $options
-	 *		skip_db_object
-	 *		skip_table_object
-	 */
-	public function __construct($options = []) {
-		if (empty($options['skip_table_object'])) {
-			$this->object_table_object = new $this->object_table_class($options);
-		}
-	}
-	/**
-	 * Name
-	 *
-	 *
-	 *
-	 * {domain{code}}
-	 *
-	 * @var string Domain: code Type: varchar
-	 */
-	public ?string $sm_sequence_name = null;
 
-	/**
-	 * Description
-	 *
-	 *
-	 *
-	 * {domain{description}}
-	 *
-	 * @var string Domain: description Type: varchar
-	 */
-	public ?string $sm_sequence_description = null;
 
-	/**
-	 * Type
-	 *
-	 *
-	 * {options_model{\Numbers\Backend\Db\Common\Model\Sequence\Types}}
-	 * {domain{type_code}}
-	 *
-	 * @var string Domain: type_code Type: varchar
-	 */
-	public ?string $sm_sequence_type = null;
+    /**
+     * @var string
+     */
+    public string $object_table_class = \Numbers\Backend\Db\Common\Model\Sequences::class;
 
-	/**
-	 * Prefix
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var string Type: varchar
-	 */
-	public ?string $sm_sequence_prefix = null;
+    /**
+     * @var array
+     */
+    public array $object_table_pk = ['sm_sequence_name'];
+    /**
+     * Name
+     *
+     *
+     *
+     * {domain{code}}
+     *
+     * @var string|null Domain: code Type: varchar
+     */
+    public string|null $sm_sequence_name = null {
+                        get => $this->sm_sequence_name;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sequence_name', $value);
+                            $this->sm_sequence_name = $value;
+                        }
+                    }
 
-	/**
-	 * Length
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var int Type: smallint
-	 */
-	public ?int $sm_sequence_length = 0;
+    /**
+     * Description
+     *
+     *
+     *
+     * {domain{description}}
+     *
+     * @var string|null Domain: description Type: varchar
+     */
+    public string|null $sm_sequence_description = null {
+                        get => $this->sm_sequence_description;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sequence_description', $value);
+                            $this->sm_sequence_description = $value;
+                        }
+                    }
 
-	/**
-	 * Suffix
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var string Type: varchar
-	 */
-	public ?string $sm_sequence_suffix = null;
+    /**
+     * Type
+     *
+     *
+     * {options_model{\Numbers\Backend\Db\Common\Model\Sequence\Types}}
+     * {domain{type_code}}
+     *
+     * @var string|null Domain: type_code Type: varchar
+     */
+    public string|null $sm_sequence_type = null {
+                        get => $this->sm_sequence_type;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sequence_type', $value);
+                            $this->sm_sequence_type = $value;
+                        }
+                    }
 
-	/**
-	 * Counter
-	 *
-	 *
-	 *
-	 *
-	 *
-	 * @var int Type: bigint
-	 */
-	public ?int $sm_sequence_counter = 0;
+    /**
+     * Prefix
+     *
+     *
+     *
+     *
+     *
+     * @var string|null Type: varchar
+     */
+    public string|null $sm_sequence_prefix = null {
+                        get => $this->sm_sequence_prefix;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sequence_prefix', $value);
+                            $this->sm_sequence_prefix = $value;
+                        }
+                    }
+
+    /**
+     * Length
+     *
+     *
+     *
+     *
+     *
+     * @var int|null Type: smallint
+     */
+    public int|null $sm_sequence_length = 0 {
+                        get => $this->sm_sequence_length;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sequence_length', $value);
+                            $this->sm_sequence_length = $value;
+                        }
+                    }
+
+    /**
+     * Suffix
+     *
+     *
+     *
+     *
+     *
+     * @var string|null Type: varchar
+     */
+    public string|null $sm_sequence_suffix = null {
+                        get => $this->sm_sequence_suffix;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sequence_suffix', $value);
+                            $this->sm_sequence_suffix = $value;
+                        }
+                    }
+
+    /**
+     * Counter
+     *
+     *
+     *
+     *
+     *
+     * @var int|null Type: bigint
+     */
+    public int|null $sm_sequence_counter = 0 {
+                        get => $this->sm_sequence_counter;
+                        set {
+                            $this->setFullPkAndFilledColumn('sm_sequence_counter', $value);
+                            $this->sm_sequence_counter = $value;
+                        }
+                    }
 }

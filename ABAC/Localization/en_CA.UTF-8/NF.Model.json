@@ -1,0 +1,23 @@
+{
+    "AttributeID": "Attribute #",
+    "Code": "Code",
+    "Domain": "Domain",
+    "EnvironmentMethod": "Environment Method",
+    "FlagABAC": "Flag ABAC",
+    "FlagAssignment": "Flag Assignment",
+    "FlagAttribute": "Flag Attribute",
+    "FlagLink": "Flag Link",
+    "FlagOtherTable": "Flag Other Table",
+    "Inactive": "Inactive",
+    "IsNumericKey": "Is Numeric Key",
+    "LinkModelID": "Link Model #",
+    "ModelID": "Model #",
+    "Module": "Module",
+    "ModuleCode": "Module Code",
+    "Name": "Name",
+    "ParentAttributeID": "Parent Attribute #",
+    "SMABACAssignments": "S/M ABAC Assignments",
+    "SMABACAttributes": "S/M ABAC Attributes",
+    "Tenant": "Tenant",
+    "Type": "Type"
+}

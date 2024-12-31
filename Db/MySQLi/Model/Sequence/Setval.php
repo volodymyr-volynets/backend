@@ -1,15 +1,28 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Db\MySQLi\Model\Sequence;
-class Setval extends \Object\Function2 {
-	public $db_link;
-	public $db_link_flag;
-	public $schema;
-	public $name = 'setval';
-	public $backend = 'MySQLi';
-	public $header = 'setval(sequence_name varchar(255), sequence_counter bigint)';
-	public $sql_version = '1.0.0';
-	public $definition = 'CREATE FUNCTION setval(sequence_name varchar(255), sequence_counter bigint) RETURNS BIGINT
+
+use Object\Function2;
+
+class Setval extends Function2
+{
+    public $db_link;
+    public $db_link_flag;
+    public $schema;
+    public $name = 'setval';
+    public $backend = 'MySQLi';
+    public $header = 'setval(sequence_name varchar(255), sequence_counter bigint)';
+    public $sql_version = '1.0.0';
+    public $definition = 'CREATE FUNCTION setval(sequence_name varchar(255), sequence_counter bigint) RETURNS BIGINT
 READS SQL DATA
 DETERMINISTIC
 BEGIN

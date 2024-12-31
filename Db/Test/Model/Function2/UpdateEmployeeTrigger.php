@@ -1,15 +1,28 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Db\Test\Model\Function2;
-class UpdateEmployeeTrigger extends \Object\Function2 {
-	public $db_link;
-	public $db_link_flag;
-	public $schema;
-	public $name = 'sm_employees_log_last_name_changes';
-	public $backend = 'PostgreSQL';
-	public $header = 'sm_employees_log_last_name_changes()';
-	public $sql_version = '1.0.0';
-	public $definition = 'CREATE OR REPLACE FUNCTION public.sm_employees_log_last_name_changes()
+
+use Object\Function2;
+
+class UpdateEmployeeTrigger extends Function2
+{
+    public $db_link;
+    public $db_link_flag;
+    public $schema;
+    public $name = 'sm_employees_log_last_name_changes';
+    public $backend = 'PostgreSQL';
+    public $header = 'sm_employees_log_last_name_changes()';
+    public $sql_version = '1.0.0';
+    public $definition = 'CREATE OR REPLACE FUNCTION public.sm_employees_log_last_name_changes()
  RETURNS trigger
  LANGUAGE plpgsql
 AS $function$

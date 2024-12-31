@@ -1,14 +1,27 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Db\Oracle\Model\Function2;
-class ConcatWs extends \Object\Function2 {
-	public $db_link;
-	public $db_link_flag;
-	public $schema;
-	public $name = 'concat_ws';
-	public $backend = 'Oracle';
-	public $header = 'public2.concat_ws(separator in varchar2, s1 in varchar2, s2 in varchar2 default NULL, s3 in varchar2 default NULL, s4 in varchar2 default NULL, s5 in varchar2 default NULL, s6 in varchar2 default NULL, s7 in varchar2 default NULL, s8 in varchar2 default NULL, s9 in varchar2 default NULL, s10 in varchar2 default NULL, s11 in varchar2 default NULL, s12 in varchar2 default NULL, s13 in varchar2 default NULL, s14 in varchar2 default NULL, s15 in varchar2 default NULL, s16 in varchar2 default NULL, s17 in varchar2 default NULL, s18 in varchar2 default NULL, s19 in varchar2 default NULL, s20 in varchar2 default NULL) RETURN varchar2';
-	public $definition = "CREATE OR REPLACE NONEDITIONABLE FUNCTION public2.concat_ws(
+
+use Object\Function2;
+
+class ConcatWs extends Function2
+{
+    public $db_link;
+    public $db_link_flag;
+    public $schema;
+    public $name = 'concat_ws';
+    public $backend = 'Oracle';
+    public $header = 'public2.concat_ws(separator in varchar2, s1 in varchar2, s2 in varchar2 default NULL, s3 in varchar2 default NULL, s4 in varchar2 default NULL, s5 in varchar2 default NULL, s6 in varchar2 default NULL, s7 in varchar2 default NULL, s8 in varchar2 default NULL, s9 in varchar2 default NULL, s10 in varchar2 default NULL, s11 in varchar2 default NULL, s12 in varchar2 default NULL, s13 in varchar2 default NULL, s14 in varchar2 default NULL, s15 in varchar2 default NULL, s16 in varchar2 default NULL, s17 in varchar2 default NULL, s18 in varchar2 default NULL, s19 in varchar2 default NULL, s20 in varchar2 default NULL) RETURN varchar2';
+    public $definition = "CREATE OR REPLACE NONEDITIONABLE FUNCTION public2.concat_ws(
     separator in varchar2,
     s1 in varchar2,
     s2 in varchar2 default NULL,

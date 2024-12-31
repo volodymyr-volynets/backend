@@ -1,0 +1,18 @@
+{
+    "BearerToken": "Bearer Token",
+    "CountryCode": "Country Code",
+    "DatetimeExpires": "Datetime Expires",
+    "DatetimeLastRequested": "Datetime Last Requested",
+    "DatetimeStarted": "Datetime Started",
+    "LoginID": "Login #",
+    "PagesCount": "Pages Count",
+    "RequestCount": "Request Count",
+    "SMSessionHistory": "S/M Session History",
+    "SMSessionIPs": "S/M Session IPs",
+    "SMSessions": "S/M Sessions",
+    "SessionData": "Session Data",
+    "SessionID": "Session #",
+    "TenantID": "Tenant #",
+    "UserID": "User #",
+    "UserIP": "User IP"
+}

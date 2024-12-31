@@ -1,0 +1,12 @@
+{
+    "Global": "Global",
+    "Groups": "Groups",
+    "Operations": "Operations",
+    "Policies": "Policies",
+    "PolicyGroups": "Policy Groups",
+    "SMSystemGroups": "S/M System Groups",
+    "SMSystemPolicies": "S/M System Policies",
+    "SMSystemPolicyGroups": "S/M System Policy Groups",
+    "SystemPolicies": "System Policies",
+    "UserManagement": "User Management"
+}
