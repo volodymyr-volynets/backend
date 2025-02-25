@@ -14,6 +14,7 @@ namespace Numbers\Backend\System\Policies\Abstract2;
 use NF\Error;
 use Object\Enum\PolicyReturnTypes;
 use Object\Enum\PolicyProcessingTypes;
+use Helper\Date;
 
 abstract class PolicyTypesAbstract
 {
@@ -137,11 +138,12 @@ TTT;
             case PolicyProcessingTypes::AnyAllow:
                 if (array_search(PolicyReturnTypes::Deny, $result) !== false) {
                     return PolicyReturnTypes::Deny;
-                } else if (array_search(PolicyReturnTypes::Allow, $result) !== false) {
+                } elseif (array_search(PolicyReturnTypes::Allow, $result) !== false) {
                     return PolicyReturnTypes::Allow;
                 } else {
                     return PolicyReturnTypes::NotMached;
                 }
+                // no break
             default:
                 throw new \Exception('Strategy type?');
         }
@@ -163,7 +165,7 @@ TTT;
         if ($policy_comparion_result) {
             // compare effective date
             if (isset($policy['internal_json']['Effective'])) {
-                if (\Helper\Date::is($policy['internal_json']['Effective'], $options['effective']) > 0) {
+                if (Date::is($policy['internal_json']['Effective'], $options['effective']) > 0) {
                     return PolicyReturnTypes::NotMached;
                 }
             }

@@ -26,7 +26,7 @@ class Tasks extends Import
                 [
                     'ts_task_code' => 'SM::LOG_MAIL_DELIVER_LOGS',
                     'ts_task_name' => 'S/M Log Mail Deliver Logs (Task)',
-                    'ts_task_model' => '\Numbers\Backend\Log\Mail\Task\DeliverMailLogss',
+                    'ts_task_model' => '\Numbers\Backend\Log\Mail\Task\DeliverMailLogs',
                     'ts_task_inactive' => 0,
                 ],
             ],

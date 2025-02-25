@@ -21,6 +21,8 @@ class DeliverMailLogs extends Task
     {
         $command = new \Numbers\Backend\Log\Mail\Command\DeliverMailLogs([
             'tenant_id' => \Tenant::id(),
+        ], [
+            'skip_input_processing' => true,
         ]);
         return $command->runCurrentCommand();
     }

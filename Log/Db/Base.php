@@ -29,12 +29,35 @@ class Base extends \Numbers\Backend\Log\Common\Base
             $model = \Factory::model('\Numbers\Backend\Log\Db\Model\LogsGeneratedYear' . date('Y'), false);
             array_multiple_prefix_and_suffix($data, 'sm_log_', null, false, true);
             // apply filter
+            $keys = null;
+            $new_keys = [];
             foreach ($data as $k => $v) {
                 unset($v['sm_log_options']); // options is an array with additional data that we do not put into db
                 $v['sm_log_inserted_timestamp'] = $v['sm_log_inserted_timestamp'] ?? \Format::now('timestamp');
                 $v['sm_log_inserted_user_id'] = \User::id();
                 $v['sm_log_chanel'] = $log_link;
                 $data[$k] = array_merge($v, $model->filter);
+                // determine if we have new keys
+                if (!isset($keys)) {
+                    $keys = array_keys($data[$k]);
+                } else {
+                    foreach (array_keys($data[$k]) as $v2) {
+                        if (!in_array($v2, $keys)) {
+                            $new_keys[] = $v2;
+                            $keys[] = $v2;
+                        }
+                    }
+                }
+            }
+            // sort and add new keys as null
+            foreach ($data as $k => $v) {
+                // set new keys
+                foreach ($new_keys as $v2) {
+                    if (!array_key_exists($v2, $v)) {
+                        $data[$k][$v2] = null;
+                    }
+                }
+                // sort
                 ksort($data[$k]);
             }
             return $model->queryBuilder()

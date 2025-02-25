@@ -266,7 +266,7 @@ class Base
                         if (is_string($v)) {
                             $string .= ' ' . $operator . '(' . $v . ')';
                         } else {
-                            $string .= ' ' . $operator . '(' . implode(', ', $this->escapeArray($v, ['quotes' => true])) . ')';
+                            $string .= ' ' . $operator . '(' . implode(', ', $this->escapeArray(array_flatten($v), ['quotes' => true])) . ')';
                         }
                         break;
                     case 'STARTS%':

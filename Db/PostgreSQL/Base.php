@@ -302,7 +302,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
         $error_message = $result['error'] ? (', error: ' . $result['errno'] . ' ' . implode(', ', $result['error'])) : '';
         \Log::add([
             'type' => 'Db Query',
-            'only_chanel' => 'default',
+            'only_channel' => 'default',
             'message' => 'Executing query!',
             'other' => 'Query #: ' . $query_id . $error_message,
             'affected_rows' => $result['affected_rows'],
@@ -1014,7 +1014,7 @@ TTT;
                         $dblink_columns[] = $k . ' ' . $v;
                     }
                     $db_object = new \Db($this->db_link);
-                    $sql = 'SELECT * FROM dblink(\'dbname=' . $db_object->object->options['connection']['string'] . ' options=-csearch_path=' . $db_object->object->options['connection']['search_path'] . '\',';
+                    $sql = 'SELECT * FROM extensions.dblink(\'' . $db_object->object->options['connection']['string'] . ' options=-csearch_path=' . $db_object->object->options['connection']['search_path'] . '\',';
                     $sql .= '\'' . $db_object->escape($inner_sql) . '\') AS dblink_as_a(' . implode(', ', $dblink_columns) . ');';
                 }
                 break;

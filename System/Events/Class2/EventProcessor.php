@@ -15,7 +15,7 @@ use Numbers\Backend\System\Events\Model\RequestsAR;
 use Numbers\Backend\System\Events\Class2\RequestEventStatuses;
 use Numbers\Backend\System\Events\Model\Subscribers;
 use Numbers\Backend\System\Events\Model\Subscriptions;
-use Numbers\Backend\System\Events\Model\Reponses;
+use Numbers\Backend\System\Events\Model\Responses;
 use Object\Event\EventSubscriberBase;
 
 class EventProcessor
@@ -123,7 +123,7 @@ class EventProcessor
             ];
         }
         // post results to responses table
-        $result = Reponses::collectionStatic()->mergeMultiple($responses);
+        $result = Responses::collectionStatic()->mergeMultiple($responses);
         if (!$result['success']) {
             return $result;
         }
@@ -141,6 +141,6 @@ class EventProcessor
         if (!$result['success']) {
             return $result;
         }
-        return ['success' => false, 'error' => []];
+        return ['success' => true, 'error' => []];
     }
 }

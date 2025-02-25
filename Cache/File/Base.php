@@ -127,7 +127,7 @@ class Base extends \Numbers\Backend\Cache\Common\Base
         $error_message = $result['error'] ? (', error' . implode(', ', $result['error'])) : '';
         \Log::add([
             'type' => 'Cache',
-            'only_chanel' => 'default',
+            'only_channel' => 'default',
             'message' => 'Getting item from cache!',
             'other' => 'Cache # ' . $cache_id . $error_message,
             'affected_rows' => isset($result['data']['rows']) ? count($result['data']['rows']) : 0,
@@ -185,7 +185,7 @@ class Base extends \Numbers\Backend\Cache\Common\Base
         $error_message = $result['error'] ? (', error' . implode(', ', $result['error'])) : '';
         \Log::add([
             'type' => 'Cache',
-            'only_chanel' => 'default',
+            'only_channel' => 'default',
             'message' => 'Setting item in cache!',
             'other' => 'Cache # ' . $cache_id . $error_message,
             'affected_rows' => isset($data['rows']) && is_array($data['rows']) ? count($data['rows']) : 0,
@@ -260,7 +260,7 @@ class Base extends \Numbers\Backend\Cache\Common\Base
         // log
         \Log::add([
             'type' => 'Cache',
-            'only_chanel' => 'default',
+            'only_channel' => 'default',
             'message' => 'Garbage collect in cache!' . ($result['success'] ? 'success' : 'fail'),
             'other' => 'Cache result: ' . ($result['success'] ? 'success' : 'fail'),
             'operation' => 'GC',

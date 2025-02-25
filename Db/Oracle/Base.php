@@ -306,7 +306,7 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
         $error_message = $result['error'] ? (', error: ' . $result['errno'] . ' ' . implode(',', $result['error'])) : '';
         \Log::add([
             'type' => 'Db Query',
-            'only_chanel' => 'default',
+            'only_channel' => 'default',
             'message' => 'Executing query!',
             'other' => 'Query #: ' . $query_id . $error_message,
             'affected_rows' => $result['affected_rows'],
