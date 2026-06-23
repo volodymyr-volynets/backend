@@ -17,7 +17,7 @@ use Object\Controller;
 class DevPortal extends Controller
 {
     public $title = 'Development Portal';
-    public $icon = 'fas fa-cogs';
+    public $icon = 'fa-solid fa-cogs';
 
     public function actionIndex()
     {

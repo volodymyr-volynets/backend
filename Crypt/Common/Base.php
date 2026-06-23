@@ -111,12 +111,12 @@ abstract class Base
     /**
      * @see Crypt::encrypt();
      */
-    abstract public function encrypt(string $data): string;
+    abstract public function encrypt(string $data, ?string $encryption_key = null): string;
 
     /**
      * @see Crypt::decrypt();
      */
-    abstract public function decrypt(string $data): string;
+    abstract public function decrypt(string $data, ?string $encryption_key = null): string|bool;
 
     /**
      * @see Crypt::compress();
@@ -186,10 +186,12 @@ abstract class Base
         $digest = md5($digest0 . $this->token_key);
         $result = sprintf('%s%08x%s!%s!%s', $digest, $time, $id, $token, $data);
         if ($this->base64) {
-            return urlencode(base64_encode($result));
-        } else {
-            return urlencode($result);
+            $result = base64_encode($result);
         }
+        if (empty($options['skip_urlencoded'])) {
+            $result = urlencode($result);
+        }
+        return $result;
     }
 
     /**
@@ -407,12 +409,15 @@ abstract class Base
         // characters
         $characters = [
             'uppercase' => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-            'special' => '~!@#$%^&*()_+{}[]\\|,./<>?',
+            'special' => $options['special_characters_list'] ?? '~!@#$%^&*()_+{}[]\\|,./<>?',
             'number' => '0123456789',
             'lowercase' => 'abcdefghijklmnopqrstuvwxyz',
         ];
         $result = [];
         foreach ($settings as $k => $v) {
+            if ($v <= 0) {
+                continue;
+            }
             $chars = $this->passwordStringGenerate($v, $characters[$k], [
                 'as_array' => true
             ]);
@@ -420,7 +425,7 @@ abstract class Base
                 $result[] = $v2;
             }
         }
-        // shufle password
+        // shuffle password
         shuffle($result);
         // return as array
         if (!empty($options['as_array'])) {

@@ -28,7 +28,7 @@ class Notifications extends Import
                     'sm_feature_code' => 'SM::EMAIL_LOG_DELIVER_MAIL_LOGS',
                     'sm_feature_type' => 21,
                     'sm_feature_name' => 'U/M Email Log Deliver Logs',
-                    'sm_feature_icon' => 'far fa-envelope',
+                    'sm_feature_icon' => 'fa-regular fa-envelope',
                     'sm_feature_activated_by_default' => 1,
                     'sm_feature_activation_model' => null,
                     'sm_feature_inactive' => 0

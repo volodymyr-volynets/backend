@@ -1,9 +1,14 @@
 {
     "BearerToken": "Bearer Token",
+    "Country": "Country",
     "CountryCode": "Country Code",
     "DatetimeExpires": "Datetime Expires",
     "DatetimeLastRequested": "Datetime Last Requested",
     "DatetimeStarted": "Datetime Started",
+    "FormatColonColongetDatePlaceholder": "Format::getDatePlaceholder",
+    "Format__getDatePlaceholder": "Format::getDatePlaceholder",
+    "FormatgetDatePlaceholder": "Format::getDatePlaceholder",
+    "IP": "IP",
     "LoginID": "Login #",
     "PagesCount": "Pages Count",
     "RequestCount": "Request Count",
@@ -13,6 +18,7 @@
     "SessionData": "Session Data",
     "SessionID": "Session #",
     "TenantID": "Tenant #",
+    "User": "User",
     "UserID": "User #",
     "UserIP": "User IP"
 }

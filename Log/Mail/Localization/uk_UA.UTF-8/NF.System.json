@@ -1,0 +1,7 @@
+{
+    "SMLogMailDeliverLogsCommand": "Журнали доставки пошти S/M (команда)",
+    "SMLogMailDeliverLogsTask": "Журнали доставки пошти S/M (завдання)",
+    "UMEmailLogDeliverLogs": "Журнал доставки електронної пошти U/M",
+    "UseThisCommandToSendMailLogs": "Використовуйте цю команду для надсилання журналів пошти.",
+    "UseThisCommandToSendMailLogsDot": "Використовуйте цю команду для надсилання журналів пошти."
+}

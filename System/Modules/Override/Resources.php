@@ -23,6 +23,11 @@ class Resources
             'primary' => [
                 'datasource' => '\Numbers\Backend\System\Modules\DataSource\Flags'
             ]
+        ],
+        'menu' => [
+            'searches' => [
+                'datasource' => '\Numbers\Backend\System\Modules\DataSource\Menu\Searches'
+            ]
         ]
     ];
 }

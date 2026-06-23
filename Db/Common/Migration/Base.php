@@ -280,7 +280,7 @@ abstract class Base
             'error' => [],
             'permissions' => []
         ];
-        // wrap everyting into try/catch block because method throw exceptions
+        // wrap everything into try/catch block because method throw exceptions
         try {
             $this->reset(['mode' => 'commit', 'action' => $type]);
             $this->db_object->begin();

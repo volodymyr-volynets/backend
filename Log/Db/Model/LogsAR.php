@@ -1,19 +1,30 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Log\Db\Model;
-class LogsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class LogsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\Log\Db\Model\Logs::class;
+    public string $object_table_class = Logs::class;
 
     /**
      * @var array
      */
     public array $object_table_pk = ['sm_log_id'];
+
     /**
      * Tenant #
      *
@@ -24,12 +35,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var int|null Domain: tenant_id Type: integer
      */
     public int|null $sm_log_tenant_id = 0 {
-                        get => $this->sm_log_tenant_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_tenant_id', $value);
-                            $this->sm_log_tenant_id = $value;
-                        }
-                    }
+        get => $this->sm_log_tenant_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_tenant_id', $value);
+            $this->sm_log_tenant_id = $value;
+        }
+    }
 
     /**
      * Log #
@@ -41,12 +52,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Domain: uuid Type: char
      */
     public string|null $sm_log_id = null {
-                        get => $this->sm_log_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_id', $value);
-                            $this->sm_log_id = $value;
-                        }
-                    }
+        get => $this->sm_log_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_id', $value);
+            $this->sm_log_id = $value;
+        }
+    }
 
     /**
      * Group #
@@ -58,12 +69,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Domain: uuid Type: char
      */
     public string|null $sm_log_group_id = null {
-                        get => $this->sm_log_group_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_group_id', $value);
-                            $this->sm_log_group_id = $value;
-                        }
-                    }
+        get => $this->sm_log_group_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_group_id', $value);
+            $this->sm_log_group_id = $value;
+        }
+    }
 
     /**
      * Originated #
@@ -75,12 +86,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Domain: uuid Type: char
      */
     public string|null $sm_log_originated_id = null {
-                        get => $this->sm_log_originated_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_originated_id', $value);
-                            $this->sm_log_originated_id = $value;
-                        }
-                    }
+        get => $this->sm_log_originated_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_originated_id', $value);
+            $this->sm_log_originated_id = $value;
+        }
+    }
 
     /**
      * Host
@@ -92,12 +103,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Domain: host Type: varchar
      */
     public string|null $sm_log_host = 'CLI' {
-                        get => $this->sm_log_host;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_host', $value);
-                            $this->sm_log_host = $value;
-                        }
-                    }
+        get => $this->sm_log_host;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_host', $value);
+            $this->sm_log_host = $value;
+        }
+    }
 
     /**
      * Year
@@ -109,12 +120,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var int|null Domain: year Type: smallint
      */
     public int|null $sm_log_year = 0 {
-                        get => $this->sm_log_year;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_year', $value);
-                            $this->sm_log_year = $value;
-                        }
-                    }
+        get => $this->sm_log_year;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_year', $value);
+            $this->sm_log_year = $value;
+        }
+    }
 
     /**
      * User #
@@ -125,13 +136,13 @@ class LogsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_log_user_id = NULL {
-                        get => $this->sm_log_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_user_id', $value);
-                            $this->sm_log_user_id = $value;
-                        }
-                    }
+    public int|null $sm_log_user_id = null {
+        get => $this->sm_log_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_user_id', $value);
+            $this->sm_log_user_id = $value;
+        }
+    }
 
     /**
      * User IP
@@ -142,13 +153,13 @@ class LogsAR extends \Object\ActiveRecord {
      *
      * @var string|null Domain: ip Type: varchar
      */
-    public string|null $sm_log_user_ip = NULL {
-                        get => $this->sm_log_user_ip;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_user_ip', $value);
-                            $this->sm_log_user_ip = $value;
-                        }
-                    }
+    public string|null $sm_log_user_ip = null {
+        get => $this->sm_log_user_ip;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_user_ip', $value);
+            $this->sm_log_user_ip = $value;
+        }
+    }
 
     /**
      * Chanel
@@ -159,13 +170,13 @@ class LogsAR extends \Object\ActiveRecord {
      *
      * @var string|null Domain: name Type: varchar
      */
-    public string|null $sm_log_chanel = NULL {
-                        get => $this->sm_log_chanel;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_chanel', $value);
-                            $this->sm_log_chanel = $value;
-                        }
-                    }
+    public string|null $sm_log_chanel = null {
+        get => $this->sm_log_chanel;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_chanel', $value);
+            $this->sm_log_chanel = $value;
+        }
+    }
 
     /**
      * Type
@@ -177,12 +188,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_log_type = 'General' {
-                        get => $this->sm_log_type;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_type', $value);
-                            $this->sm_log_type = $value;
-                        }
-                    }
+        get => $this->sm_log_type;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_type', $value);
+            $this->sm_log_type = $value;
+        }
+    }
 
     /**
      * Level
@@ -194,12 +205,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_log_level = 'ALL' {
-                        get => $this->sm_log_level;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_level', $value);
-                            $this->sm_log_level = $value;
-                        }
-                    }
+        get => $this->sm_log_level;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_level', $value);
+            $this->sm_log_level = $value;
+        }
+    }
 
     /**
      * Status
@@ -211,12 +222,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_log_status = null {
-                        get => $this->sm_log_status;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_status', $value);
-                            $this->sm_log_status = $value;
-                        }
-                    }
+        get => $this->sm_log_status;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_status', $value);
+            $this->sm_log_status = $value;
+        }
+    }
 
     /**
      * Message
@@ -228,12 +239,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Domain: message Type: text
      */
     public string|null $sm_log_message = null {
-                        get => $this->sm_log_message;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_message', $value);
-                            $this->sm_log_message = $value;
-                        }
-                    }
+        get => $this->sm_log_message;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_message', $value);
+            $this->sm_log_message = $value;
+        }
+    }
 
     /**
      * Trace
@@ -245,12 +256,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_log_trace = null {
-                        get => $this->sm_log_trace;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_trace', $value);
-                            $this->sm_log_trace = $value;
-                        }
-                    }
+        get => $this->sm_log_trace;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_trace', $value);
+            $this->sm_log_trace = $value;
+        }
+    }
 
     /**
      * Content Type
@@ -262,12 +273,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_log_content_type = 'text/html' {
-                        get => $this->sm_log_content_type;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_content_type', $value);
-                            $this->sm_log_content_type = $value;
-                        }
-                    }
+        get => $this->sm_log_content_type;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_content_type', $value);
+            $this->sm_log_content_type = $value;
+        }
+    }
 
     /**
      * Controller Name
@@ -278,13 +289,13 @@ class LogsAR extends \Object\ActiveRecord {
      *
      * @var string|null Domain: code Type: varchar
      */
-    public string|null $sm_log_controller_name = NULL {
-                        get => $this->sm_log_controller_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_controller_name', $value);
-                            $this->sm_log_controller_name = $value;
-                        }
-                    }
+    public string|null $sm_log_controller_name = null {
+        get => $this->sm_log_controller_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_controller_name', $value);
+            $this->sm_log_controller_name = $value;
+        }
+    }
 
     /**
      * Form Name
@@ -295,13 +306,13 @@ class LogsAR extends \Object\ActiveRecord {
      *
      * @var string|null Domain: code Type: varchar
      */
-    public string|null $sm_log_form_name = NULL {
-                        get => $this->sm_log_form_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_form_name', $value);
-                            $this->sm_log_form_name = $value;
-                        }
-                    }
+    public string|null $sm_log_form_name = null {
+        get => $this->sm_log_form_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_form_name', $value);
+            $this->sm_log_form_name = $value;
+        }
+    }
 
     /**
      * Form Statistics
@@ -313,12 +324,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_log_form_statistics = null {
-                        get => $this->sm_log_form_statistics;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_form_statistics', $value);
-                            $this->sm_log_form_statistics = $value;
-                        }
-                    }
+        get => $this->sm_log_form_statistics;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_form_statistics', $value);
+            $this->sm_log_form_statistics = $value;
+        }
+    }
 
     /**
      * Motifications
@@ -330,12 +341,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_log_notifications = null {
-                        get => $this->sm_log_notifications;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_notifications', $value);
-                            $this->sm_log_notifications = $value;
-                        }
-                    }
+        get => $this->sm_log_notifications;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_notifications', $value);
+            $this->sm_log_notifications = $value;
+        }
+    }
 
     /**
      * Affected Users
@@ -347,12 +358,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_log_affected_users = null {
-                        get => $this->sm_log_affected_users;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_affected_users', $value);
-                            $this->sm_log_affected_users = $value;
-                        }
-                    }
+        get => $this->sm_log_affected_users;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_affected_users', $value);
+            $this->sm_log_affected_users = $value;
+        }
+    }
 
     /**
      * Affected Rows
@@ -364,12 +375,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var int|null Domain: counter Type: integer
      */
     public int|null $sm_log_affected_rows = 0 {
-                        get => $this->sm_log_affected_rows;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_affected_rows', $value);
-                            $this->sm_log_affected_rows = $value;
-                        }
-                    }
+        get => $this->sm_log_affected_rows;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_affected_rows', $value);
+            $this->sm_log_affected_rows = $value;
+        }
+    }
 
     /**
      * Error Rows
@@ -381,12 +392,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var int|null Domain: counter Type: integer
      */
     public int|null $sm_log_error_rows = 0 {
-                        get => $this->sm_log_error_rows;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_error_rows', $value);
-                            $this->sm_log_error_rows = $value;
-                        }
-                    }
+        get => $this->sm_log_error_rows;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_error_rows', $value);
+            $this->sm_log_error_rows = $value;
+        }
+    }
 
     /**
      * Operation
@@ -398,12 +409,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_log_operation = null {
-                        get => $this->sm_log_operation;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_operation', $value);
-                            $this->sm_log_operation = $value;
-                        }
-                    }
+        get => $this->sm_log_operation;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_operation', $value);
+            $this->sm_log_operation = $value;
+        }
+    }
 
     /**
      * Duration (Float)
@@ -415,12 +426,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var mixed Domain: duration_float Type: bcnumeric
      */
     public mixed $sm_log_duration = 0 {
-                        get => $this->sm_log_duration;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_duration', $value);
-                            $this->sm_log_duration = $value;
-                        }
-                    }
+        get => $this->sm_log_duration;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_duration', $value);
+            $this->sm_log_duration = $value;
+        }
+    }
 
     /**
      * Request URL
@@ -429,15 +440,15 @@ class LogsAR extends \Object\ActiveRecord {
      *
      * {domain{url}}
      *
-     * @var string|null Domain: url Type: varchar
+     * @var string|null Domain: url Type: text
      */
     public string|null $sm_log_request_url = 'None' {
-                        get => $this->sm_log_request_url;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_request_url', $value);
-                            $this->sm_log_request_url = $value;
-                        }
-                    }
+        get => $this->sm_log_request_url;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_request_url', $value);
+            $this->sm_log_request_url = $value;
+        }
+    }
 
     /**
      * SQL
@@ -448,13 +459,13 @@ class LogsAR extends \Object\ActiveRecord {
      *
      * @var string|null Domain: sql_long_query Type: text
      */
-    public string|null $sm_log_sql = NULL {
-                        get => $this->sm_log_sql;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_sql', $value);
-                            $this->sm_log_sql = $value;
-                        }
-                    }
+    public string|null $sm_log_sql = null {
+        get => $this->sm_log_sql;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_sql', $value);
+            $this->sm_log_sql = $value;
+        }
+    }
 
     /**
      * AJAX
@@ -466,12 +477,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_log_ajax = 0 {
-                        get => $this->sm_log_ajax;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_ajax', $value);
-                            $this->sm_log_ajax = $value;
-                        }
-                    }
+        get => $this->sm_log_ajax;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_ajax', $value);
+            $this->sm_log_ajax = $value;
+        }
+    }
 
     /**
      * Mail Sent
@@ -483,12 +494,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_log_mail_sent = 0 {
-                        get => $this->sm_log_mail_sent;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_mail_sent', $value);
-                            $this->sm_log_mail_sent = $value;
-                        }
-                    }
+        get => $this->sm_log_mail_sent;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_mail_sent', $value);
+            $this->sm_log_mail_sent = $value;
+        }
+    }
 
     /**
      * Other
@@ -500,12 +511,29 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Type: text
      */
     public string|null $sm_log_other = null {
-                        get => $this->sm_log_other;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_other', $value);
-                            $this->sm_log_other = $value;
-                        }
-                    }
+        get => $this->sm_log_other;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_other', $value);
+            $this->sm_log_other = $value;
+        }
+    }
+
+    /**
+     * Context
+     *
+     *
+     *
+     *
+     *
+     * @var mixed Type: json
+     */
+    public mixed $sm_log_context = null {
+        get => $this->sm_log_context;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_context', $value);
+            $this->sm_log_context = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -517,12 +545,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_log_inactive = 0 {
-                        get => $this->sm_log_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_inactive', $value);
-                            $this->sm_log_inactive = $value;
-                        }
-                    }
+        get => $this->sm_log_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_inactive', $value);
+            $this->sm_log_inactive = $value;
+        }
+    }
 
     /**
      * Inserted Datetime
@@ -534,12 +562,12 @@ class LogsAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_log_inserted_timestamp = null {
-                        get => $this->sm_log_inserted_timestamp;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_inserted_timestamp', $value);
-                            $this->sm_log_inserted_timestamp = $value;
-                        }
-                    }
+        get => $this->sm_log_inserted_timestamp;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_inserted_timestamp', $value);
+            $this->sm_log_inserted_timestamp = $value;
+        }
+    }
 
     /**
      * Inserted User #
@@ -550,11 +578,11 @@ class LogsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_log_inserted_user_id = NULL {
-                        get => $this->sm_log_inserted_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_log_inserted_user_id', $value);
-                            $this->sm_log_inserted_user_id = $value;
-                        }
-                    }
+    public int|null $sm_log_inserted_user_id = null {
+        get => $this->sm_log_inserted_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_log_inserted_user_id', $value);
+            $this->sm_log_inserted_user_id = $value;
+        }
+    }
 }

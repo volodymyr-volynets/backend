@@ -1,0 +1,19 @@
+{
+    "": "",
+    "AccountSID": "Account SID",
+    "AuthToken": "Auth Token",
+    "Detail": "Detail",
+    "DetailID": "Detail #",
+    "Inactive": "Inactive",
+    "Name": "Name",
+    "OptimisticLock": "Optimistic Lock",
+    "Phone": "Phone",
+    "Profile": "Profile",
+    "ProfileID": "Profile #",
+    "SMSMSProfileSenders": "S/M SMS Profile Senders",
+    "SMSMSProfiles": "S/M SMS Profiles",
+    "Sequence": "Sequence",
+    "TenantID": "Tenant #",
+    "Type": "Type",
+    "YesNo": "Yes / No"
+}

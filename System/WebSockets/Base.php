@@ -82,7 +82,7 @@ class Base
     public function close(): array
     {
         if ($this->client) {
-            //$this->client->disconnect();
+            $this->client->disconnect();
         }
         return [
             'success' => true,

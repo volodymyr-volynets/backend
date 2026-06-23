@@ -45,7 +45,7 @@ class Base
     /**
      * Constructor
      *
-     * @param string $db_link
+     * @param string $log_link
      * @param array $options
      */
     public function __construct(string $log_link, array $options = [])

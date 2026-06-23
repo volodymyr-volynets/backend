@@ -1,19 +1,30 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Modules\Model\Resource;
-class SubresourcesAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class SubresourcesAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Modules\Model\Resource\Subresources::class;
+    public string $object_table_class = Subresources::class;
 
     /**
      * @var array
      */
     public array $object_table_pk = ['sm_rsrsubres_id'];
+
     /**
      * Subresource #
      *
@@ -24,12 +35,12 @@ class SubresourcesAR extends \Object\ActiveRecord {
      * @var int|null Domain: resource_id_sequence Type: serial
      */
     public int|null $sm_rsrsubres_id = null {
-                        get => $this->sm_rsrsubres_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrsubres_id', $value);
-                            $this->sm_rsrsubres_id = $value;
-                        }
-                    }
+        get => $this->sm_rsrsubres_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrsubres_id', $value);
+            $this->sm_rsrsubres_id = $value;
+        }
+    }
 
     /**
      * Resource #
@@ -41,12 +52,12 @@ class SubresourcesAR extends \Object\ActiveRecord {
      * @var int|null Domain: resource_id Type: integer
      */
     public int|null $sm_rsrsubres_resource_id = 0 {
-                        get => $this->sm_rsrsubres_resource_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrsubres_resource_id', $value);
-                            $this->sm_rsrsubres_resource_id = $value;
-                        }
-                    }
+        get => $this->sm_rsrsubres_resource_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrsubres_resource_id', $value);
+            $this->sm_rsrsubres_resource_id = $value;
+        }
+    }
 
     /**
      * Parent Subresource #
@@ -58,12 +69,12 @@ class SubresourcesAR extends \Object\ActiveRecord {
      * @var int|null Domain: resource_id Type: integer
      */
     public int|null $sm_rsrsubres_parent_rsrsubres_id = 0 {
-                        get => $this->sm_rsrsubres_parent_rsrsubres_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrsubres_parent_rsrsubres_id', $value);
-                            $this->sm_rsrsubres_parent_rsrsubres_id = $value;
-                        }
-                    }
+        get => $this->sm_rsrsubres_parent_rsrsubres_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrsubres_parent_rsrsubres_id', $value);
+            $this->sm_rsrsubres_parent_rsrsubres_id = $value;
+        }
+    }
 
     /**
      * Code
@@ -75,12 +86,12 @@ class SubresourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_rsrsubres_code = null {
-                        get => $this->sm_rsrsubres_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrsubres_code', $value);
-                            $this->sm_rsrsubres_code = $value;
-                        }
-                    }
+        get => $this->sm_rsrsubres_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrsubres_code', $value);
+            $this->sm_rsrsubres_code = $value;
+        }
+    }
 
     /**
      * Name
@@ -92,12 +103,12 @@ class SubresourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_rsrsubres_name = null {
-                        get => $this->sm_rsrsubres_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrsubres_name', $value);
-                            $this->sm_rsrsubres_name = $value;
-                        }
-                    }
+        get => $this->sm_rsrsubres_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrsubres_name', $value);
+            $this->sm_rsrsubres_name = $value;
+        }
+    }
 
     /**
      * Icon
@@ -109,12 +120,12 @@ class SubresourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: icon Type: varchar
      */
     public string|null $sm_rsrsubres_icon = null {
-                        get => $this->sm_rsrsubres_icon;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrsubres_icon', $value);
-                            $this->sm_rsrsubres_icon = $value;
-                        }
-                    }
+        get => $this->sm_rsrsubres_icon;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrsubres_icon', $value);
+            $this->sm_rsrsubres_icon = $value;
+        }
+    }
 
     /**
      * Module Code
@@ -126,12 +137,12 @@ class SubresourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: module_code Type: char
      */
     public string|null $sm_rsrsubres_module_code = null {
-                        get => $this->sm_rsrsubres_module_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrsubres_module_code', $value);
-                            $this->sm_rsrsubres_module_code = $value;
-                        }
-                    }
+        get => $this->sm_rsrsubres_module_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrsubres_module_code', $value);
+            $this->sm_rsrsubres_module_code = $value;
+        }
+    }
 
     /**
      * Disabled
@@ -143,12 +154,12 @@ class SubresourcesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_rsrsubres_disabled = 0 {
-                        get => $this->sm_rsrsubres_disabled;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrsubres_disabled', $value);
-                            $this->sm_rsrsubres_disabled = $value;
-                        }
-                    }
+        get => $this->sm_rsrsubres_disabled;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrsubres_disabled', $value);
+            $this->sm_rsrsubres_disabled = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -160,10 +171,10 @@ class SubresourcesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_rsrsubres_inactive = 0 {
-                        get => $this->sm_rsrsubres_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrsubres_inactive', $value);
-                            $this->sm_rsrsubres_inactive = $value;
-                        }
-                    }
+        get => $this->sm_rsrsubres_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrsubres_inactive', $value);
+            $this->sm_rsrsubres_inactive = $value;
+        }
+    }
 }

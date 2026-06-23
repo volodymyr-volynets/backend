@@ -1,8 +1,20 @@
 {
     "DataClassification": "Data Classification",
+    "Field": "Field",
+    "FieldGlobal": "Field (Global)",
+    "Group": "Group",
     "Miscellaneous": "Miscellaneous",
+    "NFGlobals": "N/F Globals",
+    "NFHostnameFull": "N/F Hostname (Full)",
+    "NFHostnameShort": "N/F Hostname (Short)",
+    "NFMessagePlain": "N/F Message Plain",
     "Operations": "Operations",
     "Reports": "Reports",
     "SMDataClassification": "S/M Data Classification",
-    "SystemManagement": "System Management"
+    "SMFields": "S/M Fields",
+    "SMGroups": "S/M Groups",
+    "SystemManagement": "System Management",
+    "UnderscoreUnderscorenfUnderscorehostUnderscoreshort": "__nf_host_short",
+    "UnderscoreUnderscorenfUnderscorehostname": "__nf_hostname",
+    "UnderscoreUnderscorenfUnderscoremessageUnderscoreplain": "__nf_message_plain"
 }

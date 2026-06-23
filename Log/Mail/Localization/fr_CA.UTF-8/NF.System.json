@@ -1,0 +1,7 @@
+{
+    "SMLogMailDeliverLogsCommand": "Journaux de distribution de courrier S/M Log (commande)",
+    "SMLogMailDeliverLogsTask": "Journaux de distribution de courrier S/M Log (Tâche)",
+    "UMEmailLogDeliverLogs": "Journaux de livraison des e-mails U/M",
+    "UseThisCommandToSendMailLogs": "Utilisez cette commande pour envoyer des journaux de messagerie.",
+    "UseThisCommandToSendMailLogsDot": "Utilisez cette commande pour envoyer des journaux de messagerie."
+}

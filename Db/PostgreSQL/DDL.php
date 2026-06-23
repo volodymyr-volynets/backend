@@ -735,7 +735,7 @@ TTT;
                 }
                 break;
             case 'extension_delete':
-                $result = "DROP EXTENSION {$data['name']};";
+                $result = "DROP EXTENSION {$data['name']} CASCADE;";
                 break;
                 // schema
             case 'schema_new':

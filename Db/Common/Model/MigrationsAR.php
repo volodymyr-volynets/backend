@@ -1,19 +1,30 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Db\Common\Model;
-class MigrationsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class MigrationsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\Db\Common\Model\Migrations::class;
+    public string $object_table_class = Migrations::class;
 
     /**
      * @var array
      */
     public array $object_table_pk = ['sm_migration_id'];
+
     /**
      * Migration #
      *
@@ -24,12 +35,12 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var int|null Type: serial
      */
     public int|null $sm_migration_id = null {
-                        get => $this->sm_migration_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_id', $value);
-                            $this->sm_migration_id = $value;
-                        }
-                    }
+        get => $this->sm_migration_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_id', $value);
+            $this->sm_migration_id = $value;
+        }
+    }
 
     /**
      * Db Link
@@ -41,12 +52,12 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_migration_db_link = null {
-                        get => $this->sm_migration_db_link;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_db_link', $value);
-                            $this->sm_migration_db_link = $value;
-                        }
-                    }
+        get => $this->sm_migration_db_link;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_db_link', $value);
+            $this->sm_migration_db_link = $value;
+        }
+    }
 
     /**
      * Type
@@ -58,12 +69,12 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var string|null Domain: type_code Type: varchar
      */
     public string|null $sm_migration_type = null {
-                        get => $this->sm_migration_type;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_type', $value);
-                            $this->sm_migration_type = $value;
-                        }
-                    }
+        get => $this->sm_migration_type;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_type', $value);
+            $this->sm_migration_type = $value;
+        }
+    }
 
     /**
      * Action
@@ -75,12 +86,12 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var string|null Domain: type_code Type: varchar
      */
     public string|null $sm_migration_action = null {
-                        get => $this->sm_migration_action;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_action', $value);
-                            $this->sm_migration_action = $value;
-                        }
-                    }
+        get => $this->sm_migration_action;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_action', $value);
+            $this->sm_migration_action = $value;
+        }
+    }
 
     /**
      * Name
@@ -92,12 +103,12 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_migration_name = null {
-                        get => $this->sm_migration_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_name', $value);
-                            $this->sm_migration_name = $value;
-                        }
-                    }
+        get => $this->sm_migration_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_name', $value);
+            $this->sm_migration_name = $value;
+        }
+    }
 
     /**
      * Developer
@@ -109,12 +120,12 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_migration_developer = null {
-                        get => $this->sm_migration_developer;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_developer', $value);
-                            $this->sm_migration_developer = $value;
-                        }
-                    }
+        get => $this->sm_migration_developer;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_developer', $value);
+            $this->sm_migration_developer = $value;
+        }
+    }
 
     /**
      * Inserted
@@ -126,12 +137,12 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_migration_inserted = null {
-                        get => $this->sm_migration_inserted;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_inserted', $value);
-                            $this->sm_migration_inserted = $value;
-                        }
-                    }
+        get => $this->sm_migration_inserted;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_inserted', $value);
+            $this->sm_migration_inserted = $value;
+        }
+    }
 
     /**
      * Rolled Back
@@ -143,12 +154,12 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_migration_rolled_back = 0 {
-                        get => $this->sm_migration_rolled_back;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_rolled_back', $value);
-                            $this->sm_migration_rolled_back = $value;
-                        }
-                    }
+        get => $this->sm_migration_rolled_back;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_rolled_back', $value);
+            $this->sm_migration_rolled_back = $value;
+        }
+    }
 
     /**
      * Legend
@@ -160,12 +171,12 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_migration_legend = null {
-                        get => $this->sm_migration_legend;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_legend', $value);
-                            $this->sm_migration_legend = $value;
-                        }
-                    }
+        get => $this->sm_migration_legend;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_legend', $value);
+            $this->sm_migration_legend = $value;
+        }
+    }
 
     /**
      * SQL Counter
@@ -177,12 +188,12 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var int|null Domain: counter Type: integer
      */
     public int|null $sm_migration_sql_counter = 0 {
-                        get => $this->sm_migration_sql_counter;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_sql_counter', $value);
-                            $this->sm_migration_sql_counter = $value;
-                        }
-                    }
+        get => $this->sm_migration_sql_counter;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_sql_counter', $value);
+            $this->sm_migration_sql_counter = $value;
+        }
+    }
 
     /**
      * SQL Changes
@@ -194,10 +205,10 @@ class MigrationsAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_migration_sql_changes = null {
-                        get => $this->sm_migration_sql_changes;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_migration_sql_changes', $value);
-                            $this->sm_migration_sql_changes = $value;
-                        }
-                    }
+        get => $this->sm_migration_sql_changes;
+        set {
+            $this->setFullPkAndFilledColumn('sm_migration_sql_changes', $value);
+            $this->sm_migration_sql_changes = $value;
+        }
+    }
 }

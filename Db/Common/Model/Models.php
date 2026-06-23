@@ -38,6 +38,10 @@ class Models extends Table
         'sm_model_widget_attributes' => ['name' => 'Widget Attributes', 'type' => 'boolean'],
         'sm_model_widget_audit' => ['name' => 'Widget Audit', 'type' => 'boolean'],
         'sm_model_widget_addressees' => ['name' => 'Widget Addresses', 'type' => 'boolean'],
+        'sm_model_widget_batches' => ['name' => 'Widget Batches', 'type' => 'boolean'],
+        // scoped attribute
+        'sm_model_scoped_attribute' => ['name' => 'Scoped Attribute', 'type' => 'boolean'],
+        'sm_model_scoped_record' => ['name' => 'Scoped Record', 'type' => 'boolean'],
         // data asset
         'sm_model_da_classification' => ['name' => 'Data Asset Classification', 'type' => 'text'],
         'sm_model_da_protection' => ['name' => 'Data Asset Protection', 'type' => 'smallint', 'default' => 0],

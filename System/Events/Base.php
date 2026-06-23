@@ -43,7 +43,7 @@ class Base
                 'sm_evtrequest_id' => $request_ar->getDbObject()->uuidTenanted(),
                 'sm_evtrequest_um_user_id' => $data['user_id'] ?? \User::id() ?? 0,
                 'sm_evtrequest_sm_event_code' => $code,
-                'sm_evtrequest_sm_event_name' => $event_ar->loadIDByCode($code, null, 'sm_event_name'),
+                'sm_evtrequest_sm_event_name' => $event_ar->loadIDByCode($code, null, 'sm_event_name')[0],
                 'sm_evtrequest_sm_evttype_code' => $options['type'] ?? 'SM::REQUEST_END',
                 'sm_evtrequest_sm_evtqueue_code' => $options['queue'] ?? 'SM::DEFAULT',
                 'sm_evtrequest_status_id' => RequestEventStatuses::New->value,

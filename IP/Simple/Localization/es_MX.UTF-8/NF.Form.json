@@ -1,0 +1,22 @@
+{
+    "Blank": "Blanco",
+    "City": "Ciudad",
+    "Country": "País",
+    "CountryCode": "Código del país",
+    "Delete": "Borrar",
+    "Format": "Formato",
+    "IPEnd": "Fin de IP",
+    "IPStart": "Inicio de IP",
+    "Latitude": "Latitud",
+    "ListColon": "Lista:",
+    "Longitude": "Longitud",
+    "Order": "Orden",
+    "Province": "Provincia",
+    "Reset": "Reiniciar",
+    "Save": "Ahorrar",
+    "SaveAndNew": "Guardar y nuevo",
+    "Sort": "Clasificar",
+    "Submit": "Entregar",
+    "ViewEdit": "Ver / Editar:",
+    "ViewEditColon": "Ver / Editar:"
+}

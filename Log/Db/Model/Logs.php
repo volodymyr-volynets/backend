@@ -55,6 +55,7 @@ class Logs extends Table
         'sm_log_ajax' => ['name' => 'AJAX', 'type' => 'boolean'],
         'sm_log_mail_sent' => ['name' => 'Mail Sent', 'type' => 'boolean'],
         'sm_log_other' => ['name' => 'Other', 'type' => 'text', 'null' => true],
+        'sm_log_context' => ['name' => 'Context', 'type' => 'json', 'null' => true],
         'sm_log_inactive' => ['name' => 'Inactive', 'type' => 'boolean'],
     ];
     public $constraints = [

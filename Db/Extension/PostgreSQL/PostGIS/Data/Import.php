@@ -26,7 +26,7 @@ class Import extends \Object\Import
                     'sm_feature_code' => 'SM::POSTGIS',
                     'sm_feature_type' => 10,
                     'sm_feature_name' => 'S/M PostGIS',
-                    'sm_feature_icon' => 'fas fa-database',
+                    'sm_feature_icon' => 'fa-solid fa-database',
                     'sm_feature_activation_model' => null,
                     'sm_feature_activated_by_default' => 0,
                     'sm_feature_inactive' => 0,

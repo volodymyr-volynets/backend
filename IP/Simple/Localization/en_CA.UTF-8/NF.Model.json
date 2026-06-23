@@ -1,9 +1,12 @@
 {
     "City": "City",
+    "Coordinate": "Coordinate",
+    "Country": "Country",
     "CountryCode": "Country Code",
     "End": "End",
     "Latitude": "Latitude",
     "Longitude": "Longitude",
+    "Name": "Name",
     "Province": "Province",
     "SMIPVersion4": "S/M IP Version 4",
     "Start": "Start"

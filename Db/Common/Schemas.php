@@ -192,6 +192,10 @@ class Schemas
                         'sm_model_widget_attributes' => !empty($model->attributes) ? 1 : 0,
                         'sm_model_widget_audit' => !empty($model->audit) ? 1 : 0,
                         'sm_model_widget_addressees' => !empty($model->addresses) ? 1 : 0,
+                        'sm_model_widget_batches' => !empty($model->batches) ? 1 : 0,
+                        // scoped_attribute
+                        'sm_model_scoped_attribute' => !empty($model->scoped_attributes) ? 1 : 0,
+                        'sm_model_scoped_record' => !empty($model->scoped_records) ? 1 : 0,
                         // data asset
                         'sm_model_da_classification' => $model->data_asset['classification'],
                         'sm_model_da_protection' => $model->data_asset['protection'],
@@ -214,6 +218,10 @@ class Schemas
                                 'sm_model_widget_attributes' => !empty($extra_model->attributes) ? 1 : 0,
                                 'sm_model_widget_audit' => !empty($extra_model->audit) ? 1 : 0,
                                 'sm_model_widget_addressees' => !empty($extra_model->addresses) ? 1 : 0,
+                                'sm_model_widget_batches' => !empty($extra_model->batches) ? 1 : 0,
+                                // scoped_attribute
+                                'sm_model_scoped_attribute' => !empty($extra_model->scoped_attributes) ? 1 : 0,
+                                'sm_model_scoped_record' => !empty($extra_model->scoped_records) ? 1 : 0,
                                 // data asset
                                 'sm_model_da_classification' => $extra_model->data_asset['classification'],
                                 'sm_model_da_protection' => $extra_model->data_asset['protection'],
