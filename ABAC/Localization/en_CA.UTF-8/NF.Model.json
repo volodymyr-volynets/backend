@@ -1,4 +1,5 @@
 {
+    "Attribute": "Attribute",
     "AttributeID": "Attribute #",
     "Code": "Code",
     "Domain": "Domain",
@@ -11,6 +12,7 @@
     "Inactive": "Inactive",
     "IsNumericKey": "Is Numeric Key",
     "LinkModelID": "Link Model #",
+    "Model": "Model",
     "ModelID": "Model #",
     "Module": "Module",
     "ModuleCode": "Module Code",
@@ -18,6 +20,8 @@
     "ParentAttributeID": "Parent Attribute #",
     "SMABACAssignments": "S/M ABAC Assignments",
     "SMABACAttributes": "S/M ABAC Attributes",
+    "Sequence": "Sequence",
     "Tenant": "Tenant",
-    "Type": "Type"
+    "Type": "Type",
+    "YesNo": "Yes / No"
 }

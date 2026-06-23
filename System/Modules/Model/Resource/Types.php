@@ -32,8 +32,10 @@ class Types extends Data
         // menu
         200 => ['sm_rsrctype_name' => 'Main Menu - Left Side'],
         210 => ['sm_rsrctype_name' => 'Main Menu - Right Side'],
+        215 => ['sm_rsrctype_name' => 'Quick Actions'],
         220 => ['sm_rsrctype_name' => 'Top Links'],
         230 => ['sm_rsrctype_name' => 'Footer Links'],
+        295 => ['sm_rsrctype_name' => 'Menu Group Names'],
         299 => ['sm_rsrctype_name' => 'Submenu Icons'],
     ];
 }

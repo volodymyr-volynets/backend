@@ -1,19 +1,30 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Modules\Model;
-class ModulesAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class ModulesAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Modules\Model\Modules::class;
+    public string $object_table_class = Modules::class;
 
     /**
      * @var array
      */
     public array $object_table_pk = ['sm_module_code'];
+
     /**
      * Module Code
      *
@@ -24,12 +35,12 @@ class ModulesAR extends \Object\ActiveRecord {
      * @var string|null Domain: module_code Type: char
      */
     public string|null $sm_module_code = null {
-                        get => $this->sm_module_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_code', $value);
-                            $this->sm_module_code = $value;
-                        }
-                    }
+        get => $this->sm_module_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_code', $value);
+            $this->sm_module_code = $value;
+        }
+    }
 
     /**
      * Type
@@ -40,13 +51,13 @@ class ModulesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: type_id Type: smallint
      */
-    public int|null $sm_module_type = NULL {
-                        get => $this->sm_module_type;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_type', $value);
-                            $this->sm_module_type = $value;
-                        }
-                    }
+    public int|null $sm_module_type = null {
+        get => $this->sm_module_type;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_type', $value);
+            $this->sm_module_type = $value;
+        }
+    }
 
     /**
      * Name
@@ -58,12 +69,12 @@ class ModulesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_module_name = null {
-                        get => $this->sm_module_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_name', $value);
-                            $this->sm_module_name = $value;
-                        }
-                    }
+        get => $this->sm_module_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_name', $value);
+            $this->sm_module_name = $value;
+        }
+    }
 
     /**
      * Abbreviation
@@ -75,15 +86,15 @@ class ModulesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_module_abbreviation = null {
-                        get => $this->sm_module_abbreviation;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_abbreviation', $value);
-                            $this->sm_module_abbreviation = $value;
-                        }
-                    }
+        get => $this->sm_module_abbreviation;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_abbreviation', $value);
+            $this->sm_module_abbreviation = $value;
+        }
+    }
 
     /**
-     * Name
+     * Icon
      *
      *
      *
@@ -92,12 +103,12 @@ class ModulesAR extends \Object\ActiveRecord {
      * @var string|null Domain: icon Type: varchar
      */
     public string|null $sm_module_icon = null {
-                        get => $this->sm_module_icon;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_icon', $value);
-                            $this->sm_module_icon = $value;
-                        }
-                    }
+        get => $this->sm_module_icon;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_icon', $value);
+            $this->sm_module_icon = $value;
+        }
+    }
 
     /**
      * Transactions
@@ -109,12 +120,12 @@ class ModulesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_module_transactions = 0 {
-                        get => $this->sm_module_transactions;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_transactions', $value);
-                            $this->sm_module_transactions = $value;
-                        }
-                    }
+        get => $this->sm_module_transactions;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_transactions', $value);
+            $this->sm_module_transactions = $value;
+        }
+    }
 
     /**
      * Multiple
@@ -126,12 +137,12 @@ class ModulesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_module_multiple = 0 {
-                        get => $this->sm_module_multiple;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_multiple', $value);
-                            $this->sm_module_multiple = $value;
-                        }
-                    }
+        get => $this->sm_module_multiple;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_multiple', $value);
+            $this->sm_module_multiple = $value;
+        }
+    }
 
     /**
      * Activation Model
@@ -143,12 +154,12 @@ class ModulesAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_module_activation_model = null {
-                        get => $this->sm_module_activation_model;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_activation_model', $value);
-                            $this->sm_module_activation_model = $value;
-                        }
-                    }
+        get => $this->sm_module_activation_model;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_activation_model', $value);
+            $this->sm_module_activation_model = $value;
+        }
+    }
 
     /**
      * Reset Model
@@ -160,12 +171,12 @@ class ModulesAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_module_reset_model = null {
-                        get => $this->sm_module_reset_model;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_reset_model', $value);
-                            $this->sm_module_reset_model = $value;
-                        }
-                    }
+        get => $this->sm_module_reset_model;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_reset_model', $value);
+            $this->sm_module_reset_model = $value;
+        }
+    }
 
     /**
      * Custom Activation
@@ -177,12 +188,12 @@ class ModulesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_module_custom_activation = 0 {
-                        get => $this->sm_module_custom_activation;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_custom_activation', $value);
-                            $this->sm_module_custom_activation = $value;
-                        }
-                    }
+        get => $this->sm_module_custom_activation;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_custom_activation', $value);
+            $this->sm_module_custom_activation = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -194,10 +205,10 @@ class ModulesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_module_inactive = 0 {
-                        get => $this->sm_module_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_module_inactive', $value);
-                            $this->sm_module_inactive = $value;
-                        }
-                    }
+        get => $this->sm_module_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_module_inactive', $value);
+            $this->sm_module_inactive = $value;
+        }
+    }
 }

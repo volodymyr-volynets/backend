@@ -1,0 +1,7 @@
+{
+    "SMLogMailDeliverLogsCommand": "Registros de entrega de correo de registro S/M (comando)",
+    "SMLogMailDeliverLogsTask": "Registros de entrega de correo de registro S/M (tarea)",
+    "UMEmailLogDeliverLogs": "Registros de entrega de registros de correo electrónico de U/M",
+    "UseThisCommandToSendMailLogs": "Utilice este comando para enviar registros de correo.",
+    "UseThisCommandToSendMailLogsDot": "Utilice este comando para enviar registros de correo."
+}

@@ -1,19 +1,30 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Modules\Model;
-class ResourcesAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class ResourcesAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Modules\Model\Resources::class;
+    public string $object_table_class = Resources::class;
 
     /**
      * @var array
      */
     public array $object_table_pk = ['sm_resource_id'];
+
     /**
      * Resource #
      *
@@ -24,12 +35,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Domain: resource_id_sequence Type: serial
      */
     public int|null $sm_resource_id = null {
-                        get => $this->sm_resource_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_id', $value);
-                            $this->sm_resource_id = $value;
-                        }
-                    }
+        get => $this->sm_resource_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_id', $value);
+            $this->sm_resource_id = $value;
+        }
+    }
 
     /**
      * Code
@@ -41,12 +52,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_resource_code = null {
-                        get => $this->sm_resource_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_code', $value);
-                            $this->sm_resource_code = $value;
-                        }
-                    }
+        get => $this->sm_resource_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_code', $value);
+            $this->sm_resource_code = $value;
+        }
+    }
 
     /**
      * Type
@@ -57,13 +68,13 @@ class ResourcesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: type_id Type: smallint
      */
-    public int|null $sm_resource_type = NULL {
-                        get => $this->sm_resource_type;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_type', $value);
-                            $this->sm_resource_type = $value;
-                        }
-                    }
+    public int|null $sm_resource_type = null {
+        get => $this->sm_resource_type;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_type', $value);
+            $this->sm_resource_type = $value;
+        }
+    }
 
     /**
      * Classification
@@ -75,12 +86,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_classification = null {
-                        get => $this->sm_resource_classification;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_classification', $value);
-                            $this->sm_resource_classification = $value;
-                        }
-                    }
+        get => $this->sm_resource_classification;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_classification', $value);
+            $this->sm_resource_classification = $value;
+        }
+    }
 
     /**
      * Name
@@ -92,12 +103,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_name = null {
-                        get => $this->sm_resource_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_name', $value);
-                            $this->sm_resource_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_name', $value);
+            $this->sm_resource_name = $value;
+        }
+    }
 
     /**
      * Description
@@ -109,12 +120,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: description Type: varchar
      */
     public string|null $sm_resource_description = null {
-                        get => $this->sm_resource_description;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_description', $value);
-                            $this->sm_resource_description = $value;
-                        }
-                    }
+        get => $this->sm_resource_description;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_description', $value);
+            $this->sm_resource_description = $value;
+        }
+    }
 
     /**
      * Icon
@@ -126,12 +137,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: icon Type: varchar
      */
     public string|null $sm_resource_icon = null {
-                        get => $this->sm_resource_icon;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_icon', $value);
-                            $this->sm_resource_icon = $value;
-                        }
-                    }
+        get => $this->sm_resource_icon;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_icon', $value);
+            $this->sm_resource_icon = $value;
+        }
+    }
 
     /**
      * Module Code
@@ -143,12 +154,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: module_code Type: char
      */
     public string|null $sm_resource_module_code = null {
-                        get => $this->sm_resource_module_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_module_code', $value);
-                            $this->sm_resource_module_code = $value;
-                        }
-                    }
+        get => $this->sm_resource_module_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_module_code', $value);
+            $this->sm_resource_module_code = $value;
+        }
+    }
 
     /**
      * Extra Module Code
@@ -160,12 +171,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_resource_extra_module_code = null {
-                        get => $this->sm_resource_extra_module_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_extra_module_code', $value);
-                            $this->sm_resource_extra_module_code = $value;
-                        }
-                    }
+        get => $this->sm_resource_extra_module_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_extra_module_code', $value);
+            $this->sm_resource_extra_module_code = $value;
+        }
+    }
 
     /**
      * Group 1
@@ -177,12 +188,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_group1_name = null {
-                        get => $this->sm_resource_group1_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_group1_name', $value);
-                            $this->sm_resource_group1_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_group1_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_group1_name', $value);
+            $this->sm_resource_group1_name = $value;
+        }
+    }
 
     /**
      * Group 2
@@ -194,12 +205,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_group2_name = null {
-                        get => $this->sm_resource_group2_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_group2_name', $value);
-                            $this->sm_resource_group2_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_group2_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_group2_name', $value);
+            $this->sm_resource_group2_name = $value;
+        }
+    }
 
     /**
      * Group 3
@@ -211,12 +222,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_group3_name = null {
-                        get => $this->sm_resource_group3_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_group3_name', $value);
-                            $this->sm_resource_group3_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_group3_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_group3_name', $value);
+            $this->sm_resource_group3_name = $value;
+        }
+    }
 
     /**
      * Group 4
@@ -228,12 +239,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_group4_name = null {
-                        get => $this->sm_resource_group4_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_group4_name', $value);
-                            $this->sm_resource_group4_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_group4_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_group4_name', $value);
+            $this->sm_resource_group4_name = $value;
+        }
+    }
 
     /**
      * Group 5
@@ -245,12 +256,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_group5_name = null {
-                        get => $this->sm_resource_group5_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_group5_name', $value);
-                            $this->sm_resource_group5_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_group5_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_group5_name', $value);
+            $this->sm_resource_group5_name = $value;
+        }
+    }
 
     /**
      * Group 6
@@ -262,12 +273,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_group6_name = null {
-                        get => $this->sm_resource_group6_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_group6_name', $value);
-                            $this->sm_resource_group6_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_group6_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_group6_name', $value);
+            $this->sm_resource_group6_name = $value;
+        }
+    }
 
     /**
      * Group 7
@@ -279,12 +290,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_group7_name = null {
-                        get => $this->sm_resource_group7_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_group7_name', $value);
-                            $this->sm_resource_group7_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_group7_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_group7_name', $value);
+            $this->sm_resource_group7_name = $value;
+        }
+    }
 
     /**
      * Group 8
@@ -296,12 +307,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_group8_name = null {
-                        get => $this->sm_resource_group8_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_group8_name', $value);
-                            $this->sm_resource_group8_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_group8_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_group8_name', $value);
+            $this->sm_resource_group8_name = $value;
+        }
+    }
 
     /**
      * Group 9
@@ -313,12 +324,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_group9_name = null {
-                        get => $this->sm_resource_group9_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_group9_name', $value);
-                            $this->sm_resource_group9_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_group9_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_group9_name', $value);
+            $this->sm_resource_group9_name = $value;
+        }
+    }
 
     /**
      * Version Code
@@ -330,12 +341,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: version_code Type: varchar
      */
     public string|null $sm_resource_version_code = null {
-                        get => $this->sm_resource_version_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_version_code', $value);
-                            $this->sm_resource_version_code = $value;
-                        }
-                    }
+        get => $this->sm_resource_version_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_version_code', $value);
+            $this->sm_resource_version_code = $value;
+        }
+    }
 
     /**
      * API Method Counter
@@ -347,12 +358,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Domain: counter Type: integer
      */
     public int|null $sm_resource_api_method_counter = 0 {
-                        get => $this->sm_resource_api_method_counter;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_api_method_counter', $value);
-                            $this->sm_resource_api_method_counter = $value;
-                        }
-                    }
+        get => $this->sm_resource_api_method_counter;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_api_method_counter', $value);
+            $this->sm_resource_api_method_counter = $value;
+        }
+    }
 
     /**
      * Acl Public
@@ -364,12 +375,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_resource_acl_public = 0 {
-                        get => $this->sm_resource_acl_public;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_acl_public', $value);
-                            $this->sm_resource_acl_public = $value;
-                        }
-                    }
+        get => $this->sm_resource_acl_public;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_acl_public', $value);
+            $this->sm_resource_acl_public = $value;
+        }
+    }
 
     /**
      * Acl Authorized
@@ -381,12 +392,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_resource_acl_authorized = 0 {
-                        get => $this->sm_resource_acl_authorized;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_acl_authorized', $value);
-                            $this->sm_resource_acl_authorized = $value;
-                        }
-                    }
+        get => $this->sm_resource_acl_authorized;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_acl_authorized', $value);
+            $this->sm_resource_acl_authorized = $value;
+        }
+    }
 
     /**
      * Acl Permission
@@ -398,12 +409,29 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_resource_acl_permission = 0 {
-                        get => $this->sm_resource_acl_permission;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_acl_permission', $value);
-                            $this->sm_resource_acl_permission = $value;
-                        }
-                    }
+        get => $this->sm_resource_acl_permission;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_acl_permission', $value);
+            $this->sm_resource_acl_permission = $value;
+        }
+    }
+
+    /**
+     * Acl Access Settings
+     *
+     *
+     *
+     *
+     *
+     * @var int|null Type: boolean
+     */
+    public int|null $sm_resource_acl_access_settings = 0 {
+        get => $this->sm_resource_acl_access_settings;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_acl_access_settings', $value);
+            $this->sm_resource_acl_access_settings = $value;
+        }
+    }
 
     /**
      * Acl Resource #
@@ -415,12 +443,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Domain: resource_id Type: integer
      */
     public int|null $sm_resource_menu_acl_resource_id = 0 {
-                        get => $this->sm_resource_menu_acl_resource_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_menu_acl_resource_id', $value);
-                            $this->sm_resource_menu_acl_resource_id = $value;
-                        }
-                    }
+        get => $this->sm_resource_menu_acl_resource_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_acl_resource_id', $value);
+            $this->sm_resource_menu_acl_resource_id = $value;
+        }
+    }
 
     /**
      * Acl Action Code
@@ -432,12 +460,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_resource_menu_acl_method_code = null {
-                        get => $this->sm_resource_menu_acl_method_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_menu_acl_method_code', $value);
-                            $this->sm_resource_menu_acl_method_code = $value;
-                        }
-                    }
+        get => $this->sm_resource_menu_acl_method_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_acl_method_code', $value);
+            $this->sm_resource_menu_acl_method_code = $value;
+        }
+    }
 
     /**
      * Acl Action #
@@ -449,15 +477,15 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Domain: action_id Type: smallint
      */
     public int|null $sm_resource_menu_acl_action_id = 0 {
-                        get => $this->sm_resource_menu_acl_action_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_menu_acl_action_id', $value);
-                            $this->sm_resource_menu_acl_action_id = $value;
-                        }
-                    }
+        get => $this->sm_resource_menu_acl_action_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_acl_action_id', $value);
+            $this->sm_resource_menu_acl_action_id = $value;
+        }
+    }
 
     /**
-     * URL
+     * Menu URL
      *
      *
      *
@@ -466,12 +494,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Type: text
      */
     public string|null $sm_resource_menu_url = null {
-                        get => $this->sm_resource_menu_url;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_menu_url', $value);
-                            $this->sm_resource_menu_url = $value;
-                        }
-                    }
+        get => $this->sm_resource_menu_url;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_url', $value);
+            $this->sm_resource_menu_url = $value;
+        }
+    }
 
     /**
      * Options Generator
@@ -483,12 +511,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Type: text
      */
     public string|null $sm_resource_menu_options_generator = null {
-                        get => $this->sm_resource_menu_options_generator;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_menu_options_generator', $value);
-                            $this->sm_resource_menu_options_generator = $value;
-                        }
-                    }
+        get => $this->sm_resource_menu_options_generator;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_options_generator', $value);
+            $this->sm_resource_menu_options_generator = $value;
+        }
+    }
 
     /**
      * Name Generator
@@ -500,12 +528,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Type: text
      */
     public string|null $sm_resource_menu_name_generator = null {
-                        get => $this->sm_resource_menu_name_generator;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_menu_name_generator', $value);
-                            $this->sm_resource_menu_name_generator = $value;
-                        }
-                    }
+        get => $this->sm_resource_menu_name_generator;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_name_generator', $value);
+            $this->sm_resource_menu_name_generator = $value;
+        }
+    }
 
     /**
      * Child Ordered
@@ -517,12 +545,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_resource_menu_child_ordered = 0 {
-                        get => $this->sm_resource_menu_child_ordered;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_menu_child_ordered', $value);
-                            $this->sm_resource_menu_child_ordered = $value;
-                        }
-                    }
+        get => $this->sm_resource_menu_child_ordered;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_child_ordered', $value);
+            $this->sm_resource_menu_child_ordered = $value;
+        }
+    }
 
     /**
      * Order
@@ -534,12 +562,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Type: integer
      */
     public int|null $sm_resource_menu_order = 0 {
-                        get => $this->sm_resource_menu_order;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_menu_order', $value);
-                            $this->sm_resource_menu_order = $value;
-                        }
-                    }
+        get => $this->sm_resource_menu_order;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_order', $value);
+            $this->sm_resource_menu_order = $value;
+        }
+    }
 
     /**
      * Separator
@@ -551,12 +579,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_resource_menu_separator = 0 {
-                        get => $this->sm_resource_menu_separator;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_menu_separator', $value);
-                            $this->sm_resource_menu_separator = $value;
-                        }
-                    }
+        get => $this->sm_resource_menu_separator;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_separator', $value);
+            $this->sm_resource_menu_separator = $value;
+        }
+    }
 
     /**
      * Class
@@ -568,12 +596,63 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Type: text
      */
     public string|null $sm_resource_menu_class = null {
-                        get => $this->sm_resource_menu_class;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_menu_class', $value);
-                            $this->sm_resource_menu_class = $value;
-                        }
-                    }
+        get => $this->sm_resource_menu_class;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_class', $value);
+            $this->sm_resource_menu_class = $value;
+        }
+    }
+
+    /**
+     * Menu Group Name
+     *
+     *
+     *
+     * {domain{name}}
+     *
+     * @var string|null Domain: name Type: varchar
+     */
+    public string|null $sm_resource_menu_group_name = null {
+        get => $this->sm_resource_menu_group_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_menu_group_name', $value);
+            $this->sm_resource_menu_group_name = $value;
+        }
+    }
+
+    /**
+     * Root Node
+     *
+     *
+     *
+     *
+     *
+     * @var int|null Type: boolean
+     */
+    public int|null $sm_resource_root_node = 0 {
+        get => $this->sm_resource_root_node;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_root_node', $value);
+            $this->sm_resource_root_node = $value;
+        }
+    }
+
+    /**
+     * Route Alias
+     *
+     *
+     *
+     * {domain{name}}
+     *
+     * @var string|null Domain: name Type: varchar
+     */
+    public string|null $sm_resource_route_alias = null {
+        get => $this->sm_resource_route_alias;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_route_alias', $value);
+            $this->sm_resource_route_alias = $value;
+        }
+    }
 
     /**
      * Template Name
@@ -585,12 +664,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_template_name = 'default' {
-                        get => $this->sm_resource_template_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_template_name', $value);
-                            $this->sm_resource_template_name = $value;
-                        }
-                    }
+        get => $this->sm_resource_template_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_template_name', $value);
+            $this->sm_resource_template_name = $value;
+        }
+    }
 
     /**
      * Badge
@@ -602,12 +681,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_resource_badge = null {
-                        get => $this->sm_resource_badge;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_badge', $value);
-                            $this->sm_resource_badge = $value;
-                        }
-                    }
+        get => $this->sm_resource_badge;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_badge', $value);
+            $this->sm_resource_badge = $value;
+        }
+    }
 
     /**
      * Requires Tenants
@@ -619,12 +698,12 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_resource_requires_tenants = 0 {
-                        get => $this->sm_resource_requires_tenants;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_requires_tenants', $value);
-                            $this->sm_resource_requires_tenants = $value;
-                        }
-                    }
+        get => $this->sm_resource_requires_tenants;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_requires_tenants', $value);
+            $this->sm_resource_requires_tenants = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -636,10 +715,10 @@ class ResourcesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_resource_inactive = 0 {
-                        get => $this->sm_resource_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_resource_inactive', $value);
-                            $this->sm_resource_inactive = $value;
-                        }
-                    }
+        get => $this->sm_resource_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_resource_inactive', $value);
+            $this->sm_resource_inactive = $value;
+        }
+    }
 }

@@ -5,11 +5,15 @@
     "Description": "Description",
     "EventCode": "Event Code",
     "EventName": "Event Name",
+    "FormatColonColongetDatePlaceholder": "Format::getDatePlaceholder",
+    "Format__getDatePlaceholder": "Format::getDatePlaceholder",
+    "FormatgetDatePlaceholder": "Format::getDatePlaceholder",
     "Inactive": "Inactive",
     "InsertedDatetime": "Inserted Datetime",
     "InsertedUserID": "Inserted User #",
     "MaxRetries": "Max Retries",
     "Model": "Model",
+    "Module": "Module",
     "ModuleCode": "Module Code",
     "Name": "Name",
     "Options": "Options",
@@ -31,5 +35,7 @@
     "UUID": "UUID",
     "UpdatedDatetime": "Updated Datetime",
     "UpdatedUserID": "Updated User #",
-    "UserID": "User #"
+    "User": "User",
+    "UserID": "User #",
+    "YesNo": "Yes / No"
 }

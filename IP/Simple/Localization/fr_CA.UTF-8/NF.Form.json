@@ -1,0 +1,22 @@
+{
+    "Blank": "Vide",
+    "City": "Ville",
+    "Country": "Pays",
+    "CountryCode": "Code du pays",
+    "Delete": "Supprimer",
+    "Format": "Format",
+    "IPEnd": "IP Fin",
+    "IPStart": "IP Start",
+    "Latitude": "Latitude",
+    "ListColon": "Liste:",
+    "Longitude": "Longitude",
+    "Order": "Commande",
+    "Province": "Province",
+    "Reset": "Réinitialiser",
+    "Save": "Sauvegarder",
+    "SaveAndNew": "Enregistrer et nouveau",
+    "Sort": "Trier",
+    "Submit": "Soumettre",
+    "ViewEdit": "Afficher / Modifier :",
+    "ViewEditColon": "Afficher / Modifier :"
+}

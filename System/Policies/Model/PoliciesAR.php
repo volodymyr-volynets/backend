@@ -1,19 +1,30 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Policies\Model;
-class PoliciesAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class PoliciesAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Policies\Model\Policies::class;
+    public string $object_table_class = Policies::class;
 
     /**
      * @var array
      */
     public array $object_table_pk = ['sm_policy_tenant_id','sm_policy_code'];
+
     /**
      * Tenant #
      *
@@ -23,13 +34,13 @@ class PoliciesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: tenant_id Type: integer
      */
-    public int|null $sm_policy_tenant_id = NULL {
-                        get => $this->sm_policy_tenant_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_tenant_id', $value);
-                            $this->sm_policy_tenant_id = $value;
-                        }
-                    }
+    public int|null $sm_policy_tenant_id = null {
+        get => $this->sm_policy_tenant_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_tenant_id', $value);
+            $this->sm_policy_tenant_id = $value;
+        }
+    }
 
     /**
      * Code
@@ -41,12 +52,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var string|null Domain: group_code Type: varchar
      */
     public string|null $sm_policy_code = null {
-                        get => $this->sm_policy_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_code', $value);
-                            $this->sm_policy_code = $value;
-                        }
-                    }
+        get => $this->sm_policy_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_code', $value);
+            $this->sm_policy_code = $value;
+        }
+    }
 
     /**
      * Name
@@ -58,12 +69,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_policy_name = null {
-                        get => $this->sm_policy_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_name', $value);
-                            $this->sm_policy_name = $value;
-                        }
-                    }
+        get => $this->sm_policy_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_name', $value);
+            $this->sm_policy_name = $value;
+        }
+    }
 
     /**
      * Code
@@ -75,12 +86,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var string|null Domain: big_code Type: varchar
      */
     public string|null $sm_policy_sm_poltype_code = null {
-                        get => $this->sm_policy_sm_poltype_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_sm_poltype_code', $value);
-                            $this->sm_policy_sm_poltype_code = $value;
-                        }
-                    }
+        get => $this->sm_policy_sm_poltype_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_sm_poltype_code', $value);
+            $this->sm_policy_sm_poltype_code = $value;
+        }
+    }
 
     /**
      * Description
@@ -92,12 +103,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var string|null Domain: description Type: varchar
      */
     public string|null $sm_policy_description = null {
-                        get => $this->sm_policy_description;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_description', $value);
-                            $this->sm_policy_description = $value;
-                        }
-                    }
+        get => $this->sm_policy_description;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_description', $value);
+            $this->sm_policy_description = $value;
+        }
+    }
 
     /**
      * Module Code
@@ -109,12 +120,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var string|null Domain: module_code Type: char
      */
     public string|null $sm_policy_module_code = null {
-                        get => $this->sm_policy_module_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_module_code', $value);
-                            $this->sm_policy_module_code = $value;
-                        }
-                    }
+        get => $this->sm_policy_module_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_module_code', $value);
+            $this->sm_policy_module_code = $value;
+        }
+    }
 
     /**
      * External Json
@@ -126,12 +137,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_policy_external_json = null {
-                        get => $this->sm_policy_external_json;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_external_json', $value);
-                            $this->sm_policy_external_json = $value;
-                        }
-                    }
+        get => $this->sm_policy_external_json;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_external_json', $value);
+            $this->sm_policy_external_json = $value;
+        }
+    }
 
     /**
      * Internal Json
@@ -143,12 +154,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_policy_internal_json = null {
-                        get => $this->sm_policy_internal_json;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_internal_json', $value);
-                            $this->sm_policy_internal_json = $value;
-                        }
-                    }
+        get => $this->sm_policy_internal_json;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_internal_json', $value);
+            $this->sm_policy_internal_json = $value;
+        }
+    }
 
     /**
      * Global
@@ -160,12 +171,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_policy_global = 0 {
-                        get => $this->sm_policy_global;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_global', $value);
-                            $this->sm_policy_global = $value;
-                        }
-                    }
+        get => $this->sm_policy_global;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_global', $value);
+            $this->sm_policy_global = $value;
+        }
+    }
 
     /**
      * Weight
@@ -176,13 +187,13 @@ class PoliciesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: weight Type: integer
      */
-    public int|null $sm_policy_weight = NULL {
-                        get => $this->sm_policy_weight;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_weight', $value);
-                            $this->sm_policy_weight = $value;
-                        }
-                    }
+    public int|null $sm_policy_weight = null {
+        get => $this->sm_policy_weight;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_weight', $value);
+            $this->sm_policy_weight = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -194,12 +205,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_policy_inactive = 0 {
-                        get => $this->sm_policy_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_inactive', $value);
-                            $this->sm_policy_inactive = $value;
-                        }
-                    }
+        get => $this->sm_policy_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_inactive', $value);
+            $this->sm_policy_inactive = $value;
+        }
+    }
 
     /**
      * Inserted Datetime
@@ -211,12 +222,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_policy_inserted_timestamp = null {
-                        get => $this->sm_policy_inserted_timestamp;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_inserted_timestamp', $value);
-                            $this->sm_policy_inserted_timestamp = $value;
-                        }
-                    }
+        get => $this->sm_policy_inserted_timestamp;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_inserted_timestamp', $value);
+            $this->sm_policy_inserted_timestamp = $value;
+        }
+    }
 
     /**
      * Inserted User #
@@ -227,13 +238,13 @@ class PoliciesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_policy_inserted_user_id = NULL {
-                        get => $this->sm_policy_inserted_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_inserted_user_id', $value);
-                            $this->sm_policy_inserted_user_id = $value;
-                        }
-                    }
+    public int|null $sm_policy_inserted_user_id = null {
+        get => $this->sm_policy_inserted_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_inserted_user_id', $value);
+            $this->sm_policy_inserted_user_id = $value;
+        }
+    }
 
     /**
      * Updated Datetime
@@ -245,12 +256,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_policy_updated_timestamp = null {
-                        get => $this->sm_policy_updated_timestamp;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_updated_timestamp', $value);
-                            $this->sm_policy_updated_timestamp = $value;
-                        }
-                    }
+        get => $this->sm_policy_updated_timestamp;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_updated_timestamp', $value);
+            $this->sm_policy_updated_timestamp = $value;
+        }
+    }
 
     /**
      * Updated User #
@@ -261,11 +272,11 @@ class PoliciesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_policy_updated_user_id = NULL {
-                        get => $this->sm_policy_updated_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_policy_updated_user_id', $value);
-                            $this->sm_policy_updated_user_id = $value;
-                        }
-                    }
+    public int|null $sm_policy_updated_user_id = null {
+        get => $this->sm_policy_updated_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_policy_updated_user_id', $value);
+            $this->sm_policy_updated_user_id = $value;
+        }
+    }
 }

@@ -16,8 +16,7 @@ use Object\Content\Messages;
 use Object\Controller;
 
 class TaskProgress extends Controller
-{ // \Object\Controller\Authorized
-
+{
     public $title = 'Task Progress';
 
     public function actionIndex()

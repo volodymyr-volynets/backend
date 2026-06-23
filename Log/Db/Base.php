@@ -36,6 +36,9 @@ class Base extends \Numbers\Backend\Log\Common\Base
                 $v['sm_log_inserted_timestamp'] = $v['sm_log_inserted_timestamp'] ?? \Format::now('timestamp');
                 $v['sm_log_inserted_user_id'] = \User::id();
                 $v['sm_log_chanel'] = $log_link;
+                // context
+                $v['sm_log_context'] = \Context::getStatic();
+                // merge with filter
                 $data[$k] = array_merge($v, $model->filter);
                 // determine if we have new keys
                 if (!isset($keys)) {

@@ -15,6 +15,20 @@ namespace Numbers\Backend\Crypt\OpenSSL;
 class Base extends \Numbers\Backend\Crypt\Common\Base
 {
     /**
+     * File encryption blocks
+     *
+     * @var int
+     */
+    public const FILE_ENCRYPTION_BLOCKS = 10000;
+
+    /**
+     * File cipher
+     *
+     * @var string
+     */
+    public const FILE_CIPHER = 'aes-256-cbc';
+
+    /**
      * Constructing
      *
      * @param string $crypt_link
@@ -41,12 +55,12 @@ class Base extends \Numbers\Backend\Crypt\Common\Base
     /**
      * @see Crypt::encrypt();
      */
-    public function encrypt(string $data): string
+    public function encrypt(string $data, ?string $encryption_key = null, bool $base64 = false): string
     {
         $ivlen = openssl_cipher_iv_length($this->cipher);
         $iv = openssl_random_pseudo_bytes($ivlen);
-        $encrypted = $iv . openssl_encrypt($data, $this->cipher, $this->encryption_key, OPENSSL_RAW_DATA, $iv);
-        if ($this->base64) {
+        $encrypted = $iv . openssl_encrypt($data, $this->cipher, $encryption_key ?? $this->encryption_key, OPENSSL_RAW_DATA, $iv);
+        if ($this->base64 || $base64) {
             return base64_encode($encrypted);
         } else {
             return $encrypted;
@@ -56,9 +70,9 @@ class Base extends \Numbers\Backend\Crypt\Common\Base
     /**
      * @see Crypt::decrypt();
      */
-    public function decrypt(string $data): string
+    public function decrypt(string $data, ?string $encryption_key = null): string|bool
     {
-        if ($this->base64) {
+        if (is_base64($data)) {
             $decoded = base64_decode($data);
         } else {
             $decoded = $data;
@@ -66,7 +80,7 @@ class Base extends \Numbers\Backend\Crypt\Common\Base
         $ivlen = openssl_cipher_iv_length($this->cipher);
         $iv = substr($decoded, 0, $ivlen);
         $decoded = substr($decoded, $ivlen);
-        return openssl_decrypt($decoded, $this->cipher, $this->encryption_key, OPENSSL_RAW_DATA, $iv);
+        return openssl_decrypt($decoded, $this->cipher, $encryption_key ?? $this->encryption_key, OPENSSL_RAW_DATA, $iv);
     }
 
     /**
@@ -83,5 +97,64 @@ class Base extends \Numbers\Backend\Crypt\Common\Base
     public function uncompress(string $data)
     {
         return gzuncompress($data);
+    }
+
+    /**
+     * Encrypt file
+     *
+     * @param string $source_file
+     * @param string $destination_file
+     * @param mixed $encryption_key
+     * @return bool
+     */
+    public function encryptFile(string $source_file, string $destination_file, ?string $encryption_key = null): bool
+    {
+        $iv_length = openssl_cipher_iv_length(self::FILE_CIPHER);
+        $iv = openssl_random_pseudo_bytes($iv_length);
+        // open files
+        $source_opened = fopen($source_file, 'rb');
+        $destination_opened = fopen($destination_file, 'w');
+        // write IV
+        fwrite($destination_opened, $iv);
+        // encrypt in chunks
+        while (!feof($source_opened)) {
+            $plain_text = fread($source_opened, $iv_length * self::FILE_ENCRYPTION_BLOCKS);
+            $cipher_text = openssl_encrypt($plain_text, self::FILE_CIPHER, $encryption_key ?? $this->encryption_key, OPENSSL_RAW_DATA, $iv);
+            $iv = substr($cipher_text, 0, $iv_length);
+            fwrite($destination_opened, $cipher_text);
+        }
+        // close handlers
+        fclose($source_opened);
+        fclose($destination_opened);
+        return true;
+    }
+
+    /**
+     * Decrypt file
+     *
+     * @param string $source_file
+     * @param string $destination_file
+     * @param mixed $encryption_key
+     * @return bool
+     */
+    public function decryptFile(string $source_file, string $destination_file, ?string $encryption_key = null): bool
+    {
+        $iv_length = openssl_cipher_iv_length(self::FILE_CIPHER);
+        // open files
+        $source_opened = fopen($source_file, 'rb');
+        $destination_opened = fopen($destination_file, 'w');
+        // read IV
+        $iv = fread($source_opened, $iv_length);
+        // decrypt in chunks
+        while (! feof($source_opened)) {
+            $cipher_text = fread($source_opened, $iv_length * (self::FILE_ENCRYPTION_BLOCKS + 1));
+            $plain_text = openssl_decrypt($cipher_text, self::FILE_CIPHER, $encryption_key ?? $this->encryption_key, OPENSSL_RAW_DATA, $iv);
+            $iv = substr($plain_text, 0, $iv_length);
+            fwrite($destination_opened, $plain_text);
+        }
+        // close handlers
+        fclose($source_opened);
+        fclose($destination_opened);
+        return true;
     }
 }

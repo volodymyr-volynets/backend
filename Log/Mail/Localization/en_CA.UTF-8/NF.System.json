@@ -2,5 +2,6 @@
     "SMLogMailDeliverLogsCommand": "S/M Log Mail Deliver Logs (Command)",
     "SMLogMailDeliverLogsTask": "S/M Log Mail Deliver Logs (Task)",
     "UMEmailLogDeliverLogs": "U/M Email Log Deliver Logs",
-    "UseThisCommandToSendMailLogs": "Use this command to send mail logs."
+    "UseThisCommandToSendMailLogs": "Use this command to send mail logs.",
+    "UseThisCommandToSendMailLogsDot": "Use this command to send mail logs."
 }

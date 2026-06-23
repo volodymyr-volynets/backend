@@ -15,6 +15,7 @@ use Helper\Cmd;
 use Numbers\Backend\Db\Common\Model\Sequence\Extended;
 use Numbers\Backend\Db\Common\Model\Sequences;
 use Object\Query\Builder;
+use Numbers\FakeNames\FakeNames\FakerFactory;
 
 class Base
 {
@@ -281,8 +282,21 @@ class Base
                         }
                         $string .= ' ' . $this->sql_keywords['like'] . ' ' . $v;
                         break;
+                    case 'NOT LIKE':
+                        if (!$as_is) {
+                            $v = "'" . $this->escape($v) . "'";
+                        }
+                        $string .= ' NOT ' . $this->sql_keywords['like'] . ' ' . $v;
+                        break;
                     case 'FTS':
                         $temp2 = $this->fullTextSearchQuery($v['fields'], $v['str']);
+                        if (empty($temp2['where'])) {
+                            continue 2;
+                        }
+                        $string = $temp2['where'];
+                        break;
+                    case 'EMBEDDING':
+                        $temp2 = $this->embeddingsSearchQuery($v['fields'], $v['str'], $v['type'], $v['similarity']);
                         if (empty($temp2['where'])) {
                             continue 2;
                         }
@@ -533,11 +547,61 @@ class Base
     }
 
     /**
-     * Random names
+     * Check if database exists
      *
-     * @var array
+     * @param string $full_database_name
+     * @return bool
      */
-    public static $random_names = [];
+    public function databaseExists(string $full_database_name): bool
+    {
+        $query = new Builder($this->db_link);
+        $query->select();
+        $query->columns(['counter' => 'COUNT(*)']);
+        $query->from('(' . $this->sqlHelper('fetch_databases') . ')', 'a');
+        $query->where('AND', ['a.database_name', '=', $full_database_name]);
+        $temp_result = $query->query();
+        return !empty($temp_result['rows'][0]['counter']);
+    }
+
+    /**
+     * Check if schema exists
+     *
+     * @param string $full_schema_name
+     * @return bool
+     */
+    public function schemaExists(string $full_schema_name): bool
+    {
+        $query = new Builder($this->db_link);
+        $query->select();
+        $query->columns(['counter' => 'COUNT(*)']);
+        $query->from('(' . $this->sqlHelper('fetch_schemas') . ')', 'a');
+        $query->where('AND', ['a.schema_name', '=', $full_schema_name]);
+        $temp_result = $query->query();
+        return !empty($temp_result['rows'][0]['counter']);
+    }
+
+    /**
+     * Check if column exists
+     *
+     * @param string $full_table_name
+     * @return bool
+     */
+    public function columnExists(string $full_table_name, string $column_name): bool
+    {
+        $temp = explode('.', $full_table_name);
+        if (count($temp) != 2) {
+            throw new \Exception('You must provide full table name');
+        }
+        $query = new Builder($this->db_link);
+        $query->select();
+        $query->columns(['counter' => 'COUNT(*)']);
+        $query->from('(' . $this->sqlHelper('fetch_columns') . ')', 'a');
+        $query->where('AND', ['a.schema_name', '=', $temp[0]]);
+        $query->where('AND', ['a.table_name', '=', $temp[1]]);
+        $query->where('AND', ['a.column_name', '=', $column_name]);
+        $temp_result = $query->query();
+        return !empty($temp_result['rows'][0]['counter']);
+    }
 
     /**
      * Random name
@@ -547,16 +611,23 @@ class Base
      */
     public function randomName(string $type = 'first_name'): string
     {
-        // preload
-        if (!isset(self::$random_names[$type])) {
-            $filename = __DIR__ . DIRECTORY_SEPARATOR . 'Names' . DIRECTORY_SEPARATOR . $type . '.csv';
-            if (!file_exists($filename)) {
-                $filename = __DIR__ . DIRECTORY_SEPARATOR . 'Names' . DIRECTORY_SEPARATOR . 'first_name' . '.csv';
-            }
-            self::$random_names[$type] = file($filename);
+        return FakerFactory::create()->{$type};
+    }
+
+    /**
+     * Random name (array)
+     *
+     * @param string $type
+     * @param int $num
+     * @return string[]
+     */
+    public function randomNames(string $type = 'first_name', int $num = 1): array
+    {
+        $result = [];
+        for ($i = 0; $i < $num; $i++) {
+            $result[] = $this->randomName($type);
         }
-        $num = array_rand(self::$random_names[$type], 1);
-        return trim(self::$random_names[$type][$num]);
+        return $result;
     }
 
     /**
@@ -628,5 +699,43 @@ class Base
     public function inTransaction(): bool
     {
         return $this->commit_status != 0;
+    }
+
+    /**
+     * Prepare statement
+     *
+     * @param string $name
+     * @param string $sql
+     * @return array
+     */
+    public function prepare(string $name, string $sql): array
+    {
+        return $this->query('PREPARE ' . $name . ' AS ' . $sql);
+    }
+
+    /**
+     * Execute prepared statement
+     *
+     * @param string $name
+     * @param array $params
+     * @return array
+     */
+    public function execute(string $name, array $params = []): array
+    {
+        if (!empty($params)) {
+            $params = ' (' . $this->prepareValues($params) . ')';
+        }
+        return $this->query('EXECUTE ' . $name . $params);
+    }
+
+    /**
+     * Deallocate prepared statement
+     *
+     * @param string $name
+     * @return array
+     */
+    public function deallocate(string $name): array
+    {
+        return $this->query('DEALLOCATE PREPARE ' . $name);
     }
 }

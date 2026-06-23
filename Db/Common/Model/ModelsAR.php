@@ -1,19 +1,30 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Db\Common\Model;
-class ModelsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class ModelsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\Db\Common\Model\Models::class;
+    public string $object_table_class = Models::class;
 
     /**
      * @var array
      */
     public array $object_table_pk = ['sm_model_id'];
+
     /**
      * Model #
      *
@@ -24,12 +35,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var int|null Domain: model_id_sequence Type: serial
      */
     public int|null $sm_model_id = null {
-                        get => $this->sm_model_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_id', $value);
-                            $this->sm_model_id = $value;
-                        }
-                    }
+        get => $this->sm_model_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_id', $value);
+            $this->sm_model_id = $value;
+        }
+    }
 
     /**
      * Model
@@ -41,12 +52,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_model_code = null {
-                        get => $this->sm_model_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_code', $value);
-                            $this->sm_model_code = $value;
-                        }
-                    }
+        get => $this->sm_model_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_code', $value);
+            $this->sm_model_code = $value;
+        }
+    }
 
     /**
      * Name
@@ -58,12 +69,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_model_name = null {
-                        get => $this->sm_model_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_name', $value);
-                            $this->sm_model_name = $value;
-                        }
-                    }
+        get => $this->sm_model_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_name', $value);
+            $this->sm_model_name = $value;
+        }
+    }
 
     /**
      * Module Code
@@ -75,12 +86,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var string|null Domain: module_code Type: char
      */
     public string|null $sm_model_module_code = null {
-                        get => $this->sm_model_module_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_module_code', $value);
-                            $this->sm_model_module_code = $value;
-                        }
-                    }
+        get => $this->sm_model_module_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_module_code', $value);
+            $this->sm_model_module_code = $value;
+        }
+    }
 
     /**
      * Tenant
@@ -92,12 +103,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_model_tenant = 0 {
-                        get => $this->sm_model_tenant;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_tenant', $value);
-                            $this->sm_model_tenant = $value;
-                        }
-                    }
+        get => $this->sm_model_tenant;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_tenant', $value);
+            $this->sm_model_tenant = $value;
+        }
+    }
 
     /**
      * Period
@@ -109,12 +120,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_model_period = 0 {
-                        get => $this->sm_model_period;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_period', $value);
-                            $this->sm_model_period = $value;
-                        }
-                    }
+        get => $this->sm_model_period;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_period', $value);
+            $this->sm_model_period = $value;
+        }
+    }
 
     /**
      * Widget Attributes
@@ -126,12 +137,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_model_widget_attributes = 0 {
-                        get => $this->sm_model_widget_attributes;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_widget_attributes', $value);
-                            $this->sm_model_widget_attributes = $value;
-                        }
-                    }
+        get => $this->sm_model_widget_attributes;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_widget_attributes', $value);
+            $this->sm_model_widget_attributes = $value;
+        }
+    }
 
     /**
      * Widget Audit
@@ -143,12 +154,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_model_widget_audit = 0 {
-                        get => $this->sm_model_widget_audit;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_widget_audit', $value);
-                            $this->sm_model_widget_audit = $value;
-                        }
-                    }
+        get => $this->sm_model_widget_audit;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_widget_audit', $value);
+            $this->sm_model_widget_audit = $value;
+        }
+    }
 
     /**
      * Widget Addresses
@@ -160,12 +171,63 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_model_widget_addressees = 0 {
-                        get => $this->sm_model_widget_addressees;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_widget_addressees', $value);
-                            $this->sm_model_widget_addressees = $value;
-                        }
-                    }
+        get => $this->sm_model_widget_addressees;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_widget_addressees', $value);
+            $this->sm_model_widget_addressees = $value;
+        }
+    }
+
+    /**
+     * Widget Batches
+     *
+     *
+     *
+     *
+     *
+     * @var int|null Type: boolean
+     */
+    public int|null $sm_model_widget_batches = 0 {
+        get => $this->sm_model_widget_batches;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_widget_batches', $value);
+            $this->sm_model_widget_batches = $value;
+        }
+    }
+
+    /**
+     * Scoped Attribute
+     *
+     *
+     *
+     *
+     *
+     * @var int|null Type: boolean
+     */
+    public int|null $sm_model_scoped_attribute = 0 {
+        get => $this->sm_model_scoped_attribute;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_scoped_attribute', $value);
+            $this->sm_model_scoped_attribute = $value;
+        }
+    }
+
+    /**
+     * Scoped Record
+     *
+     *
+     *
+     *
+     *
+     * @var int|null Type: boolean
+     */
+    public int|null $sm_model_scoped_record = 0 {
+        get => $this->sm_model_scoped_record;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_scoped_record', $value);
+            $this->sm_model_scoped_record = $value;
+        }
+    }
 
     /**
      * Data Asset Classification
@@ -177,12 +239,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var string|null Type: text
      */
     public string|null $sm_model_da_classification = null {
-                        get => $this->sm_model_da_classification;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_da_classification', $value);
-                            $this->sm_model_da_classification = $value;
-                        }
-                    }
+        get => $this->sm_model_da_classification;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_da_classification', $value);
+            $this->sm_model_da_classification = $value;
+        }
+    }
 
     /**
      * Data Asset Protection
@@ -194,12 +256,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var int|null Type: smallint
      */
     public int|null $sm_model_da_protection = 0 {
-                        get => $this->sm_model_da_protection;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_da_protection', $value);
-                            $this->sm_model_da_protection = $value;
-                        }
-                    }
+        get => $this->sm_model_da_protection;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_da_protection', $value);
+            $this->sm_model_da_protection = $value;
+        }
+    }
 
     /**
      * Data Asset Scope
@@ -211,12 +273,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var string|null Type: text
      */
     public string|null $sm_model_da_scope = null {
-                        get => $this->sm_model_da_scope;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_da_scope', $value);
-                            $this->sm_model_da_scope = $value;
-                        }
-                    }
+        get => $this->sm_model_da_scope;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_da_scope', $value);
+            $this->sm_model_da_scope = $value;
+        }
+    }
 
     /**
      * Optimistic Lock
@@ -228,12 +290,12 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_model_optimistic_lock = 0 {
-                        get => $this->sm_model_optimistic_lock;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_optimistic_lock', $value);
-                            $this->sm_model_optimistic_lock = $value;
-                        }
-                    }
+        get => $this->sm_model_optimistic_lock;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_optimistic_lock', $value);
+            $this->sm_model_optimistic_lock = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -245,10 +307,10 @@ class ModelsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_model_inactive = 0 {
-                        get => $this->sm_model_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_model_inactive', $value);
-                            $this->sm_model_inactive = $value;
-                        }
-                    }
+        get => $this->sm_model_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_inactive', $value);
+            $this->sm_model_inactive = $value;
+        }
+    }
 }

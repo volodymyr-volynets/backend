@@ -50,17 +50,22 @@ class Resources extends Table
         'sm_resource_acl_public' => ['name' => 'Acl Public', 'type' => 'boolean'],
         'sm_resource_acl_authorized' => ['name' => 'Acl Authorized', 'type' => 'boolean'],
         'sm_resource_acl_permission' => ['name' => 'Acl Permission', 'type' => 'boolean'],
+        'sm_resource_acl_access_settings' => ['name' => 'Acl Access Settings', 'type' => 'boolean'],
         // menu
         'sm_resource_menu_acl_resource_id' => ['name' => 'Acl Resource #', 'domain' => 'resource_id', 'null' => true], // used by menu resources
         'sm_resource_menu_acl_method_code' => ['name' => 'Acl Action Code', 'domain' => 'code', 'null' => true], // used by menu resources
         'sm_resource_menu_acl_action_id' => ['name' => 'Acl Action #', 'domain' => 'action_id', 'null' => true], // used by menu resources
-        'sm_resource_menu_url' => ['name' => 'URL', 'type' => 'text', 'null' => true],
+        'sm_resource_menu_url' => ['name' => 'Menu URL', 'type' => 'text', 'null' => true],
         'sm_resource_menu_options_generator' => ['name' => 'Options Generator', 'type' => 'text', 'null' => true],
         'sm_resource_menu_name_generator' => ['name' => 'Name Generator', 'type' => 'text', 'null' => true],
         'sm_resource_menu_child_ordered' => ['name' => 'Child Ordered', 'type' => 'boolean'],
         'sm_resource_menu_order' => ['name' => 'Order', 'type' => 'integer', 'default' => 0],
         'sm_resource_menu_separator' => ['name' => 'Separator', 'type' => 'boolean'],
         'sm_resource_menu_class' => ['name' => 'Class', 'type' => 'text', 'null' => true],
+        'sm_resource_menu_group_name' => ['name' => 'Menu Group Name', 'domain' => 'name', 'null' => true],
+        // root
+        'sm_resource_root_node' => ['name' => 'Root Node', 'type' => 'boolean'],
+        'sm_resource_route_alias' => ['name' => 'Route Alias', 'domain' => 'name', 'null' => true],
         // template
         'sm_resource_template_name' => ['name' => 'Template Name', 'domain' => 'name', 'default' => 'default', 'null' => true],
         'sm_resource_badge' => ['name' => 'Badge', 'domain' => 'name', 'null' => true],
@@ -71,6 +76,7 @@ class Resources extends Table
     public $constraints = [
         'sm_resources_pk' => ['type' => 'pk', 'columns' => ['sm_resource_id']],
         'sm_resource_code_un' => ['type' => 'unique', 'columns' => ['sm_resource_code']],
+        'sm_resource_route_alias_un' => ['type' => 'unique', 'columns' => ['sm_resource_route_alias']],
         'sm_resource_module_code_fk' => [
             'type' => 'fk',
             'columns' => ['sm_resource_module_code'],
@@ -93,8 +99,13 @@ class Resources extends Table
     public $history = false;
     public $audit = false;
     public $optimistic_lock = false;
-    public $options_map = [];
-    public $options_active = [];
+    public $options_map = [
+        'sm_resource_name' => 'name',
+        'sm_resource_inactive' => 'inactive',
+    ];
+    public $options_active = [
+        'sm_resource_inactive' => 0,
+    ];
     public $engine = [
         'MySQLi' => 'InnoDB'
     ];
@@ -107,6 +118,24 @@ class Resources extends Table
         'classification' => 'public',
         'protection' => 1,
         'scope' => 'global'
+    ];
+
+    public $batches = [
+        'map' => [
+            'sm_resource_id' => 'tm_batchrecord_field_value_id'
+        ],
+        'where' => [
+            'tm_batchrecord_sm_model_code' => '\Numbers\Backend\System\Modules\Model\Resources',
+            'tm_batchrecord_field_code' => 'sm_resource_id',
+        ],
+        'edit' => [
+            'batch_value' => 'tm_batchrecord_field_value_id',
+            'batch_name' => 'S/M Resource #',
+            //'edit_endpoint' => '/Numbers/Users/Chats/Controller/ChatPageStandalone/_Chat',
+            'edit_key' => 'sm_resource_id',
+            //'list_endpoint' => '/Numbers/Users/Chats/Controller/ChatPageStandalone/_Chat',
+            'list_key' => ['sm_resource_id'],
+        ],
     ];
 
     /**

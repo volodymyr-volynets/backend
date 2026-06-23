@@ -1,0 +1,23 @@
+{
+    "": "",
+    "Auth": "Auth",
+    "Detail": "Detail",
+    "DetailID": "Detail #",
+    "Email": "Email",
+    "Host": "Host",
+    "Inactive": "Inactive",
+    "Name": "Name",
+    "OptimisticLock": "Optimistic Lock",
+    "Password": "Password",
+    "Port": "Port",
+    "Profile": "Profile",
+    "ProfileID": "Profile #",
+    "SMMailProfileSenders": "S/M Mail Profile Senders",
+    "SMMailProfiles": "S/M Mail Profiles",
+    "Secure": "Secure",
+    "Sequence": "Sequence",
+    "TenantID": "Tenant #",
+    "Type": "Type",
+    "Username": "Username",
+    "YesNo": "Yes / No"
+}

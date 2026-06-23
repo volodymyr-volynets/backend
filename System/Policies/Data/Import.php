@@ -26,7 +26,7 @@ class Import extends \Object\Import
                     'sm_feature_code' => 'SM::SYSTEM_POLICIES',
                     'sm_feature_type' => 10,
                     'sm_feature_name' => 'S/M System Policies',
-                    'sm_feature_icon' => 'fas fa-wrench',
+                    'sm_feature_icon' => 'fa-solid fa-wrench',
                     'sm_feature_activation_model' => null,
                     'sm_feature_activated_by_default' => 1,
                     'sm_feature_inactive' => 0,

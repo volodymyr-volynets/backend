@@ -1,0 +1,10 @@
+{
+	"configs":{
+		"test_number": 100,
+		"test_bool": true,
+		"test_string": "string1",
+		"test_array": ["array1", "array2"],
+		"test_env": "production",
+		"test_path": "$(PATH)"
+	}
+}

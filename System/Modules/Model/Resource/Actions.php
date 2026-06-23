@@ -23,7 +23,7 @@ class Actions extends Table
     public $name = 'sm_resource_actions';
     public $pk = ['sm_action_id'];
     public $tenant = false;
-    public $orderby;
+    public $orderby = ['sm_action_id' => SORT_ASC];
     public $limit;
     public $column_prefix = 'sm_action_';
     public $columns = [
@@ -48,8 +48,15 @@ class Actions extends Table
     public $history = false;
     public $audit = false;
     public $optimistic_lock = false;
-    public $options_map = [];
-    public $options_active = [];
+    public $options_map = [
+        'sm_action_name' => 'name',
+        'sm_action_icon' => 'icon_class',
+        'sm_action_parent_action_id' => 'parent',
+        'sm_action_inactive' => 'inactive',
+    ];
+    public $options_active = [
+        'sm_action_inactive' => 0,
+    ];
     public $engine = [
         'MySQLi' => 'InnoDB'
     ];
@@ -70,12 +77,12 @@ class Actions extends Table
      * @param array $options
      * @return array
      */
-    public function get_all_parents_options($options)
+    public function optionsGrouped($options = [])
     {
         $result = [];
-        $data = Tree::convertByParent($this->get(), 'sm_action_parent_id');
+        $data = Tree::convertByParent($this->options(), 'parent');
         Tree::convertTreeToOptionsMulti($data, 0, [
-            'name_field' => 'sm_action_name',
+            'name_field' => 'name',
             'i18n' => true
         ], $result);
         return $result;

@@ -73,7 +73,7 @@ class Actions extends DataSource
             // add item
             $result[$k] = [
                 'name' => $v['name'],
-                'icon_class' => \HTML::icon(['type' => $v['icon'] ?? 'fas fa-cubes', 'class_only' => true]),
+                'icon_class' => \HTML::icon(['type' => $v['icon'] ?? 'fa-solid fa-cubes', 'class_only' => true]),
                 'parent' => $v['parent_id'],
                 'disabled' => $v['disabled'],
                 'inactive' => $v['inactive'],

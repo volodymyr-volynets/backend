@@ -25,6 +25,7 @@ interface Base
     public function sequence($sequence_name, $type = 'nextval', $tenant = null, $module = null);
     public function close();
     public function fullTextSearchQuery($fields, $str);
+    public function embeddingsSearchQuery($fields, $str, $type = 'cosine_percent', $similarity = 50);
     public function createTempTable($table, $columns, $pk = null, $options = []);
     public function sqlHelper($statement, $options = []);
     public function cast(string $column, string $type): string;

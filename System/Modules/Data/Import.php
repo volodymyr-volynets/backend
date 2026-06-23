@@ -26,7 +26,7 @@ class Import extends \Object\Import
                     'sm_module_type' => 20,
                     'sm_module_name' => 'S/M System',
                     'sm_module_abbreviation' => 'S/M',
-                    'sm_module_icon' => 'fas fa-wrench',
+                    'sm_module_icon' => 'fa-solid fa-wrench',
                     'sm_module_transactions' => 0,
                     'sm_module_multiple' => 0,
                     'sm_module_inactive' => 0
@@ -36,7 +36,7 @@ class Import extends \Object\Import
                     'sm_module_type' => 20,
                     'sm_module_name' => 'A/N Application',
                     'sm_module_abbreviation' => 'A/N',
-                    'sm_module_icon' => 'fab fa-amilia',
+                    'sm_module_icon' => 'fa-brands fa-amilia',
                     'sm_module_transactions' => 0,
                     'sm_module_multiple' => 0,
                     'sm_module_inactive' => 0
@@ -55,7 +55,7 @@ class Import extends \Object\Import
                     'sm_action_id' => -1,
                     'sm_action_code' => 'All_Actions',
                     'sm_action_name' => 'All Actions',
-                    'sm_action_icon' => 'fas fa-cubes',
+                    'sm_action_icon' => 'fa-solid fa-cubes',
                     'sm_action_parent_action_id' => null,
                     'sm_action_inactive' => 0
                 ],
@@ -64,7 +64,7 @@ class Import extends \Object\Import
                     'sm_action_id' => 1000,
                     'sm_action_code' => 'List_View',
                     'sm_action_name' => 'View List',
-                    'sm_action_icon' => 'fas fa-list',
+                    'sm_action_icon' => 'fa-solid fa-list',
                     'sm_action_parent_action_id' => null,
                     'sm_action_inactive' => 0
                 ],
@@ -72,7 +72,7 @@ class Import extends \Object\Import
                     'sm_action_id' => 1010,
                     'sm_action_code' => 'List_Export',
                     'sm_action_name' => 'Export/Print List',
-                    'sm_action_icon' => 'fas fa-print',
+                    'sm_action_icon' => 'fa-solid fa-print',
                     'sm_action_parent_action_id' => 1000,
                     'sm_action_inactive' => 0
                 ],
@@ -81,7 +81,7 @@ class Import extends \Object\Import
                     'sm_action_id' => 2000,
                     'sm_action_code' => 'Record_View',
                     'sm_action_name' => 'View Record',
-                    'sm_action_icon' => 'fas fa-eye',
+                    'sm_action_icon' => 'fa-solid fa-eye',
                     'sm_action_parent_action_id' => null,
                     'sm_action_inactive' => 0
                 ],
@@ -89,7 +89,7 @@ class Import extends \Object\Import
                     'sm_action_id' => 2001,
                     'sm_action_code' => 'Record_Public',
                     'sm_action_name' => 'View Public',
-                    'sm_action_icon' => 'fas fa-users-cog',
+                    'sm_action_icon' => 'fa-solid fa-users-cog',
                     'sm_action_parent_action_id' => 2000,
                     'sm_action_prohibitive' => 1,
                     'sm_action_inactive' => 0
@@ -98,7 +98,7 @@ class Import extends \Object\Import
                     'sm_action_id' => 2010,
                     'sm_action_code' => 'Record_New',
                     'sm_action_name' => 'New Record',
-                    'sm_action_icon' => 'far fa-file',
+                    'sm_action_icon' => 'fa-regular fa-file',
                     'sm_action_parent_action_id' => 2000,
                     'sm_action_inactive' => 0
                 ],
@@ -106,7 +106,7 @@ class Import extends \Object\Import
                     'sm_action_id' => 2020,
                     'sm_action_code' => 'Record_Edit',
                     'sm_action_name' => 'Edit Record',
-                    'sm_action_icon' => 'fas fa-pen-square',
+                    'sm_action_icon' => 'fa-solid fa-pen-square',
                     'sm_action_parent_action_id' => 2000,
                     'sm_action_inactive' => 0
                 ],
@@ -114,7 +114,7 @@ class Import extends \Object\Import
                     'sm_action_id' => 2030,
                     'sm_action_code' => 'Record_Inactivate',
                     'sm_action_name' => 'Inactivate Record',
-                    'sm_action_icon' => 'fas fa-info',
+                    'sm_action_icon' => 'fa-solid fa-info',
                     'sm_action_parent_action_id' => 2020,
                     'sm_action_inactive' => 0
                 ],
@@ -122,7 +122,7 @@ class Import extends \Object\Import
                     'sm_action_id' => 2040,
                     'sm_action_code' => 'Record_Delete',
                     'sm_action_name' => 'Delete Record',
-                    'sm_action_icon' => 'far fa-trash-alt',
+                    'sm_action_icon' => 'fa-regular fa-trash-alt',
                     'sm_action_parent_action_id' => 2020,
                     'sm_action_inactive' => 0
                 ],
@@ -130,7 +130,7 @@ class Import extends \Object\Import
                     'sm_action_id' => 2050,
                     'sm_action_code' => 'Record_Post',
                     'sm_action_name' => 'Post Record',
-                    'sm_action_icon' => 'fas fa-archive',
+                    'sm_action_icon' => 'fa-solid fa-archive',
                     'sm_action_parent_action_id' => 2020,
                     'sm_action_inactive' => 0
                 ],
@@ -138,8 +138,25 @@ class Import extends \Object\Import
                     'sm_action_id' => 2060,
                     'sm_action_code' => 'Record_Approve',
                     'sm_action_name' => 'Approve Record',
-                    'sm_action_icon' => 'far fa-handshake',
+                    'sm_action_icon' => 'fa-regular fa-handshake',
                     'sm_action_parent_action_id' => 2020,
+                    'sm_action_inactive' => 0
+                ],
+                [
+                    'sm_action_id' => 2070,
+                    'sm_action_code' => 'Record_Join',
+                    'sm_action_name' => 'Join Record',
+                    'sm_action_icon' => 'fa-regular fa-handshake',
+                    'sm_action_parent_action_id' => 2000,
+                    'sm_action_inactive' => 0
+                ],
+                // other
+                [
+                    'sm_action_id' => 2999,
+                    'sm_action_code' => 'Other',
+                    'sm_action_name' => 'Other',
+                    'sm_action_icon' => 'fa-regular fa-file-image',
+                    'sm_action_parent_action_id' => null,
                     'sm_action_inactive' => 0
                 ],
                 // import related items
@@ -147,8 +164,8 @@ class Import extends \Object\Import
                     'sm_action_id' => 3000,
                     'sm_action_code' => 'Import_Records',
                     'sm_action_name' => 'Import Records',
-                    'sm_action_icon' => 'fas fa-upload',
-                    'sm_action_parent_action_id' => null,
+                    'sm_action_icon' => 'fa-solid fa-upload',
+                    'sm_action_parent_action_id' => 2999,
                     'sm_action_inactive' => 0
                 ],
                 // report related items
@@ -156,7 +173,7 @@ class Import extends \Object\Import
                     'sm_action_id' => 4000,
                     'sm_action_code' => 'Report_View',
                     'sm_action_name' => 'View Report',
-                    'sm_action_icon' => 'fas fa-table',
+                    'sm_action_icon' => 'fa-solid fa-table',
                     'sm_action_parent_action_id' => null,
                     'sm_action_inactive' => 0
                 ],
@@ -165,8 +182,8 @@ class Import extends \Object\Import
                     'sm_action_id' => 5000,
                     'sm_action_code' => 'Activate_Data',
                     'sm_action_name' => 'Activate Data',
-                    'sm_action_icon' => 'fas fa-link',
-                    'sm_action_parent_action_id' => null,
+                    'sm_action_icon' => 'fa-solid fa-link',
+                    'sm_action_parent_action_id' => 2999,
                     'sm_action_inactive' => 0
                 ],
             ]
@@ -179,35 +196,43 @@ class Import extends \Object\Import
             ],
             'data' => [
                 [
+                    'sm_action_id' => 24999,
+                    'sm_action_code' => 'Filter_Assignment',
+                    'sm_action_name' => 'Filter / Assignment',
+                    'sm_action_icon' => 'fa-regular fa-user-circle',
+                    'sm_action_parent_action_id' => null,
+                    'sm_action_inactive' => 0
+                ],
+                [
                     'sm_action_id' => 25000,
                     'sm_action_code' => 'Filter_Hide',
                     'sm_action_name' => 'Hide Filter',
-                    'sm_action_icon' => 'far fa-eye-slash',
-                    'sm_action_parent_action_id' => null,
+                    'sm_action_icon' => 'fa-regular fa-eye-slash',
+                    'sm_action_parent_action_id' => 24999,
                     'sm_action_inactive' => 0
                 ],
                 [
                     'sm_action_id' => 25001,
                     'sm_action_code' => 'Filter_Self',
                     'sm_action_name' => 'Self Filter',
-                    'sm_action_icon' => 'far fa-user',
-                    'sm_action_parent_action_id' => null,
+                    'sm_action_icon' => 'fa-regular fa-user',
+                    'sm_action_parent_action_id' => 24999,
                     'sm_action_inactive' => 0
                 ],
                 [
                     'sm_action_id' => 25002,
                     'sm_action_code' => 'Assignment_Self',
                     'sm_action_name' => 'Enforce User Assignment',
-                    'sm_action_icon' => 'far fa-user',
-                    'sm_action_parent_action_id' => null,
+                    'sm_action_icon' => 'fa-regular fa-user',
+                    'sm_action_parent_action_id' => 24999,
                     'sm_action_inactive' => 0
                 ],
                 [
                     'sm_action_id' => 25003,
                     'sm_action_code' => 'Filter_PresetSelf',
                     'sm_action_name' => 'Preset Self Filter',
-                    'sm_action_icon' => 'far fa-user',
-                    'sm_action_parent_action_id' => null,
+                    'sm_action_icon' => 'fa-regular fa-user',
+                    'sm_action_parent_action_id' => 24999,
                     'sm_action_inactive' => 0
                 ],
             ]
@@ -226,6 +251,18 @@ class Import extends \Object\Import
                 [
                     'sm_method_code' => 'Edit',
                     'sm_method_name' => 'Edit / Form'
+                ],
+                [
+                    'sm_method_code' => 'HTMLEditor',
+                    'sm_method_name' => 'HTML Editor'
+                ],
+                [
+                    'sm_method_code' => 'Preview',
+                    'sm_method_name' => 'Preview'
+                ],
+                [
+                    'sm_method_code' => 'Chat',
+                    'sm_method_name' => 'Chat / Form'
                 ],
                 [
                     'sm_method_code' => 'Import',
@@ -257,7 +294,7 @@ class Import extends \Object\Import
                     'sm_feature_code' => 'SM::OPEN_RECORD_IN_NEW_TAB',
                     'sm_feature_type' => 40,
                     'sm_feature_name' => 'S/M Open Record In New Tab',
-                    'sm_feature_icon' => 'fas fa-pen-square',
+                    'sm_feature_icon' => 'fa-solid fa-pen-square',
                     'sm_feature_activation_model' => null,
                     'sm_feature_activated_by_default' => 1,
                     'sm_feature_inactive' => 0,

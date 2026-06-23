@@ -24,6 +24,13 @@ class Processor
     public static $migration_dir = './Miscellaneous/Migrations/';
 
     /**
+     * Seeder directory
+     *
+     * @var string
+     */
+    public static $seeder_dir = './Miscellaneous/Seeders/';
+
+    /**
      * Load migrations from the code
      *
      * @param array $options
@@ -62,6 +69,98 @@ class Processor
                     if (!empty($options['load_migration_objects'])) {
                         require_once($v);
                         $result['data'][$migration_name]['object'] = new $class();
+                    }
+                }
+                // find last migration name
+                end($result['data']);
+                $result['last_migration_name'] = key($result['data']);
+                $result['count'] = count($result['data']);
+            }
+        }
+        $result['success'] = true;
+        return $result;
+    }
+
+    /**
+     * Load seeders from the code
+     *
+     * @param array $options
+     *		db_link
+     *		load_migration_objects
+     * @return array
+     */
+    public static function loadCodeSeeders($options = [])
+    {
+        $result = [
+            'success' => false,
+            'error' => [],
+            'data' => [],
+            'count' => 0,
+            'last_migration_name' => null
+        ];
+        $options['db_link'] = $options['db_link'] ?? 'default';
+        // iterate over all migrations
+        if (file_exists(self::$seeder_dir . $options['db_link'])) {
+            // submodule seeders
+            if (!empty($options['submodule_seeders'])) {
+                foreach ($options['submodule_seeders'] as $k => $v) {
+                    // check for proper name
+                    if (isset($options['only'])) {
+                        if (!str_compare_fuzzy($options['only'], $v ?? '')) {
+                            continue;
+                        }
+                    } else {
+                        // we do not run cleaners in all mode
+                        if (str_ends_with($v, 'Cleaner')) {
+                            continue;
+                        }
+                    }
+                    // prepare output
+                    $result['data'][$k] = [
+                        'class' => $k,
+                        'object' => null,
+                        'timestamp' => null,
+                        'developer' => null,
+                        'name' => $v,
+                    ];
+                    // load objects
+                    if (!empty($options['load_migration_objects'])) {
+                        $result['data'][$k]['object'] = \Factory::model($k, true);
+                    }
+                }
+            }
+            // application seeders
+            $seeders = File::iterate(self::$seeder_dir . $options['db_link'], ['only_extensions' => ['php']]);
+            if (!empty($seeders)) {
+                // sort by name
+                usort($seeders, 'strcmp');
+                // populate an array
+                foreach ($seeders as $v) {
+                    $seeder_name = pathinfo($v, PATHINFO_FILENAME);
+                    $temp = explode('__', $seeder_name);
+                    // check for proper name
+                    if (isset($options['only'])) {
+                        if (!str_compare_fuzzy($options['only'], $temp[2] ?? '')) {
+                            continue;
+                        }
+                    } else {
+                        // we do not run cleaners in all mode
+                        if (str_ends_with($temp[2], 'Cleaner')) {
+                            continue;
+                        }
+                    }
+                    $class = 'Numbers_Backend_Db_Common_Seeder_Template_' . $seeder_name;
+                    $result['data'][$seeder_name] = [
+                        'class' => $class,
+                        'object' => null,
+                        'timestamp' => $temp[0],
+                        'developer' => $temp[1],
+                        'name' => $temp[2],
+                    ];
+                    // load objects
+                    if (!empty($options['load_migration_objects'])) {
+                        require_once($v);
+                        $result['data'][$seeder_name]['object'] = new $class();
                     }
                 }
                 // find last migration name
@@ -357,6 +456,110 @@ class Processor
             $result['migration_name'] = $class;
         } else {
             $result['error'][] = 'Could not write migration file!';
+        }
+        return $result;
+    }
+
+    /**
+     * Generate new empty migration
+     *
+     * @param string $db_link
+     * @param string $name
+     * @param array $options
+     * @return array
+     */
+    public static function generateNewEmptyMigration($db_link, $name, $options = [])
+    {
+        $result = [
+            'success' => false,
+            'error' => [],
+            'count' => 0,
+            'migration_name' => null
+        ];
+        // generate timestamp with server timezone
+        $ts = \Format::now('timestamp', ['format' => 'Ymd_His_u', 'skip_i18n' => true, 'skip_user_timezone' => true]);
+        // developers name
+        $developer = trim(\Application::get('developer.name') ?? 'Unknown');
+        $developer = preg_replace('/\s+/', ' ', $developer);
+        $developer_class = str_replace(' ', '_', $developer);
+        // sanitize name
+        $name = preg_replace('/\s+/', ' ', $name);
+        $name_class = str_replace(' ', '_', $name);
+        // up & down changes
+        $changes = '__' . $name_class;
+        // class name
+        $class = $ts . '__' . $developer_class . $changes;
+        // load template
+        $template = File::read('../libraries/vendor/Numbers/Backend/Db/Common/Migration/Template.php');
+        // add data to template
+        $template = str_replace('[[db_link]]', $db_link, $template);
+        $template = str_replace('[[developer]]', $developer, $template);
+        $template = str_replace('Numbers_Backend_Db_Common_Migration_Template', 'Numbers_Backend_Db_Common_Migration_Template_' . $class, $template);
+        $template = str_replace('/*[[migrate_up]]*/', '// place your code here', $template);
+        $template = str_replace('/*[[migrate_down]]*/', '// place your code here', $template);
+        // create a directory for db_link
+        $migration_dir = self::$migration_dir . $db_link . '/';
+        $migration_filename = $migration_dir . $class . '.php';
+        if (!file_exists($migration_dir)) {
+            File::mkdir($migration_dir);
+        }
+        // write a file
+        if (File::write($migration_filename, $template, 0777, LOCK_EX, true)) {
+            $result['success'] = true;
+            $result['count'] = 1;
+            $result['migration_name'] = $class;
+        } else {
+            $result['error'][] = 'Could not write migration file!';
+        }
+        return $result;
+    }
+
+    /**
+     * Generate seeder
+     *
+     * @param string $db_link
+     * @param string $name
+     * @param array $options
+     * @return array
+     */
+    public static function generateSeeder($db_link, $name, $options = [])
+    {
+        $result = [
+            'success' => false,
+            'error' => [],
+            'seeder_name' => null
+        ];
+        // generate timestamp with server timezone
+        $ts = \Format::now('timestamp', ['format' => 'Ymd_His_u', 'skip_i18n' => true, 'skip_user_timezone' => true]);
+        // developers name
+        $developer = trim(\Application::get('developer.name') ?? 'Unknown');
+        $developer = preg_replace('/\s+/', ' ', $developer);
+        $developer_class = str_replace(' ', '_', $developer);
+        // sanitize name
+        $name = preg_replace('/\s+/', ' ', $name);
+        $name_class = str_replace(' ', '_', $name);
+        // class name
+        $class = $ts . '__' . $developer_class . '__' . $name_class;
+        // load template
+        $template = File::read('../libraries/vendor/Numbers/Backend/Db/Common/Seeder/Template.php');
+        // add data to template
+        $template = str_replace('[[db_link]]', $db_link, $template);
+        $template = str_replace('[[developer]]', $developer, $template);
+        $template = str_replace('[[seeder_name]]', $name, $template);
+        $template = str_replace('Numbers_Backend_Db_Common_Seeder_Template', 'Numbers_Backend_Db_Common_Seeder_Template_' . $class, $template);
+        $template = str_replace('/*[[seed_up]]*/', '// place your code here', $template);
+        // create a directory for db_link
+        $migration_dir = self::$seeder_dir . $db_link . '/';
+        $migration_filename = $migration_dir . $class . '.php';
+        if (!file_exists($migration_dir)) {
+            File::mkdir($migration_dir);
+        }
+        // write a file
+        if (File::write($migration_filename, $template, 0777, LOCK_EX, true)) {
+            $result['success'] = true;
+            $result['seeder_name'] = $class;
+        } else {
+            $result['error'][] = 'Could not write seeder file!';
         }
         return $result;
     }

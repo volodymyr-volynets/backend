@@ -1,19 +1,30 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Session\Db\Model;
-class SessionsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class SessionsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\Session\Db\Model\Sessions::class;
+    public string $object_table_class = Sessions::class;
 
     /**
      * @var array
      */
     public array $object_table_pk = ['sm_session_id'];
+
     /**
      * Tenant #
      *
@@ -23,13 +34,13 @@ class SessionsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: tenant_id Type: integer
      */
-    public int|null $sm_session_tenant_id = NULL {
-                        get => $this->sm_session_tenant_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_tenant_id', $value);
-                            $this->sm_session_tenant_id = $value;
-                        }
-                    }
+    public int|null $sm_session_tenant_id = null {
+        get => $this->sm_session_tenant_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_tenant_id', $value);
+            $this->sm_session_tenant_id = $value;
+        }
+    }
 
     /**
      * Session #
@@ -41,12 +52,12 @@ class SessionsAR extends \Object\ActiveRecord {
      * @var string|null Domain: session_id Type: varchar
      */
     public string|null $sm_session_id = null {
-                        get => $this->sm_session_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_id', $value);
-                            $this->sm_session_id = $value;
-                        }
-                    }
+        get => $this->sm_session_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_id', $value);
+            $this->sm_session_id = $value;
+        }
+    }
 
     /**
      * Datetime Started
@@ -58,12 +69,12 @@ class SessionsAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_session_started = null {
-                        get => $this->sm_session_started;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_started', $value);
-                            $this->sm_session_started = $value;
-                        }
-                    }
+        get => $this->sm_session_started;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_started', $value);
+            $this->sm_session_started = $value;
+        }
+    }
 
     /**
      * Datetime Expires
@@ -75,12 +86,12 @@ class SessionsAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_session_expires = null {
-                        get => $this->sm_session_expires;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_expires', $value);
-                            $this->sm_session_expires = $value;
-                        }
-                    }
+        get => $this->sm_session_expires;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_expires', $value);
+            $this->sm_session_expires = $value;
+        }
+    }
 
     /**
      * Datetime Last Requested
@@ -92,12 +103,12 @@ class SessionsAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_session_last_requested = null {
-                        get => $this->sm_session_last_requested;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_last_requested', $value);
-                            $this->sm_session_last_requested = $value;
-                        }
-                    }
+        get => $this->sm_session_last_requested;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_last_requested', $value);
+            $this->sm_session_last_requested = $value;
+        }
+    }
 
     /**
      * Pages Count
@@ -109,12 +120,12 @@ class SessionsAR extends \Object\ActiveRecord {
      * @var int|null Domain: counter Type: integer
      */
     public int|null $sm_session_pages_count = 0 {
-                        get => $this->sm_session_pages_count;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_pages_count', $value);
-                            $this->sm_session_pages_count = $value;
-                        }
-                    }
+        get => $this->sm_session_pages_count;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_pages_count', $value);
+            $this->sm_session_pages_count = $value;
+        }
+    }
 
     /**
      * User #
@@ -125,13 +136,13 @@ class SessionsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_session_user_id = NULL {
-                        get => $this->sm_session_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_user_id', $value);
-                            $this->sm_session_user_id = $value;
-                        }
-                    }
+    public int|null $sm_session_user_id = null {
+        get => $this->sm_session_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_user_id', $value);
+            $this->sm_session_user_id = $value;
+        }
+    }
 
     /**
      * User IP
@@ -143,12 +154,12 @@ class SessionsAR extends \Object\ActiveRecord {
      * @var string|null Domain: ip Type: varchar
      */
     public string|null $sm_session_user_ip = null {
-                        get => $this->sm_session_user_ip;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_user_ip', $value);
-                            $this->sm_session_user_ip = $value;
-                        }
-                    }
+        get => $this->sm_session_user_ip;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_user_ip', $value);
+            $this->sm_session_user_ip = $value;
+        }
+    }
 
     /**
      * Session Data
@@ -160,12 +171,12 @@ class SessionsAR extends \Object\ActiveRecord {
      * @var string|null Type: text
      */
     public string|null $sm_session_data = null {
-                        get => $this->sm_session_data;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_data', $value);
-                            $this->sm_session_data = $value;
-                        }
-                    }
+        get => $this->sm_session_data;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_data', $value);
+            $this->sm_session_data = $value;
+        }
+    }
 
     /**
      * Country Code
@@ -177,12 +188,12 @@ class SessionsAR extends \Object\ActiveRecord {
      * @var string|null Domain: country_code Type: char
      */
     public string|null $sm_session_country_code = null {
-                        get => $this->sm_session_country_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_country_code', $value);
-                            $this->sm_session_country_code = $value;
-                        }
-                    }
+        get => $this->sm_session_country_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_country_code', $value);
+            $this->sm_session_country_code = $value;
+        }
+    }
 
     /**
      * Request Count
@@ -194,12 +205,12 @@ class SessionsAR extends \Object\ActiveRecord {
      * @var int|null Domain: counter Type: integer
      */
     public int|null $sm_session_request_count = 0 {
-                        get => $this->sm_session_request_count;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_request_count', $value);
-                            $this->sm_session_request_count = $value;
-                        }
-                    }
+        get => $this->sm_session_request_count;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_request_count', $value);
+            $this->sm_session_request_count = $value;
+        }
+    }
 
     /**
      * Bearer Token
@@ -211,10 +222,10 @@ class SessionsAR extends \Object\ActiveRecord {
      * @var string|null Domain: token Type: varchar
      */
     public string|null $sm_session_bearer_token = null {
-                        get => $this->sm_session_bearer_token;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_session_bearer_token', $value);
-                            $this->sm_session_bearer_token = $value;
-                        }
-                    }
+        get => $this->sm_session_bearer_token;
+        set {
+            $this->setFullPkAndFilledColumn('sm_session_bearer_token', $value);
+            $this->sm_session_bearer_token = $value;
+        }
+    }
 }

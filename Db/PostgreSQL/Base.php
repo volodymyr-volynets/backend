@@ -13,6 +13,8 @@ namespace Numbers\Backend\Db\PostgreSQL;
 
 use Object\Data\Common;
 use Object\Query\Builder;
+use Numbers\AI\SDK\Classes\Agent\PreConfigured;
+use Numbers\AI\SDK\Model\Settings;
 
 #[\AllowDynamicProperties]
 class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\Db\Common\Interface2\Base
@@ -69,15 +71,15 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
         ];
         // we could pass an array or connection string right a way
         if (is_array($options)) {
-            $str = 'host=' . $options['host'] . ' port=' . $options['port'] . ' dbname=' . $options['dbname'] . ' user=' . $options['username'] . ' password=' . $options['password'];
+            $str = 'host=' . $options['host'] . ' port=' . $options['port'] . ' dbname=' . $options['dbname'] . ' user=' . $options['username'] . ' password=' . $options['password'] . ' sslmode=disable';
         } else {
             $str = $options;
         }
         $is_persistent = $options['persistent'] ?? false;
         if ($is_persistent) {
-            $connection = @pg_pconnect($str);
+            $connection = pg_pconnect($str);
         } else {
-            $connection = @pg_connect($str);
+            $connection = pg_connect($str);
         }
         if ($connection !== false) {
             $this->db_resource = $connection;
@@ -214,15 +216,25 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
             $options['cache'] = false;
         }
         // check connection
-        if (pg_connection_status($this->db_resource) === PGSQL_CONNECTION_BAD) {
+        if ($this->db_resource !== null && pg_connection_status($this->db_resource) === PGSQL_CONNECTION_BAD) {
             pg_connection_reset($this->db_resource);
         }
-        // quering
+        // querying
         $resource = pg_query($this->db_resource, $sql);
         if ($resource) {
             $result['status'] = pg_result_status($resource);
         } else {
             $result['status'] = PGSQL_BAD_RESPONSE;
+        }
+        // single row in key
+        $is_single_row = (is_array($key) && count($key) > 0 && $key[0] == '__is_single_row') || (is_string($key) && str_starts_with($key, '__is_single_row'));
+        $is_single_column = null;
+        if ($is_single_row) {
+            if (is_array($key)) {
+                $key = implode('.', $key);
+            }
+            $is_single_column = explode('.', $key)[1] ?? null;
+            $key = null;
         }
         if (!$resource || $result['status'] > 4) {
             $last_error = pg_last_error($this->db_resource);
@@ -254,13 +266,21 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
                                 $rows[$k] = (float) $v;
                             }
                         } elseif ($result['structure'][$k]['type'] == 'bytea') {
-                            $rows[$k] = pg_unescape_bytea($v);
+                            if (isset($v)) {
+                                $rows[$k] = pg_unescape_bytea($v);
+                            }
                         } elseif ($result['structure'][$k]['type'] == 'jsonb') {
                             // we must get json vallues to PHP format
                             if (is_null($v) || $v === '' || $v === 'null' || $v === '""' || $v === "''") { // but not nulls
                                 $rows[$k] = null;
                             } else {
                                 $rows[$k] = json_encode(json_decode($v, true));
+                            }
+                        } elseif ($result['structure'][$k]['type'] == 'vector') {
+                            if (is_null($v)) {
+                                $rows[$k] = null;
+                            } else {
+                                $rows[$k] = json_decode($v, false);
                             }
                         }
                     }
@@ -315,6 +335,13 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
         // if we are debugging
         if (\Debug::$debug) {
             \Debug::$data['sql'][] = $result;
+        }
+        // single row
+        if ($is_single_row) {
+            $result['rows'] = current($result['rows']);
+            if ($is_single_column) {
+                $result['rows'] = $result['rows'][$is_single_column] ?? null;
+            }
         }
         return $result;
     }
@@ -550,6 +577,9 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
             case 'fetch_databases':
                 $result = 'SELECT datname database_name FROM pg_database WHERE datistemplate = false ORDER BY database_name ASC';
                 break;
+            case 'fetch_schemas':
+                $result = 'SELECT nspname schema_name FROM pg_catalog.pg_namespace WHERE nspname NOT IN (\'pg_catalog\', \'information_schema\')';
+                break;
             case 'fetch_tables':
                 $result = <<<TTT
 					SELECT
@@ -559,6 +589,21 @@ class Base extends \Numbers\Backend\Db\Common\Base implements \Numbers\Backend\D
 					WHERE 1=1
 						AND schemaname NOT IN ('pg_catalog', 'information_schema')
 					ORDER BY schema_name, table_name
+TTT;
+                break;
+            case 'fetch_columns':
+                $result = <<<TTT
+					SELECT
+						b.table_schema schema_name,
+						b.table_name table_name,
+						a.column_name column_name
+					FROM information_schema.columns a
+					LEFT JOIN information_schema.tables b ON a.table_schema = b.table_schema AND a.table_name = b.table_name
+					LEFT JOIN pg_tables c ON a.table_schema = c.schemaname AND a.table_name = c.tablename
+					WHERE 1=1
+						AND b.table_schema NOT IN ('pg_catalog', 'information_schema', 'extensions')
+						AND b.table_type = 'BASE TABLE'
+					ORDER BY b.table_schema, b.table_name, a.ordinal_position
 TTT;
                 break;
             case 'concat':
@@ -606,6 +651,15 @@ TTT;
                 } else {
                     $result = "(ACOS(SIN({$options['latitude_1']}) * SIN({$options['latitude_2']}) + COS({$options['latitude_1']}) * COS({$options['latitude_2']}) * COS({$options['longitude_2']} - {$options['longitude_1']})) * 6378.70)";
                 }
+                break;
+            case 'age_in_years':
+                $result = 'EXTRACT(YEAR FROM AGE(CURRENT_DATE, ' . $options['column'] . '))';
+                break;
+            case 'age_in_days':
+                $result = 'EXTRACT(DAY FROM (NOW() - ' . $options['column'] . '::timestamp))';
+                break;
+            case 'age_in_days_float':
+                $result = 'extract(epoch FROM (NOW() - ' . $options['column'] . '::timestamp)) / 86400';
                 break;
             default:
                 throw new \Exception('Statement?');
@@ -679,6 +733,68 @@ TTT;
                 $result['rank_simple'] = "(ts_rank_cd(to_tsvector($sql), to_tsquery('simple', '" . $escaped . "')))";
             }
         }
+        return $result;
+    }
+
+    /**
+     * Embeddings filtering
+     *
+     * @param mixed $fields
+     * @param string $str
+     * @param string $type
+     * @param mixed $similarity
+     * @return string
+     */
+    public function embeddingsSearchQuery($fields, $str, $type = 'cosine_percent', $similarity = 50)
+    {
+        $result = [
+            'where' => '',
+            'orderby' => '',
+            'rank' => '',
+            'rank_simple' => '',
+        ];
+        // load default embedding agent
+        $ai_settings = Settings::getSingleStatic([
+            'where' => [
+                'ai_setting_tenant_id' => \Tenant::id(),
+            ]
+        ]);
+        if (empty($ai_settings['ai_setting_embedding_ai_agent_code'])) {
+            throw new \Exception('ETL: please set A/I Embedding Agent Code in A/I Settings');
+        }
+        // call AI Embeddings API
+        $agent = new PreConfigured($ai_settings['ai_setting_embedding_ai_agent_code']);
+        $response1 = $agent->embeddings($str, [
+            'ai_embedding_ai_ragtype_code' => 'SM::SEARCHES',
+        ]);
+        $where = [];
+        $rank = [];
+        $orderby = [];
+        $ai_embedding_string = $response1['embeddings']['embedding_string'];
+        foreach ($fields as $v) {
+            $field_only = $v;
+            if (strpos($v, '.') !== false) {
+                $field_only = explode('.', $v)[1];
+            }
+            if ($type == 'cosine_percent') {
+                $where[] = "((1 - ({$v} <=> '{$ai_embedding_string}')) * 100 >= {$similarity})";
+                $rank[] = "(1 - ({$v} <=> '{$ai_embedding_string}')) AS embeddings_rank_{$field_only}";
+                $orderby[] = "embeddings_rank_{$field_only}";
+            } elseif ($type == 'euclidean_distance') {
+                if ($similarity != null) {
+                    $where[] = "({$v} <-> '{$ai_embedding_string}') >= {$similarity}";
+                }
+                $rank[] = "({$v} <-> '{$ai_embedding_string}') AS embeddings_rank_{$field_only}";
+                $orderby[] = "embeddings_rank_{$field_only}";
+            } else {
+                throw new \Exception('EmbeddingsSearchQuery: unknown type: ' . $type);
+            }
+        }
+        if (!empty($where)) {
+            $result['where'] = '(' . implode(' OR ', $where) . ')';
+        }
+        $result['rank'] = $result['rank_simple'] = $rank;
+        $result['orderby'] = $orderby;
         return $result;
     }
 
@@ -1035,5 +1151,24 @@ TTT;
             $result['sql'] = $sql;
         }
         return $result;
+    }
+
+    /**
+     * Prepare statement
+     *
+     * @param string $name
+     * @param string $sql
+     * @return array
+     */
+    public function prepare(string $name, string $sql): array
+    {
+        // we need to fix '?' marks
+        $counter = 1;
+        while (strpos($sql, '?') !== false) {
+            $sql = str_replace_first('?', '$' . $counter, $sql);
+            $counter++;
+        }
+        // call method from base class
+        return parent::prepare($name, $sql);
     }
 }

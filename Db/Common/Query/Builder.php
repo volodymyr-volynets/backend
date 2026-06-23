@@ -67,6 +67,7 @@ class Builder
         'relation' => [],
         'relation_options' => [],
         'scope' => [],
+        'skip_scope' => false,
         'cascade' => false,
         'dblink_as' => [],
         'pivot' => [],
@@ -345,7 +346,7 @@ class Builder
      * 		prefix - as prefix for column
      * @return Builder
      */
-    public function columns($columns, array $options = []): Builder
+    public function columns(mixed $columns, array $options = []): Builder
     {
         // empty existing columns
         if (!empty($options['empty_existing'])) {
@@ -370,6 +371,103 @@ class Builder
             }
         }
         return $this;
+    }
+
+    /**
+     * Count
+     *
+     * @param string $column
+     * @param string|null $alias
+     * @return Builder
+     */
+    public function count(string $column, string|null $alias = null): Builder
+    {
+        if ($alias == null) {
+            $alias = $column . '_counter';
+        }
+        return $this->columns([
+            $alias => "COUNT({$column})"
+        ]);
+    }
+
+    /**
+     * Min
+     *
+     * @param string $column
+     * @param string|null $alias
+     * @return Builder
+     */
+    public function min(string $column, string|null $alias = null): Builder
+    {
+        if ($alias == null) {
+            $alias = $column . '_min';
+        }
+        return $this->columns([
+            $alias => "MIN({$column})"
+        ]);
+    }
+
+    /**
+     * Max
+     *
+     * @param string $column
+     * @param string|null $alias
+     * @return Builder
+     */
+    public function max(string $column, string|null $alias = null): Builder
+    {
+        if ($alias == null) {
+            $alias = $column . '_max';
+        }
+        return $this->columns([
+            $alias => "MAX({$column})"
+        ]);
+    }
+
+    /**
+     * Average
+     *
+     * @param string $column
+     * @param string|null $alias
+     * @return Builder
+     */
+    public function average(string $column, string|null $alias = null): Builder
+    {
+        if ($alias == null) {
+            $alias = $column . '_average';
+        }
+        return $this->columns([
+            $alias => "AVG({$column})"
+        ]);
+    }
+
+    /**
+     * Sum
+     *
+     * @param string $column
+     * @param string|null $alias
+     * @return Builder
+     */
+    public function sum(string $column, string|null $alias = null): Builder
+    {
+        if ($alias == null) {
+            $alias = $column . '_sum';
+        }
+        return $this->columns([
+            $alias => "SUM({$column})"
+        ]);
+    }
+
+    /**
+     * All
+     *
+     * @param string $column
+     * @param string|null $alias
+     * @return Builder
+     */
+    public function all(): Builder
+    {
+        return $this->columns(['*']);
     }
 
     /**
@@ -489,12 +587,16 @@ class Builder
         if (is_numeric_key_array($columns)) {
             $columns = array_combine($columns, $columns);
         }
-        $prefix = 'pivot_' . strtolower($name) . '_';
+        /*
+        // prefixed columns are no longer needed
         array_key_prefix_and_suffix($columns, $prefix, null, false, true);
         $this->columns($columns);
+        */
+        $this->columns([strtolower($name) . '.*']);
         $this->data['pivot'][$name] = [
             'table' => $table,
-            'prefix' => $prefix,
+            'name' => $name,
+            //'prefix' => $prefix,
             'columns' => $columns,
         ];
         return $this;
@@ -661,6 +763,206 @@ class Builder
     }
 
     /**
+     * Where is null
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param array $options
+     * @return Builder
+     */
+    public function whereIsNull(string $operator = 'AND', string $condition = '', $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'IS', null], false, $options);
+    }
+
+    /**
+     * Where is not null
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param array $options
+     * @return Builder
+     */
+    public function whereIsNotNull(string $operator = 'AND', string $condition = '', $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'IS NOT', null], false, $options);
+    }
+
+    /**
+     * Where between
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $low
+     * @param mixed $high
+     * @param array $options
+     * @return Builder
+     */
+    public function whereBetween(string $operator = 'AND', string $condition = '', mixed $low = null, mixed $high = null, $options = []): Builder
+    {
+        if (is_string($low)) {
+            $low = "'" . $low . "'";
+        }
+        if (is_string($high)) {
+            $high = "'" . $high . "'";
+        }
+        return $this->where($operator, [$condition, 'BETWEEN', "$low AND $high", true], false, $options);
+    }
+
+    /**
+     * Where in
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $values
+     * @param array $options
+     * @return Builder
+     */
+    public function whereIn(string $operator = 'AND', string $condition = '', mixed $values = null, $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'IN', $values], false, $options);
+    }
+
+    /**
+     * Where not in
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $values
+     * @param array $options
+     * @return Builder
+     */
+    public function whereNotIn(string $operator = 'AND', string $condition = '', mixed $values = null, $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'NOT IN', $values], false, $options);
+    }
+
+    /**
+     * Where starts with
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $value
+     * @param array $options
+     * @return Builder
+     */
+    public function whereStartsWith(string $operator = 'AND', string $condition = '', mixed $value = null, $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'LIKE', "{$value}%", false], false, $options);
+    }
+
+    /**
+     * Where not starts with
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $value
+     * @param array $options
+     * @return Builder
+     */
+    public function whereNotStartsWith(string $operator = 'AND', string $condition = '', mixed $value = null, $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'NOT LIKE', "{$value}%", false], false, $options);
+    }
+
+    /**
+     * Where ends with
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $value
+     * @param array $options
+     * @return Builder
+     */
+    public function whereEndsWith(string $operator = 'AND', string $condition = '', mixed $value = null, $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'LIKE', "%{$value}", false], false, $options);
+    }
+
+    /**
+     * Where not ends with
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $value
+     * @param array $options
+     * @return Builder
+     */
+    public function whereNotEndsWith(string $operator = 'AND', string $condition = '', mixed $value = null, $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'NOT LIKE', "%{$value}", false], false, $options);
+    }
+
+    /**
+     * Where contains
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $value
+     * @param array $options
+     * @return Builder
+     */
+    public function whereContains(string $operator = 'AND', string $condition = '', mixed $value = null, $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'LIKE', "%{$value}%", false], false, $options);
+    }
+
+    /**
+     * Where not contains
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $value
+     * @param array $options
+     * @return Builder
+     */
+    public function whereNotContains(string $operator = 'AND', string $condition = '', mixed $value = null, $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'NOT LIKE', "%{$value}%", false], false, $options);
+    }
+
+    /**
+     * Where like
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $value
+     * @param array $options
+     * @return Builder
+     */
+    public function whereLike(string $operator = 'AND', string $condition = '', mixed $value = null, $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'LIKE', "{$value}", false], false, $options);
+    }
+
+    /**
+     * Where not like
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param mixed $value
+     * @param array $options
+     * @return Builder
+     */
+    public function whereNotLike(string $operator = 'AND', string $condition = '', mixed $value = null, $options = []): Builder
+    {
+        return $this->where($operator, [$condition, 'NOT LIKE', "{$value}", false], false, $options);
+    }
+
+    /**
+     * Where raw
+     *
+     * @param string $operator
+     * @param string $condition
+     * @param array $options
+     * @return Builder
+     */
+    public function whereRaw(string $operator = 'AND', string $condition = '', $options = []): Builder
+    {
+        return $this->where($operator, $condition, false, $options);
+    }
+
+    /**
      * Having
      *
      * @param string $operator
@@ -679,7 +981,7 @@ class Builder
      *	Notation: 'field;=;~~' => 'value'
      *	Notation: ['field', '=', 'value', true]
      *
-     * @param type $operator
+     * @param string $operator
      * @param array $conditions
      * @return Builder
      */
@@ -743,6 +1045,44 @@ class Builder
     }
 
     /**
+     * Embeddings search
+     *
+     * @param string $operator
+     *		AND, OR
+     * @param array $fields
+     * @param string $str
+     * @param string $type
+     * @param mixed $similarity
+     * @param bool $rank
+     *		Whether to include rank column
+     * @param int $orderby
+     *		SORT_ASC or SORT_DESC
+     * @return Builder
+     */
+    public function embeddingsSearch(string $operator, array $fields, string $str, string $type = 'cosine_percent', mixed $similarity = 50, bool $rank = false, $orderby = null): Builder
+    {
+        $result = $this->db_object->object->embeddingsSearchQuery($fields, $str, $type, $similarity);
+        // some might not have where clauses
+        if (!empty($result['where'])) {
+            $this->where($operator, $result['where']);
+        }
+        // rank
+        if ($rank || !empty($orderby)) {
+            $this->columns($result['rank']);
+        }
+        // orderby
+        if (!empty($orderby)) {
+            if (!is_array($result['orderby'])) {
+                $result['orderby'] = [$result['orderby']];
+            }
+            foreach ($result['orderby'] as $v) {
+                $this->orderby([$v => $orderby]);
+            }
+        }
+        return $this;
+    }
+
+    /**
      * Distinct
      *
      * @return Builder
@@ -750,6 +1090,17 @@ class Builder
     public function distinct(): Builder
     {
         $this->data['distinct'] = true;
+        return $this;
+    }
+
+    /**
+     * No scope
+     *
+     * @return Builder
+     */
+    public function noScope(): Builder
+    {
+        $this->data['skip_scope'] = true;
         return $this;
     }
 
@@ -828,6 +1179,41 @@ class Builder
     }
 
     /**
+     * Page
+     *
+     * @param int $page
+     * @param int $size
+     * @return Builder
+     */
+    public function page(int $page, int $size = 30): Builder
+    {
+        $page = max(1, $page);
+        return $this->limit($size)->offset(($page - 1) * $size);
+    }
+
+    /**
+     * Oldest
+     *
+     * @param string $column
+     * @return Builder
+     */
+    public function oldest(string $column): Builder
+    {
+        return $this->orderby([$column => SORT_ASC]);
+    }
+
+    /**
+     * Latest
+     *
+     * @param string $column
+     * @return Builder
+     */
+    public function latest(string $column): Builder
+    {
+        return $this->orderby([$column => SORT_DESC]);
+    }
+
+    /**
      * Order by
      *
      * @param array $orderby
@@ -885,7 +1271,7 @@ class Builder
         // we need to proceess scopes last because we can disable global scopes in queries
         if (count($this->data['scope'])) {
             foreach ($this->data['scope'] as $scope) {
-                if ($scope['skip']) {
+                if ($scope['skip'] || !empty($this->data['skip_scope'])) {
                     continue;
                 }
                 /** @var $this->primary_model \Object\Table */

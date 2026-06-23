@@ -26,7 +26,7 @@ class Import extends \Object\Import
                     'sm_feature_code' => 'SM::RENDERER_EXCEL',
                     'sm_feature_type' => 10,
                     'sm_feature_name' => 'S/M Excel Renderer',
-                    'sm_feature_icon' => 'far fa-file-excel',
+                    'sm_feature_icon' => 'fa-regular fa-file-excel',
                     'sm_feature_activation_model' => null,
                     'sm_feature_activated_by_default' => 1,
                     'sm_feature_inactive' => 0,

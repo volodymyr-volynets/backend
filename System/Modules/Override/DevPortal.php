@@ -19,12 +19,12 @@ class DevPortal
                 'Run PHP Code' => [
                     'url' => '/Numbers/Backend/System/Modules/Controller/DevPortal/_PHP',
                     'name' => 'Run PHP Code',
-                    'icon' => 'fab fa-free-code-camp'
+                    'icon' => 'fa-brands fa-free-code-camp'
                 ],
                 'Run SQL Code' => [
                     'url' => '/Numbers/Backend/System/Modules/Controller/DevPortal/_PostgreSQL',
                     'name' => 'Run SQL Code',
-                    'icon' => 'fab fa-codepen'
+                    'icon' => 'fa-brands fa-codepen'
                 ]
             ]
         ]

@@ -134,7 +134,7 @@ class Base
     /**
      * Render list header
      *
-     * @param type $report_name
+     * @param string $report_name
      * @param Report $object
      * @param Wrapper $pdf
      * @param float $page_y

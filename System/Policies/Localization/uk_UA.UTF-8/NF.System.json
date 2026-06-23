@@ -1,0 +1,12 @@
+{
+    "Global": "Глобальний",
+    "Groups": "Групи",
+    "Operations": "Операції",
+    "Policies": "Політики",
+    "PolicyGroups": "Групи політик",
+    "SMSystemGroups": "Групи систем S/M",
+    "SMSystemPolicies": "Політики системи S/M",
+    "SMSystemPolicyGroups": "Групи політик системи S/M",
+    "SystemPolicies": "Системні політики",
+    "UserManagement": "Керування користувачами"
+}

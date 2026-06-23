@@ -23,7 +23,7 @@ class Logs extends List2
         'actions' => [
             'refresh' => true,
             'new' => true,
-            'filter_sort' => ['value' => 'Filter/Sort', 'sort' => 32000, 'icon' => 'fas fa-filter', 'onclick' => 'Numbers.Form.listFilterSortToggle(this);']
+            'filter_sort' => ['value' => 'Filter/Sort', 'sort' => 32000, 'icon' => 'fa-solid fa-filter', 'onclick' => 'Numbers.Form.listFilterSortToggle(this);']
         ]
     ];
     public $containers = [
@@ -54,8 +54,8 @@ class Logs extends List2
                 'sm_log_year1' => ['order' => 3, 'label_name' => 'Year', 'domain' => 'year', 'percent' => 50, 'null' => true, 'default' => NUMBERS_FLAG_CURRENT_YEAR, 'method' => 'select', 'no_choose' => true, 'options_model' => '\Numbers\Backend\Log\Db\Model\Logs::optionsYears', 'query_builder' => 'a.sm_log_year'],
             ],
             'dates' => [
-                'sm_log_inserted_timestamp1' => ['order' => 1, 'row_order' => 150, 'label_name' => 'Start Date', 'type' => 'datetime', 'percent' => 50, 'null' => true, 'method' => 'calendar', 'calendar_icon' => 'right', 'query_builder' => 'a.sm_log_inserted_timestamp::date;>='],
-                'sm_log_inserted_timestamp2' => ['order' => 2, 'label_name' => 'End Date', 'type' => 'datetime', 'percent' => 50, 'null' => true, 'method' => 'calendar', 'calendar_icon' => 'right', 'query_builder' => 'a.sm_log_inserted_timestamp::date;<='],
+                'sm_log_inserted_timestamp1' => ['order' => 1, 'row_order' => 150, 'label_name' => 'Start Date', 'type' => 'datetime', 'percent' => 50, 'null' => true, 'method' => 'calendar', 'calendar_icon' => 'right', 'query_builder' => 'a.sm_log_inserted_timestamp::timestamp;>='],
+                'sm_log_inserted_timestamp2' => ['order' => 2, 'label_name' => 'End Date', 'type' => 'datetime', 'percent' => 50, 'null' => true, 'method' => 'calendar', 'calendar_icon' => 'right', 'query_builder' => 'a.sm_log_inserted_timestamp::timestamp;<='],
             ],
             'sm_log_type' => [
                 'sm_log_type1'  => ['order' => 1, 'row_order' => 200, 'label_name' => 'Type', 'domain' => 'name', 'percent' => 50, 'null' => true, 'method' => 'multiselect', 'multiple_column' => 1, 'options_model' => '\Numbers\Backend\Log\Db\Model\Logs::optionsColumnSettings', 'options_depends' => ['sm_log_year' => 'sm_log_year'], 'options_params' => ['__column' => 'sm_log_type'], 'query_builder' => 'a.sm_log_type'],
@@ -79,8 +79,9 @@ class Logs extends List2
         self::LIST_CONTAINER => [
             'row1' => [
                 'sm_log_id' => ['order' => 1, 'row_order' => 100, 'label_name' => 'Log #', 'domain' => 'uuid', 'percent' => 30],
-                'sm_log_message' => ['order' => 2, 'label_name' => 'Message', 'domain' => 'message', 'percent' => 65, 'format' => 'strip', 'format_options' => ['length' => 100]],
-                'sm_log_inactive' => ['order' => 3, 'label_name' => 'Inactive', 'type' => 'boolean', 'percent' => 5]
+                'sm_log_message' => ['order' => 2, 'label_name' => 'Message', 'domain' => 'message', 'percent' => 30, 'format' => 'strip', 'format_options' => ['length' => 100]],
+                'sm_log_other' => ['order' => 3, 'label_name' => 'Other', 'type' => 'text', 'percent' => 35, 'null' => true],
+                'sm_log_inactive' => ['order' => 4, 'label_name' => 'Inactive', 'type' => 'boolean', 'percent' => 5]
             ],
             'row2' => [
                 'sm_log_group_id' => ['order' => 1, 'row_order' => 200, 'label_name' => 'Group #', 'domain' => 'uuid', 'percent' => 30],

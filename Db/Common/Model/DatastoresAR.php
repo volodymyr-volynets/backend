@@ -1,19 +1,30 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Db\Common\Model;
-class DatastoresAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class DatastoresAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\Db\Common\Model\Datastores::class;
+    public string $object_table_class = Datastores::class;
 
     /**
      * @var array
      */
     public array $object_table_pk = ['sm_datastore_tenant_id','sm_datastore_code'];
+
     /**
      * Tenant #
      *
@@ -23,13 +34,13 @@ class DatastoresAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: tenant_id Type: integer
      */
-    public int|null $sm_datastore_tenant_id = NULL {
-                        get => $this->sm_datastore_tenant_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_tenant_id', $value);
-                            $this->sm_datastore_tenant_id = $value;
-                        }
-                    }
+    public int|null $sm_datastore_tenant_id = null {
+        get => $this->sm_datastore_tenant_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_tenant_id', $value);
+            $this->sm_datastore_tenant_id = $value;
+        }
+    }
 
     /**
      * Code
@@ -41,12 +52,12 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var string|null Domain: lcode Type: varchar
      */
     public string|null $sm_datastore_code = null {
-                        get => $this->sm_datastore_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_code', $value);
-                            $this->sm_datastore_code = $value;
-                        }
-                    }
+        get => $this->sm_datastore_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_code', $value);
+            $this->sm_datastore_code = $value;
+        }
+    }
 
     /**
      * Name
@@ -58,12 +69,12 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_datastore_name = null {
-                        get => $this->sm_datastore_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_name', $value);
-                            $this->sm_datastore_name = $value;
-                        }
-                    }
+        get => $this->sm_datastore_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_name', $value);
+            $this->sm_datastore_name = $value;
+        }
+    }
 
     /**
      * Module Code
@@ -75,12 +86,12 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var string|null Domain: module_code Type: char
      */
     public string|null $sm_datastore_module_code = null {
-                        get => $this->sm_datastore_module_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_module_code', $value);
-                            $this->sm_datastore_module_code = $value;
-                        }
-                    }
+        get => $this->sm_datastore_module_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_module_code', $value);
+            $this->sm_datastore_module_code = $value;
+        }
+    }
 
     /**
      * Table Prefix
@@ -92,12 +103,12 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var string|null Domain: lcode Type: varchar
      */
     public string|null $sm_datastore_table_prefix = null {
-                        get => $this->sm_datastore_table_prefix;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_table_prefix', $value);
-                            $this->sm_datastore_table_prefix = $value;
-                        }
-                    }
+        get => $this->sm_datastore_table_prefix;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_table_prefix', $value);
+            $this->sm_datastore_table_prefix = $value;
+        }
+    }
 
     /**
      * Table Suffix
@@ -109,12 +120,12 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var string|null Domain: lcode Type: varchar
      */
     public string|null $sm_datastore_table_suffix = null {
-                        get => $this->sm_datastore_table_suffix;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_table_suffix', $value);
-                            $this->sm_datastore_table_suffix = $value;
-                        }
-                    }
+        get => $this->sm_datastore_table_suffix;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_table_suffix', $value);
+            $this->sm_datastore_table_suffix = $value;
+        }
+    }
 
     /**
      * Column Prefix
@@ -126,12 +137,12 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var string|null Domain: lcode Type: varchar
      */
     public string|null $sm_datastore_column_prefix = null {
-                        get => $this->sm_datastore_column_prefix;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_column_prefix', $value);
-                            $this->sm_datastore_column_prefix = $value;
-                        }
-                    }
+        get => $this->sm_datastore_column_prefix;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_column_prefix', $value);
+            $this->sm_datastore_column_prefix = $value;
+        }
+    }
 
     /**
      * Table Name
@@ -143,12 +154,12 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var string|null Domain: lcode Type: varchar
      */
     public string|null $sm_datastore_table_name = null {
-                        get => $this->sm_datastore_table_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_table_name', $value);
-                            $this->sm_datastore_table_name = $value;
-                        }
-                    }
+        get => $this->sm_datastore_table_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_table_name', $value);
+            $this->sm_datastore_table_name = $value;
+        }
+    }
 
     /**
      * Table Tenant
@@ -160,12 +171,12 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_datastore_table_tenant = 0 {
-                        get => $this->sm_datastore_table_tenant;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_table_tenant', $value);
-                            $this->sm_datastore_table_tenant = $value;
-                        }
-                    }
+        get => $this->sm_datastore_table_tenant;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_table_tenant', $value);
+            $this->sm_datastore_table_tenant = $value;
+        }
+    }
 
     /**
      * Table Module
@@ -177,12 +188,12 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_datastore_table_module = 0 {
-                        get => $this->sm_datastore_table_module;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_table_module', $value);
-                            $this->sm_datastore_table_module = $value;
-                        }
-                    }
+        get => $this->sm_datastore_table_module;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_table_module', $value);
+            $this->sm_datastore_table_module = $value;
+        }
+    }
 
     /**
      * Readonly
@@ -194,12 +205,12 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_datastore_table_readonly = 0 {
-                        get => $this->sm_datastore_table_readonly;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_table_readonly', $value);
-                            $this->sm_datastore_table_readonly = $value;
-                        }
-                    }
+        get => $this->sm_datastore_table_readonly;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_table_readonly', $value);
+            $this->sm_datastore_table_readonly = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -211,10 +222,10 @@ class DatastoresAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_datastore_inactive = 0 {
-                        get => $this->sm_datastore_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_datastore_inactive', $value);
-                            $this->sm_datastore_inactive = $value;
-                        }
-                    }
+        get => $this->sm_datastore_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_datastore_inactive', $value);
+            $this->sm_datastore_inactive = $value;
+        }
+    }
 }
