@@ -65,7 +65,7 @@ class Base
                         $v[$k3] = strip_tags2($v[$k3]);
                     } else {
                         // process options
-                        if (!empty($v3['options']['options_model'])) {
+                        if (!empty($v3['options']['options_model']) && isset($v[$k3])) {
                             $v[$k3] = $object->renderListContainerDefaultOptions($v3['options'], $v[$k3], $v_original);
                         }
                     }

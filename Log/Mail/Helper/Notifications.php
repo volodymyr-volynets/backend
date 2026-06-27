@@ -26,13 +26,26 @@ class Notifications
      */
     public static function sendLogDeliveryEmail(int $um_user_id, string $um_user_email, \Array2 $pivot, \Array2 $errors): array
     {
+        // need to grab first occurrence of the trace
+        $errors = $errors->map(function ($v) {
+            if (!empty($v[5]) && is_array($v[5])) {
+                $v[5] = json_decode((new \Json2($v[5][0]))->toJSON(), false);
+                $v[5] = implode('<br/>', $v[5] ?? []);
+            }
+            return $v;
+        });
         return Sender::notifySingleUser('SM::EMAIL_LOG_DELIVER_MAIL_LOGS', $um_user_id, $um_user_email, [
             'form' => [
                 'input' => [
                     'um_user_id' => $um_user_id,
                     'um_user_email' => $um_user_email,
                     'pivot' => $pivot->toHTML(['Type', 'Message', 'Counter'], ['trim_columns' => 100]),
-                    'errors' => $errors->toHTML(['Type', 'Message', 'Other', 'Duration', 'Counter'], ['trim_columns' => 100]),
+                    'errors' => $errors->toHTML([
+                        'Type', 'Message', 'Other', 'Duration', 'Counter'
+                    ], [
+                        'trim_columns' => 100,
+                        'new_line_columns' => ['trace' => ['name' => 'Trace', 'position' => 5]],
+                    ]),
                 ],
             ],
             'replace' => [

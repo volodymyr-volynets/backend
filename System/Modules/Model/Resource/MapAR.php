@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Modules\Model\Resource;
-class MapAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class MapAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Modules\Model\Resource\Map::class;
+    public string $object_table_class = Map::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class MapAR extends \Object\ActiveRecord {
      * @var int|null Domain: resource_id Type: integer
      */
     public int|null $sm_rsrcmp_resource_id = 0 {
-                        get => $this->sm_rsrcmp_resource_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrcmp_resource_id', $value);
-                            $this->sm_rsrcmp_resource_id = $value;
-                        }
-                    }
+        get => $this->sm_rsrcmp_resource_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrcmp_resource_id', $value);
+            $this->sm_rsrcmp_resource_id = $value;
+        }
+    }
 
     /**
      * Method Code
@@ -41,12 +51,12 @@ class MapAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_rsrcmp_method_code = null {
-                        get => $this->sm_rsrcmp_method_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrcmp_method_code', $value);
-                            $this->sm_rsrcmp_method_code = $value;
-                        }
-                    }
+        get => $this->sm_rsrcmp_method_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrcmp_method_code', $value);
+            $this->sm_rsrcmp_method_code = $value;
+        }
+    }
 
     /**
      * Action #
@@ -58,12 +68,12 @@ class MapAR extends \Object\ActiveRecord {
      * @var int|null Domain: action_id Type: smallint
      */
     public int|null $sm_rsrcmp_action_id = 0 {
-                        get => $this->sm_rsrcmp_action_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrcmp_action_id', $value);
-                            $this->sm_rsrcmp_action_id = $value;
-                        }
-                    }
+        get => $this->sm_rsrcmp_action_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrcmp_action_id', $value);
+            $this->sm_rsrcmp_action_id = $value;
+        }
+    }
 
     /**
      * Disabled
@@ -75,12 +85,12 @@ class MapAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_rsrcmp_disabled = 0 {
-                        get => $this->sm_rsrcmp_disabled;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrcmp_disabled', $value);
-                            $this->sm_rsrcmp_disabled = $value;
-                        }
-                    }
+        get => $this->sm_rsrcmp_disabled;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrcmp_disabled', $value);
+            $this->sm_rsrcmp_disabled = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -92,10 +102,10 @@ class MapAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_rsrcmp_inactive = 0 {
-                        get => $this->sm_rsrcmp_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrcmp_inactive', $value);
-                            $this->sm_rsrcmp_inactive = $value;
-                        }
-                    }
+        get => $this->sm_rsrcmp_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrcmp_inactive', $value);
+            $this->sm_rsrcmp_inactive = $value;
+        }
+    }
 }

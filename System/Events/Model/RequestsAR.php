@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Events\Model;
-class RequestsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class RequestsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Events\Model\Requests::class;
+    public string $object_table_class = Requests::class;
 
     /**
      * @var array
@@ -23,13 +33,13 @@ class RequestsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: tenant_id Type: integer
      */
-    public int|null $sm_evtrequest_tenant_id = NULL {
-                        get => $this->sm_evtrequest_tenant_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_tenant_id', $value);
-                            $this->sm_evtrequest_tenant_id = $value;
-                        }
-                    }
+    public int|null $sm_evtrequest_tenant_id = null {
+        get => $this->sm_evtrequest_tenant_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_tenant_id', $value);
+            $this->sm_evtrequest_tenant_id = $value;
+        }
+    }
 
     /**
      * UUID
@@ -41,12 +51,12 @@ class RequestsAR extends \Object\ActiveRecord {
      * @var string|null Domain: uuid Type: char
      */
     public string|null $sm_evtrequest_id = null {
-                        get => $this->sm_evtrequest_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_id', $value);
-                            $this->sm_evtrequest_id = $value;
-                        }
-                    }
+        get => $this->sm_evtrequest_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_id', $value);
+            $this->sm_evtrequest_id = $value;
+        }
+    }
 
     /**
      * User #
@@ -57,13 +67,13 @@ class RequestsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_evtrequest_um_user_id = NULL {
-                        get => $this->sm_evtrequest_um_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_um_user_id', $value);
-                            $this->sm_evtrequest_um_user_id = $value;
-                        }
-                    }
+    public int|null $sm_evtrequest_um_user_id = null {
+        get => $this->sm_evtrequest_um_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_um_user_id', $value);
+            $this->sm_evtrequest_um_user_id = $value;
+        }
+    }
 
     /**
      * Event Code
@@ -75,12 +85,12 @@ class RequestsAR extends \Object\ActiveRecord {
      * @var string|null Domain: group_code Type: varchar
      */
     public string|null $sm_evtrequest_sm_event_code = null {
-                        get => $this->sm_evtrequest_sm_event_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_sm_event_code', $value);
-                            $this->sm_evtrequest_sm_event_code = $value;
-                        }
-                    }
+        get => $this->sm_evtrequest_sm_event_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_sm_event_code', $value);
+            $this->sm_evtrequest_sm_event_code = $value;
+        }
+    }
 
     /**
      * Event Name
@@ -92,12 +102,12 @@ class RequestsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_evtrequest_sm_event_name = null {
-                        get => $this->sm_evtrequest_sm_event_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_sm_event_name', $value);
-                            $this->sm_evtrequest_sm_event_name = $value;
-                        }
-                    }
+        get => $this->sm_evtrequest_sm_event_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_sm_event_name', $value);
+            $this->sm_evtrequest_sm_event_name = $value;
+        }
+    }
 
     /**
      * Queue Code
@@ -109,12 +119,12 @@ class RequestsAR extends \Object\ActiveRecord {
      * @var string|null Domain: group_code Type: varchar
      */
     public string|null $sm_evtrequest_sm_evtqueue_code = null {
-                        get => $this->sm_evtrequest_sm_evtqueue_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_sm_evtqueue_code', $value);
-                            $this->sm_evtrequest_sm_evtqueue_code = $value;
-                        }
-                    }
+        get => $this->sm_evtrequest_sm_evtqueue_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_sm_evtqueue_code', $value);
+            $this->sm_evtrequest_sm_evtqueue_code = $value;
+        }
+    }
 
     /**
      * Type
@@ -126,12 +136,12 @@ class RequestsAR extends \Object\ActiveRecord {
      * @var string|null Domain: type_code Type: varchar
      */
     public string|null $sm_evtrequest_sm_evttype_code = null {
-                        get => $this->sm_evtrequest_sm_evttype_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_sm_evttype_code', $value);
-                            $this->sm_evtrequest_sm_evttype_code = $value;
-                        }
-                    }
+        get => $this->sm_evtrequest_sm_evttype_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_sm_evttype_code', $value);
+            $this->sm_evtrequest_sm_evttype_code = $value;
+        }
+    }
 
     /**
      * Status
@@ -142,13 +152,13 @@ class RequestsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: type_id Type: smallint
      */
-    public int|null $sm_evtrequest_status_id = NULL {
-                        get => $this->sm_evtrequest_status_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_status_id', $value);
-                            $this->sm_evtrequest_status_id = $value;
-                        }
-                    }
+    public int|null $sm_evtrequest_status_id = null {
+        get => $this->sm_evtrequest_status_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_status_id', $value);
+            $this->sm_evtrequest_status_id = $value;
+        }
+    }
 
     /**
      * Data
@@ -160,12 +170,12 @@ class RequestsAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_evtrequest_data = null {
-                        get => $this->sm_evtrequest_data;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_data', $value);
-                            $this->sm_evtrequest_data = $value;
-                        }
-                    }
+        get => $this->sm_evtrequest_data;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_data', $value);
+            $this->sm_evtrequest_data = $value;
+        }
+    }
 
     /**
      * Options
@@ -177,12 +187,12 @@ class RequestsAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_evtrequest_options = null {
-                        get => $this->sm_evtrequest_options;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_options', $value);
-                            $this->sm_evtrequest_options = $value;
-                        }
-                    }
+        get => $this->sm_evtrequest_options;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_options', $value);
+            $this->sm_evtrequest_options = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -194,12 +204,12 @@ class RequestsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_evtrequest_inactive = 0 {
-                        get => $this->sm_evtrequest_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_inactive', $value);
-                            $this->sm_evtrequest_inactive = $value;
-                        }
-                    }
+        get => $this->sm_evtrequest_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_inactive', $value);
+            $this->sm_evtrequest_inactive = $value;
+        }
+    }
 
     /**
      * Inserted Datetime
@@ -211,12 +221,12 @@ class RequestsAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_evtrequest_inserted_timestamp = null {
-                        get => $this->sm_evtrequest_inserted_timestamp;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_inserted_timestamp', $value);
-                            $this->sm_evtrequest_inserted_timestamp = $value;
-                        }
-                    }
+        get => $this->sm_evtrequest_inserted_timestamp;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_inserted_timestamp', $value);
+            $this->sm_evtrequest_inserted_timestamp = $value;
+        }
+    }
 
     /**
      * Inserted User #
@@ -227,13 +237,13 @@ class RequestsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_evtrequest_inserted_user_id = NULL {
-                        get => $this->sm_evtrequest_inserted_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_inserted_user_id', $value);
-                            $this->sm_evtrequest_inserted_user_id = $value;
-                        }
-                    }
+    public int|null $sm_evtrequest_inserted_user_id = null {
+        get => $this->sm_evtrequest_inserted_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_inserted_user_id', $value);
+            $this->sm_evtrequest_inserted_user_id = $value;
+        }
+    }
 
     /**
      * Updated Datetime
@@ -245,12 +255,12 @@ class RequestsAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_evtrequest_updated_timestamp = null {
-                        get => $this->sm_evtrequest_updated_timestamp;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_updated_timestamp', $value);
-                            $this->sm_evtrequest_updated_timestamp = $value;
-                        }
-                    }
+        get => $this->sm_evtrequest_updated_timestamp;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_updated_timestamp', $value);
+            $this->sm_evtrequest_updated_timestamp = $value;
+        }
+    }
 
     /**
      * Updated User #
@@ -261,11 +271,11 @@ class RequestsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_evtrequest_updated_user_id = NULL {
-                        get => $this->sm_evtrequest_updated_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtrequest_updated_user_id', $value);
-                            $this->sm_evtrequest_updated_user_id = $value;
-                        }
-                    }
+    public int|null $sm_evtrequest_updated_user_id = null {
+        get => $this->sm_evtrequest_updated_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtrequest_updated_user_id', $value);
+            $this->sm_evtrequest_updated_user_id = $value;
+        }
+    }
 }

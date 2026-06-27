@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Events\Model;
-class SubscriptionsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class SubscriptionsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Events\Model\Subscriptions::class;
+    public string $object_table_class = Subscriptions::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class SubscriptionsAR extends \Object\ActiveRecord {
      * @var string|null Domain: group_code Type: varchar
      */
     public string|null $sm_evtsubscription_sm_evtsubscriber_code = null {
-                        get => $this->sm_evtsubscription_sm_evtsubscriber_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtsubscription_sm_evtsubscriber_code', $value);
-                            $this->sm_evtsubscription_sm_evtsubscriber_code = $value;
-                        }
-                    }
+        get => $this->sm_evtsubscription_sm_evtsubscriber_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtsubscription_sm_evtsubscriber_code', $value);
+            $this->sm_evtsubscription_sm_evtsubscriber_code = $value;
+        }
+    }
 
     /**
      * Event Code
@@ -41,12 +51,12 @@ class SubscriptionsAR extends \Object\ActiveRecord {
      * @var string|null Domain: group_code Type: varchar
      */
     public string|null $sm_evtsubscription_sm_event_code = null {
-                        get => $this->sm_evtsubscription_sm_event_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtsubscription_sm_event_code', $value);
-                            $this->sm_evtsubscription_sm_event_code = $value;
-                        }
-                    }
+        get => $this->sm_evtsubscription_sm_event_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtsubscription_sm_event_code', $value);
+            $this->sm_evtsubscription_sm_event_code = $value;
+        }
+    }
 
     /**
      * Queue Code
@@ -58,12 +68,12 @@ class SubscriptionsAR extends \Object\ActiveRecord {
      * @var string|null Domain: group_code Type: varchar
      */
     public string|null $sm_evtsubscription_sm_evtqueue_code = null {
-                        get => $this->sm_evtsubscription_sm_evtqueue_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtsubscription_sm_evtqueue_code', $value);
-                            $this->sm_evtsubscription_sm_evtqueue_code = $value;
-                        }
-                    }
+        get => $this->sm_evtsubscription_sm_evtqueue_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtsubscription_sm_evtqueue_code', $value);
+            $this->sm_evtsubscription_sm_evtqueue_code = $value;
+        }
+    }
 
     /**
      * Type
@@ -75,12 +85,12 @@ class SubscriptionsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_evtsubscription_type_code = null {
-                        get => $this->sm_evtsubscription_type_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtsubscription_type_code', $value);
-                            $this->sm_evtsubscription_type_code = $value;
-                        }
-                    }
+        get => $this->sm_evtsubscription_type_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtsubscription_type_code', $value);
+            $this->sm_evtsubscription_type_code = $value;
+        }
+    }
 
     /**
      * Cron
@@ -92,12 +102,12 @@ class SubscriptionsAR extends \Object\ActiveRecord {
      * @var string|null Domain: cron_expression Type: varchar
      */
     public string|null $sm_evtsubscription_cron = null {
-                        get => $this->sm_evtsubscription_cron;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtsubscription_cron', $value);
-                            $this->sm_evtsubscription_cron = $value;
-                        }
-                    }
+        get => $this->sm_evtsubscription_cron;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtsubscription_cron', $value);
+            $this->sm_evtsubscription_cron = $value;
+        }
+    }
 
     /**
      * Max Retries
@@ -109,12 +119,12 @@ class SubscriptionsAR extends \Object\ActiveRecord {
      * @var int|null Domain: counter Type: integer
      */
     public int|null $sm_evtsubscription_max_retries = 0 {
-                        get => $this->sm_evtsubscription_max_retries;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtsubscription_max_retries', $value);
-                            $this->sm_evtsubscription_max_retries = $value;
-                        }
-                    }
+        get => $this->sm_evtsubscription_max_retries;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtsubscription_max_retries', $value);
+            $this->sm_evtsubscription_max_retries = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -126,10 +136,10 @@ class SubscriptionsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_evtsubscription_inactive = 0 {
-                        get => $this->sm_evtsubscription_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_evtsubscription_inactive', $value);
-                            $this->sm_evtsubscription_inactive = $value;
-                        }
-                    }
+        get => $this->sm_evtsubscription_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_evtsubscription_inactive', $value);
+            $this->sm_evtsubscription_inactive = $value;
+        }
+    }
 }

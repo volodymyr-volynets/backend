@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\ShellCommand\Model;
-class ShellCommandsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class ShellCommandsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\ShellCommand\Model\ShellCommands::class;
+    public string $object_table_class = ShellCommands::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class ShellCommandsAR extends \Object\ActiveRecord {
      * @var string|null Domain: group_code Type: varchar
      */
     public string|null $sm_shellcommand_code = null {
-                        get => $this->sm_shellcommand_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcommand_code', $value);
-                            $this->sm_shellcommand_code = $value;
-                        }
-                    }
+        get => $this->sm_shellcommand_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcommand_code', $value);
+            $this->sm_shellcommand_code = $value;
+        }
+    }
 
     /**
      * Name
@@ -41,12 +51,12 @@ class ShellCommandsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_shellcommand_name = null {
-                        get => $this->sm_shellcommand_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcommand_name', $value);
-                            $this->sm_shellcommand_name = $value;
-                        }
-                    }
+        get => $this->sm_shellcommand_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcommand_name', $value);
+            $this->sm_shellcommand_name = $value;
+        }
+    }
 
     /**
      * Description
@@ -58,12 +68,12 @@ class ShellCommandsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_shellcommand_description = null {
-                        get => $this->sm_shellcommand_description;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcommand_description', $value);
-                            $this->sm_shellcommand_description = $value;
-                        }
-                    }
+        get => $this->sm_shellcommand_description;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcommand_description', $value);
+            $this->sm_shellcommand_description = $value;
+        }
+    }
 
     /**
      * Model
@@ -75,12 +85,12 @@ class ShellCommandsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_shellcommand_model = null {
-                        get => $this->sm_shellcommand_model;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcommand_model', $value);
-                            $this->sm_shellcommand_model = $value;
-                        }
-                    }
+        get => $this->sm_shellcommand_model;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcommand_model', $value);
+            $this->sm_shellcommand_model = $value;
+        }
+    }
 
     /**
      * Command
@@ -92,12 +102,12 @@ class ShellCommandsAR extends \Object\ActiveRecord {
      * @var string|null Domain: command Type: varchar
      */
     public string|null $sm_shellcommand_command = null {
-                        get => $this->sm_shellcommand_command;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcommand_command', $value);
-                            $this->sm_shellcommand_command = $value;
-                        }
-                    }
+        get => $this->sm_shellcommand_command;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcommand_command', $value);
+            $this->sm_shellcommand_command = $value;
+        }
+    }
 
     /**
      * Module Code
@@ -109,12 +119,12 @@ class ShellCommandsAR extends \Object\ActiveRecord {
      * @var string|null Domain: module_code Type: char
      */
     public string|null $sm_shellcommand_module_code = null {
-                        get => $this->sm_shellcommand_module_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcommand_module_code', $value);
-                            $this->sm_shellcommand_module_code = $value;
-                        }
-                    }
+        get => $this->sm_shellcommand_module_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcommand_module_code', $value);
+            $this->sm_shellcommand_module_code = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -126,12 +136,12 @@ class ShellCommandsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_shellcommand_inactive = 0 {
-                        get => $this->sm_shellcommand_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcommand_inactive', $value);
-                            $this->sm_shellcommand_inactive = $value;
-                        }
-                    }
+        get => $this->sm_shellcommand_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcommand_inactive', $value);
+            $this->sm_shellcommand_inactive = $value;
+        }
+    }
 
     /**
      * Optimistic Lock
@@ -143,10 +153,10 @@ class ShellCommandsAR extends \Object\ActiveRecord {
      * @var string|null Domain: optimistic_lock Type: timestamp
      */
     public string|null $sm_shellcommand_optimistic_lock = 'now()' {
-                        get => $this->sm_shellcommand_optimistic_lock;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcommand_optimistic_lock', $value);
-                            $this->sm_shellcommand_optimistic_lock = $value;
-                        }
-                    }
+        get => $this->sm_shellcommand_optimistic_lock;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcommand_optimistic_lock', $value);
+            $this->sm_shellcommand_optimistic_lock = $value;
+        }
+    }
 }

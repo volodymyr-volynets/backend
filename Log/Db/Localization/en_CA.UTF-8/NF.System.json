@@ -3,7 +3,10 @@
     "Logs": "Logs",
     "LogsDatabase": "Logs (Database)",
     "Operations": "Operations",
+    "SMLogDbTruncateLogsCommand": "S/M Log Db Truncate Logs (Command)",
+    "SMLogDbTruncateLogsTask": "S/M Log Db Truncate Logs (Task)",
     "SMLogs": "S/M Logs",
     "SMLogsDatabase": "S/M Logs (Database)",
-    "SystemManagement": "System Management"
+    "SystemManagement": "System Management",
+    "UseThisCommandToTruncate30DaysOldLogsFromDatabase": "Use this command to truncate 30 days old logs from database."
 }

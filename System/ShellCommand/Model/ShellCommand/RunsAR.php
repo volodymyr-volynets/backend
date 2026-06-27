@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\ShellCommand\Model\ShellCommand;
-class RunsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class RunsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\ShellCommand\Model\ShellCommand\Runs::class;
+    public string $object_table_class = Runs::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class RunsAR extends \Object\ActiveRecord {
      * @var int|null Domain: tenant_id Type: integer
      */
     public int|null $sm_shellcomrun_tenant_id = 0 {
-                        get => $this->sm_shellcomrun_tenant_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_tenant_id', $value);
-                            $this->sm_shellcomrun_tenant_id = $value;
-                        }
-                    }
+        get => $this->sm_shellcomrun_tenant_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_tenant_id', $value);
+            $this->sm_shellcomrun_tenant_id = $value;
+        }
+    }
 
     /**
      * Run #
@@ -41,12 +51,12 @@ class RunsAR extends \Object\ActiveRecord {
      * @var int|null Domain: big_id_sequence Type: bigserial
      */
     public int|null $sm_shellcomrun_id = null {
-                        get => $this->sm_shellcomrun_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_id', $value);
-                            $this->sm_shellcomrun_id = $value;
-                        }
-                    }
+        get => $this->sm_shellcomrun_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_id', $value);
+            $this->sm_shellcomrun_id = $value;
+        }
+    }
 
     /**
      * Status
@@ -57,13 +67,13 @@ class RunsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: type_id Type: smallint
      */
-    public int|null $sm_shellcomrun_status_id = NULL {
-                        get => $this->sm_shellcomrun_status_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_status_id', $value);
-                            $this->sm_shellcomrun_status_id = $value;
-                        }
-                    }
+    public int|null $sm_shellcomrun_status_id = null {
+        get => $this->sm_shellcomrun_status_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_status_id', $value);
+            $this->sm_shellcomrun_status_id = $value;
+        }
+    }
 
     /**
      * Start Timestamp
@@ -75,12 +85,12 @@ class RunsAR extends \Object\ActiveRecord {
      * @var string|null Domain: timestamp_now Type: timestamp
      */
     public string|null $sm_shellcomrun_start_timestamp = 'now()' {
-                        get => $this->sm_shellcomrun_start_timestamp;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_start_timestamp', $value);
-                            $this->sm_shellcomrun_start_timestamp = $value;
-                        }
-                    }
+        get => $this->sm_shellcomrun_start_timestamp;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_start_timestamp', $value);
+            $this->sm_shellcomrun_start_timestamp = $value;
+        }
+    }
 
     /**
      * Finish Timestamp
@@ -91,13 +101,13 @@ class RunsAR extends \Object\ActiveRecord {
      *
      * @var string|null Type: timestamp
      */
-    public string|null $sm_shellcomrun_finish_timestamp = NULL {
-                        get => $this->sm_shellcomrun_finish_timestamp;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_finish_timestamp', $value);
-                            $this->sm_shellcomrun_finish_timestamp = $value;
-                        }
-                    }
+    public string|null $sm_shellcomrun_finish_timestamp = null {
+        get => $this->sm_shellcomrun_finish_timestamp;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_finish_timestamp', $value);
+            $this->sm_shellcomrun_finish_timestamp = $value;
+        }
+    }
 
     /**
      * Percent Complate
@@ -109,12 +119,12 @@ class RunsAR extends \Object\ActiveRecord {
      * @var mixed Domain: percent_float Type: bcnumeric
      */
     public mixed $sm_shellcomrun_percent_complete = 0 {
-                        get => $this->sm_shellcomrun_percent_complete;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_percent_complete', $value);
-                            $this->sm_shellcomrun_percent_complete = $value;
-                        }
-                    }
+        get => $this->sm_shellcomrun_percent_complete;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_percent_complete', $value);
+            $this->sm_shellcomrun_percent_complete = $value;
+        }
+    }
 
     /**
      * User #
@@ -125,13 +135,13 @@ class RunsAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_shellcomrun_user_id = NULL {
-                        get => $this->sm_shellcomrun_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_user_id', $value);
-                            $this->sm_shellcomrun_user_id = $value;
-                        }
-                    }
+    public int|null $sm_shellcomrun_user_id = null {
+        get => $this->sm_shellcomrun_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_user_id', $value);
+            $this->sm_shellcomrun_user_id = $value;
+        }
+    }
 
     /**
      * Code
@@ -143,12 +153,12 @@ class RunsAR extends \Object\ActiveRecord {
      * @var string|null Domain: group_code Type: varchar
      */
     public string|null $sm_shellcomrun_shellcommand_code = null {
-                        get => $this->sm_shellcomrun_shellcommand_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_shellcommand_code', $value);
-                            $this->sm_shellcomrun_shellcommand_code = $value;
-                        }
-                    }
+        get => $this->sm_shellcomrun_shellcommand_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_shellcommand_code', $value);
+            $this->sm_shellcomrun_shellcommand_code = $value;
+        }
+    }
 
     /**
      * Name
@@ -160,12 +170,12 @@ class RunsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_shellcomrun_shellcommand_name = null {
-                        get => $this->sm_shellcomrun_shellcommand_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_shellcommand_name', $value);
-                            $this->sm_shellcomrun_shellcommand_name = $value;
-                        }
-                    }
+        get => $this->sm_shellcomrun_shellcommand_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_shellcommand_name', $value);
+            $this->sm_shellcomrun_shellcommand_name = $value;
+        }
+    }
 
     /**
      * Shell Output
@@ -176,13 +186,13 @@ class RunsAR extends \Object\ActiveRecord {
      *
      * @var string|null Type: text
      */
-    public string|null $sm_shellcomrun_shell_output = NULL {
-                        get => $this->sm_shellcomrun_shell_output;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_shell_output', $value);
-                            $this->sm_shellcomrun_shell_output = $value;
-                        }
-                    }
+    public string|null $sm_shellcomrun_shell_output = null {
+        get => $this->sm_shellcomrun_shell_output;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_shell_output', $value);
+            $this->sm_shellcomrun_shell_output = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -194,10 +204,10 @@ class RunsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_shellcomrun_inactive = 0 {
-                        get => $this->sm_shellcomrun_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_shellcomrun_inactive', $value);
-                            $this->sm_shellcomrun_inactive = $value;
-                        }
-                    }
+        get => $this->sm_shellcomrun_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_shellcomrun_inactive', $value);
+            $this->sm_shellcomrun_inactive = $value;
+        }
+    }
 }

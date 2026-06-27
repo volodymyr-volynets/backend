@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Policies\Model\Group;
-class PoliciesAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class PoliciesAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Policies\Model\Group\Policies::class;
+    public string $object_table_class = Policies::class;
 
     /**
      * @var array
@@ -23,13 +33,13 @@ class PoliciesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: tenant_id Type: integer
      */
-    public int|null $sm_polgropolicy_tenant_id = NULL {
-                        get => $this->sm_polgropolicy_tenant_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_polgropolicy_tenant_id', $value);
-                            $this->sm_polgropolicy_tenant_id = $value;
-                        }
-                    }
+    public int|null $sm_polgropolicy_tenant_id = null {
+        get => $this->sm_polgropolicy_tenant_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_polgropolicy_tenant_id', $value);
+            $this->sm_polgropolicy_tenant_id = $value;
+        }
+    }
 
     /**
      * Group #
@@ -40,13 +50,13 @@ class PoliciesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: group_id Type: integer
      */
-    public int|null $sm_polgropolicy_sm_polgroup_id = NULL {
-                        get => $this->sm_polgropolicy_sm_polgroup_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_polgropolicy_sm_polgroup_id', $value);
-                            $this->sm_polgropolicy_sm_polgroup_id = $value;
-                        }
-                    }
+    public int|null $sm_polgropolicy_sm_polgroup_id = null {
+        get => $this->sm_polgropolicy_sm_polgroup_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_polgropolicy_sm_polgroup_id', $value);
+            $this->sm_polgropolicy_sm_polgroup_id = $value;
+        }
+    }
 
     /**
      * Tenant #
@@ -57,13 +67,13 @@ class PoliciesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: tenant_id Type: integer
      */
-    public int|null $sm_polgropolicy_sm_policy_tenant_id = NULL {
-                        get => $this->sm_polgropolicy_sm_policy_tenant_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_polgropolicy_sm_policy_tenant_id', $value);
-                            $this->sm_polgropolicy_sm_policy_tenant_id = $value;
-                        }
-                    }
+    public int|null $sm_polgropolicy_sm_policy_tenant_id = null {
+        get => $this->sm_polgropolicy_sm_policy_tenant_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_polgropolicy_sm_policy_tenant_id', $value);
+            $this->sm_polgropolicy_sm_policy_tenant_id = $value;
+        }
+    }
 
     /**
      * Code
@@ -75,12 +85,12 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var string|null Domain: group_code Type: varchar
      */
     public string|null $sm_polgropolicy_sm_policy_code = null {
-                        get => $this->sm_polgropolicy_sm_policy_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_polgropolicy_sm_policy_code', $value);
-                            $this->sm_polgropolicy_sm_policy_code = $value;
-                        }
-                    }
+        get => $this->sm_polgropolicy_sm_policy_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_polgropolicy_sm_policy_code', $value);
+            $this->sm_polgropolicy_sm_policy_code = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -92,10 +102,10 @@ class PoliciesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_polgropolicy_inactive = 0 {
-                        get => $this->sm_polgropolicy_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_polgropolicy_inactive', $value);
-                            $this->sm_polgropolicy_inactive = $value;
-                        }
-                    }
+        get => $this->sm_polgropolicy_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_polgropolicy_inactive', $value);
+            $this->sm_polgropolicy_inactive = $value;
+        }
+    }
 }

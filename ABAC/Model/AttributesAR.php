@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\ABAC\Model;
-class AttributesAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class AttributesAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\ABAC\Model\Attributes::class;
+    public string $object_table_class = Attributes::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var int|null Domain: attribute_id_sequence Type: serial
      */
     public int|null $sm_abacattr_id = null {
-                        get => $this->sm_abacattr_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_id', $value);
-                            $this->sm_abacattr_id = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_id', $value);
+            $this->sm_abacattr_id = $value;
+        }
+    }
 
     /**
      * Code
@@ -41,12 +51,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var string|null Domain: field_code Type: varchar
      */
     public string|null $sm_abacattr_code = null {
-                        get => $this->sm_abacattr_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_code', $value);
-                            $this->sm_abacattr_code = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_code', $value);
+            $this->sm_abacattr_code = $value;
+        }
+    }
 
     /**
      * Name
@@ -58,12 +68,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_abacattr_name = null {
-                        get => $this->sm_abacattr_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_name', $value);
-                            $this->sm_abacattr_name = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_name', $value);
+            $this->sm_abacattr_name = $value;
+        }
+    }
 
     /**
      * Module Code
@@ -75,12 +85,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var string|null Domain: module_code Type: char
      */
     public string|null $sm_abacattr_module_code = null {
-                        get => $this->sm_abacattr_module_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_module_code', $value);
-                            $this->sm_abacattr_module_code = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_module_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_module_code', $value);
+            $this->sm_abacattr_module_code = $value;
+        }
+    }
 
     /**
      * Parent Attribute #
@@ -91,13 +101,13 @@ class AttributesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: attribute_id Type: integer
      */
-    public int|null $sm_abacattr_parent_abacattr_id = NULL {
-                        get => $this->sm_abacattr_parent_abacattr_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_parent_abacattr_id', $value);
-                            $this->sm_abacattr_parent_abacattr_id = $value;
-                        }
-                    }
+    public int|null $sm_abacattr_parent_abacattr_id = null {
+        get => $this->sm_abacattr_parent_abacattr_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_parent_abacattr_id', $value);
+            $this->sm_abacattr_parent_abacattr_id = $value;
+        }
+    }
 
     /**
      * Tenant
@@ -109,12 +119,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_abacattr_tenant = 0 {
-                        get => $this->sm_abacattr_tenant;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_tenant', $value);
-                            $this->sm_abacattr_tenant = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_tenant;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_tenant', $value);
+            $this->sm_abacattr_tenant = $value;
+        }
+    }
 
     /**
      * Module
@@ -126,12 +136,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_abacattr_module = 0 {
-                        get => $this->sm_abacattr_module;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_module', $value);
-                            $this->sm_abacattr_module = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_module;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_module', $value);
+            $this->sm_abacattr_module = $value;
+        }
+    }
 
     /**
      * Flag ABAC
@@ -143,12 +153,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_abacattr_flag_abac = 0 {
-                        get => $this->sm_abacattr_flag_abac;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_flag_abac', $value);
-                            $this->sm_abacattr_flag_abac = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_flag_abac;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_flag_abac', $value);
+            $this->sm_abacattr_flag_abac = $value;
+        }
+    }
 
     /**
      * Flag Assignment
@@ -160,12 +170,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_abacattr_flag_assingment = 0 {
-                        get => $this->sm_abacattr_flag_assingment;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_flag_assingment', $value);
-                            $this->sm_abacattr_flag_assingment = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_flag_assingment;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_flag_assingment', $value);
+            $this->sm_abacattr_flag_assingment = $value;
+        }
+    }
 
     /**
      * Flag Attribute
@@ -177,12 +187,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_abacattr_flag_attribute = 0 {
-                        get => $this->sm_abacattr_flag_attribute;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_flag_attribute', $value);
-                            $this->sm_abacattr_flag_attribute = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_flag_attribute;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_flag_attribute', $value);
+            $this->sm_abacattr_flag_attribute = $value;
+        }
+    }
 
     /**
      * Flag Link
@@ -194,12 +204,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_abacattr_flag_link = 0 {
-                        get => $this->sm_abacattr_flag_link;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_flag_link', $value);
-                            $this->sm_abacattr_flag_link = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_flag_link;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_flag_link', $value);
+            $this->sm_abacattr_flag_link = $value;
+        }
+    }
 
     /**
      * Flag Other Table
@@ -211,12 +221,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_abacattr_flag_other_table = 0 {
-                        get => $this->sm_abacattr_flag_other_table;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_flag_other_table', $value);
-                            $this->sm_abacattr_flag_other_table = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_flag_other_table;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_flag_other_table', $value);
+            $this->sm_abacattr_flag_other_table = $value;
+        }
+    }
 
     /**
      * Model #
@@ -227,13 +237,13 @@ class AttributesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: model_id Type: integer
      */
-    public int|null $sm_abacattr_model_id = NULL {
-                        get => $this->sm_abacattr_model_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_model_id', $value);
-                            $this->sm_abacattr_model_id = $value;
-                        }
-                    }
+    public int|null $sm_abacattr_model_id = null {
+        get => $this->sm_abacattr_model_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_model_id', $value);
+            $this->sm_abacattr_model_id = $value;
+        }
+    }
 
     /**
      * Link Model #
@@ -244,13 +254,13 @@ class AttributesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: model_id Type: integer
      */
-    public int|null $sm_abacattr_link_model_id = NULL {
-                        get => $this->sm_abacattr_link_model_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_link_model_id', $value);
-                            $this->sm_abacattr_link_model_id = $value;
-                        }
-                    }
+    public int|null $sm_abacattr_link_model_id = null {
+        get => $this->sm_abacattr_link_model_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_link_model_id', $value);
+            $this->sm_abacattr_link_model_id = $value;
+        }
+    }
 
     /**
      * Domain
@@ -262,12 +272,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_abacattr_domain = null {
-                        get => $this->sm_abacattr_domain;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_domain', $value);
-                            $this->sm_abacattr_domain = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_domain;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_domain', $value);
+            $this->sm_abacattr_domain = $value;
+        }
+    }
 
     /**
      * Type
@@ -279,12 +289,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_abacattr_type = null {
-                        get => $this->sm_abacattr_type;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_type', $value);
-                            $this->sm_abacattr_type = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_type;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_type', $value);
+            $this->sm_abacattr_type = $value;
+        }
+    }
 
     /**
      * Is Numeric Key
@@ -296,12 +306,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_abacattr_is_numeric_key = 0 {
-                        get => $this->sm_abacattr_is_numeric_key;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_is_numeric_key', $value);
-                            $this->sm_abacattr_is_numeric_key = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_is_numeric_key;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_is_numeric_key', $value);
+            $this->sm_abacattr_is_numeric_key = $value;
+        }
+    }
 
     /**
      * Environment Method
@@ -313,12 +323,12 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_abacattr_environment_method = null {
-                        get => $this->sm_abacattr_environment_method;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_environment_method', $value);
-                            $this->sm_abacattr_environment_method = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_environment_method;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_environment_method', $value);
+            $this->sm_abacattr_environment_method = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -330,10 +340,10 @@ class AttributesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_abacattr_inactive = 0 {
-                        get => $this->sm_abacattr_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_abacattr_inactive', $value);
-                            $this->sm_abacattr_inactive = $value;
-                        }
-                    }
+        get => $this->sm_abacattr_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_abacattr_inactive', $value);
+            $this->sm_abacattr_inactive = $value;
+        }
+    }
 }

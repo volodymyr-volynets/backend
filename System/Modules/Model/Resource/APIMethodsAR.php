@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Modules\Model\Resource;
-class APIMethodsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class APIMethodsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Modules\Model\Resource\APIMethods::class;
+    public string $object_table_class = APIMethods::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class APIMethodsAR extends \Object\ActiveRecord {
      * @var int|null Domain: resource_id Type: integer
      */
     public int|null $sm_rsrcapimeth_resource_id = 0 {
-                        get => $this->sm_rsrcapimeth_resource_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrcapimeth_resource_id', $value);
-                            $this->sm_rsrcapimeth_resource_id = $value;
-                        }
-                    }
+        get => $this->sm_rsrcapimeth_resource_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrcapimeth_resource_id', $value);
+            $this->sm_rsrcapimeth_resource_id = $value;
+        }
+    }
 
     /**
      * Timestamp
@@ -41,12 +51,12 @@ class APIMethodsAR extends \Object\ActiveRecord {
      * @var string|null Domain: timestamp_now Type: timestamp
      */
     public string|null $sm_rsrcapimeth_timestamp = 'now()' {
-                        get => $this->sm_rsrcapimeth_timestamp;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrcapimeth_timestamp', $value);
-                            $this->sm_rsrcapimeth_timestamp = $value;
-                        }
-                    }
+        get => $this->sm_rsrcapimeth_timestamp;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrcapimeth_timestamp', $value);
+            $this->sm_rsrcapimeth_timestamp = $value;
+        }
+    }
 
     /**
      * Method Code
@@ -58,12 +68,12 @@ class APIMethodsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_rsrcapimeth_method_code = null {
-                        get => $this->sm_rsrcapimeth_method_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrcapimeth_method_code', $value);
-                            $this->sm_rsrcapimeth_method_code = $value;
-                        }
-                    }
+        get => $this->sm_rsrcapimeth_method_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrcapimeth_method_code', $value);
+            $this->sm_rsrcapimeth_method_code = $value;
+        }
+    }
 
     /**
      * Method Name
@@ -75,12 +85,12 @@ class APIMethodsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_rsrcapimeth_method_name = null {
-                        get => $this->sm_rsrcapimeth_method_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrcapimeth_method_name', $value);
-                            $this->sm_rsrcapimeth_method_name = $value;
-                        }
-                    }
+        get => $this->sm_rsrcapimeth_method_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrcapimeth_method_name', $value);
+            $this->sm_rsrcapimeth_method_name = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -92,10 +102,10 @@ class APIMethodsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_rsrcapimeth_inactive = 0 {
-                        get => $this->sm_rsrcapimeth_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrcapimeth_inactive', $value);
-                            $this->sm_rsrcapimeth_inactive = $value;
-                        }
-                    }
+        get => $this->sm_rsrcapimeth_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrcapimeth_inactive', $value);
+            $this->sm_rsrcapimeth_inactive = $value;
+        }
+    }
 }

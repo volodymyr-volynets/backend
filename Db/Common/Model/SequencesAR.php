@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Db\Common\Model;
-class SequencesAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class SequencesAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\Db\Common\Model\Sequences::class;
+    public string $object_table_class = Sequences::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class SequencesAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_sequence_name = null {
-                        get => $this->sm_sequence_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_sequence_name', $value);
-                            $this->sm_sequence_name = $value;
-                        }
-                    }
+        get => $this->sm_sequence_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_sequence_name', $value);
+            $this->sm_sequence_name = $value;
+        }
+    }
 
     /**
      * Description
@@ -41,12 +51,12 @@ class SequencesAR extends \Object\ActiveRecord {
      * @var string|null Domain: description Type: varchar
      */
     public string|null $sm_sequence_description = null {
-                        get => $this->sm_sequence_description;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_sequence_description', $value);
-                            $this->sm_sequence_description = $value;
-                        }
-                    }
+        get => $this->sm_sequence_description;
+        set {
+            $this->setFullPkAndFilledColumn('sm_sequence_description', $value);
+            $this->sm_sequence_description = $value;
+        }
+    }
 
     /**
      * Type
@@ -58,12 +68,12 @@ class SequencesAR extends \Object\ActiveRecord {
      * @var string|null Domain: type_code Type: varchar
      */
     public string|null $sm_sequence_type = null {
-                        get => $this->sm_sequence_type;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_sequence_type', $value);
-                            $this->sm_sequence_type = $value;
-                        }
-                    }
+        get => $this->sm_sequence_type;
+        set {
+            $this->setFullPkAndFilledColumn('sm_sequence_type', $value);
+            $this->sm_sequence_type = $value;
+        }
+    }
 
     /**
      * Prefix
@@ -75,12 +85,12 @@ class SequencesAR extends \Object\ActiveRecord {
      * @var string|null Type: varchar
      */
     public string|null $sm_sequence_prefix = null {
-                        get => $this->sm_sequence_prefix;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_sequence_prefix', $value);
-                            $this->sm_sequence_prefix = $value;
-                        }
-                    }
+        get => $this->sm_sequence_prefix;
+        set {
+            $this->setFullPkAndFilledColumn('sm_sequence_prefix', $value);
+            $this->sm_sequence_prefix = $value;
+        }
+    }
 
     /**
      * Length
@@ -92,12 +102,12 @@ class SequencesAR extends \Object\ActiveRecord {
      * @var int|null Type: smallint
      */
     public int|null $sm_sequence_length = 0 {
-                        get => $this->sm_sequence_length;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_sequence_length', $value);
-                            $this->sm_sequence_length = $value;
-                        }
-                    }
+        get => $this->sm_sequence_length;
+        set {
+            $this->setFullPkAndFilledColumn('sm_sequence_length', $value);
+            $this->sm_sequence_length = $value;
+        }
+    }
 
     /**
      * Suffix
@@ -109,12 +119,12 @@ class SequencesAR extends \Object\ActiveRecord {
      * @var string|null Type: varchar
      */
     public string|null $sm_sequence_suffix = null {
-                        get => $this->sm_sequence_suffix;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_sequence_suffix', $value);
-                            $this->sm_sequence_suffix = $value;
-                        }
-                    }
+        get => $this->sm_sequence_suffix;
+        set {
+            $this->setFullPkAndFilledColumn('sm_sequence_suffix', $value);
+            $this->sm_sequence_suffix = $value;
+        }
+    }
 
     /**
      * Counter
@@ -126,10 +136,10 @@ class SequencesAR extends \Object\ActiveRecord {
      * @var int|null Type: bigint
      */
     public int|null $sm_sequence_counter = 0 {
-                        get => $this->sm_sequence_counter;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_sequence_counter', $value);
-                            $this->sm_sequence_counter = $value;
-                        }
-                    }
+        get => $this->sm_sequence_counter;
+        set {
+            $this->setFullPkAndFilledColumn('sm_sequence_counter', $value);
+            $this->sm_sequence_counter = $value;
+        }
+    }
 }

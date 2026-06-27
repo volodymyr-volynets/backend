@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Modules\Model\Resource;
-class TenantsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class TenantsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Modules\Model\Resource\Tenants::class;
+    public string $object_table_class = Tenants::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class TenantsAR extends \Object\ActiveRecord {
      * @var int|null Domain: resource_id Type: integer
      */
     public int|null $sm_rsrctenant_resource_id = 0 {
-                        get => $this->sm_rsrctenant_resource_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrctenant_resource_id', $value);
-                            $this->sm_rsrctenant_resource_id = $value;
-                        }
-                    }
+        get => $this->sm_rsrctenant_resource_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrctenant_resource_id', $value);
+            $this->sm_rsrctenant_resource_id = $value;
+        }
+    }
 
     /**
      * Tenant Code
@@ -41,12 +51,12 @@ class TenantsAR extends \Object\ActiveRecord {
      * @var string|null Domain: domain_part Type: varchar
      */
     public string|null $sm_rsrctenant_tenant_code = null {
-                        get => $this->sm_rsrctenant_tenant_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrctenant_tenant_code', $value);
-                            $this->sm_rsrctenant_tenant_code = $value;
-                        }
-                    }
+        get => $this->sm_rsrctenant_tenant_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrctenant_tenant_code', $value);
+            $this->sm_rsrctenant_tenant_code = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -58,10 +68,10 @@ class TenantsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_rsrctenant_inactive = 0 {
-                        get => $this->sm_rsrctenant_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_rsrctenant_inactive', $value);
-                            $this->sm_rsrctenant_inactive = $value;
-                        }
-                    }
+        get => $this->sm_rsrctenant_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_rsrctenant_inactive', $value);
+            $this->sm_rsrctenant_inactive = $value;
+        }
+    }
 }

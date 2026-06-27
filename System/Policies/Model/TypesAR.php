@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Policies\Model;
-class TypesAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class TypesAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Policies\Model\Types::class;
+    public string $object_table_class = Types::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var string|null Domain: big_code Type: varchar
      */
     public string|null $sm_poltype_code = null {
-                        get => $this->sm_poltype_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_code', $value);
-                            $this->sm_poltype_code = $value;
-                        }
-                    }
+        get => $this->sm_poltype_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_code', $value);
+            $this->sm_poltype_code = $value;
+        }
+    }
 
     /**
      * Name
@@ -41,12 +51,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_poltype_name = null {
-                        get => $this->sm_poltype_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_name', $value);
-                            $this->sm_poltype_name = $value;
-                        }
-                    }
+        get => $this->sm_poltype_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_name', $value);
+            $this->sm_poltype_name = $value;
+        }
+    }
 
     /**
      * Code
@@ -58,12 +68,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var string|null Domain: big_code Type: varchar
      */
     public string|null $sm_poltype_parent_sm_poltype_code = null {
-                        get => $this->sm_poltype_parent_sm_poltype_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_parent_sm_poltype_code', $value);
-                            $this->sm_poltype_parent_sm_poltype_code = $value;
-                        }
-                    }
+        get => $this->sm_poltype_parent_sm_poltype_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_parent_sm_poltype_code', $value);
+            $this->sm_poltype_parent_sm_poltype_code = $value;
+        }
+    }
 
     /**
      * Description
@@ -75,12 +85,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var string|null Domain: description Type: varchar
      */
     public string|null $sm_poltype_description = null {
-                        get => $this->sm_poltype_description;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_description', $value);
-                            $this->sm_poltype_description = $value;
-                        }
-                    }
+        get => $this->sm_poltype_description;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_description', $value);
+            $this->sm_poltype_description = $value;
+        }
+    }
 
     /**
      * External Json
@@ -92,12 +102,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_poltype_external_json = null {
-                        get => $this->sm_poltype_external_json;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_external_json', $value);
-                            $this->sm_poltype_external_json = $value;
-                        }
-                    }
+        get => $this->sm_poltype_external_json;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_external_json', $value);
+            $this->sm_poltype_external_json = $value;
+        }
+    }
 
     /**
      * Internal Json
@@ -109,12 +119,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var mixed Type: json
      */
     public mixed $sm_poltype_internal_json = null {
-                        get => $this->sm_poltype_internal_json;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_internal_json', $value);
-                            $this->sm_poltype_internal_json = $value;
-                        }
-                    }
+        get => $this->sm_poltype_internal_json;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_internal_json', $value);
+            $this->sm_poltype_internal_json = $value;
+        }
+    }
 
     /**
      * For Main Groups/Policies
@@ -126,12 +136,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_poltype_for_main = 0 {
-                        get => $this->sm_poltype_for_main;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_for_main', $value);
-                            $this->sm_poltype_for_main = $value;
-                        }
-                    }
+        get => $this->sm_poltype_for_main;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_for_main', $value);
+            $this->sm_poltype_for_main = $value;
+        }
+    }
 
     /**
      * Model
@@ -143,12 +153,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var string|null Domain: model Type: varchar
      */
     public string|null $sm_poltype_model = null {
-                        get => $this->sm_poltype_model;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_model', $value);
-                            $this->sm_poltype_model = $value;
-                        }
-                    }
+        get => $this->sm_poltype_model;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_model', $value);
+            $this->sm_poltype_model = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -160,12 +170,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_poltype_inactive = 0 {
-                        get => $this->sm_poltype_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_inactive', $value);
-                            $this->sm_poltype_inactive = $value;
-                        }
-                    }
+        get => $this->sm_poltype_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_inactive', $value);
+            $this->sm_poltype_inactive = $value;
+        }
+    }
 
     /**
      * Inserted Datetime
@@ -177,12 +187,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_poltype_inserted_timestamp = null {
-                        get => $this->sm_poltype_inserted_timestamp;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_inserted_timestamp', $value);
-                            $this->sm_poltype_inserted_timestamp = $value;
-                        }
-                    }
+        get => $this->sm_poltype_inserted_timestamp;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_inserted_timestamp', $value);
+            $this->sm_poltype_inserted_timestamp = $value;
+        }
+    }
 
     /**
      * Inserted User #
@@ -193,13 +203,13 @@ class TypesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_poltype_inserted_user_id = NULL {
-                        get => $this->sm_poltype_inserted_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_inserted_user_id', $value);
-                            $this->sm_poltype_inserted_user_id = $value;
-                        }
-                    }
+    public int|null $sm_poltype_inserted_user_id = null {
+        get => $this->sm_poltype_inserted_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_inserted_user_id', $value);
+            $this->sm_poltype_inserted_user_id = $value;
+        }
+    }
 
     /**
      * Updated Datetime
@@ -211,12 +221,12 @@ class TypesAR extends \Object\ActiveRecord {
      * @var string|null Type: timestamp
      */
     public string|null $sm_poltype_updated_timestamp = null {
-                        get => $this->sm_poltype_updated_timestamp;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_updated_timestamp', $value);
-                            $this->sm_poltype_updated_timestamp = $value;
-                        }
-                    }
+        get => $this->sm_poltype_updated_timestamp;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_updated_timestamp', $value);
+            $this->sm_poltype_updated_timestamp = $value;
+        }
+    }
 
     /**
      * Updated User #
@@ -227,11 +237,11 @@ class TypesAR extends \Object\ActiveRecord {
      *
      * @var int|null Domain: user_id Type: bigint
      */
-    public int|null $sm_poltype_updated_user_id = NULL {
-                        get => $this->sm_poltype_updated_user_id;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_poltype_updated_user_id', $value);
-                            $this->sm_poltype_updated_user_id = $value;
-                        }
-                    }
+    public int|null $sm_poltype_updated_user_id = null {
+        get => $this->sm_poltype_updated_user_id;
+        set {
+            $this->setFullPkAndFilledColumn('sm_poltype_updated_user_id', $value);
+            $this->sm_poltype_updated_user_id = $value;
+        }
+    }
 }

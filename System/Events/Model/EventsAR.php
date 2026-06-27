@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Events\Model;
-class EventsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class EventsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Events\Model\Events::class;
+    public string $object_table_class = Events::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class EventsAR extends \Object\ActiveRecord {
      * @var string|null Domain: group_code Type: varchar
      */
     public string|null $sm_event_code = null {
-                        get => $this->sm_event_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_event_code', $value);
-                            $this->sm_event_code = $value;
-                        }
-                    }
+        get => $this->sm_event_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_event_code', $value);
+            $this->sm_event_code = $value;
+        }
+    }
 
     /**
      * Name
@@ -41,12 +51,12 @@ class EventsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_event_name = null {
-                        get => $this->sm_event_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_event_name', $value);
-                            $this->sm_event_name = $value;
-                        }
-                    }
+        get => $this->sm_event_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_event_name', $value);
+            $this->sm_event_name = $value;
+        }
+    }
 
     /**
      * Description
@@ -58,12 +68,12 @@ class EventsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_event_description = null {
-                        get => $this->sm_event_description;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_event_description', $value);
-                            $this->sm_event_description = $value;
-                        }
-                    }
+        get => $this->sm_event_description;
+        set {
+            $this->setFullPkAndFilledColumn('sm_event_description', $value);
+            $this->sm_event_description = $value;
+        }
+    }
 
     /**
      * Model
@@ -75,12 +85,12 @@ class EventsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_event_model = null {
-                        get => $this->sm_event_model;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_event_model', $value);
-                            $this->sm_event_model = $value;
-                        }
-                    }
+        get => $this->sm_event_model;
+        set {
+            $this->setFullPkAndFilledColumn('sm_event_model', $value);
+            $this->sm_event_model = $value;
+        }
+    }
 
     /**
      * Module Code
@@ -92,12 +102,12 @@ class EventsAR extends \Object\ActiveRecord {
      * @var string|null Domain: module_code Type: char
      */
     public string|null $sm_event_module_code = null {
-                        get => $this->sm_event_module_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_event_module_code', $value);
-                            $this->sm_event_module_code = $value;
-                        }
-                    }
+        get => $this->sm_event_module_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_event_module_code', $value);
+            $this->sm_event_module_code = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -109,10 +119,10 @@ class EventsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_event_inactive = 0 {
-                        get => $this->sm_event_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_event_inactive', $value);
-                            $this->sm_event_inactive = $value;
-                        }
-                    }
+        get => $this->sm_event_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_event_inactive', $value);
+            $this->sm_event_inactive = $value;
+        }
+    }
 }

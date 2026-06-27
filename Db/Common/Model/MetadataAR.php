@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\Db\Common\Model;
-class MetadataAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class MetadataAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\Db\Common\Model\Metadata::class;
+    public string $object_table_class = Metadata::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class MetadataAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_metadata_db_link = null {
-                        get => $this->sm_metadata_db_link;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_metadata_db_link', $value);
-                            $this->sm_metadata_db_link = $value;
-                        }
-                    }
+        get => $this->sm_metadata_db_link;
+        set {
+            $this->setFullPkAndFilledColumn('sm_metadata_db_link', $value);
+            $this->sm_metadata_db_link = $value;
+        }
+    }
 
     /**
      * Type
@@ -41,12 +51,12 @@ class MetadataAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_metadata_type = null {
-                        get => $this->sm_metadata_type;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_metadata_type', $value);
-                            $this->sm_metadata_type = $value;
-                        }
-                    }
+        get => $this->sm_metadata_type;
+        set {
+            $this->setFullPkAndFilledColumn('sm_metadata_type', $value);
+            $this->sm_metadata_type = $value;
+        }
+    }
 
     /**
      * Name
@@ -58,12 +68,12 @@ class MetadataAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_metadata_name = null {
-                        get => $this->sm_metadata_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_metadata_name', $value);
-                            $this->sm_metadata_name = $value;
-                        }
-                    }
+        get => $this->sm_metadata_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_metadata_name', $value);
+            $this->sm_metadata_name = $value;
+        }
+    }
 
     /**
      * SQL Version
@@ -75,10 +85,10 @@ class MetadataAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_metadata_sql_version = null {
-                        get => $this->sm_metadata_sql_version;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_metadata_sql_version', $value);
-                            $this->sm_metadata_sql_version = $value;
-                        }
-                    }
+        get => $this->sm_metadata_sql_version;
+        set {
+            $this->setFullPkAndFilledColumn('sm_metadata_sql_version', $value);
+            $this->sm_metadata_sql_version = $value;
+        }
+    }
 }

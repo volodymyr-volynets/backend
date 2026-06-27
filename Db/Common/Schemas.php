@@ -182,6 +182,13 @@ class Schemas
                     if (!$temp_result['success']) {
                         array_merge3($result['error'], $temp_result['error']);
                     }
+                    // process archive
+                    $sm_model_archive = 0;
+                    if (!empty($model->archive['main_model']) && !empty($model->archive['enabled'])) {
+                        $sm_model_archive = 2;
+                    } elseif (!empty($model->archive['enabled'])) {
+                        $sm_model_archive = 1;
+                    }
                     $result['data']['\Object\Models'][$k2] = [
                         'sm_model_code' => $k2,
                         'sm_model_name' => $model->title,
@@ -196,6 +203,8 @@ class Schemas
                         'sm_model_da_classification' => $model->data_asset['classification'],
                         'sm_model_da_protection' => $model->data_asset['protection'],
                         'sm_model_da_scope' => $model->data_asset['scope'],
+                        // archive
+                        'sm_model_archive' => $sm_model_archive,
                         // other
                         'sm_model_optimistic_lock' => !empty($model->optimistic_lock) ? 1 : 0,
                         'sm_model_inactive' => 0

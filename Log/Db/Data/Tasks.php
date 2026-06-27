@@ -9,7 +9,7 @@
  * with this source code in the file LICENSE.
  */
 
-namespace Numbers\Users\Users\Data;
+namespace Numbers\Backend\Log\Db\Data;
 
 use Object\Import;
 
@@ -24,24 +24,10 @@ class Tasks extends Import
             ],
             'data' => [
                 [
-                    'ts_task_code' => 'UM_NOTIFICATION_POSTPONED',
-                    'ts_task_name' => 'U/M Postponed Notifications',
-                    'ts_task_model' => '\Numbers\Users\Users\Task\PostponedNotifications',
+                    'ts_task_code' => 'SM::LOG_DB_TRUNCATE_LOGS',
+                    'ts_task_name' => 'S/M Log Db Truncate Logs (Task)',
+                    'ts_task_model' => '\Numbers\Backend\Log\Db\Task\TruncateLogs',
                     'ts_task_inactive' => 0,
-                    '\Numbers\Users\TaskScheduler\Model\TaskParameters' => [
-                        [
-                            'ts_tskparam_name' => 'start_date',
-                            'ts_tskparam_description' => 'Start Date',
-                            'ts_tskparam_default' => null,
-                            'ts_tskparam_mandatory' => 0
-                        ],
-                        [
-                            'ts_tskparam_name' => 'end_date',
-                            'ts_tskparam_description' => 'End Date',
-                            'ts_tskparam_default' => null,
-                            'ts_tskparam_mandatory' => 0
-                        ],
-                    ]
                 ],
             ],
         ],

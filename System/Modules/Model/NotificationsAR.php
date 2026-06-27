@@ -1,14 +1,24 @@
 <?php
 
+/*
+ * This file is part of Numbers Framework.
+ *
+ * (c) Volodymyr Volynets <volodymyr.volynets@gmail.com>
+ *
+ * This source file is subject to the Apache 2.0 license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Numbers\Backend\System\Modules\Model;
-class NotificationsAR extends \Object\ActiveRecord {
 
+use Object\ActiveRecord;
 
-
+class NotificationsAR extends ActiveRecord
+{
     /**
      * @var string
      */
-    public string $object_table_class = \Numbers\Backend\System\Modules\Model\Notifications::class;
+    public string $object_table_class = Notifications::class;
 
     /**
      * @var array
@@ -24,12 +34,12 @@ class NotificationsAR extends \Object\ActiveRecord {
      * @var string|null Domain: feature_code Type: varchar
      */
     public string|null $sm_notification_code = null {
-                        get => $this->sm_notification_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_notification_code', $value);
-                            $this->sm_notification_code = $value;
-                        }
-                    }
+        get => $this->sm_notification_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_notification_code', $value);
+            $this->sm_notification_code = $value;
+        }
+    }
 
     /**
      * Name
@@ -41,12 +51,12 @@ class NotificationsAR extends \Object\ActiveRecord {
      * @var string|null Domain: name Type: varchar
      */
     public string|null $sm_notification_name = null {
-                        get => $this->sm_notification_name;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_notification_name', $value);
-                            $this->sm_notification_name = $value;
-                        }
-                    }
+        get => $this->sm_notification_name;
+        set {
+            $this->setFullPkAndFilledColumn('sm_notification_name', $value);
+            $this->sm_notification_name = $value;
+        }
+    }
 
     /**
      * Subject
@@ -58,12 +68,12 @@ class NotificationsAR extends \Object\ActiveRecord {
      * @var string|null Type: text
      */
     public string|null $sm_notification_subject = null {
-                        get => $this->sm_notification_subject;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_notification_subject', $value);
-                            $this->sm_notification_subject = $value;
-                        }
-                    }
+        get => $this->sm_notification_subject;
+        set {
+            $this->setFullPkAndFilledColumn('sm_notification_subject', $value);
+            $this->sm_notification_subject = $value;
+        }
+    }
 
     /**
      * Body
@@ -75,12 +85,12 @@ class NotificationsAR extends \Object\ActiveRecord {
      * @var string|null Type: text
      */
     public string|null $sm_notification_body = null {
-                        get => $this->sm_notification_body;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_notification_body', $value);
-                            $this->sm_notification_body = $value;
-                        }
-                    }
+        get => $this->sm_notification_body;
+        set {
+            $this->setFullPkAndFilledColumn('sm_notification_body', $value);
+            $this->sm_notification_body = $value;
+        }
+    }
 
     /**
      * Important
@@ -92,12 +102,12 @@ class NotificationsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_notification_important = 0 {
-                        get => $this->sm_notification_important;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_notification_important', $value);
-                            $this->sm_notification_important = $value;
-                        }
-                    }
+        get => $this->sm_notification_important;
+        set {
+            $this->setFullPkAndFilledColumn('sm_notification_important', $value);
+            $this->sm_notification_important = $value;
+        }
+    }
 
     /**
      * Email Model
@@ -109,12 +119,12 @@ class NotificationsAR extends \Object\ActiveRecord {
      * @var string|null Domain: code Type: varchar
      */
     public string|null $sm_notification_email_model_code = null {
-                        get => $this->sm_notification_email_model_code;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_notification_email_model_code', $value);
-                            $this->sm_notification_email_model_code = $value;
-                        }
-                    }
+        get => $this->sm_notification_email_model_code;
+        set {
+            $this->setFullPkAndFilledColumn('sm_notification_email_model_code', $value);
+            $this->sm_notification_email_model_code = $value;
+        }
+    }
 
     /**
      * Inactive
@@ -126,10 +136,10 @@ class NotificationsAR extends \Object\ActiveRecord {
      * @var int|null Type: boolean
      */
     public int|null $sm_notification_inactive = 0 {
-                        get => $this->sm_notification_inactive;
-                        set {
-                            $this->setFullPkAndFilledColumn('sm_notification_inactive', $value);
-                            $this->sm_notification_inactive = $value;
-                        }
-                    }
+        get => $this->sm_notification_inactive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_notification_inactive', $value);
+            $this->sm_notification_inactive = $value;
+        }
+    }
 }
