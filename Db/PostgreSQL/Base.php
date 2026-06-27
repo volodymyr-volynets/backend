@@ -911,7 +911,7 @@ TTT;
                     $result['error'][] = 'Set?';
                 } else {
                     $sql .= "\nSET ";
-                    $sql .= $this->prepareCondition($object->data['set'], ",\n\t");
+                    $sql .= $this->prepareCondition($object->data['set'], ",\n\t", ['set' => true]);
                 }
                 $sql2 = 'SELECT ' . implode(', ', $object->data['primary_key']) . ' FROM ' . current($object->data['from']);
                 // where

@@ -679,7 +679,7 @@ TTT;
                     $result['error'][] = 'Set?';
                 } else {
                     $sql .= "\nSET ";
-                    $sql .= $this->prepareCondition($object->data['set'], ",\n\t");
+                    $sql .= $this->prepareCondition($object->data['set'], ",\n\t", ['set' => true]);
                 }
                 // limit
                 if (!empty($object->data['limit'])) {

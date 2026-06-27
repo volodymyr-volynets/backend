@@ -126,6 +126,8 @@ class Base
         if (!Cmd::isCli() && isset($this->error_overrides[$result['errno']])) {
             if (\Application::get('environment') !== 'development') {
                 $result['error'][] = $this->error_overrides[$result['errno']];
+                // we push system error as secondary
+                $result['error'][] = $error;
             } else {
                 $result['error'][] = $error;
             }
@@ -215,11 +217,12 @@ class Base
     /**
      * Convert an array into SQL string
      *
-     * @param  array $options
-     * @param  string $delimiter
+     * @param array $options
+     * @param string $delimiter
+     * @param array $options2
      * @return string
      */
-    public function prepareCondition($options, $delimiter = 'AND')
+    public function prepareCondition($options, $delimiter = 'AND', $options2 = [])
     {
         $result = '';
         if (is_array($options)) {
@@ -238,7 +241,9 @@ class Base
                     $string = $this->cast($exploded[0], $exploded[1]);
                 }
                 // special handling for array and nulls
-                if ($operator == '=') {
+                if (!empty($options2['set']) && $operator == '=' && is_array($v)) {
+                    $v = current($v);
+                } elseif ($operator == '=') {
                     if (is_array($v)) {
                         $operator = 'IN';
                     } elseif (is_null($v) && strpos($delimiter, ',') === false) {
@@ -325,6 +330,7 @@ class Base
                 }
                 $temp[] = $string;
             }
+            //exit;
             // fix delimiter
             $delimiter = strtoupper($delimiter);
             if (in_array($delimiter, ['AND', 'OR'])) {

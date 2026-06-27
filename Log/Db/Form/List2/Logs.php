@@ -66,7 +66,7 @@ class Logs extends List2
                 'sm_log_operation1'  => ['order' => 3, 'label_name' => 'Operation', 'domain' => 'code', 'percent' => 50, 'null' => true, 'method' => 'multiselect', 'multiple_column' => 1, 'options_model' => '\Numbers\Backend\Log\Db\Model\Logs::optionsColumnSettings', 'options_depends' => ['sm_log_year' => 'sm_log_year'], 'options_params' => ['__column' => 'sm_log_operation'], 'query_builder' => 'a.sm_log_operation'],
             ],
             'full_text_search' => [
-                'full_text_search' => ['order' => 1, 'row_order' => 999999, 'label_name' => 'Text Search', 'full_text_search_columns' => ['a.sm_log_id', 'a.sm_log_group_id', 'a.sm_log_originated_id', 'a.sm_log_message', 'a.sm_log_user_ip'], 'placeholder' => true, 'domain' => 'name', 'percent' => 100, 'null' => true],
+                'full_text_search' => ['order' => 1, 'row_order' => 999999, 'label_name' => 'Text Search', 'full_text_search_columns' => ['a.sm_log_id', 'a.sm_log_group_id', 'a.sm_log_originated_id', 'a.sm_log_message', 'a.sm_log_other', 'a.sm_log_user_ip'], 'placeholder' => true, 'domain' => 'name', 'percent' => 100, 'null' => true],
             ]
         ],
         'sort' => [
@@ -79,8 +79,8 @@ class Logs extends List2
         self::LIST_CONTAINER => [
             'row1' => [
                 'sm_log_id' => ['order' => 1, 'row_order' => 100, 'label_name' => 'Log #', 'domain' => 'uuid', 'percent' => 30],
-                'sm_log_message' => ['order' => 2, 'label_name' => 'Message', 'domain' => 'message', 'percent' => 30, 'format' => 'strip', 'format_options' => ['length' => 100]],
-                'sm_log_other' => ['order' => 3, 'label_name' => 'Other', 'type' => 'text', 'percent' => 35, 'null' => true],
+                'sm_log_message' => ['order' => 2, 'label_name' => 'Message', 'domain' => 'message', 'percent' => 35, 'format' => 'strip', 'format_options' => ['length' => 50]],
+                'sm_log_other' => ['order' => 3, 'label_name' => 'Other', 'type' => 'text', 'percent' => 30, 'format' => 'strip', 'format_options' => ['length' => 50]],
                 'sm_log_inactive' => ['order' => 4, 'label_name' => 'Inactive', 'type' => 'boolean', 'percent' => 5]
             ],
             'row2' => [

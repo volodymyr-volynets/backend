@@ -281,6 +281,23 @@ class ModelsAR extends ActiveRecord
     }
 
     /**
+     * Archive
+     *
+     *
+     *
+     * {domain{type_id}}
+     *
+     * @var int|null Domain: type_id Type: smallint
+     */
+    public int|null $sm_model_archive = 0 {
+        get => $this->sm_model_archive;
+        set {
+            $this->setFullPkAndFilledColumn('sm_model_archive', $value);
+            $this->sm_model_archive = $value;
+        }
+    }
+
+    /**
      * Optimistic Lock
      *
      *

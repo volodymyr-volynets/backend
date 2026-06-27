@@ -16,6 +16,7 @@ use Numbers\Backend\Log\Db\Model\Logs;
 use Numbers\Backend\Log\Common\Base;
 use Numbers\Users\Users\Helper\Notification\Sender;
 use Numbers\Backend\Log\Mail\Helper\Notifications;
+use Numbers\Backend\Configuration\Db\Helper\ConfigurationValues;
 
 class DeliverMailLogs extends ShellCommands
 {
@@ -28,9 +29,16 @@ class DeliverMailLogs extends ShellCommands
 
     public function execute(array $parameters, array $options = []): array
     {
+        $now = \Format::now('datatime');
+        $last_sent = ConfigurationValues::get(\Tenant::id(), '*', 'config.db.log.email.last_sent');
+        if (!$last_sent) {
+            $last_sent = '2025-01-01 00:00:00';
+        } else {
+            $last_sent = json_decode($last_sent);
+        }
+        ConfigurationValues::set(\Tenant::id(), '*', 'config.db.log.email.last_sent', $now, 0);
         /** @var Logs $model */
         $model = \Factory::model('\Numbers\Backend\Log\Db\Model\LogsGeneratedYear' . date('Y'), false);
-        $model->begin();
         $pivot_groupped = $model->queryBuilder()
             ->select()
             ->columns([
@@ -39,8 +47,10 @@ class DeliverMailLogs extends ShellCommands
                 'counter' => 'COUNT(*)'
             ])
             ->whereMultiple('AND', [
-                'sm_log_tenant_id' => $parameters['tenant_id'],
+                'sm_log_tenant_id;IN' => [0, $parameters['tenant_id']],
                 'sm_log_mail_sent' => 0,
+                'sm_log_inserted_timestamp;>=' => $last_sent,
+                'sm_log_inserted_timestamp;<=' => $now,
             ])
             ->groupby(['type', 'message'])
             ->orderby(['counter' => SORT_DESC, 'type' => SORT_ASC, 'message' => SORT_ASC])
@@ -54,28 +64,19 @@ class DeliverMailLogs extends ShellCommands
                 'other' => 'sm_log_other',
                 'duration' => 'AVG(sm_log_duration)',
                 'counter' => 'COUNT(*)',
+                'trace' => 'array_agg(sm_log_trace)'
             ])
             ->whereMultiple('AND', [
-                'sm_log_tenant_id' => $parameters['tenant_id'],
+                'sm_log_tenant_id;IN' => [0, $parameters['tenant_id']],
                 'sm_log_mail_sent' => 0,
                 'sm_log_type' => Base::ERROR_TYPES,
+                'sm_log_inserted_timestamp;>=' => $last_sent,
+                'sm_log_inserted_timestamp;<=' => $now,
             ])
             ->groupby(['type', 'message', 'other'])
             ->orderby(['counter' => SORT_DESC, 'type' => SORT_ASC, 'message' => SORT_ASC, 'other' => SORT_ASC])
             ->array2(null, ['plain_array' => true]);
-        // update email column
-        $model->queryBuilder()
-            ->update()
-            ->set([
-                'sm_log_mail_sent' => 1,
-            ])
-            ->whereMultiple('AND', [
-                'sm_log_tenant_id' => $parameters['tenant_id'],
-                'sm_log_mail_sent' => 0,
-            ])
-            ->query();
-        $model->commit();
-        // send messages outsside ot transaction
+        // send messages outside of transaction
         foreach (Sender::prepareListOfEmails(\Application::get('log.email.email')) as $v) {
             Notifications::sendLogDeliveryEmail($v['um_user_id'], $v['um_user_email'], $pivot_groupped, $pivot_errors);
         }

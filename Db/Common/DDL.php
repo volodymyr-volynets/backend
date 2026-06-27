@@ -228,6 +228,54 @@ class DDL
                     $result['extra_models'][] = '\\' . $reflector->getNamespaceName() . '\\' . $generated_short_name;
                 }
             }
+            // virtual widgets class
+            $parent_is_archives = false;
+            if (!empty($model->options['__virtual_widget_class_name'])) {
+                $class_parts = explode('\\0Virtual0\\', $model->options['__virtual_widget_class_name']);
+                $parent_model = \Factory::model($class_parts[0], true);
+                $parent_is_archives = !empty($parent_model->archives['enabled']);
+            }
+            // archive
+            if (!empty($model->archives['enabled']) || $parent_is_archives) {
+                // fix columns with serial types
+                $columns_archive = $columns;
+                foreach ($model->pk as $v) {
+                    $columns_archive[$v]['domain'] = str_replace('_sequence', '', $columns_archive[$v]['domain']);
+                    foreach (['serial' => 'integer', 'bigserial' => 'bigint', 'smallserial' => 'smallint'] as $k2 => $v2) {
+                        if ($columns_archive[$v]['type'] == $k2) {
+                            $columns_archive[$v]['type'] = $v2;
+                        }
+                    }
+                    unset($columns_archive[$v]['sequence']);
+                }
+                // add new archives table
+                $this->objectAdd([
+                    'type' => 'table',
+                    'schema' => $model->schema,
+                    'name' => $model->name . '__archives',
+                    'data' => [
+                        'columns' => $columns_archive,
+                        'owner' => $options['db_schema_owner'] ?? null,
+                        'engine' => $model->engine,
+                        'full_table_name' => $model->archives_name,
+                    ]], $model->db_link);
+                if (!empty($model->constraints)) {
+                    foreach ($model->constraints as $k => $v) {
+                        $v['full_table_name'] = $model->archives_name;
+                        // additional processing for fk type constraints
+                        if ($v['type'] == 'pk') {
+                            // add constraint
+                            $this->objectAdd([
+                                'type' => 'constraint',
+                                'schema' => $model->schema,
+                                'table' => $model->name . '__archives',
+                                'name' => $k . '__archives',
+                                'data' => $v
+                            ], $model->db_link);
+                        }
+                    }
+                }
+            }
             // history
             /* todo, refactor
             if ($model->history) {
